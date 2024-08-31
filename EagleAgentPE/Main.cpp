@@ -1,8 +1,6 @@
 #include "Main.h"
 #include "CGUI.h"
 #include "Settings.h"
-#include "auth.hpp"
-#include "skStr.h"
 
 
 // Data
