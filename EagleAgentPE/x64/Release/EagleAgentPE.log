@@ -1,0 +1,311 @@
+﻿  imgui.cpp
+  imgui_draw.cpp
+  imgui_freetype.cpp
+  imgui_impl_dx11.cpp
+  imgui_impl_win32.cpp
+  imgui_tables.cpp
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(12,9): warning C4005: 'DXGI_STATUS_OCCLUDED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(13,9): warning C4005: 'DXGI_STATUS_CLIPPED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(14,9): warning C4005: 'DXGI_STATUS_NO_REDIRECTION': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(15,9): warning C4005: 'DXGI_STATUS_NO_DESKTOP_ACCESS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(16,9): warning C4005: 'DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(17,9): warning C4005: 'DXGI_STATUS_MODE_CHANGED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(18,9): warning C4005: 'DXGI_STATUS_MODE_CHANGE_IN_PROGRESS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(21,9): warning C4005: 'DXGI_ERROR_INVALID_CALL': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(22,9): warning C4005: 'DXGI_ERROR_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(23,9): warning C4005: 'DXGI_ERROR_MORE_DATA': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(24,9): warning C4005: 'DXGI_ERROR_UNSUPPORTED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(25,9): warning C4005: 'DXGI_ERROR_DEVICE_REMOVED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(26,9): warning C4005: 'DXGI_ERROR_DEVICE_HUNG': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(27,9): warning C4005: 'DXGI_ERROR_DEVICE_RESET': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(28,9): warning C4005: 'DXGI_ERROR_WAS_STILL_DRAWING': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(29,9): warning C4005: 'DXGI_ERROR_FRAME_STATISTICS_DISJOINT': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(30,9): warning C4005: 'DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(31,9): warning C4005: 'DXGI_ERROR_DRIVER_INTERNAL_ERROR': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(32,9): warning C4005: 'DXGI_ERROR_NONEXCLUSIVE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(33,9): warning C4005: 'DXGI_ERROR_NOT_CURRENTLY_AVAILABLE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(12,9): warning C4005: 'DXGI_STATUS_OCCLUDED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(34,9): warning C4005: 'DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(35,9): warning C4005: 'DXGI_ERROR_REMOTE_OUTOFMEMORY': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(13,9): warning C4005: 'DXGI_STATUS_CLIPPED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(14,9): warning C4005: 'DXGI_STATUS_NO_REDIRECTION': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(15,9): warning C4005: 'DXGI_STATUS_NO_DESKTOP_ACCESS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(16,9): warning C4005: 'DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(17,9): warning C4005: 'DXGI_STATUS_MODE_CHANGED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(18,9): warning C4005: 'DXGI_STATUS_MODE_CHANGE_IN_PROGRESS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(21,9): warning C4005: 'DXGI_ERROR_INVALID_CALL': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(22,9): warning C4005: 'DXGI_ERROR_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(23,9): warning C4005: 'DXGI_ERROR_MORE_DATA': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(24,9): warning C4005: 'DXGI_ERROR_UNSUPPORTED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(25,9): warning C4005: 'DXGI_ERROR_DEVICE_REMOVED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(26,9): warning C4005: 'DXGI_ERROR_DEVICE_HUNG': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(27,9): warning C4005: 'DXGI_ERROR_DEVICE_RESET': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(28,9): warning C4005: 'DXGI_ERROR_WAS_STILL_DRAWING': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(29,9): warning C4005: 'DXGI_ERROR_FRAME_STATISTICS_DISJOINT': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(30,9): warning C4005: 'DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(31,9): warning C4005: 'DXGI_ERROR_DRIVER_INTERNAL_ERROR': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(32,9): warning C4005: 'DXGI_ERROR_NONEXCLUSIVE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(33,9): warning C4005: 'DXGI_ERROR_NOT_CURRENTLY_AVAILABLE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(34,9): warning C4005: 'DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(35,9): warning C4005: 'DXGI_ERROR_REMOTE_OUTOFMEMORY': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(917,9): warning C4005: 'D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(917,9): warning C4005: 'D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(918,9): warning C4005: 'D3D11_ERROR_FILE_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(918,9): warning C4005: 'D3D11_ERROR_FILE_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(919,9): warning C4005: 'D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(919,9): warning C4005: 'D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(920,9): warning C4005: 'D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(920,9): warning C4005: 'D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d10.h(608,9): warning C4005: 'D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d10.h(609,9): warning C4005: 'D3D10_ERROR_FILE_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d10.h(608,9): warning C4005: 'D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d10.h(609,9): warning C4005: 'D3D10_ERROR_FILE_NOT_FOUND': macro redefinition
+  imgui_widgets.cpp
+  framework.cpp
+  Main.cpp
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(77,104): warning C4042: 'buf': has bad storage class
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(95,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(97,42): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(97,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(97,28): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(98,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(98,25): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(99,39): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(99,31): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(99,23): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui.cpp(3361,65): warning C4100: 'rounding': unreferenced formal parameter
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui.cpp(3361,52): warning C4100: 'p_max': unreferenced formal parameter
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui.cpp(3361,38): warning C4100: 'p_min': unreferenced formal parameter
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui.cpp(3364,18): warning C4189: 'window': local variable is initialized but not referenced
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(12,9): warning C4005: 'DXGI_STATUS_OCCLUDED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(13,9): warning C4005: 'DXGI_STATUS_CLIPPED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(14,9): warning C4005: 'DXGI_STATUS_NO_REDIRECTION': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(15,9): warning C4005: 'DXGI_STATUS_NO_DESKTOP_ACCESS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(16,9): warning C4005: 'DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(17,9): warning C4005: 'DXGI_STATUS_MODE_CHANGED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(18,9): warning C4005: 'DXGI_STATUS_MODE_CHANGE_IN_PROGRESS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(21,9): warning C4005: 'DXGI_ERROR_INVALID_CALL': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(22,9): warning C4005: 'DXGI_ERROR_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(23,9): warning C4005: 'DXGI_ERROR_MORE_DATA': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(24,9): warning C4005: 'DXGI_ERROR_UNSUPPORTED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(25,9): warning C4005: 'DXGI_ERROR_DEVICE_REMOVED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(26,9): warning C4005: 'DXGI_ERROR_DEVICE_HUNG': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(27,9): warning C4005: 'DXGI_ERROR_DEVICE_RESET': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(28,9): warning C4005: 'DXGI_ERROR_WAS_STILL_DRAWING': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(29,9): warning C4005: 'DXGI_ERROR_FRAME_STATISTICS_DISJOINT': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(30,9): warning C4005: 'DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(31,9): warning C4005: 'DXGI_ERROR_DRIVER_INTERNAL_ERROR': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(32,9): warning C4005: 'DXGI_ERROR_NONEXCLUSIVE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(33,9): warning C4005: 'DXGI_ERROR_NOT_CURRENTLY_AVAILABLE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(34,9): warning C4005: 'DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(35,9): warning C4005: 'DXGI_ERROR_REMOTE_OUTOFMEMORY': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(917,9): warning C4005: 'D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(918,9): warning C4005: 'D3D11_ERROR_FILE_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(919,9): warning C4005: 'D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(920,9): warning C4005: 'D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui.cpp(13157,10): warning C4459: declaration of 'hwnd' hides global declaration
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d10.h(608,9): warning C4005: 'D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d10.h(609,9): warning C4005: 'D3D10_ERROR_FILE_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(12,9): warning C4005: 'DXGI_STATUS_OCCLUDED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(13,9): warning C4005: 'DXGI_STATUS_CLIPPED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(14,9): warning C4005: 'DXGI_STATUS_NO_REDIRECTION': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(15,9): warning C4005: 'DXGI_STATUS_NO_DESKTOP_ACCESS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(16,9): warning C4005: 'DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(17,9): warning C4005: 'DXGI_STATUS_MODE_CHANGED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(18,9): warning C4005: 'DXGI_STATUS_MODE_CHANGE_IN_PROGRESS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(21,9): warning C4005: 'DXGI_ERROR_INVALID_CALL': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(22,9): warning C4005: 'DXGI_ERROR_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(23,9): warning C4005: 'DXGI_ERROR_MORE_DATA': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(24,9): warning C4005: 'DXGI_ERROR_UNSUPPORTED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(25,9): warning C4005: 'DXGI_ERROR_DEVICE_REMOVED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(26,9): warning C4005: 'DXGI_ERROR_DEVICE_HUNG': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(27,9): warning C4005: 'DXGI_ERROR_DEVICE_RESET': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(28,9): warning C4005: 'DXGI_ERROR_WAS_STILL_DRAWING': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(29,9): warning C4005: 'DXGI_ERROR_FRAME_STATISTICS_DISJOINT': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(30,9): warning C4005: 'DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(31,9): warning C4005: 'DXGI_ERROR_DRIVER_INTERNAL_ERROR': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(32,9): warning C4005: 'DXGI_ERROR_NONEXCLUSIVE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(33,9): warning C4005: 'DXGI_ERROR_NOT_CURRENTLY_AVAILABLE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(34,9): warning C4005: 'DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(35,9): warning C4005: 'DXGI_ERROR_REMOTE_OUTOFMEMORY': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(917,9): warning C4005: 'D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(918,9): warning C4005: 'D3D11_ERROR_FILE_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(919,9): warning C4005: 'D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(920,9): warning C4005: 'D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d10.h(608,9): warning C4005: 'D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d10.h(609,9): warning C4005: 'D3D10_ERROR_FILE_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui.cpp(5934,13): warning C4505: 'ImGui::RenderWindowShadow': unreferenced function with internal linkage has been removed
+  ui.cpp
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(12,9): warning C4005: 'DXGI_STATUS_OCCLUDED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(13,9): warning C4005: 'DXGI_STATUS_CLIPPED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(14,9): warning C4005: 'DXGI_STATUS_NO_REDIRECTION': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(15,9): warning C4005: 'DXGI_STATUS_NO_DESKTOP_ACCESS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(16,9): warning C4005: 'DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(17,9): warning C4005: 'DXGI_STATUS_MODE_CHANGED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(18,9): warning C4005: 'DXGI_STATUS_MODE_CHANGE_IN_PROGRESS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(21,9): warning C4005: 'DXGI_ERROR_INVALID_CALL': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(22,9): warning C4005: 'DXGI_ERROR_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(23,9): warning C4005: 'DXGI_ERROR_MORE_DATA': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(24,9): warning C4005: 'DXGI_ERROR_UNSUPPORTED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(25,9): warning C4005: 'DXGI_ERROR_DEVICE_REMOVED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(26,9): warning C4005: 'DXGI_ERROR_DEVICE_HUNG': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(27,9): warning C4005: 'DXGI_ERROR_DEVICE_RESET': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(28,9): warning C4005: 'DXGI_ERROR_WAS_STILL_DRAWING': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(29,9): warning C4005: 'DXGI_ERROR_FRAME_STATISTICS_DISJOINT': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(30,9): warning C4005: 'DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(31,9): warning C4005: 'DXGI_ERROR_DRIVER_INTERNAL_ERROR': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(32,9): warning C4005: 'DXGI_ERROR_NONEXCLUSIVE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(33,9): warning C4005: 'DXGI_ERROR_NOT_CURRENTLY_AVAILABLE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(34,9): warning C4005: 'DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(35,9): warning C4005: 'DXGI_ERROR_REMOTE_OUTOFMEMORY': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(917,9): warning C4005: 'D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(918,9): warning C4005: 'D3D11_ERROR_FILE_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(919,9): warning C4005: 'D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(920,9): warning C4005: 'D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d10.h(608,9): warning C4005: 'D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d10.h(609,9): warning C4005: 'D3D10_ERROR_FILE_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(77,104): warning C4042: 'buf': has bad storage class
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(95,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(97,42): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(97,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(97,28): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(98,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(98,25): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(99,39): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(99,31): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(99,23): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui_widgets.cpp(766,172): warning C4244: 'argument': conversion from 'float' to 'ImDrawFlags', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui_widgets.cpp(754,19): warning C4189: 'id': local variable is initialized but not referenced
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui_widgets.cpp(973,151): warning C4100: 'flags': unreferenced formal parameter
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui_widgets.cpp(1058,17): warning C4189: 'bg_col': local variable is initialized but not referenced
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui_widgets.cpp(1180,13): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui_widgets.cpp(1180,27): warning C4244: 'initializing': conversion from 'double' to 'float', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui_widgets.cpp(1194,19): warning C4189: 'g': local variable is initialized but not referenced
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.h(77,104): warning C4042: 'buf': has bad storage class
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.h(95,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.h(97,42): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.h(97,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.h(97,28): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.h(98,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.h(98,25): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.h(99,39): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.h(99,31): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.h(99,23): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(77,104): warning C4042: 'buf': has bad storage class
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(95,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(97,42): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(97,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(97,28): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(98,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(98,25): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(99,39): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(99,31): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(99,23): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(61,27): warning C4459: declaration of 'hwnd' hides global declaration
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(96,127): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(96,107): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(96,64): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(96,30): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(138,32): warning C4100: 'i': unreferenced formal parameter
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(210,78): warning C4100: 'icon': unreferenced formal parameter
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(283,99): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(283,94): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(283,89): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(283,133): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(283,128): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(283,123): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(283,118): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(258,15): warning C4101: 'gui': unreferenced local variable
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(372,121): warning C4042: 'buf': has bad storage class
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(12,9): warning C4005: 'DXGI_STATUS_OCCLUDED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(13,9): warning C4005: 'DXGI_STATUS_CLIPPED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(14,9): warning C4005: 'DXGI_STATUS_NO_REDIRECTION': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(15,9): warning C4005: 'DXGI_STATUS_NO_DESKTOP_ACCESS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(16,9): warning C4005: 'DXGI_STATUS_GRAPHICS_VIDPN_SOURCE_IN_USE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(17,9): warning C4005: 'DXGI_STATUS_MODE_CHANGED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(18,9): warning C4005: 'DXGI_STATUS_MODE_CHANGE_IN_PROGRESS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(21,9): warning C4005: 'DXGI_ERROR_INVALID_CALL': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(22,9): warning C4005: 'DXGI_ERROR_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(23,9): warning C4005: 'DXGI_ERROR_MORE_DATA': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(24,9): warning C4005: 'DXGI_ERROR_UNSUPPORTED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(25,9): warning C4005: 'DXGI_ERROR_DEVICE_REMOVED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(26,9): warning C4005: 'DXGI_ERROR_DEVICE_HUNG': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(27,9): warning C4005: 'DXGI_ERROR_DEVICE_RESET': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(28,9): warning C4005: 'DXGI_ERROR_WAS_STILL_DRAWING': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(29,9): warning C4005: 'DXGI_ERROR_FRAME_STATISTICS_DISJOINT': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(30,9): warning C4005: 'DXGI_ERROR_GRAPHICS_VIDPN_SOURCE_IN_USE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(31,9): warning C4005: 'DXGI_ERROR_DRIVER_INTERNAL_ERROR': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(32,9): warning C4005: 'DXGI_ERROR_NONEXCLUSIVE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(33,9): warning C4005: 'DXGI_ERROR_NOT_CURRENTLY_AVAILABLE': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(34,9): warning C4005: 'DXGI_ERROR_REMOTE_CLIENT_DISCONNECTED': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\dxgitype.h(35,9): warning C4005: 'DXGI_ERROR_REMOTE_OUTOFMEMORY': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(917,9): warning C4005: 'D3D11_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(918,9): warning C4005: 'D3D11_ERROR_FILE_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(919,9): warning C4005: 'D3D11_ERROR_TOO_MANY_UNIQUE_VIEW_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d11.h(920,9): warning C4005: 'D3D11_ERROR_DEFERRED_CONTEXT_MAP_WITHOUT_INITIAL_DISCARD': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(431,17): warning C4189: 'style': local variable is initialized but not referenced
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\framework.cpp(500,10): warning C4189: 'cfont': local variable is initialized but not referenced
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d10.h(608,9): warning C4005: 'D3D10_ERROR_TOO_MANY_UNIQUE_STATE_OBJECTS': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\SDK\Include\d3d10.h(609,9): warning C4005: 'D3D10_ERROR_FILE_NOT_FOUND': macro redefinition
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.cpp(23,240): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.cpp(23,220): warning C4244: 'argument': conversion from 'const float' to 'int', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.cpp(23,176): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.cpp(23,112): warning C4244: 'argument': conversion from 'float' to 'int', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.cpp(19,87): warning C4100: 'nShowCmd': unreferenced formal parameter
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.cpp(19,72): warning C4100: 'lpCmdLine': unreferenced formal parameter
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.cpp(19,51): warning C4100: 'hPrevInstance': unreferenced formal parameter
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Main.cpp(31,11): warning C4101: 'mouse': unreferenced local variable
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui.h(1795,40): warning C4459: declaration of 'i' hides global declaration
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\Vendor\ImGui\imgui.h(1796,40): warning C4459: declaration of 'i' hides global declaration
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(77,104): warning C4042: 'buf': has bad storage class
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(95,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(97,42): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(97,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(97,28): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(98,35): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(98,25): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(99,39): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(99,31): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\main.h(99,23): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\particles.h(22,57): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\particles.h(22,43): warning C4244: 'argument': conversion from 'int' to 'float', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\particles.h(40,46): warning C4244: '=': conversion from 'int' to 'float', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\ui.cpp(60,25): warning C4305: 'argument': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\ui.cpp(106,108): warning C4244: 'argument': conversion from 'double' to 'float', possible loss of data
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\ui.cpp(109,26): warning C4305: '+=': truncation from 'double' to 'float'
+C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\EagleAgentPE\ui.cpp(66,15): warning C4189: 'time': local variable is initialized but not referenced
+LINK : warning LNK4098: defaultlib 'LIBCMT' conflicts with use of other libs; use /NODEFAULTLIB:library
+  Generating code
+  80 of 1877 functions ( 4.3%) were compiled, the rest were copied from previous compilation.
+    6 functions were new in current compilation
+    13 functions had inline decision re-evaluated but remain unchanged
+  Finished generating code
+freetype.lib(ftinit.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(ftinit.obj)' or at ''; linking object as if no debug info
+freetype.lib(ftbase.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(ftbase.obj)' or at ''; linking object as if no debug info
+freetype.lib(ftsynth.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(ftsynth.obj)' or at ''; linking object as if no debug info
+freetype.lib(autofit.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(autofit.obj)' or at ''; linking object as if no debug info
+freetype.lib(truetype.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(truetype.obj)' or at ''; linking object as if no debug info
+freetype.lib(type1.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(type1.obj)' or at ''; linking object as if no debug info
+freetype.lib(cff.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(cff.obj)' or at ''; linking object as if no debug info
+freetype.lib(type1cid.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(type1cid.obj)' or at ''; linking object as if no debug info
+freetype.lib(pfr.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(pfr.obj)' or at ''; linking object as if no debug info
+freetype.lib(type42.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(type42.obj)' or at ''; linking object as if no debug info
+freetype.lib(winfnt.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(winfnt.obj)' or at ''; linking object as if no debug info
+freetype.lib(pcf.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(pcf.obj)' or at ''; linking object as if no debug info
+freetype.lib(bdf.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(bdf.obj)' or at ''; linking object as if no debug info
+freetype.lib(psaux.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(psaux.obj)' or at ''; linking object as if no debug info
+freetype.lib(psmodule.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(psmodule.obj)' or at ''; linking object as if no debug info
+freetype.lib(pshinter.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(pshinter.obj)' or at ''; linking object as if no debug info
+freetype.lib(sfnt.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(sfnt.obj)' or at ''; linking object as if no debug info
+freetype.lib(smooth.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(smooth.obj)' or at ''; linking object as if no debug info
+freetype.lib(raster.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(raster.obj)' or at ''; linking object as if no debug info
+freetype.lib(sdf.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(sdf.obj)' or at ''; linking object as if no debug info
+freetype.lib(svg.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(svg.obj)' or at ''; linking object as if no debug info
+freetype.lib(ftsystem.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(ftsystem.obj)' or at ''; linking object as if no debug info
+freetype.lib(ftbitmap.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(ftbitmap.obj)' or at ''; linking object as if no debug info
+freetype.lib(ftgzip.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(ftgzip.obj)' or at ''; linking object as if no debug info
+freetype.lib(ftlzw.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(ftlzw.obj)' or at ''; linking object as if no debug info
+freetype.lib(ftdebug.obj) : warning LNK4099: PDB '' was not found with 'freetype.lib(ftdebug.obj)' or at ''; linking object as if no debug info
+  EagleAgentPE.vcxproj -> C:\Users\hosni\Desktop\best-imgui-free-loader-Flammed-master\x64\Release\EagleAgentPE.exe
+  'pwsh.exe' is not recognized as an internal or external command,
+  operable program or batch file.
