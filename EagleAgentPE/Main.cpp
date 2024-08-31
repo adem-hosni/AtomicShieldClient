@@ -4,6 +4,7 @@
 #include "auth.hpp"
 #include "skStr.h"
 
+
 // Data
 bool CreateDeviceD3D(HWND hWnd);
 void CleanupDeviceD3D();
