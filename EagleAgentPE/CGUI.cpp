@@ -1,5 +1,4 @@
 #include "CGUI.h"
-#include "auth.hpp"
 #include "Resources/images.h"
 #include "Resources/fonts.h"
 #include "Resources/font_awesome.h"
@@ -12,21 +11,6 @@ DWORD window_flags = ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoDecoration |
 //UI ITEMS
 CGUI::CUIElements c;
 CGUI::GUI g;
-
-using namespace KeyAuth;
-
-//FILL THIS UP WITH YOUR CREDENTIALS
-
-std::string name = skCrypt("").decrypt(); // Application Name
-std::string ownerid = skCrypt("").decrypt(); // Owner ID
-std::string secret = skCrypt("").decrypt(); // Application Secret
-std::string version = skCrypt("").decrypt();; // Application Version
-std::string url = skCrypt("https://keyauth.win/api/1.2/").decrypt(); // change if you're self-hosting
-std::string path = skCrypt("").decrypt(); // (OPTIONAL) see tutorial here https://www.youtube.com/watch?v=I9rxt821gMk&t=1s
-
-api KeyAuthApp(name, ownerid, secret, version, url, path);
-
-
 
 void CGUI::GUI::begin(const char* name, ImVec2 size)
 {
