@@ -2,8 +2,6 @@
 #include "Main.h"
 #include "Settings.h"
 
-#include "skStr.h"
-
 #include <algorithm>
 
 
