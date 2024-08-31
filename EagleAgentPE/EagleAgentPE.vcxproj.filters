@@ -548,8 +548,6 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="Vendor\freetype\win64\freetype.lib" />
-    <Library Include="Vendor\curl\libcurl.lib" />
-    <Library Include="Vendor\library_x64.lib" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\SDK\Include\D3DX_DXGIFormatConvert.inl">
