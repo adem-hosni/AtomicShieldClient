@@ -74,6 +74,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build</OutDir>
     <IntDir>$(SolutionDir)Cache</IntDir>
+    <LibraryPath>Vendor/curl;$(LibraryPath)</LibraryPath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -121,18 +122,19 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\EagleAgentPE\Vendor\;$(ProjectDir);..\EagleAgentPE\Vendor\SDK\Include\;..\EagleAgentPE\Vendor\misc\;..\EagleAgentPE\Vendor\ImGui\;..\EagleAgentPE\Vendor\freetype\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard_C>stdc11</LanguageStandard_C>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalLibraryDirectories>$(DXSDK_DIR)/Lib/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
+      <AdditionalLibraryDirectories>$(ProjectDir)Vendor/curl;$(DXSDK_DIR)/Lib/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d11.lib;d3dcompiler.lib;dxgi.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
@@ -146,10 +148,159 @@
     <ClCompile Include="Vendor\ImGui\imgui_widgets.cpp" />
     <ClCompile Include="CGUI.cpp" />
     <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Vendor\misc\cpp\imgui_stdlib.cpp" />
+    <ClCompile Include="Vendor\misc\fonts\binary_to_compressed_c.cpp" />
+    <ClCompile Include="Vendor\misc\freetype\imgui_freetype.cpp" />
+    <ClCompile Include="Vendor\SDK\Include\detours.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CGUI.h" />
     <ClInclude Include="Vendor\auth.hpp" />
+    <ClInclude Include="Vendor\curl\curl.h" />
+    <ClInclude Include="Vendor\curl\curlver.h" />
+    <ClInclude Include="Vendor\curl\easy.h" />
+    <ClInclude Include="Vendor\curl\header.h" />
+    <ClInclude Include="Vendor\curl\mprintf.h" />
+    <ClInclude Include="Vendor\curl\multi.h" />
+    <ClInclude Include="Vendor\curl\options.h" />
+    <ClInclude Include="Vendor\curl\stdcheaders.h" />
+    <ClInclude Include="Vendor\curl\system.h" />
+    <ClInclude Include="Vendor\curl\typecheck-gcc.h" />
+    <ClInclude Include="Vendor\curl\urlapi.h" />
+    <ClInclude Include="Vendor\curl\websockets.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\ftconfig.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\ftheader.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\ftmodule.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\ftoption.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\ftstdlib.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\integer-types.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\mac-support.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\public-macros.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\freetype.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftadvanc.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftbbox.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftbdf.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftbitmap.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftbzip2.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftcache.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftchapters.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftcid.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftcolor.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftdriver.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\fterrdef.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\fterrors.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftfntfmt.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftgasp.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftglyph.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftgxval.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftgzip.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftimage.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftincrem.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftlcdfil.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftlist.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftlogging.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftlzw.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftmac.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftmm.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftmodapi.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftmoderr.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftotval.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftoutln.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftparams.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftpfr.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftrender.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftsizes.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftsnames.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftstroke.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftsynth.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftsystem.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\fttrigon.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\fttypes.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftwinfnt.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\otsvg.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\t1tables.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ttnameid.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\tttables.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\tttags.h" />
+    <ClInclude Include="Vendor\freetype\include\ft2build.h" />
+    <ClInclude Include="Vendor\misc\cpp\imgui_stdlib.h" />
+    <ClInclude Include="Vendor\misc\freetype\imgui_freetype.h" />
+    <ClInclude Include="Vendor\misc\single_file\imgui_single_file.h" />
+    <ClInclude Include="Vendor\SDK\Include\audiodefs.h" />
+    <ClInclude Include="Vendor\SDK\Include\comdecl.h" />
+    <ClInclude Include="Vendor\SDK\Include\D2D1.h" />
+    <ClInclude Include="Vendor\SDK\Include\D2D1Helper.h" />
+    <ClInclude Include="Vendor\SDK\Include\D2DBaseTypes.h" />
+    <ClInclude Include="Vendor\SDK\Include\D2Derr.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3D10.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3D10effect.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3d10misc.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3d10sdklayers.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3D10shader.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3D10_1.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3D10_1shader.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3D11.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3D11SDKLayers.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3D11Shader.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3d9.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3d9caps.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3d9types.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3Dcommon.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3Dcompiler.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3DCSX.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3DX10.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3dx10async.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3DX10core.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3DX10math.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3DX10mesh.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3DX10tex.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3DX11.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3DX11async.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3DX11core.h" />
+    <ClInclude Include="Vendor\SDK\Include\D3DX11tex.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3dx9.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3dx9anim.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3dx9core.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3dx9effect.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3dx9math.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3dx9mesh.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3dx9shader.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3dx9shape.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3dx9tex.h" />
+    <ClInclude Include="Vendor\SDK\Include\d3dx9xof.h" />
+    <ClInclude Include="Vendor\SDK\Include\Dcommon.h" />
+    <ClInclude Include="Vendor\SDK\Include\detours.h" />
+    <ClInclude Include="Vendor\SDK\Include\dinput.h" />
+    <ClInclude Include="Vendor\SDK\Include\dinputd.h" />
+    <ClInclude Include="Vendor\SDK\Include\dsconf.h" />
+    <ClInclude Include="Vendor\SDK\Include\dsetup.h" />
+    <ClInclude Include="Vendor\SDK\Include\dsound.h" />
+    <ClInclude Include="Vendor\SDK\Include\DWrite.h" />
+    <ClInclude Include="Vendor\SDK\Include\dxdiag.h" />
+    <ClInclude Include="Vendor\SDK\Include\DxErr.h" />
+    <ClInclude Include="Vendor\SDK\Include\dxfile.h" />
+    <ClInclude Include="Vendor\SDK\Include\DXGI.h" />
+    <ClInclude Include="Vendor\SDK\Include\DXGIFormat.h" />
+    <ClInclude Include="Vendor\SDK\Include\DXGIType.h" />
+    <ClInclude Include="Vendor\SDK\Include\dxsdkver.h" />
+    <ClInclude Include="Vendor\SDK\Include\gameux.h" />
+    <ClInclude Include="Vendor\SDK\Include\PIXPlugin.h" />
+    <ClInclude Include="Vendor\SDK\Include\rmxfguid.h" />
+    <ClInclude Include="Vendor\SDK\Include\rmxftmpl.h" />
+    <ClInclude Include="Vendor\SDK\Include\rpcsal.h" />
+    <ClInclude Include="Vendor\SDK\Include\X3DAudio.h" />
+    <ClInclude Include="Vendor\SDK\Include\xact3.h" />
+    <ClInclude Include="Vendor\SDK\Include\xact3d3.h" />
+    <ClInclude Include="Vendor\SDK\Include\xact3wb.h" />
+    <ClInclude Include="Vendor\SDK\Include\XAPO.h" />
+    <ClInclude Include="Vendor\SDK\Include\XAPOBase.h" />
+    <ClInclude Include="Vendor\SDK\Include\XAPOFX.h" />
+    <ClInclude Include="Vendor\SDK\Include\XAudio2.h" />
+    <ClInclude Include="Vendor\SDK\Include\XAudio2fx.h" />
+    <ClInclude Include="Vendor\SDK\Include\XDSP.h" />
+    <ClInclude Include="Vendor\SDK\Include\XInput.h" />
+    <ClInclude Include="Vendor\SDK\Include\xma2defs.h" />
+    <ClInclude Include="Vendor\SDK\Include\xnamath.h" />
     <ClInclude Include="Vendor\skStr.h" />
     <ClInclude Include="Resources\font_awesome.h" />
     <ClInclude Include="Vendor\ImGui\imconfig.h" />
@@ -169,8 +320,16 @@
   </ItemGroup>
   <ItemGroup>
     <Library Include="Vendor\freetype\win64\freetype.lib" />
-    <Library Include="Vendor\libcurl.lib" />
-    <Library Include="Vendor\library_x64.lib" />
+    <Library Include="Vendor\curl\libcurl.lib" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Vendor\SDK\Include\D3DX10math.inl" />
+    <None Include="Vendor\SDK\Include\d3dx9math.inl" />
+    <None Include="Vendor\SDK\Include\D3DX_DXGIFormatConvert.inl" />
+    <None Include="Vendor\SDK\Include\xnamathconvert.inl" />
+    <None Include="Vendor\SDK\Include\xnamathmatrix.inl" />
+    <None Include="Vendor\SDK\Include\xnamathmisc.inl" />
+    <None Include="Vendor\SDK\Include\xnamathvector.inl" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
