@@ -562,7 +562,7 @@ void CGUI::CUI::Render()
 
             //c.InputText("KEY", "LICENSE KEY", 190, 210, 250, License, 50, 0);
             ImGui::PushFont(fonts::Inter_Regular);
-            if (c.Button("Login", "Scan Now", 190, 220, 250, 30))
+            if (c.Button("MAINMENU", "Scan Now", 190, 220, 250, 30))
             {
                 //KeyAuthApp.license(License);
                 /*if (KeyAuthApp.response.success)*/ { TAB = 1; alphaColor = 0; }
