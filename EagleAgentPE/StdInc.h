@@ -7,7 +7,12 @@
 #include <D3DX11tex.h>
 #pragma comment(lib, "D3DX11.lib")
 
+// Third parties
+// ImGui
 #include "imgui.h"
 #include "imgui_internal.h"
 #include "imgui_impl_win32.h"
 #include "imgui_impl_dx11.h"
+
+// CURL
+#include "curl/curl.h"
