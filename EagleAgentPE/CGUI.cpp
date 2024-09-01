@@ -584,8 +584,8 @@ void CGUI::CUI::Render()
             {
                 alphaColor = std::clamp(alphaColor + (1.f * ImGui::GetIO().DeltaTime * 1.f), 0.0f, 1.f);
 
-                g.AddImageRotated(images::circle, (window::size_max.x - 20) / 2, (window::size_max.y - 35) * 0.6, 35, 35);
-                c.Text((window::size_max.x - ImGui::CalcTextSize("Scanning...").x) / 2, (window::size_max.y - ImGui::CalcTextSize("Spoofig").y) / 2, fonts::Inter_Regular, 17, "Scanning...", Colors::White);
+                g.AddImageRotated(images::circle, (window::size_max.x - 20) / 2, (window::size_max.y - 35) * 0.55, 35, 35);
+                c.Text((window::size_max.x - ImGui::CalcTextSize("Scanning...").x) / 2, (window::size_max.y - ImGui::CalcTextSize("Spoofig").y) / 2.3f, fonts::Inter_Regular, 17, "Scanning...", Colors::White);
 
                 timer += 0.1;
                 if (timer > 100) { timer = 0; alphaColor = 0; ButtonPos = window::size_max.y + 5; SelectablesPos = -335; ParametersPos = window::size_max.x + 340; subtab = 0; }
