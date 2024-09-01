@@ -139,6 +139,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_freetype.cpp" />
@@ -154,6 +155,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CGUI.h" />
+    <ClInclude Include="StdInc.h" />
     <ClInclude Include="Vendor\auth.hpp" />
     <ClInclude Include="Vendor\curl\curl.h" />
     <ClInclude Include="Vendor\curl\curlver.h" />

@@ -1,575 +1,113 @@
-﻿﻿<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
-    <Filter Include="Archivos de origen">
-      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
-      <Extensions>cpp;c;cc;cxx;c++;cppm;ixx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
-    </Filter>
-    <Filter Include="Archivos de encabezado">
-      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
-      <Extensions>h;hh;hpp;hxx;h++;hm;inl;inc;ipp;xsd</Extensions>
-    </Filter>
-    <Filter Include="Archivos de recursos">
-      <UniqueIdentifier>{67DA6AB6-F800-4c08-8B7A-83BB121AAD01}</UniqueIdentifier>
-      <Extensions>rc;ico;cur;bmp;dlg;rc2;rct;bin;rgs;gif;jpg;jpeg;jpe;resx;tiff;tif;png;wav;mfcribbon-ms</Extensions>
-    </Filter>
+    <ClCompile Include="Vendor\ImGui\imgui.cpp" />
+    <ClCompile Include="Vendor\ImGui\imgui_draw.cpp" />
+    <ClCompile Include="Vendor\ImGui\imgui_freetype.cpp" />
+    <ClCompile Include="Vendor\ImGui\imgui_impl_dx11.cpp" />
+    <ClCompile Include="Vendor\ImGui\imgui_impl_win32.cpp" />
+    <ClCompile Include="Vendor\ImGui\imgui_tables.cpp" />
+    <ClCompile Include="Vendor\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="CGUI.cpp" />
+    <ClCompile Include="Main.cpp" />
+    <ClCompile Include="Vendor\misc\cpp\imgui_stdlib.cpp" />
+    <ClCompile Include="Vendor\misc\fonts\binary_to_compressed_c.cpp" />
+    <ClCompile Include="Vendor\misc\freetype\imgui_freetype.cpp" />
+    <ClCompile Include="StdInc.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="Vendor\ImGui\imgui.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Vendor\ImGui\imgui_draw.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Vendor\ImGui\imgui_freetype.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Vendor\ImGui\imgui_impl_dx11.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Vendor\ImGui\imgui_impl_win32.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Vendor\ImGui\imgui_tables.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Vendor\ImGui\imgui_widgets.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="CGUI.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Main.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Vendor\misc\cpp\imgui_stdlib.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Vendor\misc\fonts\binary_to_compressed_c.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Vendor\misc\freetype\imgui_freetype.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-    <ClCompile Include="Vendor\SDK\Include\detours.cpp">
-      <Filter>Archivos de origen</Filter>
-    </ClCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="CGUI.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\auth.hpp">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\skStr.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\font_awesome.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\ImGui\imconfig.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\ImGui\imgui.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\ImGui\imgui_freetype.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\ImGui\imgui_impl_dx11.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\ImGui\imgui_impl_win32.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\ImGui\imgui_internal.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\ImGui\imstb_rectpack.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\ImGui\imstb_textedit.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\ImGui\imstb_truetype.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\fonts.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Resources\images.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Main.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="particles.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Settings.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\curl\curl.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\curl\curlver.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\curl\easy.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\curl\header.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\curl\mprintf.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\curl\multi.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\curl\options.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\curl\stdcheaders.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\curl\system.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\curl\typecheck-gcc.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\curl\urlapi.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\curl\websockets.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\config\ftconfig.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\config\ftheader.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\config\ftmodule.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\config\ftoption.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\config\ftstdlib.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\config\integer-types.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\config\mac-support.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\config\public-macros.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\freetype.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftadvanc.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftbbox.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftbdf.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftbitmap.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftbzip2.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftcache.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftchapters.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftcid.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftcolor.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftdriver.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\fterrdef.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\fterrors.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftfntfmt.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftgasp.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftglyph.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftgxval.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftgzip.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftimage.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftincrem.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftlcdfil.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftlist.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftlogging.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftlzw.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftmac.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftmm.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftmodapi.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftmoderr.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftotval.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftoutln.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftparams.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftpfr.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftrender.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftsizes.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftsnames.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftstroke.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftsynth.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftsystem.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\fttrigon.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\fttypes.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ftwinfnt.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\otsvg.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\t1tables.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\ttnameid.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\tttables.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\freetype\tttags.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\freetype\include\ft2build.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\misc\cpp\imgui_stdlib.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\misc\freetype\imgui_freetype.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\misc\single_file\imgui_single_file.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\audiodefs.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\comdecl.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D2D1.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D2D1Helper.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D2DBaseTypes.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D2Derr.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3d9.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3d9caps.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3d9types.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3D10.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3D10_1.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3D10_1shader.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3D10effect.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3d10misc.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3d10sdklayers.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3D10shader.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3D11.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3D11SDKLayers.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3D11Shader.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3Dcommon.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3Dcompiler.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3DCSX.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3dx9.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3dx9anim.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3dx9core.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3dx9effect.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3dx9math.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3dx9mesh.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3dx9shader.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3dx9shape.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3dx9tex.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3dx9xof.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3DX10.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\d3dx10async.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3DX10core.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3DX10math.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3DX10mesh.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3DX10tex.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3DX11.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3DX11async.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3DX11core.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\D3DX11tex.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\Dcommon.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\detours.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\dinput.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\dinputd.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\dsconf.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\dsetup.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\dsound.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\DWrite.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\dxdiag.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\DxErr.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\dxfile.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\DXGI.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\DXGIFormat.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\DXGIType.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\dxsdkver.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\gameux.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\PIXPlugin.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\rmxfguid.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\rmxftmpl.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\rpcsal.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\X3DAudio.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\xact3.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\xact3d3.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\xact3wb.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\XAPO.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\XAPOBase.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\XAPOFX.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\XAudio2.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\XAudio2fx.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\XDSP.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\XInput.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\xma2defs.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\SDK\Include\xnamath.h">
-      <Filter>Archivos de encabezado</Filter>
-    </ClInclude>
+    <ClInclude Include="CGUI.h" />
+    <ClInclude Include="Vendor\auth.hpp" />
+    <ClInclude Include="Vendor\curl\curl.h" />
+    <ClInclude Include="Vendor\curl\curlver.h" />
+    <ClInclude Include="Vendor\curl\easy.h" />
+    <ClInclude Include="Vendor\curl\header.h" />
+    <ClInclude Include="Vendor\curl\mprintf.h" />
+    <ClInclude Include="Vendor\curl\multi.h" />
+    <ClInclude Include="Vendor\curl\options.h" />
+    <ClInclude Include="Vendor\curl\stdcheaders.h" />
+    <ClInclude Include="Vendor\curl\system.h" />
+    <ClInclude Include="Vendor\curl\typecheck-gcc.h" />
+    <ClInclude Include="Vendor\curl\urlapi.h" />
+    <ClInclude Include="Vendor\curl\websockets.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\ftconfig.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\ftheader.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\ftmodule.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\ftoption.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\ftstdlib.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\integer-types.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\mac-support.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\config\public-macros.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\freetype.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftadvanc.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftbbox.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftbdf.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftbitmap.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftbzip2.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftcache.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftchapters.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftcid.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftcolor.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftdriver.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\fterrdef.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\fterrors.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftfntfmt.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftgasp.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftglyph.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftgxval.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftgzip.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftimage.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftincrem.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftlcdfil.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftlist.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftlogging.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftlzw.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftmac.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftmm.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftmodapi.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftmoderr.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftotval.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftoutln.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftparams.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftpfr.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftrender.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftsizes.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftsnames.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftstroke.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftsynth.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftsystem.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\fttrigon.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\fttypes.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ftwinfnt.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\otsvg.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\t1tables.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\ttnameid.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\tttables.h" />
+    <ClInclude Include="Vendor\freetype\include\freetype\tttags.h" />
+    <ClInclude Include="Vendor\freetype\include\ft2build.h" />
+    <ClInclude Include="Vendor\misc\cpp\imgui_stdlib.h" />
+    <ClInclude Include="Vendor\misc\freetype\imgui_freetype.h" />
+    <ClInclude Include="Vendor\misc\single_file\imgui_single_file.h" />
+    <ClInclude Include="Vendor\skStr.h" />
+    <ClInclude Include="Resources\font_awesome.h" />
+    <ClInclude Include="Vendor\ImGui\imconfig.h" />
+    <ClInclude Include="Vendor\ImGui\imgui.h" />
+    <ClInclude Include="Vendor\ImGui\imgui_freetype.h" />
+    <ClInclude Include="Vendor\ImGui\imgui_impl_dx11.h" />
+    <ClInclude Include="Vendor\ImGui\imgui_impl_win32.h" />
+    <ClInclude Include="Vendor\ImGui\imgui_internal.h" />
+    <ClInclude Include="Vendor\ImGui\imstb_rectpack.h" />
+    <ClInclude Include="Vendor\ImGui\imstb_textedit.h" />
+    <ClInclude Include="Vendor\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Resources\fonts.h" />
+    <ClInclude Include="Resources\images.h" />
+    <ClInclude Include="Main.h" />
+    <ClInclude Include="particles.h" />
+    <ClInclude Include="Settings.h" />
+    <ClInclude Include="StdInc.h" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Vendor\freetype\win64\freetype.lib" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Vendor\SDK\Include\D3DX_DXGIFormatConvert.inl">
-      <Filter>Archivos de encabezado</Filter>
-    </None>
-    <None Include="Vendor\SDK\Include\d3dx9math.inl">
-      <Filter>Archivos de encabezado</Filter>
-    </None>
-    <None Include="Vendor\SDK\Include\D3DX10math.inl">
-      <Filter>Archivos de encabezado</Filter>
-    </None>
-    <None Include="Vendor\SDK\Include\xnamathconvert.inl">
-      <Filter>Archivos de encabezado</Filter>
-    </None>
-    <None Include="Vendor\SDK\Include\xnamathmatrix.inl">
-      <Filter>Archivos de encabezado</Filter>
-    </None>
-    <None Include="Vendor\SDK\Include\xnamathmisc.inl">
-      <Filter>Archivos de encabezado</Filter>
-    </None>
-    <None Include="Vendor\SDK\Include\xnamathvector.inl">
-      <Filter>Archivos de encabezado</Filter>
-    </None>
+    <Library Include="Vendor\curl\libcurl.lib" />
   </ItemGroup>
 </Project>
