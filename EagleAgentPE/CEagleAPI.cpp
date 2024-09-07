@@ -11,11 +11,11 @@ CEagleAPI::~CEagleAPI()
 {
 }
 
-void CEagleAPI::DownloadAgentPEB()
+void CEagleAPI::DownloadAgentPEB(bool* bComplete)
 {
     std::string peb_buffer = PostRequest("http://127.0.0.1:8000/resources/agentpeb");
     printf("agent peb buffer size: %d\n", peb_buffer.size());
-
+    *bComplete = true;
 }
 
 std::string CEagleAPI::PostRequest(const char* szURL, jsoncons::json Data, bool bEncryptRequestBody, bool bDecryptRespnseBody)
