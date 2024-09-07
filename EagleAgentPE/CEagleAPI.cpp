@@ -11,12 +11,11 @@ CEagleAPI::~CEagleAPI()
 {
 }
 
-bool CEagleAPI::DownloadAgentPEB()
+void CEagleAPI::DownloadAgentPEB()
 {
     std::string peb_buffer = PostRequest("http://127.0.0.1:8000/resources/agentpeb");
     printf("agent peb buffer size: %d\n", peb_buffer.size());
 
-    return true;
 }
 
 std::string CEagleAPI::PostRequest(const char* szURL, jsoncons::json Data, bool bEncryptRequestBody, bool bDecryptRespnseBody)
@@ -48,10 +47,8 @@ std::string CEagleAPI::PostRequest(const char* szURL, jsoncons::json Data, bool 
     if (bDecryptRespnseBody)
     {
         printf("Encrypted response size: %d\n", response_buffer.size());
-        std::string out = g_pEagleCore->Decrypt((BYTE*)response_buffer.c_str());
-        printf("%c%c\n", out.at(0), out.at(1));
 
-        return out;
+        return response_buffer;
     }
 
     return response_buffer;

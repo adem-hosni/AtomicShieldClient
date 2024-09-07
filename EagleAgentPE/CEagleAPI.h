@@ -8,7 +8,7 @@ public:
     CEagleAPI();
     ~CEagleAPI();
 
-    bool DownloadAgentPEB();
+    void DownloadAgentPEB();
 
 private:
     std::string PostRequest(const char* szURL, jsoncons::json Data = jsoncons::json(), bool bEncryptRequestBody = true, bool bDecryptRespnseBody = true);
