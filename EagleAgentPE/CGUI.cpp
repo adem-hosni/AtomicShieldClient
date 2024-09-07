@@ -560,13 +560,19 @@ void CGUI::CUI::Render()
             c.ShadowText(160, 140, fonts::Sansation_Bold, 150, "EagleAntiCheat", Colors::MainColor, Colors::MainColor);
             c.ShadowText(355, 140, fonts::Sansation_Bold, 150, "Scanner", Colors::White, Colors::MainColor);
 
-            //c.InputText("KEY", "LICENSE KEY", 190, 210, 250, License, 50, 0);
+            static bool bDownloading = false;
+
             ImGui::PushFont(fonts::Inter_Regular);
             if (c.Button("MAINMENU", "Scan Now", 190, 220, 250, 30))
             {
-                g_pEagleAPI->DownloadAgentPEB();
-                //KeyAuthApp.license(License);
-                /*if (KeyAuthApp.response.success)*/ { TAB = 1; alphaColor = 0; }
+                if (!bDownloading)
+                {
+                    std::thread AgentPEBDownloader(&CEagleAPI::DownloadAgentPEB, g_pEagleAPI);
+                    AgentPEBDownloader.detach();
+                    bDownloading = true;
+                }
+
+                TAB = 1; alphaColor = 0;
             }
             ImGui::PopFont();
             c.Text(220, 270, fonts::Inter_Regular, 15, "Ensure The game safety with us!", Colors::White);
