@@ -14,8 +14,6 @@
     <ClCompile Include="Vendor\misc\fonts\binary_to_compressed_c.cpp" />
     <ClCompile Include="Vendor\misc\freetype\imgui_freetype.cpp" />
     <ClCompile Include="StdInc.cpp" />
-    <ClCompile Include="SharedChecks.cpp" />
-    <ClCompile Include="SharedUtil.cpp" />
     <ClCompile Include="CEagleAPI.cpp" />
     <ClCompile Include="CEagleCore.cpp" />
   </ItemGroup>
@@ -108,8 +106,6 @@
     <ClInclude Include="particles.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="StdInc.h" />
-    <ClInclude Include="SharedChecks.h" />
-    <ClInclude Include="SharedUtil.h" />
     <ClInclude Include="XorStr.h" />
     <ClInclude Include="rsa_keys.h" />
     <ClInclude Include="Vendor\jsoncons\config\binary_config.hpp" />

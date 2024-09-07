@@ -75,6 +75,7 @@
     <OutDir>$(SolutionDir)Build</OutDir>
     <IntDir>$(SolutionDir)Cache</IntDir>
     <LibraryPath>Vendor/curl;$(LibraryPath)</LibraryPath>
+    <IncludePath>../Shared;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -136,15 +137,13 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(ProjectDir)Vendor/curl;$(DXSDK_DIR)/Lib/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dcompiler.lib;dxgi.lib;libcurl.lib;ws2_32.lib;Normaliz.lib;Crypt32.lib;Wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d11.lib;d3dx11.lib;d3dcompiler.lib;dxgi.lib;libcurl.lib;ws2_32.lib;Normaliz.lib;Crypt32.lib;Wldap32.lib;../Build/Shared.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <ShowProgress>NotSet</ShowProgress>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CEagleAPI.cpp" />
     <ClCompile Include="CEagleCore.cpp" />
-    <ClCompile Include="SharedChecks.cpp" />
-    <ClCompile Include="SharedUtil.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_draw.cpp" />
@@ -165,8 +164,6 @@
     <ClInclude Include="CGUI.h" />
     <ClInclude Include="ManualMapInjector.hpp" />
     <ClInclude Include="rsa_keys.h" />
-    <ClInclude Include="SharedChecks.h" />
-    <ClInclude Include="SharedUtil.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="Vendor\crypto\aes_platform.h" />
     <ClInclude Include="Vendor\crypto\aria.h" />
@@ -709,6 +706,11 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\crypto\riscv_arch.def" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.vcxproj">
+      <Project>{4e58b5b0-73c8-4a5d-b79b-9bfaa2371e3c}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

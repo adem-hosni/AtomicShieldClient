@@ -8,6 +8,9 @@ EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shared", "Shared\Shared.vcxproj", "{4E58B5B0-73C8-4A5D-B79B-9BFAA2371E3C}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "EagleAgentPEB", "EagleAgentPEB\EagleAgentPEB.vcxproj", "{84E0AC30-EC54-47A6-ACAF-E35ABABC9C30}"
+	ProjectSection(ProjectDependencies) = postProject
+		{4E58B5B0-73C8-4A5D-B79B-9BFAA2371E3C} = {4E58B5B0-73C8-4A5D-B79B-9BFAA2371E3C}
+	EndProjectSection
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
