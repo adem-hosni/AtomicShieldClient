@@ -1,13 +1,21 @@
 #include "Main.h"
 #include "CGUI.h"
 #include "Settings.h"
-
+#include "SharedChecks.h"
+#include "CEagleCore.h"
+#include "rsa_keys.h"
+#include <thread>
 
 // Data
 bool CreateDeviceD3D(HWND hWnd);
 void CleanupDeviceD3D();
 void CreateRenderTarget();
 void CleanupRenderTarget();
+
+void found_malicious_process(char* a_paragraph_for_the_process_name)
+{
+    MessageBox(0, a_paragraph_for_the_process_name, "Oh No! Found a malicious Process", 0);
+}
 
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
@@ -18,6 +26,15 @@ ImFontAtlas i;
 // Main code
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
+
+    AllocConsole();
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+    
+
+    std::thread ProcessCheckerThread(SharedChecks::CheckProcessList, found_malicious_process);
+
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, project_name, nullptr };
     ::RegisterClassExW(&wc);
     hwnd = CreateWindowExW(NULL, wc.lpszClassName, project_name, WS_POPUP, (GetSystemMetrics(SM_CXSCREEN) / 2) - (window::size_max.x / 2), (GetSystemMetrics(SM_CYSCREEN) / 2) - (window::size_max.y / 2), window::size_max.x, window::size_max.y, 0, 0, hInstance, 0);
