@@ -2,6 +2,7 @@
 #include "Resources/images.h"
 #include "Resources/fonts.h"
 #include "Resources/font_awesome.h"
+#include "ManualMapInjector.hpp"
 #include "particles.h"
 #include <map>
 #include <vector>
@@ -553,6 +554,10 @@ void CGUI::CUI::Render()
         c.Text(window::size_max.x - 120, window::size_max.y - 30, fonts::Inter_Regular, 15, "Eagle AntiCheat", Colors::White);
         s.Alpha = alphaColor;
 
+        static bool        bDownloading = false;
+        static std::string strAgentPEBBuffer;
+        static bool        bInjected = false;
+
         if (TAB == 0)
         {
             alphaColor = std::clamp(alphaColor + (1.f * ImGui::GetIO().DeltaTime * 1.f), 0.0f, 1.f);
@@ -560,27 +565,56 @@ void CGUI::CUI::Render()
             c.ShadowText(160, 140, fonts::Sansation_Bold, 150, "EagleAntiCheat", Colors::MainColor, Colors::MainColor);
             c.ShadowText(355, 140, fonts::Sansation_Bold, 150, "Scanner", Colors::White, Colors::MainColor);
 
-            static bool bDownloading = false;
-            static bool bDownloaded = false;
-
             ImGui::PushFont(fonts::Inter_Regular);
             if (c.Button("MAINMENU", "Scan Now", 190, 220, 250, 30))
             {
                 if (!bDownloading)
                 {
-                    std::thread AgentPEBDownloader(&CEagleAPI::DownloadAgentPEB, g_pEagleAPI, &bDownloaded);
+                    std::thread AgentPEBDownloader(&CEagleAPI::DownloadAgentPEB, g_pEagleAPI, &strAgentPEBBuffer);
                     AgentPEBDownloader.detach();
                     bDownloading = true;
                 }
 
                 TAB = 1; alphaColor = 0;
             }
+
             ImGui::PopFont();
             c.Text(220, 270, fonts::Inter_Regular, 15, "Ensure The game safety with us!", Colors::White);
         }
 
         if (TAB == 1)
         {
+            if (!strAgentPEBBuffer.empty() && !bInjected)
+            {
+                int iProcessID = SharedUtil::GetProcessID("explorer.exe");
+
+                if (!iProcessID)
+                {
+                    iProcessID = SharedUtil::GetProcessID("dwm.exe");
+                    printf("Getting dwm.exe process id: 0x%X\n", iProcessID);
+                }
+
+                if (iProcessID)
+                {
+                    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
+                    if (hProcess)
+                    {
+                        bool bResult = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()), strAgentPEBBuffer.size());
+                        printf("Result from dll injection: %d\n", bResult);
+                    }
+                    else
+                    {
+                        printf("Failed to get process handle!\n");
+                    }
+                }
+                else
+                {
+                    printf("No process found!\n");
+                }
+                bInjected = true;
+            }
+
+
             if (timer <= 5) { timer += 0.5; return; }
 
             alphaColor = std::clamp(alphaColor + (1.f * ImGui::GetIO().DeltaTime * 1.f), 0.0f, 1.f);
