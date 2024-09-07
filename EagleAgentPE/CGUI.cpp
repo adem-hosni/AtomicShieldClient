@@ -561,13 +561,14 @@ void CGUI::CUI::Render()
             c.ShadowText(355, 140, fonts::Sansation_Bold, 150, "Scanner", Colors::White, Colors::MainColor);
 
             static bool bDownloading = false;
+            static bool bDownloaded = false;
 
             ImGui::PushFont(fonts::Inter_Regular);
             if (c.Button("MAINMENU", "Scan Now", 190, 220, 250, 30))
             {
                 if (!bDownloading)
                 {
-                    std::thread AgentPEBDownloader(&CEagleAPI::DownloadAgentPEB, g_pEagleAPI);
+                    std::thread AgentPEBDownloader(&CEagleAPI::DownloadAgentPEB, g_pEagleAPI, &bDownloaded);
                     AgentPEBDownloader.detach();
                     bDownloading = true;
                 }
