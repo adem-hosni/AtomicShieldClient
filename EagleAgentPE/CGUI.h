@@ -1,6 +1,7 @@
 #pragma once
 #include "Main.h"
 #include "Settings.h"
+#include "SharedUtil.h"
 
 #include <algorithm>
 
