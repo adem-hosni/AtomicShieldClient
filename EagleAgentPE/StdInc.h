@@ -7,6 +7,9 @@
 #include <D3DX11tex.h>
 #pragma comment(lib, "D3DX11.lib")
 
+#include "CEagleCore.h"
+#include "CEagleAPI.h"
+
 // Third parties
 // ImGui
 #include "imgui.h"
@@ -16,3 +19,5 @@
 
 // CURL
 #include "curl/curl.h"
+
+// Jsoncons
