@@ -3,5 +3,5 @@
 
 namespace SharedChecks
 {
-    void CheckProcessList(void(*found_process)(char* szProcessName));
+    void CheckProcessList(void (*found_process)(char* szProcessName));
 }
