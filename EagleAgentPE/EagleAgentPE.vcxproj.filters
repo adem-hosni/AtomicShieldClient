@@ -561,6 +561,7 @@
     <ClInclude Include="Vendor\crypto\x509_acert.h" />
     <ClInclude Include="Vendor\crypto\x509err.h" />
     <ClInclude Include="Vendor\crypto\x509v3err.h" />
+    <ClInclude Include="ManualMapInjector.hpp" />
   </ItemGroup>
   <ItemGroup>
     <Library Include="Vendor\freetype\win64\freetype.lib" />

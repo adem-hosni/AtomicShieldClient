@@ -163,6 +163,7 @@
     <ClInclude Include="CEagleAPI.h" />
     <ClInclude Include="CEagleCore.h" />
     <ClInclude Include="CGUI.h" />
+    <ClInclude Include="ManualMapInjector.hpp" />
     <ClInclude Include="rsa_keys.h" />
     <ClInclude Include="SharedChecks.h" />
     <ClInclude Include="SharedUtil.h" />
