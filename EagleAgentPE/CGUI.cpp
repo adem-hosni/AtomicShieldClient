@@ -78,7 +78,7 @@ void CGUI::GUI::Blur(HWND hwnd)
         ULONG ul;
     };
 
-    const HINSTANCE hm = LoadLibrary(L"user32.dll");
+    const HINSTANCE hm = LoadLibrary("user32.dll");
     if (hm)
     {
         typedef BOOL(WINAPI* pSetWindowCompositionAttribute)(HWND, WINCOMPATTRDATA*);
@@ -564,6 +564,7 @@ void CGUI::CUI::Render()
             ImGui::PushFont(fonts::Inter_Regular);
             if (c.Button("MAINMENU", "Scan Now", 190, 220, 250, 30))
             {
+                g_pEagleAPI->DownloadAgentPEB();
                 //KeyAuthApp.license(License);
                 /*if (KeyAuthApp.response.success)*/ { TAB = 1; alphaColor = 0; }
             }
