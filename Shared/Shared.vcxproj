@@ -137,6 +137,7 @@
     <ClCompile Include="SharedUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="EaglePacketID.h" />
     <ClInclude Include="SharedChecks.h" />
     <ClInclude Include="SharedUtil.h" />
     <ClInclude Include="Vendor\crypto\aes_platform.h" />
