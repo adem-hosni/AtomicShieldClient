@@ -146,7 +146,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>../Build/Shared.lib;ixwebsocket.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../Build/Shared.lib;ixwebsocket.lib;ws2_32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>del "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\agent_peb.dll"
@@ -160,6 +160,7 @@ rename "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\EagleAgentPEB.dl
   <ItemGroup>
     <ClCompile Include="CEagleNetwork.cpp" />
     <ClCompile Include="CHWID.cpp" />
+    <ClCompile Include="CMemoryScanner.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp" />
@@ -172,6 +173,7 @@ rename "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\EagleAgentPEB.dl
   <ItemGroup>
     <ClInclude Include="CEagleNetwork.h" />
     <ClInclude Include="CHWID.h" />
+    <ClInclude Include="CMemoryScanner.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXBase64.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXBench.h" />
