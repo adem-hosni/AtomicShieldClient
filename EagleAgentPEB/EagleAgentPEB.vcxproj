@@ -74,6 +74,8 @@
     <OutDir>$(SolutionDir)Build</OutDir>
     <IntDir>$(SolutionDir)Cache</IntDir>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
+    <LibraryPath>Vendor\ixwebsocket;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>Vendor;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -136,7 +138,7 @@
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>..\Shared\Vendor\;$(ProjectDir);$(DXSDK_DIR)Include;Vendor\misc\;Vendor\ImGui\;Vendor\freetype\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>..\Shared;Vendor;..\Shared\Vendor\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -144,7 +146,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>../Build/Shared.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../Build/Shared.lib;ixwebsocket.lib;ws2_32.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
       <Command>del "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\agent_peb.dll"
@@ -156,12 +158,74 @@ rename "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\EagleAgentPEB.dl
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CEagleNetwork.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="StdInc.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Shared\Shared.vcxproj">
       <Project>{4e58b5b0-73c8-4a5d-b79b-9bfaa2371e3c}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="CEagleNetwork.h" />
+    <ClInclude Include="StdInc.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXBase64.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXBench.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXCancellationRequest.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXConnectionState.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXDNSLookup.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXExponentialBackoff.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXGetFreePort.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXGzipCodec.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXHttp.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXHttpClient.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXHttpServer.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXNetSystem.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXProgressCallback.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSelectInterrupt.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSelectInterruptEvent.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSelectInterruptFactory.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSelectInterruptPipe.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSetThreadName.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSocket.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSocketAppleSSL.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSocketConnect.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSocketFactory.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSocketMbedTLS.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSocketOpenSSL.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSocketServer.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXSocketTLSOptions.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXStrCaseCompare.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXUdpSocket.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXUniquePtr.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXUrlParser.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXUserAgent.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXUtf8Validator.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXUuid.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocket.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketCloseConstants.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketCloseInfo.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketErrorInfo.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketHandshake.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketHandshakeKeyGen.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketHttpHeaders.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketInitResult.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketMessage.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketMessageType.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketOpenInfo.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketPerMessageDeflate.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketPerMessageDeflateCodec.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketPerMessageDeflateOptions.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketProxyServer.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketSendData.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketSendInfo.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketServer.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketTransport.h" />
+    <ClInclude Include="Vendor\ixwebsocket\IXWebSocketVersion.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <Library Include="Vendor\ixwebsocket\ixwebsocket.lib" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
