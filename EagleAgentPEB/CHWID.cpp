@@ -53,16 +53,6 @@ std::string CHWID::GetMotherBoardSerial()
         return "<unkown>";
     }
 
-    // Set general COM security levels
-    /*hr = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
-    if (FAILED(hr))
-    {
-        S_OK;
-        printf("Failed to initialize COM security 0x%X.\n", hr);
-        CoUninitialize();
-        return "<unkown>";
-    }*/
-
     // Obtain WMI locator
     IWbemLocator* pLoc = NULL;
     hr = CoCreateInstance(CLSID_WbemLocator, NULL, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (void**)&pLoc);
