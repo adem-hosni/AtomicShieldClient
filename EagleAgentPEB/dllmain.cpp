@@ -1,7 +1,11 @@
-#include <Windows.h>
-void EntryPoint(void*)
+#include "StdInc.h"
+
+void EntryPoint(LPVOID lpThreadParameter)
 {
-    MessageBox(0, "Injected", 0, 0);
+    if (!g_pEagleNetwork->Connect())
+    {
+        MessageBox(0, "Failed to connect to the server", "Error", 0);
+    }
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -12,7 +16,8 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:        
-        CreateThread(0, 0, (LPTHREAD_START_ROUTINE)EntryPoint, 0, 0, 0);
+        _beginthread((_beginthread_proc_type)EntryPoint, NULL, lpReserved);
+
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:
     case DLL_PROCESS_DETACH:
