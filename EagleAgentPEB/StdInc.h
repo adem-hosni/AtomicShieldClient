@@ -1,4 +1,6 @@
 #pragma once
+#include <string>
+
 // Third Parties
 // Jsoncons
 #include "jsoncons/json.hpp"
@@ -9,4 +11,5 @@
 #include <ixwebsocket/IXUserAgent.h>
 
 #include "EaglePacketID.h"
+#include "CHWID.h"
 #include "CEagleNetwork.h"
