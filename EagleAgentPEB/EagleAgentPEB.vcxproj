@@ -147,10 +147,12 @@
       <AdditionalDependencies>../Build/Shared.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>xcopy "$(TargetDir)$(ProjectName).dll" "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent" /Y /R
+      <Command>del "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\agent_peb.dll"
 
+xcopy "C:\Users\hosni\Documents\GitHub\EagleAgents\Build\EagleAgentPEB.dll" "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent" /Y /R
 
-rename "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\$(ProjectName).dll" "agent_peb.dll"</Command>
+rename "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\EagleAgentPEB.dll" "agent_peb.dll"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
