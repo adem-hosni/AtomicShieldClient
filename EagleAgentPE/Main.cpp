@@ -33,7 +33,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     freopen("CONOUT$", "w", stderr);
     
 
-    //std::thread ProcessCheckerThread(SharedChecks::CheckProcessList, found_malicious_process);
+
     _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, 0, found_malicious_process);
 
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, project_name, nullptr };
