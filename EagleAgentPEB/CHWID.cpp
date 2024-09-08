@@ -172,18 +172,6 @@ std::string CHWID::GetCPUsSerials()
     if (FAILED(hres))
         return "<unkown>";            // Program has failed.
 
-    // Initialize security
-    hres = CoInitializeSecurity(NULL,
-                                -1,                                     // COM authentication
-                                NULL,                                   // Authentication services
-                                NULL,                                   // Reserved
-                                RPC_C_AUTHN_LEVEL_DEFAULT,              // Default authentication
-                                RPC_C_IMP_LEVEL_IMPERSONATE,            // Default Impersonation
-                                NULL,                                   // Authentication info
-                                EOAC_NONE,                              // Additional capabilities
-                                NULL                                    // Reserved
-    );
-
     if (FAILED(hres))
     {
         CoUninitialize();
@@ -298,14 +286,6 @@ std::string CHWID::GetBIOSVersion()
     hr = CoInitializeEx(0, COINIT_MULTITHREADED);
     if (FAILED(hr))
     {
-        return "<unkown>";
-    }
-
-    // Set general COM security levels
-    hr = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
-    if (FAILED(hr))
-    {
-        CoUninitialize();
         return "<unkown>";
     }
 
