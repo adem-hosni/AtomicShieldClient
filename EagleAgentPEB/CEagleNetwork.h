@@ -17,6 +17,8 @@ public:
     void SendPacket(eEaglePacketID PacketID, jsoncons::json Data = jsoncons::json());
     jsoncons::json WaitReponse(eEaglePacketID PacketID);
 
+    bool JoinNetwork();
+
     void OnReceivePacket(const ix::WebSocketMessagePtr& Message);
 
 private:

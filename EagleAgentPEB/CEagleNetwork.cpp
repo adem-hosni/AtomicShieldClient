@@ -53,13 +53,46 @@ jsoncons::json CEagleNetwork::WaitReponse(eEaglePacketID PacketID)
     return Response;
 }
 
+bool CEagleNetwork::JoinNetwork()
+{
+    jsoncons::json RequestData = jsoncons::json::object();
+    RequestData["mta_serial"] = g_pHWID->GetMTASerial();
+    RequestData["username"] = g_pHWID->GetWindowsUsername();
+    RequestData["disks"] = g_pHWID->GetDisksSerialNumber();
+    RequestData["cpu"] = g_pHWID->GetCPUsSerials();
+    RequestData["motherboard_serial"] = g_pHWID->GetMotherBoardSerial();
+    RequestData["bios"] = g_pHWID->GetBIOSVersion();
+
+    SendPacket(eEaglePacketID::NETWORK_JOIN, RequestData);
+    jsoncons::json Response = WaitReponse(NETWORK_JOIN);
+
+    if (!Response["success"].as_bool())
+        MessageBox(0, Response["message"].as_string().c_str(), "ERROR", MB_ICONERROR);
+
+    return Response["success"].as_bool(); 
+}
+
 void CEagleNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
 {
     if (Message->type == ix::WebSocketMessageType::Message)
     {
         std::lock_guard<std::mutex> lock(m_mutex);
         jsoncons::json              json = jsoncons::json::parse(Message->str);
-        m_UnhandledPackets.insert_or_assign((eEaglePacketID)json["type"].as_int(), json);
+        m_UnhandledPackets.insert_or_assign((eEaglePacketID)json["type"].as<int>(), json);
         m_condition.notify_one();
     }
+
+    switch (Message->type)
+    {
+        case ix::WebSocketMessageType::Open:
+            printf("Connection eastablished!\n");
+            printf("Connection result: %d\n", g_pEagleNetwork->JoinNetwork());
+        case ix::WebSocketMessageType::Message:
+            std::lock_guard<std::mutex> lock(m_mutex);
+            jsoncons::json              json = jsoncons::json::parse(Message->str);
+            m_UnhandledPackets.insert_or_assign((eEaglePacketID)json["type"].as<int>(), json);
+            m_condition.notify_one();
+    }
+
+    
 }
