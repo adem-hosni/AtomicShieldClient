@@ -26,13 +26,10 @@ ImFontAtlas i;
 // Main code
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-
     AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
-    
-
 
     _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, 0, found_malicious_process);
 
