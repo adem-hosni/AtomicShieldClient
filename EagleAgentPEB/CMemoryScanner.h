@@ -9,7 +9,6 @@
 #include <iostream>
 #pragma comment(lib, "ntdll.lib")
 
-
 typedef enum _MEMORY_INFORMATION_CLASS
 {
     MemoryBasicInformation
@@ -33,8 +32,11 @@ public:
     void                   ScanStrings(std::map<std::string, std::vector<std::string>> Signatures);
     std::vector<uintptr_t> GetVMAddresses() { return m_vAddresses; };
 
-    void                                AddSignatures(jsoncons::json Signatures);
+    void                     AddSignatures(jsoncons::json Signatures);
     std::vector<std::string> GetDetectedSignatures() { return m_vFoundSignatures; }
+
+    unsigned int GetLatestScanResult() { return m_uiLatestScanResult; }
+    void         UpdateLatestScanResult(unsigned int uiScanResult) { m_uiLatestScanResult = uiScanResult; }
 
 private:
     void debug(std::string printthatshit);
@@ -43,8 +45,10 @@ private:
     std::vector<uintptr_t>   m_vAddresses;
     MEMORY_BASIC_INFORMATION m_MBI;
 
-    std::vector<std::string>    m_vFoundSignatures;
-    //std::vector<jsoncons::json> m_vSignatures;
+    unsigned int m_uiLatestScanResult;
+
+    std::vector<std::string> m_vFoundSignatures;
+    // std::vector<jsoncons::json> m_vSignatures;
 
     HANDLE      m_hProcess;
     SYSTEM_INFO m_SystemInfo;
