@@ -2,7 +2,7 @@
 
 CMemoryScanner* g_pMemoryScanner = new CMemoryScanner();
 
-CMemoryScanner::CMemoryScanner()
+CMemoryScanner::CMemoryScanner() : m_uiLatestScanResult(0)
 {
 }
 
@@ -87,11 +87,15 @@ void CMemoryScanner::ScanStrings(std::map<std::string, std::vector<std::string>>
 
                             for (const auto& Signature : SignaturesList)
                             {
-                                if (std::search(buffer.begin(), buffer.begin() + bytesToRead, Signature.begin(), Signature.end()) !=
-                                    buffer.begin() + bytesToRead)
+                                auto it = std::find(m_vFoundSignatures.begin(), m_vFoundSignatures.end(), SignatureTitle);
+                                if (it == m_vFoundSignatures.end())
                                 {
-                                    printf("Found %s at 0x%X\n", Signature.c_str(), addr);
-                                    m_vFoundSignatures.push_back(Signature);
+                                    if (std::search(buffer.begin(), buffer.begin() + bytesToRead, Signature.begin(), Signature.end()) !=
+                                        buffer.begin() + bytesToRead)
+                                    {
+                                        printf("Found %s at 0x%X\n", Signature.c_str(), addr);
+                                        m_vFoundSignatures.push_back(Signature);
+                                    }
                                 }
                             }
                         }
