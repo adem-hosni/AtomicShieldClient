@@ -13,19 +13,29 @@ public:
     CEagleNetwork();
     ~CEagleNetwork();
 
-    bool Connect();
-    void SendPacket(eEaglePacketID PacketID, jsoncons::json Data = jsoncons::json());
+    bool           Connect();
+    bool           IsConnected() { return m_bConnected; }
+    void           SendPacket(eEaglePacketID PacketID, jsoncons::json Data = jsoncons::json());
     jsoncons::json WaitReponse(eEaglePacketID PacketID);
 
+    static void OnConnect();
+    static void DoPulse();
+
     bool JoinNetwork();
+    bool SyncMaliciousSignatures();
 
     void OnReceivePacket(const ix::WebSocketMessagePtr& Message);
 
+    std::map<std::string, std::vector<std::string>> GetSignatures() { return m_Signatures; }
+
 private:
-    ix::WebSocket* m_pWebSocket;
-    std::mutex     m_mutex;
-    std::condition_variable m_condition;
-    std::map<eEaglePacketID, jsoncons::json> m_UnhandledPackets;
+    ix::WebSocket*                                  m_pWebSocket;
+    std::mutex                                      m_mutex;
+    std::condition_variable                         m_condition;
+    std::map<eEaglePacketID, jsoncons::json>        m_UnhandledPackets;
+    std::map<std::string, std::vector<std::string>> m_Signatures;
+
+    bool m_bConnected;
 };
 
 extern CEagleNetwork* g_pEagleNetwork;

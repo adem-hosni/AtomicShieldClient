@@ -1,10 +1,11 @@
 #include "CEagleNetwork.h"
+#include "SharedUtil.h"
 #include <condition_variable>
 #include <future>
 
 CEagleNetwork* g_pEagleNetwork = new CEagleNetwork();
 
-CEagleNetwork::CEagleNetwork()
+CEagleNetwork::CEagleNetwork() : m_bConnected(false)
 {
     m_pWebSocket = new ix::WebSocket();
 }
@@ -44,10 +45,18 @@ void CEagleNetwork::SendPacket(eEaglePacketID PacketID, jsoncons::json Data)
     m_pWebSocket->send(PacketJson.to_string());
 }
 
+void CEagleNetwork::OnConnect()
+{
+    if (!g_pEagleNetwork->SyncMaliciousSignatures())
+        MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
+}
+
 jsoncons::json CEagleNetwork::WaitReponse(eEaglePacketID PacketID)
 {
-    std::unique_lock<std::mutex> lock(m_mutex);
-    m_condition.wait(lock, [&] { return m_UnhandledPackets.find(PacketID) != m_UnhandledPackets.end(); });
+    while (m_UnhandledPackets.find(PacketID) == m_UnhandledPackets.end())
+    {
+        Sleep(10);
+    }
     jsoncons::json Response = m_UnhandledPackets[PacketID];
     m_UnhandledPackets.erase(PacketID);
     return Response;
@@ -65,34 +74,79 @@ bool CEagleNetwork::JoinNetwork()
 
     SendPacket(eEaglePacketID::NETWORK_JOIN, RequestData);
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
+    return true;
 
     if (!Response["success"].as_bool())
         MessageBox(0, Response["message"].as_string().c_str(), "ERROR", MB_ICONERROR);
 
-    return Response["success"].as_bool(); 
+    return Response["success"].as_bool();
+}
+
+bool CEagleNetwork::SyncMaliciousSignatures()
+{
+    SendPacket(SYNC_SIGNATURES);
+    jsoncons::json Response = WaitReponse(SYNC_SIGNATURES);
+    jsoncons::json Signatures = Response["signatures"];
+
+    for (const auto& Item : Signatures.object_range())
+    {
+        const std::string& SignatureTitle = Item.key();
+        const jsoncons::json& SignaturesList = Item.value();
+
+        if (SignaturesList.is_array())
+        {
+            std::vector<std::string> vSignatures;
+            for (const auto& element : SignaturesList.array_range())
+            {
+                vSignatures.push_back(element.as<std::string>());
+            }
+            m_Signatures[SignatureTitle] = vSignatures;
+        }
+    }
+    _beginthread((_beginthread_proc_type)&CEagleNetwork::DoPulse, NULL, this);
+    return true;
+}
+
+void CEagleNetwork::DoPulse()
+{
+    while (true)
+    {
+        int iMTAProcessID = NULL;
+        while (!iMTAProcessID)
+        {
+            iMTAProcessID = SharedUtil::GetProcessID("gta_sa.exe");
+            Sleep(100);
+        }
+
+        g_pMemoryScanner->Attach(iMTAProcessID);
+        g_pMemoryScanner->ScanStrings(g_pEagleNetwork->GetSignatures());
+
+        printf("Scan Result: %d\n", g_pMemoryScanner->GetDetectedSignatures().size());
+    }
 }
 
 void CEagleNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
 {
-    if (Message->type == ix::WebSocketMessageType::Message)
-    {
-        std::lock_guard<std::mutex> lock(m_mutex);
-        jsoncons::json              json = jsoncons::json::parse(Message->str);
-        m_UnhandledPackets.insert_or_assign((eEaglePacketID)json["type"].as<int>(), json);
-        m_condition.notify_one();
-    }
-
     switch (Message->type)
     {
         case ix::WebSocketMessageType::Open:
-            printf("Connection eastablished!\n");
-            printf("Connection result: %d\n", g_pEagleNetwork->JoinNetwork());
+        {
+            _beginthread((_beginthread_proc_type)&CEagleNetwork::OnConnect, NULL, this);
+            break;
+        }
+
         case ix::WebSocketMessageType::Message:
+        {
             std::lock_guard<std::mutex> lock(m_mutex);
             jsoncons::json              json = jsoncons::json::parse(Message->str);
             m_UnhandledPackets.insert_or_assign((eEaglePacketID)json["type"].as<int>(), json);
-            m_condition.notify_one();
+            m_condition.notify_all();
+            break;
+        }
+
+        case ix::WebSocketMessageType::Error:
+            MessageBox(0, Message->str.c_str(), "Network Error", 0);
+            break;
     }
 
-    
 }
