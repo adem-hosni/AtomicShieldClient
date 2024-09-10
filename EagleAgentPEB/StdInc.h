@@ -12,4 +12,5 @@
 
 #include "EaglePacketID.h"
 #include "CHWID.h"
+#include "CMemoryScanner.h"
 #include "CEagleNetwork.h"
