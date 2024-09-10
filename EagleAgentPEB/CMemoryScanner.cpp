@@ -1,5 +1,7 @@
 #include "CMemoryScanner.h"
 
+CMemoryScanner* g_pMemoryScanner = new CMemoryScanner();
+
 CMemoryScanner::CMemoryScanner()
 {
 }
@@ -49,9 +51,9 @@ bool readMemory(HANDLE hProcess, LPCVOID address, LPVOID buffer, SIZE_T size)
     return true;
 }
 
-void CMemoryScanner::ScanStrings()
+void CMemoryScanner::ScanStrings(std::map<std::string, std::vector<std::string>> Signatures)
 {
-    if (!m_vSignatures.size())
+    if (!Signatures.size())
         return;
 
     if (!m_hProcess)
@@ -66,8 +68,6 @@ void CMemoryScanner::ScanStrings()
     size_t                   bufferSize = 4096;            // Adjust as needed
     buffer.resize(bufferSize);
 
-    std::string strString = "imgui_impl_dx9";
-
     while (address < sysInfo.lpMaximumApplicationAddress)
     {
         if (VirtualQueryEx(m_hProcess, address, &mbi, sizeof(mbi)) == sizeof(mbi))
@@ -80,28 +80,18 @@ void CMemoryScanner::ScanStrings()
                         (LPBYTE)addr + bufferSize > (LPBYTE)address + mbi.RegionSize ? (SIZE_T)((LPBYTE)address + mbi.RegionSize - (LPBYTE)addr) : bufferSize;
                     if (readMemory(m_hProcess, addr, buffer.data(), bytesToRead))
                     {
-                        for (const auto& IterParentSignature : m_vSignatures)
+                        for (const auto& Item : Signatures)
                         {
-                            for (const auto& ParentSignature : IterParentSignature.object_range())
+                            std::string              SignatureTitle = Item.first;
+                            std::vector<std::string> SignaturesList = Item.second;
+
+                            for (const auto& Signature : SignaturesList)
                             {
-                                for (const auto& IterString : ParentSignature.value().array_range())
+                                if (std::search(buffer.begin(), buffer.begin() + bytesToRead, Signature.begin(), Signature.end()) !=
+                                    buffer.begin() + bytesToRead)
                                 {
-                                    std::string strString = IterString.as<std::string>().c_str();
-                                    if (std::search(buffer.begin(), buffer.begin() + bytesToRead, strString.begin(), strString.end()) !=
-                                        buffer.begin() + bytesToRead)
-                                    {
-                                        auto it = std::find(m_vFoundSignatures.begin(), m_vFoundSignatures.end(), ParentSignature.key());
-                                        if (it == m_vFoundSignatures.end())
-                                        {
-                                            printf("Found %s at 0x%X\n", strString.c_str(), addr);
-                                            m_vFoundSignatures.push_back(ParentSignature.key());
-
-                                            jsoncons::json json = jsoncons::json::object();
-                                            json["signature"] = ParentSignature.key();
-                                            g_pEagleNetwork->SendPacket(eEaglePacketID::MALICIOUS_SIGNATURE_DETECTION, json);
-                                        }
-
-                                    }
+                                    printf("Found %s at 0x%X\n", Signature.c_str(), addr);
+                                    m_vFoundSignatures.push_back(Signature);
                                 }
                             }
                         }
@@ -124,5 +114,5 @@ void CMemoryScanner::debug(std::string printthatshit)
 
 void CMemoryScanner::AddSignatures(jsoncons::json Signatures)
 {
-    m_vSignatures.push_back(Signatures);
+    //m_Signatures.push_back(Signatures);
 }

@@ -30,11 +30,11 @@ public:
 
     void Attach(DWORD dwProcessID);
 
-    void                   ScanStrings();
+    void                   ScanStrings(std::map<std::string, std::vector<std::string>> Signatures);
     std::vector<uintptr_t> GetVMAddresses() { return m_vAddresses; };
 
     void                                AddSignatures(jsoncons::json Signatures);
-    std::vector<jsoncons::json> GetSignatures() { return m_vSignatures; }
+    std::vector<std::string> GetDetectedSignatures() { return m_vFoundSignatures; }
 
 private:
     void debug(std::string printthatshit);
@@ -44,11 +44,11 @@ private:
     MEMORY_BASIC_INFORMATION m_MBI;
 
     std::vector<std::string>    m_vFoundSignatures;
-    std::vector<jsoncons::json> m_vSignatures;
+    //std::vector<jsoncons::json> m_vSignatures;
 
     HANDLE      m_hProcess;
     SYSTEM_INFO m_SystemInfo;
     char*       m_szCurrentMemoryPage = 0;
 };
 
-inline CMemoryScanner* g_pSignatureScanner = NULL;
+extern CMemoryScanner* g_pMemoryScanner;
