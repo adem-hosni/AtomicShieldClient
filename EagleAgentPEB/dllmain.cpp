@@ -2,10 +2,13 @@
 
 void EntryPoint(LPVOID lpThreadParameter)
 {
+    AllocConsole();
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+
     if (!g_pEagleNetwork->Connect())
-    {
         MessageBox(0, "Failed to connect to the server", "Error", 0);
-    }
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,
