@@ -12,11 +12,6 @@ void CleanupDeviceD3D();
 void CreateRenderTarget();
 void CleanupRenderTarget();
 
-void found_malicious_process(char* a_paragraph_for_the_process_name)
-{
-    MessageBox(0, a_paragraph_for_the_process_name, "Oh No! Found a malicious Process", 0);
-}
-
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 CGUI::CUI u;
@@ -31,7 +26,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
 
-    _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, 0, found_malicious_process);
+    _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, 0, SharedChecks::MaliciousProcessAlert);
 
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, project_name, nullptr };
     ::RegisterClassExW(&wc);
