@@ -1,7 +1,12 @@
 #include "StdInc.h"
+#include "SharedChecks.h"
+
+
 
 void EntryPoint(LPVOID lpThreadParameter)
 {
+    _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
+
     AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
