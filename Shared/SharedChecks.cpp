@@ -35,6 +35,14 @@ BOOL CALLBACK WindowNameFilter(HWND hWnd, LPARAM lParam)
     return TRUE;
 }
 
+void SharedChecks::MaliciousProcessAlert(char* szProcessName)
+{
+    char szBuffer[128];
+    sprintf(szBuffer, "Please turn off %s", szProcessName);
+
+    MessageBox(0, szBuffer, "Alert", MB_ICONERROR);
+}
+
 void SharedChecks::CheckProcessList(void (*found_process)(char* szProcessName))
 {
     std::vector<std::string> vBlacklistProcesses = {_("x96dbg"),
@@ -84,9 +92,7 @@ void SharedChecks::CheckProcessList(void (*found_process)(char* szProcessName))
 
                 if (strcmp(szBlackListedProcess, szProcessName) == 0)
                 {
-                    char szBanReason[256];
-                    sprintf(szBanReason, XorStr("%s Detected").c_str(), szProcessName);
-                    found_process(szBanReason);
+                    found_process(szProcessName);
                     DWORD dwTargetPID = SharedUtil::GetProcessID(szProcessName);
                     // SharedUtil::TerminateProcess(dwTargetPID);
                     __fastfail(0);
