@@ -42,6 +42,9 @@ void printError(const char* msg)
 
 bool readMemory(HANDLE hProcess, LPCVOID address, LPVOID buffer, SIZE_T size)
 {
+    if (hProcess == INVALID_HANDLE_VALUE)
+        return false;
+
     SIZE_T bytesRead;
     if (!ReadProcessMemory(hProcess, address, buffer, size, &bytesRead))
     {
@@ -94,7 +97,7 @@ void CMemoryScanner::ScanStrings(std::map<std::string, std::vector<std::string>>
                                         buffer.begin() + bytesToRead)
                                     {
                                         printf("Found %s at 0x%X\n", Signature.c_str(), addr);
-                                        m_vFoundSignatures.push_back(Signature);
+                                        m_vFoundSignatures.push_back(SignatureTitle);
                                     }
                                 }
                             }
