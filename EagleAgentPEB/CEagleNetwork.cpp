@@ -90,7 +90,7 @@ bool CEagleNetwork::SyncMaliciousSignatures()
 
     for (const auto& Item : Signatures.object_range())
     {
-        const std::string& SignatureTitle = Item.key();
+        const std::string&    SignatureTitle = Item.key();
         const jsoncons::json& SignaturesList = Item.value();
 
         if (SignaturesList.is_array())
@@ -111,17 +111,24 @@ void CEagleNetwork::DoPulse()
 {
     while (true)
     {
-        int iMTAProcessID = NULL;
-        while (!iMTAProcessID)
-        {
-            iMTAProcessID = SharedUtil::GetProcessID("gta_sa.exe");
+        while (!SharedUtil::GetProcessID("gta_sa.exe"))
             Sleep(100);
-        }
+        int iMTAProcessID = SharedUtil::GetProcessID("gta_sa.exe");
 
         g_pMemoryScanner->Attach(iMTAProcessID);
         g_pMemoryScanner->ScanStrings(g_pEagleNetwork->GetSignatures());
 
-        printf("Scan Result: %d\n", g_pMemoryScanner->GetDetectedSignatures().size());
+        std::vector<std::string> vSignatures = g_pMemoryScanner->GetDetectedSignatures();
+        unsigned int             uiScanResult = vSignatures.size();
+
+        // New Signature Found ?
+        if (uiScanResult != g_pMemoryScanner->GetLatestScanResult())
+        {
+            g_pMemoryScanner->UpdateLatestScanResult(uiScanResult);
+            jsoncons::json RequestData = jsoncons::json::object();
+            RequestData["signatures"] = vSignatures;
+            g_pEagleNetwork->SendPacket(eEaglePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
+        }
     }
 }
 
@@ -148,5 +155,4 @@ void CEagleNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
             MessageBox(0, Message->str.c_str(), "Network Error", 0);
             break;
     }
-
 }
