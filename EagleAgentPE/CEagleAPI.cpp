@@ -11,6 +11,12 @@ CEagleAPI::~CEagleAPI()
 {
 }
 
+jsoncons::json CEagleAPI::GetStatus()
+{
+    std::string buffer = PostRequest("http://127.0.0.1:8000/anticheat/status/agent", jsoncons::json(), false, false);
+    return jsoncons::json::parse(buffer);
+}
+
 void CEagleAPI::DownloadAgentPEB(std::string* buffer)
 {
     *buffer = PostRequest("http://127.0.0.1:8000/resources/agentpeb");

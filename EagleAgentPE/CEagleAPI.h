@@ -8,6 +8,7 @@ public:
     CEagleAPI();
     ~CEagleAPI();
 
+    jsoncons::json GetStatus();
     void DownloadAgentPEB(std::string* buffer);
 
 private:
