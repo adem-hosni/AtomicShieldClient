@@ -28,6 +28,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, 0, SharedChecks::MaliciousProcessAlert);
 
+    jsoncons::json status = g_pEagleAPI->GetStatus();
+    if (!status["alive"].as<bool>())
+    {
+        std::string message = "Unknown Error!";
+        std::string title = "ERROR";
+        
+        if (status.contains("message"))
+            message = status["message"].as<std::string>();
+        if (status.contains("title"))
+            title = status["title"].as<std::string>();
+
+        MessageBox(NULL, message.c_str(), title.c_str(), MB_ICONERROR);
+        __fastfail(0);
+    }
+
     WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, project_name, nullptr };
     ::RegisterClassExW(&wc);
     hwnd = CreateWindowExW(NULL, wc.lpszClassName, project_name, WS_POPUP, (GetSystemMetrics(SM_CXSCREEN) / 2) - (window::size_max.x / 2), (GetSystemMetrics(SM_CYSCREEN) / 2) - (window::size_max.y / 2), window::size_max.x, window::size_max.y, 0, 0, hInstance, 0);
