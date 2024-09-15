@@ -103,7 +103,7 @@ bool CEagleNetwork::SyncMaliciousSignatures()
             m_Signatures[SignatureTitle] = vSignatures;
         }
     }
-    _beginthread((_beginthread_proc_type)&CEagleNetwork::DoPulse, NULL, this);
+    _beginthread((_beginthread_proc_type)&CEagleAntiCheat::DoPulse, NULL, g_pEagleAntiCheat);
     return true;
 }
 
@@ -111,8 +111,7 @@ void CEagleNetwork::DoPulse()
 {
     while (true)
     {
-        while (!SharedUtil::GetProcessID("gta_sa.exe"))
-            Sleep(100);
+        
         int iMTAProcessID = SharedUtil::GetProcessID("gta_sa.exe");
 
         g_pMemoryScanner->Attach(iMTAProcessID);
