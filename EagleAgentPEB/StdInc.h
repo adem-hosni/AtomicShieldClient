@@ -14,3 +14,4 @@
 #include "CHWID.h"
 #include "CMemoryScanner.h"
 #include "CEagleNetwork.h"
+#include "CEagleAntiCheat.h"
