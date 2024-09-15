@@ -1,11 +1,13 @@
 #include "CEagleAntiCheat.h"
 #include "SharedUtil.h"
+#include <ctime>
 
 CEagleAntiCheat* g_pEagleAntiCheat = new CEagleAntiCheat();
 
 CEagleAntiCheat::CEagleAntiCheat()
 {
     m_pEagleNetwork = new CEagleNetwork();
+    m_Timing = {};
 }
 
 CEagleAntiCheat::~CEagleAntiCheat()
@@ -77,3 +79,47 @@ bool CEagleAntiCheat::CheckGameAntiCheatsStatus()
     return false;
 }
 
+void CEagleAntiCheat::DoPulse()
+{
+    while (true)
+    {
+        while (!SharedUtil::GetProcessID("gta_sa.exe"))
+            Sleep(100);
+
+        long long llCurrentTime = time(NULL);
+        CEagleNetwork* pEagleNetwork = g_pEagleAntiCheat->GetEagleNetwork();
+        STiming&   Timing = g_pEagleAntiCheat->GetTiming();
+
+        if (!g_pMemoryScanner->IsAttached())
+            g_pMemoryScanner->Attach(SharedUtil::GetProcessID("gta_sa.exe"));
+
+        if (llCurrentTime - Timing.llLastGameAntiCheatCheck > GAME_ANTICHEAT_STATUS_CHECK_INTERVAL)
+        {
+            if (!g_pEagleAntiCheat->CheckGameAntiCheatsStatus())
+            {
+                jsoncons::json JsonRequest = jsoncons::json::object();
+                JsonRequest["status"] = false;
+                pEagleNetwork->SendPacket(eEaglePacketID::GAME_ANTICHEAT_COMPONENT_STATUS, JsonRequest);
+            }
+            Timing.llLastGameAntiCheatCheck = llCurrentTime;
+        }
+
+        if (llCurrentTime - Timing.llLastMemoryScan > GAME_MEMORY_SCAN_INTERVAL)
+        {
+            g_pMemoryScanner->ScanStrings(pEagleNetwork->GetSignatures());
+
+            std::vector<std::string> vSignatures = g_pMemoryScanner->GetDetectedSignatures();
+            unsigned int             uiScanResult = vSignatures.size();
+
+            // New Signature Found ?
+            if (uiScanResult != g_pMemoryScanner->GetLatestScanResult())
+            {
+                g_pMemoryScanner->UpdateLatestScanResult(uiScanResult);
+                jsoncons::json RequestData = jsoncons::json::object();
+                RequestData["signatures"] = vSignatures;
+                pEagleNetwork->SendPacket(eEaglePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
+            }
+            Timing.llLastMemoryScan = llCurrentTime;
+        }
+    }
+}
