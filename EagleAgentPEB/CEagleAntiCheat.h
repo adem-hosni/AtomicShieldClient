@@ -10,6 +10,8 @@ public:
 
     CEagleNetwork* GetEagleNetwork() { return m_pEagleNetwork; }
 
+    bool CheckGameAntiCheatsStatus();
+
 private:
     CEagleNetwork* m_pEagleNetwork;
 };
