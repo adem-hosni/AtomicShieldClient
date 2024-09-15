@@ -28,6 +28,7 @@ public:
     ~CMemoryScanner();
 
     void Attach(DWORD dwProcessID);
+    bool IsAttached() { return m_hProcess != NULL; }
 
     void                   ScanStrings(std::map<std::string, std::vector<std::string>> Signatures);
     std::vector<uintptr_t> GetVMAddresses() { return m_vAddresses; };
