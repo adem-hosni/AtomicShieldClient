@@ -1,4 +1,4 @@
-#include "CEagleNetwork.h"
+#include "CEagleAntiCheat.h"
 #include "SharedUtil.h"
 #include <condition_variable>
 #include <future>
@@ -47,7 +47,7 @@ void CEagleNetwork::SendPacket(eEaglePacketID PacketID, jsoncons::json Data)
 
 void CEagleNetwork::OnConnect()
 {
-    if (!g_pEagleNetwork->SyncMaliciousSignatures())
+    if (!g_pEagleAntiCheat->GetEagleNetwork()->SyncMaliciousSignatures())
         MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
 }
 
@@ -116,7 +116,7 @@ void CEagleNetwork::DoPulse()
         int iMTAProcessID = SharedUtil::GetProcessID("gta_sa.exe");
 
         g_pMemoryScanner->Attach(iMTAProcessID);
-        g_pMemoryScanner->ScanStrings(g_pEagleNetwork->GetSignatures());
+        g_pMemoryScanner->ScanStrings(g_pEagleAntiCheat->GetEagleNetwork()->GetSignatures());
 
         std::vector<std::string> vSignatures = g_pMemoryScanner->GetDetectedSignatures();
         unsigned int             uiScanResult = vSignatures.size();
@@ -127,7 +127,7 @@ void CEagleNetwork::DoPulse()
             g_pMemoryScanner->UpdateLatestScanResult(uiScanResult);
             jsoncons::json RequestData = jsoncons::json::object();
             RequestData["signatures"] = vSignatures;
-            g_pEagleNetwork->SendPacket(eEaglePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
+            g_pEagleAntiCheat->GetEagleNetwork()->SendPacket(eEaglePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
         }
     }
 }
