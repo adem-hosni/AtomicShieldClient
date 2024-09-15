@@ -177,6 +177,7 @@ rename "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\EagleAgentPEB.dl
     <ClInclude Include="CHWID.h" />
     <ClInclude Include="CMemoryScanner.h" />
     <ClInclude Include="StdInc.h" />
+    <ClInclude Include="STiming.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXBase64.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXBench.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXCancellationRequest.h" />

@@ -215,6 +215,9 @@
     <ClInclude Include="CEagleAntiCheat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="STiming.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Vendor\ixwebsocket\ixwebsocket.lib" />
