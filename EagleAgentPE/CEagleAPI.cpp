@@ -14,6 +14,15 @@ CEagleAPI::~CEagleAPI()
 jsoncons::json CEagleAPI::GetStatus()
 {
     std::string buffer = PostRequest("http://127.0.0.1:8000/anticheat/status/agent", jsoncons::json(), false, false);
+    if (buffer.empty())
+    {
+        jsoncons::json JsonResponse = jsoncons::json::object();
+        JsonResponse["alive"] = false;
+        JsonResponse["title"] = "Connection Error";
+        JsonResponse["message"] = "Failed to connect to Eagle Master Server";
+
+        return JsonResponse;
+    }
     return jsoncons::json::parse(buffer);
 }
 
