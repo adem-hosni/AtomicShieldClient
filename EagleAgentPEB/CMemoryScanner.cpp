@@ -17,29 +17,6 @@ void CMemoryScanner::Attach(DWORD dwProcessID)
     m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, dwProcessID);
 }
 
-void printError(const char* msg)
-{
-    DWORD eNum;
-    char  sysMsg[256];
-    char* p;
-
-    eNum = GetLastError();
-    FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM | FORMAT_MESSAGE_IGNORE_INSERTS, NULL, eNum,
-                  MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT),            // Default language
-                  sysMsg, 256, NULL);
-
-    // Trim the end of the line and terminate it with a null
-    p = sysMsg;
-    while ((*p > 31) || (*p == 9))
-        ++p;
-    do
-    {
-        *p-- = 0;
-    } while ((p >= sysMsg) && ((*p == '.') || (*p < 33)));
-
-    std::cerr << "\n  ERROR: " << msg << " failed with error " << eNum << " (" << sysMsg << ")";
-}
-
 bool readMemory(HANDLE hProcess, LPCVOID address, LPVOID buffer, SIZE_T size)
 {
     if (hProcess == INVALID_HANDLE_VALUE)
@@ -48,7 +25,6 @@ bool readMemory(HANDLE hProcess, LPCVOID address, LPVOID buffer, SIZE_T size)
     SIZE_T bytesRead;
     if (!ReadProcessMemory(hProcess, address, buffer, size, &bytesRead))
     {
-        printError("ReadProcessMemory");
         return false;
     }
     return true;
