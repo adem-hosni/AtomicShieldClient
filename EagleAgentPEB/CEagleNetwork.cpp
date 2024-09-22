@@ -47,6 +47,9 @@ void CEagleNetwork::SendPacket(eEaglePacketID PacketID, jsoncons::json Data)
 
 void CEagleNetwork::OnConnect()
 {
+    if (!g_pEagleAntiCheat->GetEagleNetwork()->JoinNetwork())
+        return;
+
     if (!g_pEagleAntiCheat->GetEagleNetwork()->SyncMaliciousSignatures())
         MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
 }
