@@ -17,7 +17,7 @@ void CMemoryScanner::Attach(DWORD dwProcessID)
     m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, dwProcessID);
 }
 
-bool readMemory(HANDLE hProcess, LPCVOID address, LPVOID buffer, SIZE_T size)
+bool rpm(HANDLE hProcess, LPCVOID address, LPVOID buffer, SIZE_T size)
 {
     if (hProcess == INVALID_HANDLE_VALUE)
         return false;
@@ -57,7 +57,7 @@ void CMemoryScanner::ScanStrings(std::map<std::string, std::vector<std::string>>
                 {
                     SIZE_T bytesToRead =
                         (LPBYTE)addr + bufferSize > (LPBYTE)address + mbi.RegionSize ? (SIZE_T)((LPBYTE)address + mbi.RegionSize - (LPBYTE)addr) : bufferSize;
-                    if (readMemory(m_hProcess, addr, buffer.data(), bytesToRead))
+                    if (rpm(m_hProcess, addr, buffer.data(), bytesToRead))
                     {
                         for (const auto& Item : Signatures)
                         {
