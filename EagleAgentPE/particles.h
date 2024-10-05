@@ -12,7 +12,7 @@ struct Particle
 };
 
 std::vector<Particle> particles;
-const int MAX_PARTICLES = 60;
+const int MAX_PARTICLES = 120;
 
 void InitializeParticles()
 {
@@ -23,7 +23,7 @@ void InitializeParticles()
         particle.velocity = ImVec2(0, -(rand() % 20 / 100.0f + 0.07f));
         particle.life = 1.0f;
         particle.size = (rand() % 3 + 1) * 0.5f;
-        particle.color = IM_COL32(255, 255, 255, 90);
+        particle.color = ImGui::GetColorU32(Colors::MainColor);
         particles.push_back(particle);
     }
 }
