@@ -19,7 +19,7 @@ jsoncons::json CEagleAPI::GetStatus()
         jsoncons::json JsonResponse = jsoncons::json::object();
         JsonResponse["alive"] = false;
         JsonResponse["title"] = "Connection Error";
-        JsonResponse["message"] = "Failed to connect to Eagle Master Server";
+        JsonResponse["message"] = "Failed to connect to SafeGuard Master Server";
 
         return JsonResponse;
     }
