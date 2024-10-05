@@ -535,6 +535,41 @@ void CGUI::CUI::BeforeLoop()
 
 }
 
+void CGUI::GUI::TextURL(float fX, float fY, const char* name_, const char* URL_, uint8_t SameLineBefore_, uint8_t SameLineAfter_)
+{
+    if (1 == SameLineBefore_)
+    {
+        ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+    }
+    ImVec2 old_cursor_pos = ImGui::GetCursorPos();
+    ImGui::SetCursorPos({fX, fY});
+
+    int old_font_size = fonts::Inter_Regular->FontSize;
+    fonts::Inter_Regular->FontSize = 15;
+    ImGui::PushFont(fonts::Inter_Regular);
+    
+    ImGui::PushStyleColor(ImGuiCol_Text, {0.f, 0.f, 0.f, 0.f});
+    ImGui::Text(name_);
+    ImGui::PopStyleColor();
+    ImGui::PopFont();
+    fonts::Inter_Regular->FontSize = old_font_size;
+    c.Text(fX, fY, fonts::Inter_Regular, 15, name_, Colors::White);
+
+    ImGui::SetCursorPos(old_cursor_pos);
+    if (ImGui::IsItemHovered())
+    {
+        if (ImGui::IsMouseClicked(0))
+        {
+            ShellExecute(nullptr, _("open"), URL_, nullptr, nullptr, SW_NORMAL);
+        }
+    }
+
+    if (1 == SameLineAfter_)
+    {
+        ImGui::SameLine(0.0f, ImGui::GetStyle().ItemInnerSpacing.x);
+    }
+}
+
 void CGUI::CUI::Render()
 {
     g.begin("Main Window", window::size_max);
@@ -549,9 +584,10 @@ void CGUI::CUI::Render()
         static float timer = io.DeltaTime;
 
         c.IconButton("###Close", ICON_FA_XMARK, window::size_max.x - 20, 18 / 2, 1);
-        c.Text(15, 22, fonts::Sansation_Regular, 24, "Eagle", Colors::White);
-        c.Text(75, 22, fonts::Sansation_Light, 24, "AC", Colors::MainColor);
-        c.Text(window::size_max.x - 120, window::size_max.y - 30, fonts::Inter_Regular, 15, "Eagle AntiCheat", Colors::White);
+        c.Text(15, 22, fonts::Sansation_Regular, 24, "SafeGuard", Colors::White);
+        c.Text(126, 22, fonts::Sansation_Light, 24, "AC", Colors::MainColor);
+        g.TextURL(window::size_max.x - 160, window::size_max.y - 30, "Join our Discord Server!", "https://discord.gg/eKtP7W4hXN", 0, 0);
+        
         s.Alpha = alphaColor;
 
         static bool        bDownloading = false;
@@ -562,8 +598,8 @@ void CGUI::CUI::Render()
         {
             alphaColor = std::clamp(alphaColor + (1.f * ImGui::GetIO().DeltaTime * 1.f), 0.0f, 1.f);
             //c.ShadowText(190, 140, fonts::Sansation_Bold, 100, "FLAMMED", colors::White, colors::MainColor);
-            c.ShadowText(160, 140, fonts::Sansation_Bold, 150, "EagleAntiCheat", Colors::MainColor, Colors::MainColor);
-            c.ShadowText(355, 140, fonts::Sansation_Bold, 150, "Scanner", Colors::White, Colors::MainColor);
+            c.ShadowText(200, 140, fonts::Sansation_Bold, 150, "SafeGuard", Colors::MainColor, Colors::MainColor);
+            c.ShadowText(335, 140, fonts::Sansation_Bold, 150, "Scanner", Colors::White, Colors::MainColor);
 
             ImGui::PushFont(fonts::Inter_Regular);
             if (c.Button("MAINMENU", "Scan Now", 190, 220, 250, 30))
