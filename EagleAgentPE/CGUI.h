@@ -29,6 +29,7 @@ public:
         void AddImageRotated(ID3D11ShaderResourceView* pic, float posX, float posY, float sizeX, float sizeY);
         void pf(ImFont* font);
         void ApplyImage(int i);
+        void TextURL(float fX, float fY, const char* name_, const char* URL_, uint8_t SameLineBefore_, uint8_t SameLineAfter_);
     };
 
     class CUIElements
