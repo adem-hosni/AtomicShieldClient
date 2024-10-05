@@ -26,6 +26,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
 
+    // Set the process only accepts signed DLLs by microsoft
+    PROCESS_MITIGATION_BINARY_SIGNATURE_POLICY sp = {};
+    sp.MicrosoftSignedOnly = 1;
+    SetProcessMitigationPolicy(ProcessSignaturePolicy, &sp, sizeof(sp));
+
     _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, 0, SharedChecks::MaliciousProcessAlert);
 
     jsoncons::json status = g_pEagleAPI->GetStatus();
