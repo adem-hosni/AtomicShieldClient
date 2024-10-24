@@ -24,7 +24,7 @@
     <ProjectGuid>{84e0ac30-ec54-47a6-acaf-e35ababc9c30}</ProjectGuid>
     <RootNamespace>EagleAgentPEB</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>SafeGuardAgentPEB</ProjectName>
+    <ProjectName>SafeGuardEngine</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
