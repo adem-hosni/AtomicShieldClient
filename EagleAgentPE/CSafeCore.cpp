@@ -2,7 +2,7 @@
 #include "SharedUtil.h"
 #include <stdexcept>
 
-CSafeCore* g_pEagleCore = new CSafeCore();
+CSafeCore* g_pSafeCore = new CSafeCore();
 
 std::vector<unsigned char> removePKCS7Padding(const std::vector<unsigned char>& paddedData)
 {

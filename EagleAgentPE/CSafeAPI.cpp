@@ -47,7 +47,7 @@ std::string CSafeAPI::PostRequest(const char* szURL, jsoncons::json Data, bool b
         curl_easy_setopt(curl, CURLOPT_URL, szURL);
 
 
-        auto request_body_buffer = bEncryptRequestBody ? g_pEagleCore->Encrypt((BYTE*)Data.to_string().c_str()) : (BYTE*)Data.to_string().c_str();
+        auto request_body_buffer = bEncryptRequestBody ? g_pSafeCore->Encrypt((BYTE*)Data.to_string().c_str()) : (BYTE*)Data.to_string().c_str();
 
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body_buffer);
 
