@@ -1,16 +1,16 @@
-#include "CEagleAntiCheat.h"
+#include "CSafeAntiCheat.h"
 #include "SharedUtil.h"
 #include <ctime>
 
-CEagleAntiCheat* g_pEagleAntiCheat = new CEagleAntiCheat();
+CSafeAntiCheat* g_pEagleAntiCheat = new CSafeAntiCheat();
 
-CEagleAntiCheat::CEagleAntiCheat()
+CSafeAntiCheat::CSafeAntiCheat()
 {
-    m_pEagleNetwork = new CEagleNetwork();
+    m_pEagleNetwork = new CSafeNetwork();
     m_Timing = {};
 }
 
-CEagleAntiCheat::~CEagleAntiCheat()
+CSafeAntiCheat::~CSafeAntiCheat()
 {
     if (m_pEagleNetwork)
         delete m_pEagleNetwork;
@@ -36,7 +36,7 @@ bool CheckFairplayStatus(SC_HANDLE hFairplayService)
     return true;
 }
 
-bool CEagleAntiCheat::CheckGameAntiCheatsStatus()
+bool CSafeAntiCheat::CheckGameAntiCheatsStatus()
 {
     SC_HANDLE hServiceControl = OpenSCManager(NULL, NULL, SC_MANAGER_ALL_ACCESS);
 
@@ -79,7 +79,7 @@ bool CEagleAntiCheat::CheckGameAntiCheatsStatus()
     return false;
 }
 
-void CEagleAntiCheat::DoPulse()
+void CSafeAntiCheat::DoPulse()
 {
     while (true)
     {
@@ -87,7 +87,7 @@ void CEagleAntiCheat::DoPulse()
             Sleep(100);
 
         long long llCurrentTime = time(NULL);
-        CEagleNetwork* pEagleNetwork = g_pEagleAntiCheat->GetEagleNetwork();
+        CSafeNetwork* pEagleNetwork = g_pEagleAntiCheat->GetEagleNetwork();
         STiming&   Timing = g_pEagleAntiCheat->GetTiming();
 
         if (!g_pMemoryScanner->IsAttached())

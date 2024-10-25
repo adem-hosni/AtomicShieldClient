@@ -21,7 +21,7 @@
     <ClCompile Include="StdInc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CEagleNetwork.cpp">
+    <ClCompile Include="CSafeNetwork.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CHWID.cpp">
@@ -33,7 +33,7 @@
     <ClCompile Include="CMemoryScanner.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CEagleAntiCheat.cpp">
+    <ClCompile Include="CSafeAntiCheat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -41,7 +41,7 @@
     <ClInclude Include="StdInc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CEagleNetwork.h">
+    <ClInclude Include="CSafeNetwork.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vendor\ixwebsocket\IXBase64.h">
@@ -212,7 +212,7 @@
     <ClInclude Include="CMemoryScanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CEagleAntiCheat.h">
+    <ClInclude Include="CSafeAntiCheat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="STiming.h">

@@ -1,27 +1,27 @@
-#include "CEagleAntiCheat.h"
+#include "CSafeAntiCheat.h"
 #include "SharedUtil.h"
 #include <condition_variable>
 #include <future>
 
-CEagleNetwork* g_pEagleNetwork = new CEagleNetwork();
+CSafeNetwork* g_pEagleNetwork = new CSafeNetwork();
 
-CEagleNetwork::CEagleNetwork() : m_bConnected(false)
+CSafeNetwork::CSafeNetwork() : m_bConnected(false)
 {
     m_pWebSocket = new ix::WebSocket();
 }
 
-CEagleNetwork::~CEagleNetwork()
+CSafeNetwork::~CSafeNetwork()
 {
 }
 
-bool CEagleNetwork::Connect()
+bool CSafeNetwork::Connect()
 {
     if (!ix::initNetSystem())
         return false;
 
     m_pWebSocket->setUrl("ws://127.0.0.1:8000/c/eaglescanner/");
 
-    m_pWebSocket->setOnMessageCallback(std::bind(&CEagleNetwork::OnReceivePacket, this, std::placeholders::_1));
+    m_pWebSocket->setOnMessageCallback(std::bind(&CSafeNetwork::OnReceivePacket, this, std::placeholders::_1));
 
     ix::WebSocketInitResult result = m_pWebSocket->connect(32);
     m_pWebSocket->start();
@@ -29,7 +29,7 @@ bool CEagleNetwork::Connect()
     return result.success;
 }
 
-void CEagleNetwork::SendPacket(eEaglePacketID PacketID, jsoncons::json Data)
+void CSafeNetwork::SendPacket(eEaglePacketID PacketID, jsoncons::json Data)
 {
     // Allocate new json object
     jsoncons::json PacketJson = jsoncons::json::object();
@@ -45,7 +45,7 @@ void CEagleNetwork::SendPacket(eEaglePacketID PacketID, jsoncons::json Data)
     m_pWebSocket->send(PacketJson.to_string());
 }
 
-void CEagleNetwork::OnConnect()
+void CSafeNetwork::OnConnect()
 {
     if (!g_pEagleAntiCheat->GetEagleNetwork()->JoinNetwork())
         return;
@@ -54,7 +54,7 @@ void CEagleNetwork::OnConnect()
         MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
 }
 
-jsoncons::json CEagleNetwork::WaitReponse(eEaglePacketID PacketID)
+jsoncons::json CSafeNetwork::WaitReponse(eEaglePacketID PacketID)
 {
     while (m_UnhandledPackets.find(PacketID) == m_UnhandledPackets.end())
     {
@@ -65,7 +65,7 @@ jsoncons::json CEagleNetwork::WaitReponse(eEaglePacketID PacketID)
     return Response;
 }
 
-bool CEagleNetwork::JoinNetwork()
+bool CSafeNetwork::JoinNetwork()
 {
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["mta_serial"] = g_pHWID->GetMTASerial();
@@ -85,7 +85,7 @@ bool CEagleNetwork::JoinNetwork()
     return Response["success"].as_bool();
 }
 
-bool CEagleNetwork::SyncMaliciousSignatures()
+bool CSafeNetwork::SyncMaliciousSignatures()
 {
     SendPacket(SYNC_SIGNATURES);
     jsoncons::json Response = WaitReponse(SYNC_SIGNATURES);
@@ -106,11 +106,11 @@ bool CEagleNetwork::SyncMaliciousSignatures()
             m_Signatures[SignatureTitle] = vSignatures;
         }
     }
-    _beginthread((_beginthread_proc_type)&CEagleAntiCheat::DoPulse, NULL, g_pEagleAntiCheat);
+    _beginthread((_beginthread_proc_type)&CSafeAntiCheat::DoPulse, NULL, g_pEagleAntiCheat);
     return true;
 }
 
-void CEagleNetwork::DoPulse()
+void CSafeNetwork::DoPulse()
 {
     while (true)
     {
@@ -134,13 +134,13 @@ void CEagleNetwork::DoPulse()
     }
 }
 
-void CEagleNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
+void CSafeNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
 {
     switch (Message->type)
     {
         case ix::WebSocketMessageType::Open:
         {
-            _beginthread((_beginthread_proc_type)&CEagleNetwork::OnConnect, NULL, this);
+            _beginthread((_beginthread_proc_type)&CSafeNetwork::OnConnect, NULL, this);
             break;
         }
 

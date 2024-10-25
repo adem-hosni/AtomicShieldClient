@@ -7,11 +7,11 @@
 #include <mutex>
 #include <map>
 
-class CEagleNetwork
+class CSafeNetwork
 {
 public:
-    CEagleNetwork();
-    ~CEagleNetwork();
+    CSafeNetwork();
+    ~CSafeNetwork();
 
     bool           Connect();
     bool           IsConnected() { return m_bConnected; }
@@ -38,4 +38,4 @@ private:
     bool m_bConnected;
 };
 
-extern CEagleNetwork* g_pEagleNetwork;
+extern CSafeNetwork* g_pEagleNetwork;

@@ -65,6 +65,8 @@ BYTE* CEagleCore::Encrypt(const BYTE* buffer)
 
 std::string CEagleCore::Decrypt(const BYTE* buffer)
 {
+    return std::string((const char*)buffer);
+
     int ibuffer_size = strlen((char*)buffer + 1) - 1;
     int ikey_index = buffer[0] - 31;
 

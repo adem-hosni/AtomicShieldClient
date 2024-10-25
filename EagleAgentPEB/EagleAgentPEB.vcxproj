@@ -159,8 +159,8 @@ rename "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\EagleAgentPEB.dl
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CEagleAntiCheat.cpp" />
-    <ClCompile Include="CEagleNetwork.cpp" />
+    <ClCompile Include="CSafeAntiCheat.cpp" />
+    <ClCompile Include="CSafeNetwork.cpp" />
     <ClCompile Include="CHWID.cpp" />
     <ClCompile Include="CMemoryScanner.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -173,8 +173,8 @@ rename "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\EagleAgentPEB.dl
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CEagleAntiCheat.h" />
-    <ClInclude Include="CEagleNetwork.h" />
+    <ClInclude Include="CSafeAntiCheat.h" />
+    <ClInclude Include="CSafeNetwork.h" />
     <ClInclude Include="CHWID.h" />
     <ClInclude Include="CMemoryScanner.h" />
     <ClInclude Include="StdInc.h" />
