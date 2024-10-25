@@ -95,12 +95,9 @@ void CSafeAntiCheat::DoPulse()
 
         if (llCurrentTime - Timing.llLastGameAntiCheatCheck > GAME_ANTICHEAT_STATUS_CHECK_INTERVAL)
         {
-            if (!g_pSafeAntiCheat->CheckGameAntiCheatsStatus())
-            {
-                jsoncons::json JsonRequest = jsoncons::json::object();
-                JsonRequest["status"] = false;
-                pEagleNetwork->SendPacket(eEaglePacketID::GAME_ANTICHEAT_COMPONENT_STATUS, JsonRequest);
-            }
+            jsoncons::json JsonRequest = jsoncons::json::object();
+            JsonRequest["status"] = g_pSafeAntiCheat->CheckGameAntiCheatsStatus();
+            pEagleNetwork->SendPacket(eEaglePacketID::GAME_ANTICHEAT_COMPONENT_STATUS, JsonRequest);
             Timing.llLastGameAntiCheatCheck = llCurrentTime;
         }
 
