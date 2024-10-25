@@ -3,7 +3,7 @@
 #include <condition_variable>
 #include <future>
 
-CSafeNetwork* g_pEagleNetwork = new CSafeNetwork();
+CSafeNetwork* g_pSafeNetwork = new CSafeNetwork();
 
 CSafeNetwork::CSafeNetwork() : m_bConnected(false)
 {
@@ -47,10 +47,10 @@ void CSafeNetwork::SendPacket(eEaglePacketID PacketID, jsoncons::json Data)
 
 void CSafeNetwork::OnConnect()
 {
-    if (!g_pEagleAntiCheat->GetEagleNetwork()->JoinNetwork())
+    if (!g_pSafeAntiCheat->GetEagleNetwork()->JoinNetwork())
         return;
 
-    if (!g_pEagleAntiCheat->GetEagleNetwork()->SyncMaliciousSignatures())
+    if (!g_pSafeAntiCheat->GetEagleNetwork()->SyncMaliciousSignatures())
         MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
 }
 
@@ -106,7 +106,7 @@ bool CSafeNetwork::SyncMaliciousSignatures()
             m_Signatures[SignatureTitle] = vSignatures;
         }
     }
-    _beginthread((_beginthread_proc_type)&CSafeAntiCheat::DoPulse, NULL, g_pEagleAntiCheat);
+    _beginthread((_beginthread_proc_type)&CSafeAntiCheat::DoPulse, NULL, g_pSafeAntiCheat);
     return true;
 }
 
@@ -118,7 +118,7 @@ void CSafeNetwork::DoPulse()
         int iMTAProcessID = SharedUtil::GetProcessID("gta_sa.exe");
 
         g_pMemoryScanner->Attach(iMTAProcessID);
-        g_pMemoryScanner->ScanStrings(g_pEagleAntiCheat->GetEagleNetwork()->GetSignatures());
+        g_pMemoryScanner->ScanStrings(g_pSafeAntiCheat->GetEagleNetwork()->GetSignatures());
 
         std::vector<std::string> vSignatures = g_pMemoryScanner->GetDetectedSignatures();
         unsigned int             uiScanResult = vSignatures.size();
@@ -129,7 +129,7 @@ void CSafeNetwork::DoPulse()
             g_pMemoryScanner->UpdateLatestScanResult(uiScanResult);
             jsoncons::json RequestData = jsoncons::json::object();
             RequestData["signatures"] = vSignatures;
-            g_pEagleAntiCheat->GetEagleNetwork()->SendPacket(eEaglePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
+            g_pSafeAntiCheat->GetEagleNetwork()->SendPacket(eEaglePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
         }
     }
 }

@@ -2,7 +2,7 @@
 #include "SharedUtil.h"
 #include <ctime>
 
-CSafeAntiCheat* g_pEagleAntiCheat = new CSafeAntiCheat();
+CSafeAntiCheat* g_pSafeAntiCheat = new CSafeAntiCheat();
 
 CSafeAntiCheat::CSafeAntiCheat()
 {
@@ -87,15 +87,15 @@ void CSafeAntiCheat::DoPulse()
             Sleep(100);
 
         long long llCurrentTime = time(NULL);
-        CSafeNetwork* pEagleNetwork = g_pEagleAntiCheat->GetEagleNetwork();
-        STiming&   Timing = g_pEagleAntiCheat->GetTiming();
+        CSafeNetwork* pEagleNetwork = g_pSafeAntiCheat->GetEagleNetwork();
+        STiming&   Timing = g_pSafeAntiCheat->GetTiming();
 
         if (!g_pMemoryScanner->IsAttached())
             g_pMemoryScanner->Attach(SharedUtil::GetProcessID("gta_sa.exe"));
 
         if (llCurrentTime - Timing.llLastGameAntiCheatCheck > GAME_ANTICHEAT_STATUS_CHECK_INTERVAL)
         {
-            if (!g_pEagleAntiCheat->CheckGameAntiCheatsStatus())
+            if (!g_pSafeAntiCheat->CheckGameAntiCheatsStatus())
             {
                 jsoncons::json JsonRequest = jsoncons::json::object();
                 JsonRequest["status"] = false;

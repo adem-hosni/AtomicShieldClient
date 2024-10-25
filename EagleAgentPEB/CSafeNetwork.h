@@ -38,4 +38,4 @@ private:
     bool m_bConnected;
 };
 
-extern CSafeNetwork* g_pEagleNetwork;
+extern CSafeNetwork* g_pSafeNetwork;

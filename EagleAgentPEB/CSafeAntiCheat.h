@@ -22,4 +22,4 @@ private:
     CSafeNetwork* m_pEagleNetwork;
 };
 
-extern CSafeAntiCheat* g_pEagleAntiCheat;
+extern CSafeAntiCheat* g_pSafeAntiCheat;

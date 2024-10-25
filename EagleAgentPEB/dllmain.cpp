@@ -12,7 +12,7 @@ void EntryPoint(LPVOID lpThreadParameter)
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
 
-    if (!g_pEagleAntiCheat->GetEagleNetwork()->Connect())
+    if (!g_pSafeAntiCheat->GetEagleNetwork()->Connect())
         MessageBox(0, "Failed to connect to the server", "Error", 0);
 }
 
