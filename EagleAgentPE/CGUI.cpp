@@ -606,7 +606,7 @@ void CGUI::CUI::Render()
             {
                 if (!bDownloading)
                 {
-                    std::thread AgentPEBDownloader(&CSafeAPI::DownloadAgentPEB, g_pEagleAPI, &strAgentPEBBuffer);
+                    std::thread AgentPEBDownloader(&CSafeAPI::DownloadAgentPEB, g_pSafeAPI, &strAgentPEBBuffer);
                     AgentPEBDownloader.detach();
                     bDownloading = true;
                 }

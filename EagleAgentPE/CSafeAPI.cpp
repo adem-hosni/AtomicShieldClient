@@ -1,7 +1,7 @@
 #include "CSafeAPI.h"
 #include "CSafeCore.h"
 
-CSafeAPI* g_pEagleAPI = new CSafeAPI();
+CSafeAPI* g_pSafeAPI = new CSafeAPI();
 
 CSafeAPI::CSafeAPI()
 {

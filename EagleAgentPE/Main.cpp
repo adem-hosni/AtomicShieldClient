@@ -33,7 +33,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, 0, SharedChecks::MaliciousProcessAlert);
 
-    jsoncons::json status = g_pEagleAPI->GetStatus();
+    jsoncons::json status = g_pSafeAPI->GetStatus();
     if (!status["alive"].as<bool>())
     {
         std::string message = "Unknown Error!";
