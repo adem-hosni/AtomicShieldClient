@@ -597,7 +597,6 @@ void CGUI::CUI::Render()
         if (TAB == 0)
         {
             alphaColor = std::clamp(alphaColor + (1.f * ImGui::GetIO().DeltaTime * 1.f), 0.0f, 1.f);
-            //c.ShadowText(190, 140, fonts::Sansation_Bold, 100, "FLAMMED", colors::White, colors::MainColor);
             c.ShadowText(200, 140, fonts::Sansation_Bold, 150, "SafeGuard", Colors::MainColor, Colors::MainColor);
             c.ShadowText(335, 140, fonts::Sansation_Bold, 150, "Scanner", Colors::White, Colors::MainColor);
 
@@ -636,6 +635,8 @@ void CGUI::CUI::Render()
                     if (hProcess)
                     {
                         bool bResult = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()), strAgentPEBBuffer.size());
+                        if (bResult)
+                            __fastfail(0);
                         printf("Result from dll injection: %d\n", bResult);
                     }
                     else
