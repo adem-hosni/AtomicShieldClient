@@ -1,8 +1,8 @@
-#include "CEagleCore.h"
+#include "CSafeCore.h"
 #include "SharedUtil.h"
 #include <stdexcept>
 
-CEagleCore* g_pEagleCore = new CEagleCore();
+CSafeCore* g_pEagleCore = new CSafeCore();
 
 std::vector<unsigned char> removePKCS7Padding(const std::vector<unsigned char>& paddedData)
 {
@@ -31,16 +31,16 @@ std::vector<unsigned char> removePKCS7Padding(const std::vector<unsigned char>& 
 }
 
 
-CEagleCore::CEagleCore()
+CSafeCore::CSafeCore()
 {
 }
 
-CEagleCore::~CEagleCore()
+CSafeCore::~CSafeCore()
 {
     
 }
 
-BYTE* CEagleCore::Encrypt(const BYTE* buffer)
+BYTE* CSafeCore::Encrypt(const BYTE* buffer)
 {
     int ibuffer_size = strlen((char*)buffer);
     if (ibuffer_size == 0)
@@ -63,7 +63,7 @@ BYTE* CEagleCore::Encrypt(const BYTE* buffer)
     return out_buffer;
 }
 
-std::string CEagleCore::Decrypt(const BYTE* buffer)
+std::string CSafeCore::Decrypt(const BYTE* buffer)
 {
     return std::string((const char*)buffer);
 

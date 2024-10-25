@@ -2,7 +2,7 @@
 #include "CGUI.h"
 #include "Settings.h"
 #include "SharedChecks.h"
-#include "CEagleCore.h"
+#include "CSafeCore.h"
 #include "rsa_keys.h"
 #include <thread>
 

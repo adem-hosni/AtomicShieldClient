@@ -142,8 +142,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="CEagleAPI.cpp" />
-    <ClCompile Include="CEagleCore.cpp" />
+    <ClCompile Include="CSafeAPI.cpp" />
+    <ClCompile Include="CSafeCore.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="CGUI.cpp" />
     <ClCompile Include="Main.cpp" />
@@ -159,8 +159,8 @@
     <ClCompile Include="Vendor\misc\freetype\imgui_freetype.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="CEagleAPI.h" />
-    <ClInclude Include="CEagleCore.h" />
+    <ClInclude Include="CSafeAPI.h" />
+    <ClInclude Include="CSafeCore.h" />
     <ClInclude Include="CGUI.h" />
     <ClInclude Include="ManualMapInjector.hpp" />
     <ClInclude Include="rsa_keys.h" />

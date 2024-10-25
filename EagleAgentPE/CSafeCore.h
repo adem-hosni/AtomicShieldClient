@@ -7,11 +7,11 @@
 #include <string>
 #include <vector>
 
-class CEagleCore
+class CSafeCore
 {
 public:
-    CEagleCore();
-    ~CEagleCore();
+    CSafeCore();
+    ~CSafeCore();
 
     BYTE* Encrypt(const BYTE* buffer);
     std::string       Decrypt(const BYTE* buffer);
@@ -44,4 +44,4 @@ private:
                                                 {0XB3, 0X34, 0XAA, 0XD2, 0X15, 0X5C, 0XA, 0XBE, 0X56, 0X2C, 0XE8, 0XD7, 0X98, 0X61, 0X1E, 0X84}};
 };
 
-extern CEagleCore* g_pEagleCore;
+extern CSafeCore* g_pEagleCore;

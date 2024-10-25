@@ -7,7 +7,7 @@
 #include <D3DX11tex.h>
 #pragma comment(lib, "D3DX11.lib")
 
-#include "CEagleCore.h"
+#include "CSafeCore.h"
 #include "CSafeAPI.h"
 
 // Third parties

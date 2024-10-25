@@ -1,17 +1,17 @@
-#include "CEagleAPI.h"
-#include "CEagleCore.h"
+#include "CSafeAPI.h"
+#include "CSafeCore.h"
 
-CEagleAPI* g_pEagleAPI = new CEagleAPI();
+CSafeAPI* g_pEagleAPI = new CSafeAPI();
 
-CEagleAPI::CEagleAPI()
+CSafeAPI::CSafeAPI()
 {
 }
 
-CEagleAPI::~CEagleAPI()
+CSafeAPI::~CSafeAPI()
 {
 }
 
-jsoncons::json CEagleAPI::GetStatus()
+jsoncons::json CSafeAPI::GetStatus()
 {
     std::string buffer = PostRequest("http://127.0.0.1:8000/anticheat/status/agent", jsoncons::json(), false, false);
     if (buffer.empty())
@@ -26,7 +26,7 @@ jsoncons::json CEagleAPI::GetStatus()
     return jsoncons::json::parse(buffer);
 }
 
-void CEagleAPI::DownloadAgentPEB(std::string* buffer)
+void CSafeAPI::DownloadAgentPEB(std::string* buffer)
 {
     *buffer = PostRequest("http://127.0.0.1:8000/resources/agentpeb");
 
@@ -35,7 +35,7 @@ void CEagleAPI::DownloadAgentPEB(std::string* buffer)
     printf("agent peb buffer size: %d\n", s.length());
 }
 
-std::string CEagleAPI::PostRequest(const char* szURL, jsoncons::json Data, bool bEncryptRequestBody, bool bDecryptRespnseBody)
+std::string CSafeAPI::PostRequest(const char* szURL, jsoncons::json Data, bool bEncryptRequestBody, bool bDecryptRespnseBody)
 {
     CURL* curl;
     CURLcode response_code;
@@ -71,7 +71,7 @@ std::string CEagleAPI::PostRequest(const char* szURL, jsoncons::json Data, bool 
     return response_buffer;
 }
 
-size_t CEagleAPI::WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response)
+size_t CSafeAPI::WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response)
 {
     size_t total_size = size * nmemb;
     response->append((char*)contents, total_size);

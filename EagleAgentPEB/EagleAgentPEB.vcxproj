@@ -154,7 +154,7 @@
 
 xcopy "C:\Users\hosni\Documents\GitHub\EagleAgents\Build\EagleAgentPEB.dll" "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent" /Y /R
 
-rename "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\EagleAgentPEB.dll" "agent_peb.dll"
+rename "C:\Users\hosni\Documents\EagleAntiCheat\bin\debug\agent\SafeGuardEngine.dll" "agent_peb.dll"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>

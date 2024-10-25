@@ -2,11 +2,11 @@
 #include "StdInc.h"
 #include "jsoncons/json.hpp"
 
-class CEagleAPI
+class CSafeAPI
 {
 public:
-    CEagleAPI();
-    ~CEagleAPI();
+    CSafeAPI();
+    ~CSafeAPI();
 
     jsoncons::json GetStatus();
     void DownloadAgentPEB(std::string* buffer);
@@ -16,4 +16,4 @@ private:
     static size_t WriteCallback(void* contents, size_t size, size_t nmemb, std::string* response);
 };
 
-extern CEagleAPI* g_pEagleAPI;
+extern CSafeAPI* g_pEagleAPI;

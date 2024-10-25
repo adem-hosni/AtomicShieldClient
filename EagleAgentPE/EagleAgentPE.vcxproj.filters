@@ -4,8 +4,8 @@
     <ClCompile Include="CGUI.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="StdInc.cpp" />
-    <ClCompile Include="CEagleAPI.cpp" />
-    <ClCompile Include="CEagleCore.cpp" />
+    <ClCompile Include="CSafeAPI.cpp" />
+    <ClCompile Include="CSafeCore.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_freetype.cpp" />
@@ -29,8 +29,8 @@
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="XorStr.h" />
     <ClInclude Include="rsa_keys.h" />
-    <ClInclude Include="CEagleAPI.h" />
-    <ClInclude Include="CEagleCore.h" />
+    <ClInclude Include="CSafeAPI.h" />
+    <ClInclude Include="CSafeCore.h" />
     <ClInclude Include="ManualMapInjector.hpp" />
     <ClInclude Include="Vendor\curl\curl.h" />
     <ClInclude Include="Vendor\curl\curlver.h" />
