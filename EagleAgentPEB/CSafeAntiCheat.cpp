@@ -27,8 +27,7 @@ bool CheckFairplayStatus(SC_HANDLE hFairplayService)
     if (!QueryServiceStatusEx(hFairplayService, SC_STATUS_PROCESS_INFO, (LPBYTE)&status, sizeof(SERVICE_STATUS_PROCESS), &dwNeededBytes))
         return false;
 
-    if (status.dwCurrentState == SERVICE_STOP_PENDING || status.dwCurrentState == SERVICE_STOPPED || status.dwCurrentState == SERVICE_STOP_PENDING ||
-        status.dwCurrentState == SERVICE_PAUSED)
+    if (status.dwCurrentState != SERVICE_RUNNING)
     {
         if (SharedUtil::GetProcessID("gta_sa.exe"))
             return false;
@@ -43,8 +42,9 @@ bool CSafeAntiCheat::CheckGameAntiCheatsStatus()
     if (!hServiceControl)
         return false;
 
-    const char* szServiceName = "Fairplay";
+    const char* szServiceName = "FairplayKD";
     SC_HANDLE   hFairplayService = OpenService(hServiceControl, szServiceName, SERVICE_QUERY_STATUS);
+    bool        bResult = false;
 
     if (!hFairplayService)
     {
@@ -56,19 +56,18 @@ bool CSafeAntiCheat::CheckGameAntiCheatsStatus()
             memset(szNewServiceName, 0, sizeof(szNewServiceName));
             sprintf(szNewServiceName, "%s%d", szServiceName, i);
 
-            hFairplayService = OpenService(hServiceControl, szServiceName, SERVICE_QUERY_STATUS);
+            hFairplayService = OpenService(hServiceControl, szNewServiceName, SERVICE_QUERY_STATUS);
 
             if (CheckFairplayStatus(hFairplayService))
             {
                 CloseHandle(hFairplayService);
-                CloseHandle(hServiceControl);
-                return true;
+                bResult = true;
             }
         }
     }
     else
     {
-        bool bResult = CheckFairplayStatus(hFairplayService);
+        bResult = CheckFairplayStatus(hFairplayService);
         CloseHandle(hFairplayService);
         CloseHandle(hServiceControl);
         return bResult;
@@ -76,7 +75,7 @@ bool CSafeAntiCheat::CheckGameAntiCheatsStatus()
 
     CloseHandle(hFairplayService);
     CloseHandle(hServiceControl);
-    return false;
+    return bResult;
 }
 
 void CSafeAntiCheat::DoPulse()
@@ -86,9 +85,9 @@ void CSafeAntiCheat::DoPulse()
         while (!SharedUtil::GetProcessID("gta_sa.exe"))
             Sleep(100);
 
-        long long llCurrentTime = time(NULL);
+        long long     llCurrentTime = time(NULL);
         CSafeNetwork* pEagleNetwork = g_pSafeAntiCheat->GetEagleNetwork();
-        STiming&   Timing = g_pSafeAntiCheat->GetTiming();
+        STiming&      Timing = g_pSafeAntiCheat->GetTiming();
 
         if (!g_pMemoryScanner->IsAttached())
             g_pMemoryScanner->Attach(SharedUtil::GetProcessID("gta_sa.exe"));
