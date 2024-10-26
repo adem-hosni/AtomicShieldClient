@@ -74,6 +74,7 @@ bool CSafeNetwork::JoinNetwork()
     RequestData["cpu"] = g_pHWID->GetCPUsSerials();
     RequestData["motherboard_serial"] = g_pHWID->GetMotherBoardSerial();
     RequestData["bios"] = g_pHWID->GetBIOSVersion();
+    RequestData["computer_name"] = g_pHWID->GetComputerName_();
 
     SendPacket(eEaglePacketID::NETWORK_JOIN, RequestData);
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
@@ -114,7 +115,6 @@ void CSafeNetwork::DoPulse()
 {
     while (true)
     {
-        
         int iMTAProcessID = SharedUtil::GetProcessID("gta_sa.exe");
 
         g_pMemoryScanner->Attach(iMTAProcessID);

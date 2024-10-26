@@ -364,3 +364,12 @@ std::string CHWID::GetBIOSVersion()
 
     return strBIOSVersion;
 }
+
+std::string CHWID::GetComputerName_()
+{
+    char  computerName[MAX_PATH];
+    DWORD size = sizeof(computerName) / sizeof(computerName[0]);
+    if (!GetComputerName(computerName, &size))
+        return "<NONE>";
+    return computerName;
+}
