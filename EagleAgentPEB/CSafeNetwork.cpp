@@ -19,12 +19,15 @@ bool CSafeNetwork::Connect()
     if (!ix::initNetSystem())
         return false;
 
-    m_pWebSocket->setUrl("ws://127.0.0.1:8000/c/eaglescanner/");
+    m_pWebSocket->setUrl("ws://127.0.0.1:8000/c/safeguardagent/");
 
     m_pWebSocket->setOnMessageCallback(std::bind(&CSafeNetwork::OnReceivePacket, this, std::placeholders::_1));
 
     ix::WebSocketInitResult result = m_pWebSocket->connect(32);
     m_pWebSocket->start();
+
+    if (result.success)
+        m_pWebSocket->enableAutomaticReconnection();
 
     return result.success;
 }
@@ -113,25 +116,7 @@ bool CSafeNetwork::SyncMaliciousSignatures()
 
 void CSafeNetwork::DoPulse()
 {
-    while (true)
-    {
-        int iMTAProcessID = SharedUtil::GetProcessID("gta_sa.exe");
-
-        g_pMemoryScanner->Attach(iMTAProcessID);
-        g_pMemoryScanner->ScanStrings(g_pSafeAntiCheat->GetEagleNetwork()->GetSignatures());
-
-        std::vector<std::string> vSignatures = g_pMemoryScanner->GetDetectedSignatures();
-        unsigned int             uiScanResult = vSignatures.size();
-
-        // New Signature Found ?
-        if (uiScanResult != g_pMemoryScanner->GetLatestScanResult())
-        {
-            g_pMemoryScanner->UpdateLatestScanResult(uiScanResult);
-            jsoncons::json RequestData = jsoncons::json::object();
-            RequestData["signatures"] = vSignatures;
-            g_pSafeAntiCheat->GetEagleNetwork()->SendPacket(eEaglePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
-        }
-    }
+    //printf("state: %d\n", m_pWebSocket->getReadyState());
 }
 
 void CSafeNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
@@ -150,6 +135,14 @@ void CSafeNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
             jsoncons::json              json = jsoncons::json::parse(Message->str);
             m_UnhandledPackets.insert_or_assign((eEaglePacketID)json["type"].as<int>(), json);
             m_condition.notify_all();
+            break;
+        }
+
+        case ix::WebSocketMessageType::Close:
+        {
+            printf("closed\n");
+            MessageBox(0, "closed", 0, 0);
+            MessageBox(0, Message->str.c_str(), "Network Error", 0);
             break;
         }
 
