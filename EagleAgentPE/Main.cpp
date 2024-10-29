@@ -21,11 +21,6 @@ ImFontAtlas i;
 // Main code
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    AllocConsole();
-    freopen("CONIN$", "r", stdin);
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-
     // Set the process only accepts signed DLLs by microsoft
     PROCESS_MITIGATION_BINARY_SIGNATURE_POLICY sp = {};
     sp.MicrosoftSignedOnly = 1;
