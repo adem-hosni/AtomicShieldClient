@@ -558,6 +558,7 @@ void CGUI::GUI::TextURL(float fX, float fY, const char* name_, const char* URL_,
     ImGui::SetCursorPos(old_cursor_pos);
     if (ImGui::IsItemHovered())
     {
+        ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
         if (ImGui::IsMouseClicked(0))
         {
             ShellExecute(nullptr, _("open"), URL_, nullptr, nullptr, SW_NORMAL);
