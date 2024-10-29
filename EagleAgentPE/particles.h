@@ -6,13 +6,13 @@ struct Particle
 {
     ImVec2 position;
     ImVec2 velocity;
-    float life;
-    float size;
-    ImU32 color;
+    float  life;
+    float  size;
+    ImU32  color;
 };
 
 std::vector<Particle> particles;
-const int MAX_PARTICLES = 140;
+const int             MAX_PARTICLES = 140;
 
 void InitializeParticles()
 {
