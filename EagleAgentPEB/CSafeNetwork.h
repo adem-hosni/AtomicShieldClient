@@ -19,7 +19,7 @@ public:
     jsoncons::json WaitReponse(eEaglePacketID PacketID);
 
     static void OnConnect();
-    static void DoPulse();
+    void DoPulse();
 
     bool JoinNetwork();
     bool SyncMaliciousSignatures();
