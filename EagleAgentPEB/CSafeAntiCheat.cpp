@@ -80,13 +80,18 @@ bool CSafeAntiCheat::CheckGameAntiCheatsStatus()
 
 void CSafeAntiCheat::DoPulse()
 {
+    CSafeNetwork* pEagleNetwork = g_pSafeAntiCheat->GetEagleNetwork();
     while (true)
     {
-        while (!SharedUtil::GetProcessID("gta_sa.exe"))
-            Sleep(100);
+        pEagleNetwork->DoPulse();
+
+        if (!SharedUtil::GetProcessID("gta_sa.exe"))
+        {
+            Sleep(50);
+            continue;
+        }
 
         long long     llCurrentTime = time(NULL);
-        CSafeNetwork* pEagleNetwork = g_pSafeAntiCheat->GetEagleNetwork();
         STiming&      Timing = g_pSafeAntiCheat->GetTiming();
 
         if (!g_pMemoryScanner->IsAttached())
