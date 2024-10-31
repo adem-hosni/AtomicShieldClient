@@ -30,8 +30,6 @@ public:
     void Attach(DWORD dwProcessID);
     bool IsAttached() { return m_hProcess != NULL; }
 
-    std::vector<char> LoadDumpBuffer();
-
     void                   ScanStrings(std::map<std::string, std::vector<std::string>> Signatures);
     std::vector<uintptr_t> GetVMAddresses() { return m_vAddresses; };
 
