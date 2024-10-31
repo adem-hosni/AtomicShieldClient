@@ -30,7 +30,6 @@ public:
     void Attach(DWORD dwProcessID);
     bool IsAttached() { return m_hProcess != NULL; }
 
-    bool DumpProcess();
     std::vector<char> LoadDumpBuffer();
 
     void                   ScanStrings(std::map<std::string, std::vector<std::string>> Signatures);
@@ -49,12 +48,9 @@ private:
     std::vector<uintptr_t>   m_vAddresses;
     MEMORY_BASIC_INFORMATION m_MBI;
 
-    char m_szLastDumpPath[MAX_PATH];
-
     unsigned int m_uiLatestScanResult;
 
     std::vector<std::string> m_vFoundSignatures;
-    // std::vector<jsoncons::json> m_vSignatures;
 
     HANDLE      m_hProcess;
     DWORD       m_dwProcessID;

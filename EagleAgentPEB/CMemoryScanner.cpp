@@ -22,53 +22,6 @@ void CMemoryScanner::Attach(DWORD dwProcessID)
     m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, dwProcessID);
 }
 
-bool CMemoryScanner::DumpProcess()
-{
-    char szTempPath[MAX_PATH];
-    memset(szTempPath, 0, sizeof(szTempPath));
-    DWORD dwPathSize = GetTempPath(MAX_PATH, szTempPath);
-    if (dwPathSize == NULL && dwPathSize > MAX_PATH)
-        return false;
-
-    memset(m_szLastDumpPath, 0, MAX_PATH);
-    sprintf_s(m_szLastDumpPath, sizeof(m_szLastDumpPath), "%s\\%x%x", szTempPath, std::time(nullptr), GetTickCount());
-
-    HANDLE hFile = CreateFile(m_szLastDumpPath, GENERIC_WRITE, 0, NULL, CREATE_ALWAYS, FILE_ATTRIBUTE_HIDDEN, NULL);
-    if (hFile == INVALID_HANDLE_VALUE)
-    {
-        MessageBox(0, "Failed to create that shitty file!", 0, 0);
-        return false;
-    }
-    HANDLE           hToken;
-    TOKEN_PRIVILEGES tokenPrivileges;
-
-    if (!SharedUtil::IsRunningAsAdministator())
-    {
-        
-    }
-
-    BOOL bSuccess = MiniDumpWriteDump(m_hProcess, m_dwProcessID, hFile, MiniDumpWithFullMemory, NULL, NULL, NULL);
-    CloseHandle(hFile);
-
-    return bSuccess;
-}
-
-std::vector<char> CMemoryScanner::LoadDumpBuffer()
-{
-    std::ifstream DumpFile(std::string(m_szLastDumpPath), std::ios::binary | std::ios::ate);
-    if (!DumpFile.is_open())
-        return {};
-
-    std::vector<char> vBuffer;
-    size_t sz = DumpFile.tellg();
-    vBuffer.resize(sz);
-
-    DumpFile.read(vBuffer.data(), sz);
-    DumpFile.close();
-    DeleteFile(m_szLastDumpPath);
-    return vBuffer;
-}
-
 bool rpm(HANDLE hProcess, LPCVOID address, LPVOID buffer, SIZE_T size)
 {
     if (hProcess == INVALID_HANDLE_VALUE)
