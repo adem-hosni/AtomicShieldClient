@@ -40,9 +40,6 @@ public:
     void         UpdateLatestScanResult(unsigned int uiScanResult) { m_uiLatestScanResult = uiScanResult; }
 
 private:
-    void debug(std::string printthatshit);
-
-private:
     std::vector<uintptr_t>   m_vAddresses;
     MEMORY_BASIC_INFORMATION m_MBI;
 

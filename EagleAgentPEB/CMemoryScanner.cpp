@@ -93,13 +93,6 @@ void CMemoryScanner::ScanStrings(std::map<std::string, std::vector<std::string>>
     CloseHandle(m_hProcess);
 }
 
-void CMemoryScanner::debug(std::string printthatshit)
-{
-#ifdef debug
-    std::cout << printthatshit << "\n";
-#endif
-}
-
 void CMemoryScanner::AddSignatures(jsoncons::json Signatures)
 {
     //m_Signatures.push_back(Signatures);
