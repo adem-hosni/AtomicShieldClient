@@ -13,6 +13,7 @@ public:
     jsoncons::json GetDisksSerialNumber();
     std::string    GetCPUsSerials();
     std::string    GetBIOSVersion();
+    std::string    GetPNPDeviceID();
     std::string    GetComputerName_();
 };
 extern CHWID* g_pHWID;

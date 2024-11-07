@@ -365,6 +365,96 @@ std::string CHWID::GetBIOSVersion()
     return strBIOSVersion;
 }
 
+std::string CHWID::GetPNPDeviceID()
+{
+    HRESULT hres;
+
+    hres = CoInitializeEx(0, COINIT_MULTITHREADED);
+    if (FAILED(hres))
+    {
+        return "<unkown>";
+    }
+
+    IWbemLocator* pLoc = NULL;
+
+    // Create WMI locator
+    hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
+
+    if (FAILED(hres))
+    {
+        CoUninitialize();
+        return "<unkown>";
+    }
+
+    IWbemServices* pSvc = NULL;
+
+    // Connect to WMI
+    hres = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0, NULL, 0, 0, &pSvc);
+
+    if (FAILED(hres))
+    {
+        pLoc->Release();
+        CoUninitialize();
+        return "<unkown>";
+    }
+
+    // Set security levels for the WMI connection
+    hres = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+
+    if (FAILED(hres))
+    {
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+        return "<unkown>";
+    }
+
+    IEnumWbemClassObject* pEnumerator = NULL;
+    hres = pSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT * FROM Win32_VideoController"), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL,
+                           &pEnumerator);
+
+    if (FAILED(hres))
+    {
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+        return "<unkown>";
+    }
+
+    IWbemClassObject* pclsObj = NULL;
+    ULONG             uReturn = 0;
+    std::string       strPNPDeviceID = "<unkown>";
+
+    while (pEnumerator)
+    {
+        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+
+        if (0 == uReturn)
+        {
+            break;
+        }
+
+        VARIANT vtProp;
+
+        // Get the PNPDeviceID property
+        hr = pclsObj->Get(L"PNPDeviceID", 0, &vtProp, 0, 0);
+        if (SUCCEEDED(hr))
+        {
+            strPNPDeviceID = static_cast<const char*>(_bstr_t(vtProp.bstrVal));
+            VariantClear(&vtProp);
+        }
+
+        pclsObj->Release();
+    }
+
+    // Cleanup
+    pSvc->Release();
+    pLoc->Release();
+    pEnumerator->Release();
+    CoUninitialize();
+    return strPNPDeviceID;
+}
+
 std::string CHWID::GetComputerName_()
 {
     char  computerName[MAX_PATH];

@@ -77,6 +77,7 @@ bool CSafeNetwork::JoinNetwork()
     RequestData["cpu"] = g_pHWID->GetCPUsSerials();
     RequestData["motherboard_serial"] = g_pHWID->GetMotherBoardSerial();
     RequestData["bios"] = g_pHWID->GetBIOSVersion();
+    RequestData["pnp_device"] = g_pHWID->GetPNPDeviceID();
     RequestData["computer_name"] = g_pHWID->GetComputerName_();
 
     SendPacket(eEaglePacketID::NETWORK_JOIN, RequestData);
