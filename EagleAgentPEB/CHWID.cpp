@@ -375,6 +375,14 @@ std::string CHWID::GetPNPDeviceID()
         return "<unkown>";
     }
 
+    hres = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
+
+    if (FAILED(hres))
+    {
+        CoUninitialize();
+        return "<unkown>";
+    }
+
     IWbemLocator* pLoc = NULL;
 
     // Create WMI locator
