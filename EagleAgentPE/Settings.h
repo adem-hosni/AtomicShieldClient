@@ -7,7 +7,7 @@ inline IDXGISwapChain* g_pSwapChain = nullptr;
 inline UINT                     g_ResizeWidth = 0, g_ResizeHeight = 0;
 inline ID3D11RenderTargetView* g_mainRenderTargetView = nullptr;
 
-const wchar_t project_name[] = L"EagleAntiCheat";
+const wchar_t project_name[] = L"SafeGuard";
 
 inline int TAB = 0;
 inline int subtab = 0;
