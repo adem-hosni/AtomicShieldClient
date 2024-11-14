@@ -28,7 +28,8 @@ jsoncons::json CSafeAPI::GetStatus()
 
 void CSafeAPI::DownloadAgentPEB(std::string* buffer)
 {
-    *buffer = PostRequest("http://127.0.0.1:8000/resources/agentpeb");
+    std::string encrypted_buffer = PostRequest("http://127.0.0.1:8000/resources/agentpeb");
+    *buffer = g_pSafeCore->Decrypt(encrypted_buffer.data());
 
     auto s = *buffer;
 
