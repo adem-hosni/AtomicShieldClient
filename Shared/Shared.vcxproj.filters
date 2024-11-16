@@ -1376,6 +1376,9 @@
     <ClInclude Include="EaglePacketID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Common.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\crypto\riscv_arch.def">

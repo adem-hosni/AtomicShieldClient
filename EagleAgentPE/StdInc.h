@@ -19,3 +19,4 @@
 
 // CURL
 #include "curl/curl.h"
+#include "Common.h"
