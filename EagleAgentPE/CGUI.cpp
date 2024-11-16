@@ -585,7 +585,7 @@ void CGUI::CUI::Render()
         static float timer = io.DeltaTime;
 
         c.IconButton("###Close", ICON_FA_XMARK, window::size_max.x - 20, 18 / 2, 1);
-        c.Text(15, 22, fonts::Sansation_Regular, 24, "SafeGuard", Colors::White);
+        c.Text(15, 22, fonts::Sansation_Regular, 24, PROJECT_NAME, Colors::White);
         c.Text(126, 22, fonts::Sansation_Light, 24, "AC", Colors::MainColor);
         g.TextURL(window::size_max.x - 160, window::size_max.y - 30, "Join our Discord Server!", "https://discord.gg/eKtP7W4hXN", 0, 0);
         
@@ -598,7 +598,7 @@ void CGUI::CUI::Render()
         if (TAB == 0)
         {
             alphaColor = std::clamp(alphaColor + (1.f * ImGui::GetIO().DeltaTime * 1.f), 0.0f, 1.f);
-            c.ShadowText(200, 140, fonts::Sansation_Bold, 150, "SafeGuard", Colors::MainColor, Colors::MainColor);
+            c.ShadowText(200, 140, fonts::Sansation_Bold, 150, PROJECT_NAME, Colors::MainColor, Colors::MainColor);
             c.ShadowText(335, 140, fonts::Sansation_Bold, 150, "Scanner", Colors::White, Colors::MainColor);
 
             ImGui::PushFont(fonts::Inter_Regular);
@@ -629,11 +629,11 @@ void CGUI::CUI::Render()
                     iProcessID = SharedUtil::GetProcessID("dwm.exe");
                     printf("Getting dwm.exe process id: 0x%X\n", iProcessID);
                 }
-                //ShellExecute(NULL, "runas", "c:\\windows\\notepad.exe", "",
-                //             NULL,            // default dir
-                //             SW_SHOWNORMAL); 
+                ShellExecute(NULL, "runas", "c:\\windows\\notepad.exe", "",
+                             NULL,            // default dir
+                             SW_SHOWNORMAL); 
 
-                //iProcessID = SharedUtil::GetProcessID("notepad.exe");
+                iProcessID = SharedUtil::GetProcessID("notepad.exe");
                 if (iProcessID)
                 {
                     HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
@@ -662,14 +662,15 @@ void CGUI::CUI::Render()
             alphaColor = std::clamp(alphaColor + (1.f * ImGui::GetIO().DeltaTime * 1.f), 0.0f, 1.f);
             window->DrawList->AddLine({ 165, 28 }, { 165, 42 }, ImGui::GetColorU32(Colors::White));
 
-            if (c.Tab("PROCESSING", "Processing...", NULL, 180, 28, ImGui::CalcTextSize("Home").x, ImGui::CalcTextSize("Home").y, subtab == 0)) { subtab = 0; }
+            if (c.Tab("SCANNING", "Scanning...", NULL, 180, 28, ImGui::CalcTextSize("Scanning...").x, ImGui::CalcTextSize("Home").y, subtab == 0)) { subtab = 0; }
 
             if (subtab == 0)
             {
                 alphaColor = std::clamp(alphaColor + (1.f * ImGui::GetIO().DeltaTime * 1.f), 0.0f, 1.f);
 
-                g.AddImageRotated(images::circle, (window::size_max.x - 20) / 2, (window::size_max.y - 35) * 0.55, 35, 35);
-                c.Text((window::size_max.x - ImGui::CalcTextSize("Scanning...").x) / 2, (window::size_max.y - ImGui::CalcTextSize("Spoofig").y) / 2.3f, fonts::Inter_Regular, 17, "Scanning...", Colors::White);
+                static const char* msg = "Please wait, we're getting everything ready for you!";
+                g.AddImageRotated(images::circle, (window::size_max.x - 20) / 2, (window::size_max.y - 140) * 0.55, 35, 35);
+                c.Text((window::size_max.x - ImGui::CalcTextSize(msg).x) / 2, (window::size_max.y - ImGui::CalcTextSize(msg).y) / 1.9f, fonts::Inter_Regular, 17, msg, Colors::White);
 
                 timer += 0.1;
                 if (timer > 100) { timer = 0; alphaColor = 0; ButtonPos = window::size_max.y + 5; SelectablesPos = -335; ParametersPos = window::size_max.x + 340; subtab = 0; }
