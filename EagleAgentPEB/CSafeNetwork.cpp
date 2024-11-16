@@ -1,4 +1,5 @@
 #include "CSafeAntiCheat.h"
+#include "Common.h"
 #include "SharedUtil.h"
 #include <condition_variable>
 #include <future>
@@ -19,7 +20,7 @@ bool CSafeNetwork::Connect()
     if (!ix::initNetSystem())
         return false;
 
-    m_pWebSocket->setUrl("ws://127.0.0.1:8000/c/safeguardagent/");
+    m_pWebSocket->setUrl(WEBSOCKET_BASE_URL "/c/safeguardagent/");
 
     m_pWebSocket->setOnMessageCallback(std::bind(&CSafeNetwork::OnReceivePacket, this, std::placeholders::_1));
 
