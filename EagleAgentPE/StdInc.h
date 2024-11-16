@@ -19,5 +19,3 @@
 
 // CURL
 #include "curl/curl.h"
-
-// Jsoncons
