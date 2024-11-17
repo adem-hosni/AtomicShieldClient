@@ -152,7 +152,7 @@
     <PostBuildEvent>
       <Command>del "C:\Users\hosni\Documents\SafeGuard\bin\production\agent\agent_peb.dll" 
 
-xcopy "C:\Users\hosni\Documents\GitHub\EagleAgents\Build\SafeGuardEngine.dll" "C:\Users\hosni\Documents\SafeGuard\bin\production\agent" /Y /R
+xcopy "C:\Users\hosni\Documents\GitHub\SafeGuardClient\Build\SafeGuardEngine.dll" "C:\Users\hosni\Documents\SafeGuard\bin\production\agent" /Y /R
 
 rename "C:\Users\hosni\Documents\SafeGuard\bin\production\agent\SafeGuardEngine.dll" "agent_peb.dll"
 </Command>
