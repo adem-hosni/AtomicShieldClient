@@ -13,7 +13,7 @@ CSafeAPI::~CSafeAPI()
 
 jsoncons::json CSafeAPI::GetStatus()
 {
-    std::string buffer = PostRequest("http://127.0.0.1:8000/anticheat/status/agent", jsoncons::json(), false, false);
+    std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/agent", jsoncons::json(), false, false);
     if (buffer.empty())
     {
         jsoncons::json JsonResponse = jsoncons::json::object();
@@ -28,8 +28,8 @@ jsoncons::json CSafeAPI::GetStatus()
 
 void CSafeAPI::DownloadAgentPEB(std::string* buffer)
 {
-    std::string encrypted_buffer = PostRequest("http://127.0.0.1:8000/resources/agentpeb");
-    *buffer = g_pSafeCore->Decrypt(encrypted_buffer.data());
+    *buffer = PostRequest(API_BASE_URL "/resources/agentpeb");
+    //*buffer = g_pSafeCore->Decrypt(encrypted_buffer.data());
 
     auto s = *buffer;
 
