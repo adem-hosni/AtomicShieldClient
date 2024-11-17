@@ -21,10 +21,21 @@ ImFontAtlas i;
 // Main code
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
+    /*AllocConsole();
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);*/
+
     // Set the process only accepts signed DLLs by microsoft
     PROCESS_MITIGATION_BINARY_SIGNATURE_POLICY sp = {};
     sp.MicrosoftSignedOnly = 1;
     SetProcessMitigationPolicy(ProcessSignaturePolicy, &sp, sizeof(sp));
+
+    // Check if the process started with another launcher
+    std::string strLauncherName = SharedUtil::GetParentProcessName();
+    strLauncherName = strLauncherName.substr(strLauncherName.length() - 12, strLauncherName.length());
+    /*if (strLauncherName != "explorer.exe")
+        __fastfail(0);*/
 
     _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, 0, SharedChecks::MaliciousProcessAlert);
 

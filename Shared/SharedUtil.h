@@ -7,5 +7,6 @@ namespace SharedUtil
     int  GetProcessID(const char* szProcessName);
     bool FindStringIC(const std::string& strHaystack, const std::string& strNeedle);
     int  GenerateRandomNumber(int min, int max);
+    const char* GetParentProcessName();
     bool IsRunningAsAdministator();
 }            // namespace SharedUtil

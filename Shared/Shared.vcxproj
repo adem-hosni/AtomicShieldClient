@@ -588,6 +588,7 @@
     <ClInclude Include="Vendor\openssl\x509v3err.h" />
     <ClInclude Include="Vendor\openssl\__DECC_INCLUDE_EPILOGUE.H" />
     <ClInclude Include="Vendor\openssl\__DECC_INCLUDE_PROLOGUE.H" />
+    <ClInclude Include="Vendor\VMProtect\VMProtectSDK.h" />
     <ClInclude Include="XorStr.h" />
   </ItemGroup>
   <ItemGroup>

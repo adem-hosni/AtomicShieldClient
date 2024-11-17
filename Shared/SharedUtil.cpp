@@ -1,4 +1,6 @@
 #include <string>
+#include <Windows.h>
+#include <Psapi.h>
 #include <algorithm>
 #include <random>
 #include "SharedUtil.h"
@@ -76,4 +78,32 @@ bool SharedUtil::IsRunningAsAdministator()
         FreeSid(adminGroup);
     }
     return bIsAdmin;
+}
+
+const char* SharedUtil::GetParentProcessName()
+{
+    ULONG_PTR pbi[6];
+    ULONG     ulSize = 0;
+    DWORD     dwPID = 0x0;
+    LONG(WINAPI * NtQueryInformationProcess)
+    (HANDLE ProcessHandle, ULONG ProcessInformationClass, PVOID ProcessInformation, ULONG ProcessInformationLength, PULONG ReturnLength);
+    *(FARPROC*)&NtQueryInformationProcess = GetProcAddress(LoadLibraryA("ntdll.DLL"), "NtQueryInformationProcess");
+    if (NtQueryInformationProcess)
+    {
+        if (NtQueryInformationProcess(GetCurrentProcess(), 0, &pbi, sizeof(pbi), &ulSize) >= 0 && ulSize == sizeof(pbi))
+        {
+            dwPID = pbi[5];
+            HANDLE hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, dwPID);
+            if (!hProcess)
+            {
+                CloseHandle(hProcess);
+                return "";
+            }
+            TCHAR szProcessName[MAX_PATH];
+            if (!GetModuleFileNameEx(hProcess, 0, szProcessName, sizeof(szProcessName)))
+                return "";
+            return szProcessName;
+        }
+    }
+    return "";
 }

@@ -7,10 +7,10 @@ void EntryPoint(LPVOID lpThreadParameter)
 {
     _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
 
-    AllocConsole();
+    /*AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
+    freopen("CONOUT$", "w", stderr);*/
 
     if (!g_pSafeAntiCheat->GetEagleNetwork()->Connect())
         MessageBox(0, "Failed to connect to the server", "Error", 0);
