@@ -1373,7 +1373,7 @@
     <ClInclude Include="Vendor\openssl\x509v3err.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="EaglePacketID.h">
+    <ClInclude Include="SafePacketID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Common.h">

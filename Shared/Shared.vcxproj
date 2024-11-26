@@ -138,7 +138,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Common.h" />
-    <ClInclude Include="EaglePacketID.h" />
+    <ClInclude Include="SafePacketID.h" />
     <ClInclude Include="SharedChecks.h" />
     <ClInclude Include="SharedUtil.h" />
     <ClInclude Include="Vendor\crypto\aes_platform.h" />

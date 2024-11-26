@@ -10,7 +10,7 @@
 #include <ixwebsocket/IXWebSocket.h>
 #include <ixwebsocket/IXUserAgent.h>
 
-#include "EaglePacketID.h"
+#include "SafePacketID.h"
 #include "CHWID.h"
 #include "CMemoryScanner.h"
 #include "CSafeNetwork.h"
