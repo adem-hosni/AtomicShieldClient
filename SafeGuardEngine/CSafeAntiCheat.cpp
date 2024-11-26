@@ -6,14 +6,14 @@ CSafeAntiCheat* g_pSafeAntiCheat = new CSafeAntiCheat();
 
 CSafeAntiCheat::CSafeAntiCheat()
 {
-    m_pEagleNetwork = new CSafeNetwork();
+    m_pSafeNetwork = new CSafeNetwork();
     m_Timing = {};
 }
 
 CSafeAntiCheat::~CSafeAntiCheat()
 {
-    if (m_pEagleNetwork)
-        delete m_pEagleNetwork;
+    if (m_pSafeNetwork)
+        delete m_pSafeNetwork;
 }
 
 bool CheckFairplayStatus(SC_HANDLE hFairplayService)
@@ -80,7 +80,7 @@ bool CSafeAntiCheat::CheckGameAntiCheatsStatus()
 
 void CSafeAntiCheat::DoPulse()
 {
-    CSafeNetwork* pEagleNetwork = g_pSafeAntiCheat->GetEagleNetwork();
+    CSafeNetwork* pEagleNetwork = g_pSafeAntiCheat->GetNetwork();
     while (true)
     {
         pEagleNetwork->DoPulse();

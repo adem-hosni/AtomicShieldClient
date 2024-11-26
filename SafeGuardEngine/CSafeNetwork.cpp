@@ -51,13 +51,13 @@ void CSafeNetwork::SendPacket(eEaglePacketID PacketID, jsoncons::json Data)
 
 void CSafeNetwork::OnConnect()
 {
-    if (!g_pSafeAntiCheat->GetEagleNetwork()->JoinNetwork())
+    if (!g_pSafeAntiCheat->GetNetwork()->JoinNetwork())
     {
         FreeModule(GetModuleHandle(NULL));
         return;
     }
 
-    if (!g_pSafeAntiCheat->GetEagleNetwork()->SyncMaliciousSignatures())
+    if (!g_pSafeAntiCheat->GetNetwork()->SyncMaliciousSignatures())
         MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
 }
 

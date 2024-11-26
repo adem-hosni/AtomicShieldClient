@@ -9,7 +9,7 @@ public:
     CSafeAntiCheat();
     ~CSafeAntiCheat();
 
-    CSafeNetwork* GetEagleNetwork() { return m_pEagleNetwork; }
+    CSafeNetwork* GetNetwork() { return m_pSafeNetwork; }
     STiming&       GetTiming() { return m_Timing; }
 
     bool CheckGameAntiCheatsStatus();
@@ -19,7 +19,7 @@ public:
 private:
     STiming m_Timing;
 
-    CSafeNetwork* m_pEagleNetwork;
+    CSafeNetwork* m_pSafeNetwork;
 };
 
 extern CSafeAntiCheat* g_pSafeAntiCheat;
