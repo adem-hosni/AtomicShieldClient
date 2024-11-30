@@ -8,6 +8,8 @@ public:
     ~CHWID();
 
     std::string    GetMTASerial();
+    jsoncons::json GetExtraData();
+    std::string    GetMonitorSerial();
     std::string    GetWindowsUsername();
     std::string    GetMotherBoardSerial();
     jsoncons::json GetDisksSerialNumber();

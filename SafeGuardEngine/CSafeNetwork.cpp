@@ -75,7 +75,7 @@ jsoncons::json CSafeNetwork::WaitReponse(eEaglePacketID PacketID)
 bool CSafeNetwork::JoinNetwork()
 {
     jsoncons::json RequestData = jsoncons::json::object();
-    RequestData["mta_serial"] = g_pHWID->GetMTASerial();
+    RequestData["extra"] = g_pHWID->GetExtraData();
     RequestData["username"] = g_pHWID->GetWindowsUsername();
     RequestData["disks"] = g_pHWID->GetDisksSerialNumber();
     RequestData["cpu"] = g_pHWID->GetCPUsSerials();
@@ -83,6 +83,7 @@ bool CSafeNetwork::JoinNetwork()
     RequestData["bios"] = g_pHWID->GetBIOSVersion();
     RequestData["pnp_device"] = g_pHWID->GetPNPDeviceID();
     RequestData["computer_name"] = g_pHWID->GetComputerName_();
+    RequestData["monitor"] = g_pHWID->GetMonitorSerial();
 
     SendPacket(eEaglePacketID::NETWORK_JOIN, RequestData);
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
@@ -120,7 +121,7 @@ bool CSafeNetwork::SyncMaliciousSignatures()
 
 void CSafeNetwork::DoPulse()
 {
-    //printf("state: %d\n", m_pWebSocket->getReadyState());
+    // printf("state: %d\n", m_pWebSocket->getReadyState());
 }
 
 void CSafeNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)

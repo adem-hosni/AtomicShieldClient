@@ -15,9 +15,10 @@ CHWID::~CHWID()
 {
 }
 
-std::string CHWID::GetMTASerial()
+jsoncons::json CHWID::GetExtraData()
 {
-    std::string           strMTASerial = "<unkown>";
+    jsoncons::json    json = jsoncons::json();
+    std::string       strMTASerial = "<unkown>";
     CLiteRegeditEasy* pRegistry =
         new CLiteRegeditEasy(HKEY_LOCAL_MACHINE, ("SOFTWARE\\WOW6432Node\\Multi Theft Auto: San Andreas All\\1.6\\Settings\\general"));
 
@@ -25,8 +26,87 @@ std::string CHWID::GetMTASerial()
     {
         strMTASerial = pRegistry->ReadString(("serial"));
     }
+    json["mta_serial"] = strMTASerial;
+    return json;
+}
 
-    return strMTASerial;
+std::string CHWID::GetMonitorSerial()
+{
+    HRESULT hres;
+
+    hres = CoInitializeEx(0, COINIT_MULTITHREADED);
+    if (FAILED(hres))
+        return "<unknown>";
+
+    // Obtain the WMI locator
+    IWbemLocator* pLoc = NULL;
+    hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
+    if (FAILED(hres))
+    {
+        CoUninitialize();
+        return "<unknown>";
+    }
+
+    // Connect to WMI
+    IWbemServices* pSvc = NULL;
+    hres = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0, NULL, 0, 0, &pSvc);
+    if (FAILED(hres))
+    {
+        pLoc->Release();
+        CoUninitialize();
+        return "<unknown>";
+    }
+
+    // Set security levels on the proxy
+    hres = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+    if (FAILED(hres))
+    {
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+        return "<unknown>";
+    }
+
+    // Query the monitor information
+    IEnumWbemClassObject* pEnumerator = NULL;
+    hres =
+        pSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT * FROM Win32_DesktopMonitor"), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
+    if (FAILED(hres))
+    {
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+        return "<unknown>";
+    }
+
+    // Retrieve the data from the query
+    IWbemClassObject* pclsObj = NULL;
+    ULONG             uReturn = 0;
+    std::string       strMonitorSerial = "<unknown>";
+
+    while (pEnumerator)
+    {
+        hres = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+        if (0 == uReturn)
+            break;
+
+        VARIANT vtProp;
+        // Get the serial number (PNPDeviceID) property
+        hres = pclsObj->Get(L"PNPDeviceID", 0, &vtProp, 0, 0);
+        if (SUCCEEDED(hres))
+        {
+            strMonitorSerial = static_cast<const char*>(_bstr_t(vtProp.bstrVal));
+        }
+
+        VariantClear(&vtProp);
+        pclsObj->Release();
+    }
+
+    // Cleanup
+    pSvc->Release();
+    pLoc->Release();
+    CoUninitialize();
+    return strMonitorSerial;
 }
 
 std::string CHWID::GetWindowsUsername()
@@ -97,7 +177,7 @@ std::string CHWID::GetMotherBoardSerial()
         return "<unkown>";
     }
 
-    std::string           strMotherBoardSerial = "<unkown>";
+    std::string       strMotherBoardSerial = "<unkown>";
     IWbemClassObject* pclsObj = NULL;
     ULONG             uReturn = 0;
 
@@ -245,7 +325,7 @@ std::string CHWID::GetCPUsSerials()
     ULONG             uReturn = 0;
 
     // JSON array to hold all processor information
-    std::string        strCPUID;
+    std::string strCPUID;
 
     while (pEnumerator)
     {
@@ -329,7 +409,7 @@ std::string CHWID::GetBIOSVersion()
         return "<unkown>";
     }
 
-    std::string           strBIOSVersion = "<unkown>";
+    std::string       strBIOSVersion = "<unkown>";
     IWbemClassObject* pclsObj = NULL;
     ULONG             uReturn = 0;
 
