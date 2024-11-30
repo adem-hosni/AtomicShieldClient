@@ -28,12 +28,10 @@ jsoncons::json CSafeAPI::GetStatus()
 
 void CSafeAPI::DownloadAgentPEB(std::string* buffer)
 {
-    *buffer = PostRequest(API_BASE_URL "/resources/agentpeb");
+    *buffer = PostRequest(API_BASE_URL "/resources/scan/multitheftauto");
     //*buffer = g_pSafeCore->Decrypt(encrypted_buffer.data());
 
     auto s = *buffer;
-
-    printf("agent peb buffer size: %d\n", s.length());
 }
 
 std::string CSafeAPI::PostRequest(const char* szURL, jsoncons::json Data, bool bEncryptRequestBody, bool bDecryptRespnseBody)
