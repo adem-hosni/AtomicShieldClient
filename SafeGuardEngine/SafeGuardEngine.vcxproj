@@ -175,11 +175,11 @@
       <AdditionalDependencies>../Build/Shared.lib;ixwebsocket.lib;ws2_32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>del "C:\Users\hosni\Documents\SafeGuard\bin\production\agent\agent_peb.dll" 
+      <Command>del "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\multitheftauto.dll"
 
-xcopy "C:\Users\hosni\Documents\GitHub\SafeGuardClient\Build\SafeGuardEngine.dll" "C:\Users\hosni\Documents\SafeGuard\bin\production\agent" /Y /R
+xcopy "C:\Users\hosni\Documents\GitHub\SafeGuardClient\Build\SafeGuardEngine.dll" "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines" /Y /R
 
-rename "C:\Users\hosni\Documents\SafeGuard\bin\production\agent\SafeGuardEngine.dll" "agent_peb.dll"
+rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\SafeGuardEngine.dll" "multitheftauto.dll"
 </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
