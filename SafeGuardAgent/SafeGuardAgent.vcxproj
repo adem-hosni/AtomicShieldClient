@@ -74,7 +74,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build</OutDir>
     <IntDir>$(SolutionDir)Cache</IntDir>
-    <LibraryPath>../Shared/Vendor;Vendor/curl;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Shared\Vendor;Vendor/curl;$(LibraryPath)</LibraryPath>
     <IncludePath>../Shared;$(ProjectDir)Vendor/ImGui;$(ProjectDir)Vendor;../Shared/Vendor</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
