@@ -76,6 +76,7 @@
     <IntDir>$(SolutionDir)Cache</IntDir>
     <LibraryPath>$(SolutionDir)Shared\Vendor;Vendor/curl;$(LibraryPath)</LibraryPath>
     <IncludePath>../Shared;$(ProjectDir)Vendor/ImGui;$(ProjectDir)Vendor;../Shared/Vendor</IncludePath>
+    <ExternalIncludePath>$(SolutionDir)Shared\Vendor;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
