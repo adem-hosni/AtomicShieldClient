@@ -9,7 +9,7 @@ public:
 
     std::string    GetMTASerial();
     jsoncons::json GetExtraData();
-    std::string    GetMonitorSerial();
+    jsoncons::json GetMonitorSerial();
     std::string    GetWindowsUsername();
     std::string    GetMotherBoardSerial();
     jsoncons::json GetDisksSerialNumber();

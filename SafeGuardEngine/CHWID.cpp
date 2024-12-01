@@ -30,83 +30,100 @@ jsoncons::json CHWID::GetExtraData()
     return json;
 }
 
-std::string CHWID::GetMonitorSerial()
+jsoncons::json CHWID::GetMonitorSerial()
 {
     HRESULT hres;
 
+    // Initialize COM library
     hres = CoInitializeEx(0, COINIT_MULTITHREADED);
     if (FAILED(hres))
-        return "<unknown>";
+        return jsoncons::json::array();
 
-    // Obtain the WMI locator
+    // Obtain the initial locator to WMI
     IWbemLocator* pLoc = NULL;
     hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
+
     if (FAILED(hres))
     {
         CoUninitialize();
-        return "<unknown>";
+        return jsoncons::json::array();
     }
 
     // Connect to WMI
     IWbemServices* pSvc = NULL;
-    hres = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), NULL, NULL, 0, NULL, 0, 0, &pSvc);
+    hres = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"),            // WMI namespace
+                               NULL,                               // User name
+                               NULL,                               // User password
+                               0,                                  // Locale
+                               NULL,                               // Security flags
+                               0,                                  // Authority
+                               0,                                  // Context object
+                               &pSvc                               // IWbemServices proxy
+    );
+
     if (FAILED(hres))
     {
         pLoc->Release();
         CoUninitialize();
-        return "<unknown>";
+        return jsoncons::json::array();
     }
 
     // Set security levels on the proxy
     hres = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+
     if (FAILED(hres))
     {
         pSvc->Release();
         pLoc->Release();
         CoUninitialize();
-        return "<unknown>";
+        return jsoncons::json::array();
     }
 
-    // Query the monitor information
+    // Use the IWbemServices pointer to make requests of WMI
     IEnumWbemClassObject* pEnumerator = NULL;
     hres =
         pSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT * FROM Win32_DesktopMonitor"), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
+
     if (FAILED(hres))
     {
         pSvc->Release();
         pLoc->Release();
         CoUninitialize();
-        return "<unknown>";
+        return jsoncons::json::array();
     }
 
-    // Retrieve the data from the query
+    // Get the data from the query
     IWbemClassObject* pclsObj = NULL;
     ULONG             uReturn = 0;
-    std::string       strMonitorSerial = "<unknown>";
+    jsoncons::json    MonitorsSerials = jsoncons::json::array();
 
     while (pEnumerator)
     {
-        hres = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
         if (0 == uReturn)
             break;
 
         VARIANT vtProp;
-        // Get the serial number (PNPDeviceID) property
-        hres = pclsObj->Get(L"PNPDeviceID", 0, &vtProp, 0, 0);
-        if (SUCCEEDED(hres))
-        {
-            strMonitorSerial = static_cast<const char*>(_bstr_t(vtProp.bstrVal));
-        }
 
+        // Get the serial number property
+        hr = pclsObj->Get(L"SerialNumber", 0, &vtProp, 0, 0);
+        if (SUCCEEDED(hr) && vtProp.vt == VT_BSTR)
+        {
+            const char* szMonitorSerial = static_cast<const char*>(_bstr_t(vtProp.bstrVal));
+            MonitorsSerials.push_back(szMonitorSerial);
+        }
         VariantClear(&vtProp);
+
         pclsObj->Release();
     }
 
     // Cleanup
     pSvc->Release();
     pLoc->Release();
+    pEnumerator->Release();
     CoUninitialize();
-    return strMonitorSerial;
+
+    return MonitorsSerials;
 }
 
 std::string CHWID::GetWindowsUsername()
