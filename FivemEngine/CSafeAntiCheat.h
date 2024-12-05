@@ -12,8 +12,6 @@ public:
     CSafeNetwork* GetNetwork() { return m_pSafeNetwork; }
     STiming&       GetTiming() { return m_Timing; }
 
-    bool CheckGameAntiCheatsStatus();
-
     static void DoPulse();
 
 private:

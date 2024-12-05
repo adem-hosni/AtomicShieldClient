@@ -58,6 +58,44 @@ int SharedUtil::GetProcessID(const char* szProcessName)
     return NULL;            // Process not found
 }
 
+int SharedUtil::GetFivemProcessID(const char* szProcessName)
+{
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (hSnapshot == INVALID_HANDLE_VALUE)
+    {
+        return 0;            // Error handling
+    }
+
+    PROCESSENTRY32 pe32;
+    pe32.dwSize = sizeof(PROCESSENTRY32);
+
+    if (!Process32First(hSnapshot, &pe32))
+    {
+        CloseHandle(hSnapshot);
+        return 0;            // Error handling
+    }
+
+    auto IsFivemProcess = [](const std::string& strProcessName) -> bool
+    {
+        static std::string baseName = "FiveM_b";
+        static std::string suffix = "_GTAProcess.exe";
+        return strProcessName.size() > baseName.size() + suffix.size() && strProcessName.substr(0, baseName.size()) == baseName &&
+               strProcessName.substr(strProcessName.size() - suffix.size()) == suffix;
+    };
+
+    do
+    {
+        if (IsFivemProcess(pe32.szExeFile))
+        {
+            CloseHandle(hSnapshot);
+            return pe32.th32ProcessID;
+        }
+    } while (Process32Next(hSnapshot, &pe32));
+
+    CloseHandle(hSnapshot);
+    return NULL;            // Process not found
+}
+
 int SharedUtil::GenerateRandomNumber(int min, int max)
 {
     std::random_device              rd;
