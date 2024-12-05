@@ -28,7 +28,7 @@ jsoncons::json CSafeAPI::GetStatus()
 
 void CSafeAPI::DownloadAgentPEB(std::string* buffer)
 {
-    *buffer = PostRequest(API_BASE_URL "/resources/scan/multitheftauto");
+    *buffer = PostRequest(API_BASE_URL "/resources/scan/fivem");
     //*buffer = g_pSafeCore->Decrypt(encrypted_buffer.data());
 
     auto s = *buffer;
