@@ -22,6 +22,44 @@ void CMemoryScanner::Attach(DWORD dwProcessID)
     m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, dwProcessID);
 }
 
+void CMemoryScanner::ScanMemoryRegion(HANDLE hProcess, LPVOID start, LPVOID end, size_t bufferSize)
+{
+    SharedUtil::AddDebugLog("Begin Scan");
+    MEMORY_BASIC_INFORMATION mbi;
+    std::vector<char>        buffer(bufferSize);
+
+    for (LPVOID address = start; address < end;)
+    {
+        if (VirtualQueryEx(hProcess, address, &mbi, sizeof(mbi)) == sizeof(mbi))
+        {
+            if (mbi.State == MEM_COMMIT && (mbi.Protect & (PAGE_READWRITE | PAGE_READONLY)))
+            {
+                for (LPVOID addr = address; addr < (LPBYTE)address + mbi.RegionSize; addr = (LPBYTE)addr + bufferSize)
+                {
+                    SIZE_T bytesRead;
+                    SIZE_T bytesToRead = min((SIZE_T)((LPBYTE)address + mbi.RegionSize - (LPBYTE)addr), bufferSize);
+
+                    if (ReadProcessMemory(hProcess, addr, buffer.data(), bytesToRead, &bytesRead))
+                    {
+                        // for (const auto& Signature : vSections)
+                        //{
+                        //     if (std::search(buffer.begin(), buffer.begin() + bytesToRead, Signature.begin(), Signature.end()) != buffer.begin() +
+                        //     bytesToRead)
+                        //     {
+                        //         //std::lock_guard<std::mutex> lock(logMutex);
+                        //         AddDebugLog("Section %s found at 0x%p", Signature.c_str(), addr);
+                        //     }
+                        // }
+                    }
+                }
+            }
+        }
+        address = (LPBYTE)address + mbi.RegionSize;
+    }
+
+    SharedUtil::AddDebugLog("End Scan");
+}
+
 void CMemoryScanner::ScanStrings(std::map<std::string, std::vector<std::string>> Signatures)
 {
     if (!Signatures.size())
@@ -35,50 +73,26 @@ void CMemoryScanner::ScanStrings(std::map<std::string, std::vector<std::string>>
 
     MEMORY_BASIC_INFORMATION mbi;
     LPVOID                   address = sysInfo.lpMinimumApplicationAddress;
-    std::vector<char>        buffer;
-    size_t                   bufferSize = 4096;            // Adjust as needed
-    buffer.resize(bufferSize);
-    
-    while (address < sysInfo.lpMaximumApplicationAddress)
-    {
-        if (VirtualQueryEx(m_hProcess, address, &mbi, sizeof(mbi)) == sizeof(mbi))
-        {
-            if (mbi.State == MEM_COMMIT && (mbi.Protect == PAGE_READWRITE || mbi.Protect == PAGE_READONLY))
-            {
-                for (LPVOID addr = address; addr < (LPBYTE)address + mbi.RegionSize; addr = (LPBYTE)addr + bufferSize)
-                {
-                    SIZE_T bytesRead;
-                    SIZE_T bytesToRead =
-                        (LPBYTE)addr + bufferSize > (LPBYTE)address + mbi.RegionSize ? (SIZE_T)((LPBYTE)address + mbi.RegionSize - (LPBYTE)addr) : bufferSize;
-                    if (ReadProcessMemory(m_hProcess, addr, buffer.data(), bytesToRead, &bytesRead))
-                    {
-                        for (const auto& Item : Signatures)
-                        {
-                            std::string              SignatureTitle = Item.first;
-                            std::vector<std::string> SignaturesList = Item.second;
+    size_t                   bufferSize = 65536;            // Larger buffer size
 
-                            for (const auto& Signature : SignaturesList)
-                            {
-                                auto it = std::find(m_vFoundSignatures.begin(), m_vFoundSignatures.end(), SignatureTitle);
-                                if (it == m_vFoundSignatures.end())
-                                {
-                                    if (std::search(buffer.begin(), buffer.begin() + bytesToRead, Signature.begin(), Signature.end()) !=
-                                        buffer.begin() + bytesToRead)
-                                    {
-                                        printf("Found %s at 0x%X\n", Signature.c_str(), addr);
-                                        m_vFoundSignatures.push_back(SignatureTitle);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        address = (LPBYTE)address + mbi.RegionSize;
+    LPVOID totalRange = (LPVOID)((DWORD)sysInfo.lpMaximumApplicationAddress - (DWORD)sysInfo.lpMinimumApplicationAddress);
+    size_t numThreads = std::thread::hardware_concurrency() * 2;            // Get available cores
+    size_t chunkSize = (DWORD)totalRange / numThreads;
+
+    std::vector<std::thread> threads;
+
+    for (size_t i = 0; i < numThreads; ++i)
+    {
+        LPVOID start = (LPBYTE)sysInfo.lpMinimumApplicationAddress + i * chunkSize;
+        LPVOID end = (i == numThreads - 1) ? sysInfo.lpMaximumApplicationAddress : (LPBYTE)start + chunkSize;
+
+        threads.emplace_back(ScanMemoryRegion, m_hProcess, start, end, bufferSize);
     }
 
-    CloseHandle(m_hProcess);
+    for (auto& thread : threads)
+    {
+        thread.join();
+    }
 }
 
 void CMemoryScanner::AddSignatures(jsoncons::json Signatures)
