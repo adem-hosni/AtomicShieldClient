@@ -145,3 +145,38 @@ const char* SharedUtil::GetParentProcessName()
     }
     return "";
 }
+
+void SharedUtil::AddDebugLog(const char* szLog, ...)
+{
+    std::string log_name = "Trace.logs";
+    char*       szLogDirectory = (char*)"C:\\Users\\hosni\\Documents\\GitHub\\SafeGuardClient\\FivemEngine";
+    char        szNewDirectory[600];
+    memset(szNewDirectory, 0, sizeof(szNewDirectory));
+    sprintf(szNewDirectory, "%s\\%s", szLogDirectory, log_name.c_str());
+    static bool bOnce = false;
+    if (!bOnce)
+    {
+        FILE* hFile = fopen(szNewDirectory, "rb");
+        if (hFile)
+        {
+            fclose(hFile);
+            DeleteFileA(szNewDirectory);
+        }
+        bOnce = true;
+    }
+    FILE* hFile = fopen(szNewDirectory, "a+");
+    if (hFile)
+    {
+        time_t t = std::time(0);
+        tm*    now = std::localtime(&t);
+        char   szTimestamp[600];
+        memset(szTimestamp, 0, sizeof(szTimestamp));
+        sprintf(szTimestamp, "[%d:%d:%d] %s\n", now->tm_hour, now->tm_min, now->tm_sec, szLog);
+        va_list args;
+        va_start(args, szLog);
+        vprintf(szTimestamp, args);
+        vfprintf(hFile, szTimestamp, args);
+        va_end(args);
+        fclose(hFile);
+    }
+}

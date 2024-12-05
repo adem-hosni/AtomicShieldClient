@@ -10,4 +10,5 @@ namespace SharedUtil
     int         GenerateRandomNumber(int min, int max);
     const char* GetParentProcessName();
     bool        IsRunningAsAdministator();
+    void        AddDebugLog(const char* szLog, ...);
 }            // namespace SharedUtil
