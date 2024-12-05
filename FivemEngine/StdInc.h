@@ -15,3 +15,4 @@
 #include "CMemoryScanner.h"
 #include "CSafeNetwork.h"
 #include "CSafeAntiCheat.h"
+#include "SharedUtil.h"
