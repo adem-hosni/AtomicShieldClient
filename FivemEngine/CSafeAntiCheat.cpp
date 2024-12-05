@@ -22,8 +22,8 @@ void CSafeAntiCheat::DoPulse()
     while (true)
     {
         pEagleNetwork->DoPulse();
-
-        if (!SharedUtil::GetProcessID("gta_sa.exe"))
+        int iProcessID = SharedUtil::GetFivemProcessID();
+        if (!iProcessID)
         {
             Sleep(50);
             continue;
@@ -33,7 +33,7 @@ void CSafeAntiCheat::DoPulse()
         STiming&      Timing = g_pSafeAntiCheat->GetTiming();
 
         if (!g_pMemoryScanner->IsAttached())
-            g_pMemoryScanner->Attach(SharedUtil::GetProcessID("gta_sa.exe"));
+            g_pMemoryScanner->Attach(iProcessID);
 
         if (llCurrentTime - Timing.llLastMemoryScan > GAME_MEMORY_SCAN_INTERVAL)
         {
