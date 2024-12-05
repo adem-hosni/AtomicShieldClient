@@ -58,7 +58,7 @@ int SharedUtil::GetProcessID(const char* szProcessName)
     return NULL;            // Process not found
 }
 
-int SharedUtil::GetFivemProcessID(const char* szProcessName)
+int SharedUtil::GetFivemProcessID()
 {
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (hSnapshot == INVALID_HANDLE_VALUE)
