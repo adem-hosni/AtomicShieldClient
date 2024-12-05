@@ -33,7 +33,7 @@ bool CSafeNetwork::Connect()
     return result.success;
 }
 
-void CSafeNetwork::SendPacket(eEaglePacketID PacketID, jsoncons::json Data)
+void CSafeNetwork::SendPacket(eSafePacketID PacketID, jsoncons::json Data)
 {
     // Allocate new json object
     jsoncons::json PacketJson = jsoncons::json::object();
@@ -61,7 +61,7 @@ void CSafeNetwork::OnConnect()
         MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
 }
 
-jsoncons::json CSafeNetwork::WaitReponse(eEaglePacketID PacketID)
+jsoncons::json CSafeNetwork::WaitReponse(eSafePacketID PacketID)
 {
     while (m_UnhandledPackets.find(PacketID) == m_UnhandledPackets.end())
     {
@@ -85,7 +85,7 @@ bool CSafeNetwork::JoinNetwork()
     RequestData["computer_name"] = g_pHWID->GetComputerName_();
     RequestData["monitor"] = g_pHWID->GetMonitorSerial();
 
-    SendPacket(eEaglePacketID::NETWORK_JOIN, RequestData);
+    SendPacket(eSafePacketID::NETWORK_JOIN, RequestData);
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
 
     if (!Response["success"].as_bool())
@@ -138,7 +138,7 @@ void CSafeNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         {
             std::lock_guard<std::mutex> lock(m_mutex);
             jsoncons::json              json = jsoncons::json::parse(Message->str);
-            m_UnhandledPackets.insert_or_assign((eEaglePacketID)json["type"].as<int>(), json);
+            m_UnhandledPackets.insert_or_assign((eSafePacketID)json["type"].as<int>(), json);
             m_condition.notify_all();
             break;
         }

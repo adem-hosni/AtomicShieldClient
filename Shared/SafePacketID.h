@@ -1,6 +1,6 @@
 #pragma once
 
-enum eEaglePacketID
+enum eSafePacketID
 {
     NETWORK_JOIN = 1,
     SYNC_SIGNATURES,

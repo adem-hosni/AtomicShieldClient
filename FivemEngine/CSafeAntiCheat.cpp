@@ -18,10 +18,10 @@ CSafeAntiCheat::~CSafeAntiCheat()
 
 void CSafeAntiCheat::DoPulse()
 {
-    CSafeNetwork* pEagleNetwork = g_pSafeAntiCheat->GetNetwork();
+    CSafeNetwork* pSafeNetwork = g_pSafeAntiCheat->GetNetwork();
     while (true)
     {
-        pEagleNetwork->DoPulse();
+        pSafeNetwork->DoPulse();
         int iProcessID = SharedUtil::GetFivemProcessID();
         if (!iProcessID)
         {
@@ -37,7 +37,7 @@ void CSafeAntiCheat::DoPulse()
 
         if (llCurrentTime - Timing.llLastMemoryScan > GAME_MEMORY_SCAN_INTERVAL)
         {
-            g_pMemoryScanner->ScanStrings(pEagleNetwork->GetSignatures());
+            g_pMemoryScanner->ScanStrings(pSafeNetwork->GetSignatures());
 
             std::vector<std::string> vSignatures = g_pMemoryScanner->GetDetectedSignatures();
             unsigned int             uiScanResult = vSignatures.size();
@@ -48,7 +48,7 @@ void CSafeAntiCheat::DoPulse()
                 g_pMemoryScanner->UpdateLatestScanResult(uiScanResult);
                 jsoncons::json RequestData = jsoncons::json::object();
                 RequestData["signatures"] = vSignatures;
-                pEagleNetwork->SendPacket(eEaglePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
+                pSafeNetwork->SendPacket(eSafePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
             }
             Timing.llLastMemoryScan = llCurrentTime;
         }

@@ -101,7 +101,7 @@ void CSafeAntiCheat::DoPulse()
         {
             jsoncons::json JsonRequest = jsoncons::json::object();
             JsonRequest["status"] = g_pSafeAntiCheat->CheckGameAntiCheatsStatus();
-            pEagleNetwork->SendPacket(eEaglePacketID::GAME_ANTICHEAT_COMPONENT_STATUS, JsonRequest);
+            pEagleNetwork->SendPacket(eSafePacketID::GAME_ANTICHEAT_COMPONENT_STATUS, JsonRequest);
             Timing.llLastGameAntiCheatCheck = llCurrentTime;
         }
 
@@ -118,7 +118,7 @@ void CSafeAntiCheat::DoPulse()
                 g_pMemoryScanner->UpdateLatestScanResult(uiScanResult);
                 jsoncons::json RequestData = jsoncons::json::object();
                 RequestData["signatures"] = vSignatures;
-                pEagleNetwork->SendPacket(eEaglePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
+                pEagleNetwork->SendPacket(eSafePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
             }
             Timing.llLastMemoryScan = llCurrentTime;
         }

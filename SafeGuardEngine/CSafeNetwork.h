@@ -15,8 +15,8 @@ public:
 
     bool           Connect();
     bool           IsConnected() { return m_bConnected; }
-    void           SendPacket(eEaglePacketID PacketID, jsoncons::json Data = jsoncons::json());
-    jsoncons::json WaitReponse(eEaglePacketID PacketID);
+    void           SendPacket(eSafePacketID PacketID, jsoncons::json Data = jsoncons::json());
+    jsoncons::json WaitReponse(eSafePacketID PacketID);
 
     static void OnConnect();
     void DoPulse();
@@ -32,7 +32,7 @@ private:
     ix::WebSocket*                                  m_pWebSocket;
     std::mutex                                      m_mutex;
     std::condition_variable                         m_condition;
-    std::map<eEaglePacketID, jsoncons::json>        m_UnhandledPackets;
+    std::map<eSafePacketID, jsoncons::json>        m_UnhandledPackets;
     std::map<std::string, std::vector<std::string>> m_Signatures;
 
     bool m_bConnected;
