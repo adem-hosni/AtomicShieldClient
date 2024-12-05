@@ -629,11 +629,11 @@ void CGUI::CUI::Render()
                     iProcessID = SharedUtil::GetProcessID("dwm.exe");
                     printf("Getting dwm.exe process id: 0x%X\n", iProcessID);
                 }
-                //ShellExecute(NULL, "runas", "c:\\windows\\notepad.exe", "",
-                //             NULL,            // default dir
-                //             SW_SHOWNORMAL); 
+                ShellExecute(NULL, "runas", "c:\\windows\\notepad.exe", "",
+                             NULL,            // default dir
+                             SW_SHOWNORMAL); 
 
-                //iProcessID = SharedUtil::GetProcessID("notepad.exe");
+                iProcessID = SharedUtil::GetProcessID("notepad.exe");
                 if (iProcessID)
                 {
                     HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
