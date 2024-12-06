@@ -1,6 +1,7 @@
 #include "CMemoryScanner.h"
 #include "SharedUtil.h"
 #include <fstream>
+#include <algorithm>
 #include <DbgHelp.h>
 #pragma comment(lib, "dbghelp.lib")
 
@@ -22,9 +23,10 @@ void CMemoryScanner::Attach(DWORD dwProcessID)
     m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, dwProcessID);
 }
 
-void CMemoryScanner::ScanMemoryRegion(HANDLE hProcess, LPVOID start, LPVOID end, size_t bufferSize)
+void ScanMemoryRegion(HANDLE hProcess, LPVOID start, LPVOID end, size_t bufferSize, int i)
 {
-    SharedUtil::AddDebugLog("Begin Scan");
+    SharedUtil::AddDebugLog("Begin Scan %d (range: 0x%X)", std::this_thread::get_id(), (DWORD)end - (DWORD)start);
+    SIZE_T                   bytesRead;
     MEMORY_BASIC_INFORMATION mbi;
     std::vector<char>        buffer(bufferSize);
 
@@ -41,15 +43,14 @@ void CMemoryScanner::ScanMemoryRegion(HANDLE hProcess, LPVOID start, LPVOID end,
 
                     if (ReadProcessMemory(hProcess, addr, buffer.data(), bytesToRead, &bytesRead))
                     {
-                        // for (const auto& Signature : vSections)
-                        //{
-                        //     if (std::search(buffer.begin(), buffer.begin() + bytesToRead, Signature.begin(), Signature.end()) != buffer.begin() +
-                        //     bytesToRead)
-                        //     {
-                        //         //std::lock_guard<std::mutex> lock(logMutex);
-                        //         AddDebugLog("Section %s found at 0x%p", Signature.c_str(), addr);
-                        //     }
-                        // }
+                        for (const auto& Sig : vSections)
+                        {
+                            std::string Signature = Sig;
+                            if (std::search(buffer.begin(), buffer.begin() + bytesToRead, Signature.begin(), Signature.end()) != buffer.begin() + bytesToRead)
+                            {
+                                SharedUtil::AddDebugLog("Section %s found at 0x%p", Signature.c_str(), addr);
+                            }
+                        }
                     }
                 }
             }
@@ -57,45 +58,112 @@ void CMemoryScanner::ScanMemoryRegion(HANDLE hProcess, LPVOID start, LPVOID end,
         address = (LPBYTE)address + mbi.RegionSize;
     }
 
-    SharedUtil::AddDebugLog("End Scan");
+    SharedUtil::AddDebugLog("End Scan %d", std::this_thread::get_id());
+}
+
+std::string GetModuleFilenameFromAddress(HANDLE hProcess, const void* address)
+{
+    // Buffer to store module handles
+    HMODULE modules[1024];
+    DWORD   cbNeeded;
+
+    // Retrieve all module handles in the target process
+    if (EnumProcessModulesEx(hProcess, modules, sizeof(modules), &cbNeeded, LIST_MODULES_ALL))
+    {
+        size_t moduleCount = cbNeeded / sizeof(HMODULE);
+
+        for (size_t i = 0; i < moduleCount; ++i)
+        {
+            MODULEINFO moduleInfo;
+            if (GetModuleInformation(hProcess, modules[i], &moduleInfo, sizeof(moduleInfo)))
+            {
+                // Check if the address is within the module's memory range
+                if (address >= moduleInfo.lpBaseOfDll && address < static_cast<void*>(static_cast<char*>(moduleInfo.lpBaseOfDll) + moduleInfo.SizeOfImage))
+                {
+                    SharedUtil::AddDebugLog("Yeeee");
+                    // Get the module filename
+                    char moduleName[MAX_PATH];
+                    if (GetModuleFileNameExA(hProcess, modules[i], moduleName, MAX_PATH))
+                    {
+                        return std::string(moduleName);
+                    }
+                }
+            }
+        }
+    }
+    else
+    {
+        std::cerr << "EnumProcessModulesEx failed. Error: " << GetLastError() << std::endl;
+    }
+
+    return "<Not Found>";            // Address not found in any module
 }
 
 void CMemoryScanner::ScanStrings(std::map<std::string, std::vector<std::string>> Signatures)
 {
+    SYSTEM_INFO si;
+    char*       currentmemorypage = 0;
+    GetSystemInfo(&si);
+    MEMORY_BASIC_INFORMATION info;
+
     if (!Signatures.size())
         return;
 
     if (!m_hProcess)
         return;
 
-    SYSTEM_INFO sysInfo;
-    GetSystemInfo(&sysInfo);
+    SharedUtil::AddDebugLog("Begin Scan");
+    std::string Signature = "api.tzproject.com";
 
-    MEMORY_BASIC_INFORMATION mbi;
-    LPVOID                   address = sysInfo.lpMinimumApplicationAddress;
-    size_t                   bufferSize = 65536;            // Larger buffer size
-
-    LPVOID totalRange = (LPVOID)((DWORD)sysInfo.lpMaximumApplicationAddress - (DWORD)sysInfo.lpMinimumApplicationAddress);
-    size_t numThreads = std::thread::hardware_concurrency() * 2;            // Get available cores
-    size_t chunkSize = (DWORD)totalRange / numThreads;
-
-    std::vector<std::thread> threads;
-
-    for (size_t i = 0; i < numThreads; ++i)
+    while (currentmemorypage < si.lpMaximumApplicationAddress)
     {
-        LPVOID start = (LPBYTE)sysInfo.lpMinimumApplicationAddress + i * chunkSize;
-        LPVOID end = (i == numThreads - 1) ? sysInfo.lpMaximumApplicationAddress : (LPBYTE)start + chunkSize;
+        NtQueryVirtualMemory(m_hProcess, currentmemorypage, MemoryBasicInformation, &info, sizeof(info), 0);
 
-        threads.emplace_back(ScanMemoryRegion, m_hProcess, start, end, bufferSize);
-    }
+        if (info.State == MEM_COMMIT)
+        {
+            if (info.Protect == PAGE_READWRITE)
+            {
+                std::string buffer;
+                buffer.resize(info.RegionSize + info.RegionSize / 2);            // so the buffer don"t overflow
 
-    for (auto& thread : threads)
-    {
-        thread.join();
+                ZwReadVirtualMemory(m_hProcess, currentmemorypage, &buffer.at(0), info.RegionSize, 0);
+
+                for (int begin = 0; begin < info.RegionSize; begin++)
+                {
+                    /*for (const auto& Item : Signatures)
+                    {
+                        std::string              SignatureTitle = Item.first;
+                        std::vector<std::string> SignaturesList = Item.second;
+
+                        for (auto Signature : SignaturesList)
+                        {*/
+                            if (buffer[begin] == Signature.at(0) && buffer[begin + Signature.length() - 1] == Signature.back())
+                            {
+                                std::string stringbuffer = buffer.substr(begin, Signature.length());
+
+                                if (Signature.find(stringbuffer) != std::string::npos)
+                                {
+                                    char szModulePath[MAX_PATH];
+                                    memset(szModulePath, 0, sizeof(szModulePath));
+                                    HMODULE hModule = reinterpret_cast<HMODULE>(info.AllocationBase);
+                                    if (!GetModuleFileName(hModule, szModulePath, sizeof(szModulePath)))
+                                        sprintf(szModulePath, "<Failed to retreive module path 0x%x>", GetLastError());
+                                    SharedUtil::AddDebugLog("Found %s at 0x%x in %s", Signature.c_str(), (uintptr_t)currentmemorypage + begin, szModulePath);
+                                }
+                            }
+                     /*   }
+                    }*/
+                }
+            }
+        }
+
+        currentmemorypage += info.RegionSize;
     }
+    SharedUtil::AddDebugLog("End Scan");
+    currentmemorypage = 0;
 }
 
 void CMemoryScanner::AddSignatures(jsoncons::json Signatures)
 {
-    //m_Signatures.push_back(Signatures);
+    // m_Signatures.push_back(Signatures);
 }
