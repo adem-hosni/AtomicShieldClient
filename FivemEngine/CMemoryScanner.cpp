@@ -23,44 +23,6 @@ void CMemoryScanner::Attach(DWORD dwProcessID)
     m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, dwProcessID);
 }
 
-void ScanMemoryRegion(HANDLE hProcess, LPVOID start, LPVOID end, size_t bufferSize, int i)
-{
-    SharedUtil::AddDebugLog("Begin Scan %d (range: 0x%X)", std::this_thread::get_id(), (DWORD)end - (DWORD)start);
-    SIZE_T                   bytesRead;
-    MEMORY_BASIC_INFORMATION mbi;
-    std::vector<char>        buffer(bufferSize);
-
-    for (LPVOID address = start; address < end;)
-    {
-        if (VirtualQueryEx(hProcess, address, &mbi, sizeof(mbi)) == sizeof(mbi))
-        {
-            if (mbi.State == MEM_COMMIT && (mbi.Protect & (PAGE_READWRITE | PAGE_READONLY)))
-            {
-                for (LPVOID addr = address; addr < (LPBYTE)address + mbi.RegionSize; addr = (LPBYTE)addr + bufferSize)
-                {
-                    SIZE_T bytesRead;
-                    SIZE_T bytesToRead = min((SIZE_T)((LPBYTE)address + mbi.RegionSize - (LPBYTE)addr), bufferSize);
-
-                    if (ReadProcessMemory(hProcess, addr, buffer.data(), bytesToRead, &bytesRead))
-                    {
-                        for (const auto& Sig : vSections)
-                        {
-                            std::string Signature = Sig;
-                            if (std::search(buffer.begin(), buffer.begin() + bytesToRead, Signature.begin(), Signature.end()) != buffer.begin() + bytesToRead)
-                            {
-                                SharedUtil::AddDebugLog("Section %s found at 0x%p", Signature.c_str(), addr);
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        address = (LPBYTE)address + mbi.RegionSize;
-    }
-
-    SharedUtil::AddDebugLog("End Scan %d", std::this_thread::get_id());
-}
-
 std::string GetModuleFilenameFromAddress(HANDLE hProcess, const void* address)
 {
     // Buffer to store module handles
