@@ -85,6 +85,8 @@ bool CSafeNetwork::JoinNetwork()
     RequestData["computer_name"] = g_pHWID->GetComputerName_();
     RequestData["monitor"] = g_pHWID->GetMonitorSerial();
 
+    RequestData["engine_type"] = 2; // FiveM
+
     SendPacket(eSafePacketID::NETWORK_JOIN, RequestData);
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
 
