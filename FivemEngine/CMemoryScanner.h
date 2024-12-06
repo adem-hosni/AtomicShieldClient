@@ -30,7 +30,6 @@ public:
     void Attach(DWORD dwProcessID);
     bool IsAttached() { return m_hProcess != NULL; }
 
-    static void            ScanMemoryRegion(HANDLE hProcess, LPVOID start, LPVOID end, size_t bufferSize);
     void                   ScanStrings(std::map<std::string, std::vector<std::string>> Signatures);
     std::vector<uintptr_t> GetVMAddresses() { return m_vAddresses; };
 
