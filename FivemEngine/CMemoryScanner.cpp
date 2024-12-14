@@ -16,11 +16,9 @@ CMemoryScanner::~CMemoryScanner()
     CloseHandle(m_hProcess);
 }
 
-void CMemoryScanner::Attach(DWORD dwProcessID)
+void CMemoryScanner::Attach(HANDLE hProcess)
 {
-    GetSystemInfo(&m_SystemInfo);
-    m_dwProcessID = dwProcessID;
-    m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, 0, dwProcessID);
+    m_hProcess = hProcess;
 }
 
 std::string GetModuleFilenameFromAddress(HANDLE hProcess, const void* address)
@@ -92,13 +90,13 @@ void CMemoryScanner::ScanStrings(std::map<std::string, std::vector<std::string>>
 
                 for (int begin = 0; begin < info.RegionSize; begin++)
                 {
-                    /*for (const auto& Item : Signatures)
+                    for (const auto& Item : Signatures)
                     {
                         std::string              SignatureTitle = Item.first;
                         std::vector<std::string> SignaturesList = Item.second;
 
                         for (auto Signature : SignaturesList)
-                        {*/
+                        {
                             if (buffer[begin] == Signature.at(0) && buffer[begin + Signature.length() - 1] == Signature.back())
                             {
                                 std::string stringbuffer = buffer.substr(begin, Signature.length());
@@ -113,8 +111,8 @@ void CMemoryScanner::ScanStrings(std::map<std::string, std::vector<std::string>>
                                     SharedUtil::AddDebugLog("Found %s at 0x%x in %s", Signature.c_str(), (uintptr_t)currentmemorypage + begin, szModulePath);
                                 }
                             }
-                     /*   }
-                    }*/
+                        }
+                    }
                 }
             }
         }
