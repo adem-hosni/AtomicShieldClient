@@ -100,6 +100,7 @@ bool CSafeNetwork::SyncMaliciousSignatures()
 {
     SendPacket(SYNC_SIGNATURES);
     jsoncons::json Response = WaitReponse(SYNC_SIGNATURES);
+    SharedUtil::AddDebugLog("Response: %s", Response.to_string().c_str());
     jsoncons::json Signatures = Response["signatures"];
 
     for (const auto& Item : Signatures.object_range())
@@ -117,7 +118,8 @@ bool CSafeNetwork::SyncMaliciousSignatures()
             m_Signatures[SignatureTitle] = vSignatures;
         }
     }
-    _beginthread((_beginthread_proc_type)&CSafeAntiCheat::DoPulse, NULL, g_pSafeAntiCheat);
+
+    _beginthread((_beginthread_proc_type)&CSafeAntiCheat::StaticPulse, NULL, g_pSafeAntiCheat);
     return true;
 }
 
