@@ -10,9 +10,17 @@
 #include <ixwebsocket/IXWebSocket.h>
 #include <ixwebsocket/IXUserAgent.h>
 
+#include <CRC32/CRC32.h>
+
 #include "SafePacketID.h"
 #include "CHWID.h"
 #include "CMemoryScanner.h"
 #include "CSafeNetwork.h"
 #include "CSafeAntiCheat.h"
 #include "SharedUtil.h"
+#include "Utils.h"
+
+// Guards
+#include "Guards/CGuardBase.h"
+#include "CGuardManager.h"
+#include "Guards/CMemoryGuard.h"
