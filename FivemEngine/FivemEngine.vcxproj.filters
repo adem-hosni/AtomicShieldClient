@@ -36,6 +36,18 @@
     <ClCompile Include="CSafeAntiCheat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Guards\CGuardBase.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Guards\CMemoryGuard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CGuardManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdInc.h">
@@ -216,6 +228,21 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="STiming.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Guards\CGuardBase.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Guards\CMemoryGuard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CGuardManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vendor\CRC32\CRC32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -121,6 +121,7 @@
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -160,12 +161,16 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CGuardManager.cpp" />
+    <ClCompile Include="Guards\CMemoryGuard.cpp" />
+    <ClCompile Include="Guards\CGuardBase.cpp" />
     <ClCompile Include="CSafeAntiCheat.cpp" />
     <ClCompile Include="CSafeNetwork.cpp" />
     <ClCompile Include="CHWID.cpp" />
     <ClCompile Include="CMemoryScanner.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="StdInc.cpp" />
+    <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp" />
   </ItemGroup>
   <ItemGroup>
@@ -174,12 +179,17 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CGuardManager.h" />
+    <ClInclude Include="Guards\CMemoryGuard.h" />
+    <ClInclude Include="Guards\CGuardBase.h" />
     <ClInclude Include="CSafeAntiCheat.h" />
     <ClInclude Include="CSafeNetwork.h" />
     <ClInclude Include="CHWID.h" />
     <ClInclude Include="CMemoryScanner.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="STiming.h" />
+    <ClInclude Include="Utils.h" />
+    <ClInclude Include="Vendor\CRC32\CRC32.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXBase64.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXBench.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXCancellationRequest.h" />
