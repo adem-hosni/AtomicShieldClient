@@ -104,6 +104,22 @@ int SharedUtil::GenerateRandomNumber(int min, int max)
     return distrib(gen);
 }
 
+std::string SharedUtil::GenerateRandomString(int iLength)
+{
+    const static std::string              characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+    std::random_device                    rd;                         // Seed for the random number generator
+    std::mt19937                          generator(rd());            // Mersenne Twister random number engine
+    std::uniform_int_distribution<size_t> distribution(0, characters.size() - 1);
+
+    std::string randomString;
+    for (size_t i = 0; i < iLength; ++i)
+    {
+        randomString += characters[distribution(generator)];
+    }
+
+    return randomString;
+}
+
 bool SharedUtil::IsRunningAsAdministator()
 {
     BOOL                     bIsAdmin = FALSE;
@@ -179,4 +195,19 @@ void SharedUtil::AddDebugLog(const char* szLog, ...)
         va_end(args);
         fclose(hFile);
     }
+}
+
+std::string SharedUtil::GetKnownDirectory(const KNOWNFOLDERID fid)
+{
+    PWSTR   path = nullptr;
+    char szProgramDataDir[MAX_PATH];
+    memset(szProgramDataDir, 0, sizeof(szProgramDataDir));
+
+    HRESULT result = SHGetKnownFolderPath(FOLDERID_ProgramData, 0, NULL, &path);
+    if (!FAILED(result))
+    {
+        wcstombs(szProgramDataDir, path, MAX_PATH);
+        CoTaskMemFree(path);
+    }
+    return std::string(szProgramDataDir);
 }
