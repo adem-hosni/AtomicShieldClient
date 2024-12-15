@@ -5,15 +5,14 @@
 
 void EntryPoint(LPVOID lpThreadParameter)
 {
-    _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
+    //_beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
 
     AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
 
-    if (!g_pSafeAntiCheat->GetNetwork()->Connect())
-        MessageBox(0, "Failed to connect to the server", "Error", 0);
+    g_pSafeAntiCheat->Initialize();
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,
@@ -24,8 +23,9 @@ BOOL APIENTRY DllMain( HMODULE hModule,
     switch (ul_reason_for_call)
     {
     case DLL_PROCESS_ATTACH:        
+    {
         _beginthread((_beginthread_proc_type)EntryPoint, NULL, lpReserved);
-
+    }
     case DLL_THREAD_ATTACH:
     case DLL_THREAD_DETACH:
     case DLL_PROCESS_DETACH:

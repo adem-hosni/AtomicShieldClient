@@ -18,6 +18,14 @@ CSafeAntiCheat::~CSafeAntiCheat()
         delete m_pSafeNetwork;
 }
 
+void CSafeAntiCheat::Initialize()
+{
+    m_HWIDCache = g_pHWID->LoadHWIDCaches();
+
+    if (!m_pSafeNetwork->Connect())
+        MessageBox(0, "Failed to connect to the server", "Error", 0);
+}
+
 void CSafeAntiCheat::StaticPulse(void* pContext)
 {
     CSafeAntiCheat* pInstance = reinterpret_cast<CSafeAntiCheat*>(pContext);

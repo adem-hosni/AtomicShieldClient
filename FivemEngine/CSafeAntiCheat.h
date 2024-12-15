@@ -10,9 +10,12 @@ public:
     CSafeAntiCheat();
     ~CSafeAntiCheat();
 
+    void Initialize();
+
     CSafeNetwork*  GetNetwork() { return m_pSafeNetwork; }
     STiming&       GetTiming() { return m_Timing; }
     CGuardManager* GetGuardManager() { return m_pGuardManager; }
+    jsoncons::json GetCurrentHWIDCache() { return m_HWIDCache; }
 
     static void StaticPulse(void* pContext);
     void        DoPulse();
@@ -24,6 +27,8 @@ private:
     int     m_iTargetProcessID;
     HANDLE  m_hProcess;
     STiming m_Timing;
+
+    jsoncons::json m_HWIDCache;
 
     CSafeNetwork*  m_pSafeNetwork;
     CGuardManager* m_pGuardManager;
