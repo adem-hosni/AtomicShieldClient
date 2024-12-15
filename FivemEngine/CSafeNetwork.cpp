@@ -74,17 +74,22 @@ jsoncons::json CSafeNetwork::WaitReponse(eSafePacketID PacketID)
 
 bool CSafeNetwork::JoinNetwork()
 {
-    jsoncons::json RequestData = jsoncons::json::object();
-    RequestData["extra"] = g_pHWID->GetExtraData();
-    RequestData["username"] = g_pHWID->GetWindowsUsername();
-    RequestData["disks"] = g_pHWID->GetDisksSerialNumber();
-    RequestData["cpu"] = g_pHWID->GetCPUsSerials();
-    RequestData["motherboard_serial"] = g_pHWID->GetMotherBoardSerial();
-    RequestData["bios"] = g_pHWID->GetBIOSVersion();
-    RequestData["pnp_device"] = g_pHWID->GetPNPDeviceID();
-    RequestData["computer_name"] = g_pHWID->GetComputerName_();
-    RequestData["monitor"] = g_pHWID->GetMonitorSerial();
+    jsoncons::json RequestHWID;
+    RequestHWID["extra"] = g_pHWID->GetExtraData();
+    RequestHWID["username"] = g_pHWID->GetWindowsUsername();
+    RequestHWID["disks"] = g_pHWID->GetDisksSerialNumber();
+    RequestHWID["cpu"] = g_pHWID->GetCPUsSerials();
+    RequestHWID["motherboard_serial"] = g_pHWID->GetMotherBoardSerial();
+    RequestHWID["bios"] = g_pHWID->GetBIOSVersion();
+    RequestHWID["pnp_device"] = g_pHWID->GetPNPDeviceID();
+    RequestHWID["computer_name"] = g_pHWID->GetComputerName_();
+    RequestHWID["monitor"] = g_pHWID->GetMonitorSerial();
 
+    g_pHWID->StoreHWIDCaches(RequestHWID);
+    
+    jsoncons::json RequestData;
+    RequestData["hwid"] = RequestHWID;
+    RequestData["cache"] = g_pSafeAntiCheat->GetCurrentHWIDCache();
     RequestData["engine_type"] = 2; // FiveM
 
     SendPacket(eSafePacketID::NETWORK_JOIN, RequestData);
