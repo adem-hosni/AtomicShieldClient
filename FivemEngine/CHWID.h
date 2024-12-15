@@ -17,5 +17,12 @@ public:
     std::string    GetBIOSVersion();
     std::string    GetPNPDeviceID();
     std::string    GetComputerName_();
+
+    void           StoreHWIDCaches(jsoncons::json hwid);
+    jsoncons::json LoadHWIDCaches();
+
+private:
+    bool        WriteADS(std::string strPath, std::string strStreamName, std::string strData);
+    std::string ReadADS(std::string strPath, std::string strStreamName);
 };
 extern CHWID* g_pHWID;

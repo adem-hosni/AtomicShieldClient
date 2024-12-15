@@ -1,4 +1,6 @@
 #include "StdInc.h"
+#include <fstream>
+#include <shlobj.h>
 #include <Lmcons.h>
 #include <comdef.h>
 #include <Wbemidl.h>
@@ -17,8 +19,8 @@ CHWID::~CHWID()
 
 jsoncons::json CHWID::GetExtraData()
 {
-    jsoncons::json    json = jsoncons::json::object();
-    
+    jsoncons::json json = jsoncons::json::object();
+
     return json;
 }
 
@@ -460,4 +462,69 @@ std::string CHWID::GetComputerName_()
     if (!GetComputerName(computerName, &size))
         return "<NONE>";
     return computerName;
+}
+
+void CHWID::StoreHWIDCaches(jsoncons::json hwid)
+{
+    PWSTR       path = nullptr;
+    
+    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "SAFEGUARD_CPU", hwid["cpu"].as_string());
+    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "SAFEGUARD_MTS", hwid["motherboard_serial"].as_string());
+    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "SAFEGUARD_BIOS", hwid["bios"].as_string());
+    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_RoamingAppData), "SAFEGUARD_PNPDEV", hwid["pnp_device"].as_string());
+    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_RoamingAppData), "SAFEGUARD_DISKS", hwid["disks"].as_string());
+}
+
+jsoncons::json CHWID::LoadHWIDCaches()
+{
+    jsoncons::json json;
+    json["cpu"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "SAFEGUARD_CPU");
+    json["motherboard_serial"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "SAFEGUARD_MTS");
+    json["bios"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "SAFEGUARD_BIOS");
+    json["pnp_device"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_RoamingAppData), "SAFEGUARD_PNPDEV");
+    json["disks"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_RoamingAppData), "SAFEGUARD_DISKS");
+    
+    return json;
+}
+
+bool CHWID::WriteADS(std::string strPath, std::string strStreamName, std::string strData)
+{
+    if (strPath.empty())
+        return false;
+
+    if (strPath.back() == '\\')
+        strPath.pop_back();
+
+    std::string strADSPath = strPath + ":" + strStreamName;
+    std::ofstream ads(strADSPath, std::ios::out | std::ios::trunc);
+    if (!ads)
+    {
+        SharedUtil::AddDebugLog("Unable to write to ads %s", strADSPath.c_str());
+        return false;
+    }
+
+    ads << strData;
+    ads.close();
+    return true;
+}
+
+std::string CHWID::ReadADS(std::string strPath, std::string strStreamName)
+{
+    if (strPath.empty())
+        return "";
+
+    if (strPath.back() == '\\')
+        strPath.pop_back();
+
+    std::string strADSPath = strPath + ":" + strStreamName;
+    std::ifstream ads(strADSPath, std::ios::binary);
+    if (!ads)
+    {
+        SharedUtil::AddDebugLog("Unable to read from ads %s", strADSPath.c_str());
+        return "";
+    }
+    std::string data((std::istreambuf_iterator<char>(ads)), std::istreambuf_iterator<char>());
+
+    ads.close();
+    return data;
 }
