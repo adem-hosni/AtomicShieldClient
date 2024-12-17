@@ -112,6 +112,7 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
+      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -255,11 +256,6 @@
     <ClInclude Include="particles.h" />
     <ClInclude Include="Settings.h" />
     <ClInclude Include="XorStr.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Shared\Shared.vcxproj">
-      <Project>{4e58b5b0-73c8-4a5d-b79b-9bfaa2371e3c}</Project>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Vendor\freetype\win64\freetype.lib" />

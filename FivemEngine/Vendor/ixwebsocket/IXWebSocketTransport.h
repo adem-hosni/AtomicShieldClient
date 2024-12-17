@@ -90,7 +90,7 @@ namespace ix
                                             bool enablePerMessageDeflate,
                                             HttpRequestPtr request = nullptr);
 
-        //PollResult poll();
+        PollResult poll();
         WebSocketSendInfo sendBinary(const IXWebSocketSendData& message,
                                      const OnProgressCallback& onProgressCallback);
         WebSocketSendInfo sendText(const IXWebSocketSendData& message,

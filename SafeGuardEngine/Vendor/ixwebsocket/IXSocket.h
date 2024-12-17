@@ -48,7 +48,7 @@ namespace ix
         bool init(std::string& errorMsg);
 
         // Functions to check whether there is activity on the socket
-        //PollResultType poll(int timeoutMs = kDefaultPollTimeout);
+        PollResultType poll(int timeoutMs = kDefaultPollTimeout);
         bool wakeUpFromPoll(uint64_t wakeUpCode);
         bool isWakeUpFromPollSupported();
 

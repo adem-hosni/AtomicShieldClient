@@ -14,17 +14,17 @@ void CleanupRenderTarget();
 
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
-CGUI::CUI u;
+CGUI::CUI         u;
 CGUI::CUIElements cu;
-ImFontAtlas i;
+ImFontAtlas       i;
 
 // Main code
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nShowCmd)
 {
-    /*AllocConsole();
+    AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);*/
+    freopen("CONOUT$", "w", stderr);
 
     // Set the process only accepts signed DLLs by microsoft
     PROCESS_MITIGATION_BINARY_SIGNATURE_POLICY sp = {};
@@ -37,14 +37,14 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
     /*if (strLauncherName != "explorer.exe")
         __fastfail(0);*/
 
-    _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, 0, SharedChecks::MaliciousProcessAlert);
+    //_beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, 0, SharedChecks::MaliciousProcessAlert);
 
     jsoncons::json status = g_pSafeAPI->GetStatus();
     if (!status["alive"].as<bool>())
     {
         std::string message = "Unknown Error!";
         std::string title = "ERROR";
-        
+
         if (status.contains("message"))
             message = status["message"].as<std::string>();
         if (status.contains("title"))
@@ -54,18 +54,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
         __fastfail(0);
     }
 
-    WNDCLASSEXW wc = { sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, project_name, nullptr };
+    WNDCLASSEXW wc = {sizeof(wc), CS_CLASSDC, WndProc, 0L, 0L, GetModuleHandle(nullptr), nullptr, nullptr, nullptr, nullptr, project_name, nullptr};
     ::RegisterClassExW(&wc);
-    hwnd = CreateWindowExW(NULL, wc.lpszClassName, project_name, WS_POPUP, (GetSystemMetrics(SM_CXSCREEN) / 2) - (window::size_max.x / 2), (GetSystemMetrics(SM_CYSCREEN) / 2) - (window::size_max.y / 2), window::size_max.x, window::size_max.y, 0, 0, hInstance, 0);
+    hwnd = CreateWindowExW(NULL, wc.lpszClassName, project_name, WS_POPUP, (GetSystemMetrics(SM_CXSCREEN) / 2) - (window::size_max.x / 2),
+                           (GetSystemMetrics(SM_CYSCREEN) / 2) - (window::size_max.y / 2), window::size_max.x, window::size_max.y, 0, 0, hInstance, 0);
 
     SetWindowLongA(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
     SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 255, LWA_ALPHA);
 
-    MARGINS margins = { -1 };
+    MARGINS margins = {-1};
     DwmExtendFrameIntoClientArea(hwnd, &margins);
 
     POINT mouse;
-    rc = { 0 };
+    rc = {0};
     GetWindowRect(hwnd, &rc);
 
     if (!CreateDeviceD3D(hwnd))
@@ -80,7 +81,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 
     IMGUI_CHECKVERSION();
     ImGui::CreateContext();
-    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    ImGuiIO& io = ImGui::GetIO();
+    (void)io;
     io.IniFilename = NULL;
 
     u.BeforeLoop();
@@ -104,16 +106,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
             if (msg.message == WM_QUIT)
                 done = true;
         }
-        if (done) { ImGui::DestroyContext(); i.ClearInputData(); break; }
+        if (done)
+        {
+            ImGui::DestroyContext();
+            i.ClearInputData();
+            break;
+        }
 
         ImGui_ImplDX11_NewFrame();
         ImGui_ImplWin32_NewFrame();
-        ImGui::NewFrame(); 
+        ImGui::NewFrame();
 
         u.Render();
 
         ImGui::Render();
-        const float clear_color_with_alpha[4] = { clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w };
+        const float clear_color_with_alpha[4] = {clear_color.x * clear_color.w, clear_color.y * clear_color.w, clear_color.z * clear_color.w, clear_color.w};
         g_pd3dDeviceContext->OMSetRenderTargets(1, &g_mainRenderTargetView, nullptr);
         g_pd3dDeviceContext->ClearRenderTargetView(g_mainRenderTargetView, clear_color_with_alpha);
         ImGui_ImplDX11_RenderDrawData(ImGui::GetDrawData());
@@ -150,12 +157,17 @@ bool CreateDeviceD3D(HWND hWnd)
     sd.SwapEffect = DXGI_SWAP_EFFECT_DISCARD;
 
     UINT createDeviceFlags = 0;
-    //createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
-    D3D_FEATURE_LEVEL featureLevel;
-    const D3D_FEATURE_LEVEL featureLevelArray[2] = { D3D_FEATURE_LEVEL_11_0, D3D_FEATURE_LEVEL_10_0, };
-    HRESULT res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext);
-    if (res == DXGI_ERROR_UNSUPPORTED) // Try high-performance WARP software driver if hardware is not available.
-        res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd, &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext);
+    // createDeviceFlags |= D3D11_CREATE_DEVICE_DEBUG;
+    D3D_FEATURE_LEVEL       featureLevel;
+    const D3D_FEATURE_LEVEL featureLevelArray[2] = {
+        D3D_FEATURE_LEVEL_11_0,
+        D3D_FEATURE_LEVEL_10_0,
+    };
+    HRESULT res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd,
+                                                &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext);
+    if (res == DXGI_ERROR_UNSUPPORTED)            // Try high-performance WARP software driver if hardware is not available.
+        res = D3D11CreateDeviceAndSwapChain(nullptr, D3D_DRIVER_TYPE_WARP, nullptr, createDeviceFlags, featureLevelArray, 2, D3D11_SDK_VERSION, &sd,
+                                            &g_pSwapChain, &g_pd3dDevice, &featureLevel, &g_pd3dDeviceContext);
     if (res != S_OK)
         return false;
 
@@ -166,9 +178,21 @@ bool CreateDeviceD3D(HWND hWnd)
 void CleanupDeviceD3D()
 {
     CleanupRenderTarget();
-    if (g_pSwapChain) { g_pSwapChain->Release(); g_pSwapChain = nullptr; }
-    if (g_pd3dDeviceContext) { g_pd3dDeviceContext->Release(); g_pd3dDeviceContext = nullptr; }
-    if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = nullptr; }
+    if (g_pSwapChain)
+    {
+        g_pSwapChain->Release();
+        g_pSwapChain = nullptr;
+    }
+    if (g_pd3dDeviceContext)
+    {
+        g_pd3dDeviceContext->Release();
+        g_pd3dDeviceContext = nullptr;
+    }
+    if (g_pd3dDevice)
+    {
+        g_pd3dDevice->Release();
+        g_pd3dDevice = nullptr;
+    }
 }
 
 void CreateRenderTarget()
@@ -181,7 +205,11 @@ void CreateRenderTarget()
 
 void CleanupRenderTarget()
 {
-    if (g_mainRenderTargetView) { g_mainRenderTargetView->Release(); g_mainRenderTargetView = nullptr; }
+    if (g_mainRenderTargetView)
+    {
+        g_mainRenderTargetView->Release();
+        g_mainRenderTargetView = nullptr;
+    }
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -193,19 +221,19 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
-    case WM_SIZE:
-        if (wParam == SIZE_MINIMIZED)
+        case WM_SIZE:
+            if (wParam == SIZE_MINIMIZED)
+                return 0;
+            g_ResizeWidth = (UINT)LOWORD(lParam);            // Queue resize
+            g_ResizeHeight = (UINT)HIWORD(lParam);
             return 0;
-        g_ResizeWidth = (UINT)LOWORD(lParam); // Queue resize
-        g_ResizeHeight = (UINT)HIWORD(lParam);
-        return 0;
-    case WM_SYSCOMMAND:
-        if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
+        case WM_SYSCOMMAND:
+            if ((wParam & 0xfff0) == SC_KEYMENU)            // Disable ALT application menu
+                return 0;
+            break;
+        case WM_DESTROY:
+            ::PostQuitMessage(0);
             return 0;
-        break;
-    case WM_DESTROY:
-        ::PostQuitMessage(0);
-        return 0;
     }
     return ::DefWindowProcW(hWnd, msg, wParam, lParam);
 }
