@@ -129,11 +129,13 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>..\Shared;Vendor;..\Shared\Vendor\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
     </ClCompile>
     <Link>
-      <SubSystem>Windows</SubSystem>
+      <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
+      <AdditionalDependencies>../Build/Shared.lib;ws2_32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -156,7 +158,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>../Build/Shared.lib;ixwebsocket.lib;ws2_32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../Build/Shared.lib;ws2_32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -180,6 +182,45 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Utils.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXBench.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXCancellationRequest.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXConnectionState.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXDNSLookup.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXExponentialBackoff.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXGetFreePort.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXGzipCodec.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXHttp.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXHttpClient.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXHttpServer.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXNetSystem.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSelectInterrupt.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSelectInterruptEvent.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSelectInterruptFactory.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSelectInterruptPipe.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSetThreadName.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSocket.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSocketAppleSSL.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSocketConnect.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSocketFactory.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSocketMbedTLS.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSocketOpenSSL.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSocketServer.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXSocketTLSOptions.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXStrCaseCompare.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXUdpSocket.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXUrlParser.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXUserAgent.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXUuid.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXWebSocket.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXWebSocketCloseConstants.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXWebSocketHandshake.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXWebSocketHttpHeaders.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXWebSocketPerMessageDeflate.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXWebSocketPerMessageDeflateCodec.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXWebSocketPerMessageDeflateOptions.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXWebSocketProxyServer.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXWebSocketServer.cpp" />
+    <ClCompile Include="Vendor\ixwebsocket\IXWebSocketTransport.cpp" />
     <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp" />
   </ItemGroup>
   <ItemGroup>
