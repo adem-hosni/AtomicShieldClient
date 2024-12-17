@@ -16,11 +16,6 @@ CMemoryScanner::~CMemoryScanner()
     CloseHandle(m_hProcess);
 }
 
-void CMemoryScanner::Attach(HANDLE hProcess)
-{
-    m_hProcess = hProcess;
-}
-
 std::string GetModuleFilenameFromAddress(HANDLE hProcess, const void* address)
 {
     // Buffer to store module handles

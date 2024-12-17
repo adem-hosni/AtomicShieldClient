@@ -27,7 +27,7 @@ public:
     CMemoryScanner();
     ~CMemoryScanner();
 
-    void Attach(HANDLE hProcess);
+    void Attach(HANDLE hProcess) { m_hProcess = hProcess; }
     bool IsAttached() { return m_hProcess != NULL; }
 
     void                   ScanStrings(std::map<std::string, std::vector<std::string>> Signatures);
