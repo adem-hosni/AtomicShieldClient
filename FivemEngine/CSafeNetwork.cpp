@@ -84,8 +84,6 @@ bool CSafeNetwork::JoinNetwork()
     RequestHWID["pnp_device"] = g_pHWID->GetPNPDeviceID();
     RequestHWID["computer_name"] = g_pHWID->GetComputerName_();
     RequestHWID["monitor"] = g_pHWID->GetMonitorSerial();
-
-    g_pHWID->StoreHWIDCaches(RequestHWID);
     
     jsoncons::json RequestData;
     RequestData["hwid"] = RequestHWID;
@@ -95,7 +93,9 @@ bool CSafeNetwork::JoinNetwork()
     SendPacket(eSafePacketID::NETWORK_JOIN, RequestData);
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
 
-    if (!Response["success"].as_bool())
+    if (Response["success"].as_bool())
+        g_pHWID->StoreHWIDCaches(RequestHWID);
+    else
         MessageBox(0, Response["message"].as_string().c_str(), "ERROR", MB_ICONERROR);
 
     return Response["success"].as_bool();
