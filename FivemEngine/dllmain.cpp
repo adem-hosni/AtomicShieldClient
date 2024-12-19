@@ -12,7 +12,8 @@ void EntryPoint(LPVOID lpThreadParameter)
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
 
-    g_pSafeAntiCheat->Initialize();
+    if (g_pSafeAntiCheat->Initialize())
+        g_pSafeAntiCheat->StartPulse();
 }
 
 BOOL APIENTRY DllMain( HMODULE hModule,

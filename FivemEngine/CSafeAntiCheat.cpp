@@ -18,7 +18,7 @@ CSafeAntiCheat::~CSafeAntiCheat()
         delete m_pSafeNetwork;
 }
 
-void CSafeAntiCheat::Initialize()
+bool CSafeAntiCheat::Initialize()
 {
     m_hProcess = GetCurrentProcess();
     m_iTargetProcessID = GetCurrentProcessId();
@@ -27,10 +27,11 @@ void CSafeAntiCheat::Initialize()
     if (!m_pSafeNetwork->Connect())
     {
         MessageBox(0, "Failed to connect to the server", "Error", 0);
-        return;
+        return false;
     }
-
+    
     m_pGuardManager->InitializeGuards();
+    return true;
 }
 
 void CSafeAntiCheat::StaticPulse(void* pContext)

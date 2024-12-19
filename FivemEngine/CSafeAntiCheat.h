@@ -10,7 +10,7 @@ public:
     CSafeAntiCheat();
     ~CSafeAntiCheat();
 
-    void Initialize();
+    bool Initialize();
 
     CSafeNetwork*  GetNetwork() { return m_pSafeNetwork; }
     STiming&       GetTiming() { return m_Timing; }

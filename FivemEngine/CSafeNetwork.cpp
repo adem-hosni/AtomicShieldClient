@@ -141,8 +141,6 @@ bool CSafeNetwork::SyncMaliciousSignatures()
         }
     }
     g_pSafeAntiCheat->GetGuardManager()->GetHeuristicGuard()->AddSignatures(m_Signatures);
-
-    //g_pSafeAntiCheat->StartPulse();
     return true;
 }
 
