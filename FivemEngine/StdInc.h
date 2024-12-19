@@ -24,3 +24,4 @@
 #include "Guards/CGuardBase.h"
 #include "CGuardManager.h"
 #include "Guards/CMemoryGuard.h"
+#include "Guards/CHeuristicGuard.h"
