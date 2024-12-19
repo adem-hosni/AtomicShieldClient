@@ -24,6 +24,8 @@ bool CSafeNetwork::Connect()
 
     m_pWebSocket->setOnMessageCallback(std::bind(&CSafeNetwork::OnReceivePacket, this, std::placeholders::_1));
 
+    m_pWebSocket->setPingInterval(3);
+
     ix::WebSocketInitResult result = m_pWebSocket->connect(32);
     m_pWebSocket->start();
 
@@ -38,8 +40,9 @@ void CSafeNetwork::SendPacket(eSafePacketID PacketID, jsoncons::json Data)
     // Allocate new json object
     jsoncons::json PacketJson = jsoncons::json::object();
 
-    // Set The Packet Type
+    // Set The Packet type and the unix timestamp
     PacketJson["type"] = (unsigned short)PacketID;
+    PacketJson["ut"] = time(NULL);
 
     // Fill the new json with the data items
     for (const auto& Iter : Data.object_range())
@@ -61,6 +64,12 @@ void CSafeNetwork::OnConnect()
         MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
 }
 
+void CSafeNetwork::StaticPulse(void* pContext)
+{
+    CSafeNetwork* pNetwork = reinterpret_cast<CSafeNetwork*>(pContext);
+    pNetwork->DoPulse();
+}
+
 jsoncons::json CSafeNetwork::WaitReponse(eSafePacketID PacketID)
 {
     while (m_UnhandledPackets.find(PacketID) == m_UnhandledPackets.end())
@@ -68,6 +77,15 @@ jsoncons::json CSafeNetwork::WaitReponse(eSafePacketID PacketID)
         Sleep(10);
     }
     jsoncons::json Response = m_UnhandledPackets[PacketID];
+
+    // Check if the unix timestamp received is tampered
+    if (time(NULL) - Response["ut"].as<DWORD>() >= 20)
+    {
+        __fastfail(0);
+        // Return an empty data to crash the engine if the __fastfail was tampered
+        return {};
+    }
+
     m_UnhandledPackets.erase(PacketID);
     return Response;
 }
@@ -105,7 +123,6 @@ bool CSafeNetwork::SyncMaliciousSignatures()
 {
     SendPacket(SYNC_SIGNATURES);
     jsoncons::json Response = WaitReponse(SYNC_SIGNATURES);
-    SharedUtil::AddDebugLog("Response: %s", Response.to_string().c_str());
     jsoncons::json Signatures = Response["signatures"];
 
     for (const auto& Item : Signatures.object_range())
@@ -123,8 +140,9 @@ bool CSafeNetwork::SyncMaliciousSignatures()
             m_Signatures[SignatureTitle] = vSignatures;
         }
     }
+    g_pSafeAntiCheat->GetGuardManager()->GetHeuristicGuard()->AddSignatures(m_Signatures);
 
-    _beginthread((_beginthread_proc_type)&CSafeAntiCheat::StaticPulse, NULL, g_pSafeAntiCheat);
+    //g_pSafeAntiCheat->StartPulse();
     return true;
 }
 
@@ -154,14 +172,21 @@ void CSafeNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
 
         case ix::WebSocketMessageType::Close:
         {
-            printf("closed\n");
-            MessageBox(0, "closed", 0, 0);
-            MessageBox(0, Message->str.c_str(), "Network Error", 0);
+            Reconnect();
             break;
         }
 
         case ix::WebSocketMessageType::Error:
-            MessageBox(0, Message->str.c_str(), "Network Error", 0);
+            Reconnect();
             break;
+    }
+}
+
+void CSafeNetwork::Reconnect()
+{
+    while (m_pWebSocket->getReadyState() == ix::ReadyState::Closed || m_pWebSocket->getReadyState() == ix::ReadyState::Closing)
+    {
+        Connect();
+        Sleep(2 * 1000);
     }
 }

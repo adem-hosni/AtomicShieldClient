@@ -19,6 +19,7 @@ public:
     jsoncons::json WaitReponse(eSafePacketID PacketID);
 
     static void OnConnect();
+    static void StaticPulse(void* pContext);
     void DoPulse();
 
     bool JoinNetwork();
@@ -29,6 +30,8 @@ public:
     std::map<std::string, std::vector<std::string>> GetSignatures() { return m_Signatures; }
 
 private:
+    void Reconnect();
+
     ix::WebSocket*                                  m_pWebSocket;
     std::mutex                                      m_mutex;
     std::condition_variable                         m_condition;
