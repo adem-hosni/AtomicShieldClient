@@ -8,13 +8,13 @@ namespace Utils
     static std::map<DWORD64, DWORD64>    orderedMapping;             // global module runtime list (PE Image Info)
     static std::map<DWORD, std::wstring> orderedIdentify;            // global module runtime list (Identify Info)
 
-    std::string  ParseModuleNameFromPath(std::string strPath);
-    std::wstring ParseModuleNameFromPath(std::wstring wstrPath);
-    long         GetFileSize(FILE* File);
-    DWORD        GenerateCRC32(const std::string& filePath, DWORD* FileSize);
-    DWORD        GenerateCRC32(const std::wstring& filePath, DWORD* FileSize);
-    void         BuildModuledMemoryMap(HANDLE hProc);
-    int* GetModuleMemoryInfo(HANDLE hProcess, HMODULE Addr);
-    DWORD64      GetModuleBaseAddress(int iProcessID, std::string strModuleName);
-    bool         IsAddressInModuledRange(const DWORD base, const std::string& mapped_name, bool* cloacking = nullptr);
+    std::string               ParseModuleNameFromPath(std::string strPath);
+    std::wstring              ParseModuleNameFromPath(std::wstring wstrPath);
+    long                      GetFileSize(FILE* File);
+    DWORD                     GenerateCRC32(const std::string& filePath, DWORD* FileSize);
+    DWORD                     GenerateCRC32(const std::wstring& filePath, DWORD* FileSize);
+    std::map<LPVOID, DWORD64> BuildModuledMemoryMap();
+    int*                      GetModuleMemoryInfo(HANDLE hProcess, HMODULE Addr);
+    DWORD64                   GetModuleBaseAddress(int iProcessID, std::string strModuleName);
+    bool                      IsAddressInModuledRange(DWORD64 dwBase);
 };            // namespace Utils

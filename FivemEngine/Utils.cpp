@@ -66,34 +66,23 @@ DWORD Utils::GenerateCRC32(const std::wstring& wfilePath, DWORD* FileSize)
     return crc;
 }
 
-void Utils::BuildModuledMemoryMap(HANDLE hProcess)
+std::map<LPVOID, DWORD64> Utils::BuildModuledMemoryMap()
 {
-    HMODULE hMods[1024]{nullptr};
-    DWORD   cbNeeded = NULL;
-    if (K32EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
+    std::map<LPVOID, DWORD64> memoryMap;
+    HMODULE                   hMods[1024];
+    DWORD                     cbNeeded;
+    EnumProcessModules(GetCurrentProcess(), hMods, sizeof(hMods), &cbNeeded);
+    for (unsigned int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
     {
-        DWORD MdlCount = (cbNeeded / sizeof(HMODULE));
-        for (unsigned int i = 0; i < MdlCount; i++)
-        {
-            if (hMods[i] == nullptr)
-                continue;
-            LPMODULEINFO modinfo = (LPMODULEINFO)GetModuleMemoryInfo(hProcess, hMods[i]);
-            if (modinfo != nullptr)
-            {
-                if (orderedMapping.count((DWORD)modinfo->lpBaseOfDll) != 0x1)
-                {
-                    orderedMapping.insert(std::pair<DWORD, DWORD>((DWORD)modinfo->lpBaseOfDll, modinfo->SizeOfImage));
-                    WCHAR wszFileName[MAX_PATH + 1];
-                    if (!GetModuleFileNameW((HMODULE)modinfo->lpBaseOfDll, wszFileName, MAX_PATH + 1))
-                        return;
-                    DWORD        CRC32 = GenerateCRC32(wszFileName, nullptr);
-                    std::wstring DllName = ParseModuleNameFromPath(wszFileName);
-                    if (orderedIdentify.count(CRC32) != 0x1)
-                        orderedIdentify.insert(orderedIdentify.begin(), std::pair<DWORD, std::wstring>(CRC32, DllName));
-                }
-            }
-        }
+        MODULEINFO modinfo;
+        GetModuleInformation(GetCurrentProcess(), hMods[i], &modinfo, sizeof(modinfo));
+        char buffer[144];
+        memset(buffer, 0, sizeof(buffer));
+        GetModuleFileName(hMods[i], buffer, sizeof(buffer));
+        //if (_stricmp(buffer, "C:\\Users\\hosni\\Desktop\\MDE-master\\MDE\\Test.dll") != 0)
+        memoryMap.insert(memoryMap.begin(), std::pair<LPVOID, DWORD64>(modinfo.lpBaseOfDll, modinfo.SizeOfImage));
     }
+    return memoryMap;
 }
 
 int* Utils::GetModuleMemoryInfo(HANDLE hProcess, HMODULE Addr)
@@ -118,8 +107,8 @@ int* Utils::GetModuleMemoryInfo(HANDLE hProcess, HMODULE Addr)
 
 DWORD64 Utils::GetModuleBaseAddress(int iProcessID, std::string strModuleName)
 {
-    DWORD dwBaseAddress = 0;
-    HANDLE    hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, iProcessID);
+    DWORD  dwBaseAddress = 0;
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, iProcessID);
 
     if (hSnapshot != INVALID_HANDLE_VALUE)
     {
@@ -143,16 +132,23 @@ DWORD64 Utils::GetModuleBaseAddress(int iProcessID, std::string strModuleName)
     return dwBaseAddress;
 }
 
-bool Utils::IsAddressInModuledRange(const DWORD dwBase, const std::string& strMappedName, bool* bCloacking)
+bool Utils::IsAddressInModuledRange(DWORD64 dwBase)
 {
-    if (!orderedMapping.size())
+    std::map<LPVOID, DWORD64> memory = BuildModuledMemoryMap();
+    for (const auto& it : memory)
     {
-        BuildModuledMemoryMap(g_pSafeAntiCheat->GetProcessHandle());
+        if (dwBase >= (DWORD64)it.first && dwBase <= ((DWORD64)it.first + it.second))
+            return true;
+    }
+    return false;
+
+
+
+    /*if (!orderedMapping.size())
+    {
+        BuildModuledMemoryMap();
         SharedUtil::AddDebugLog("Moduled Memory Map Size: %d", orderedMapping.size());
     }
-
-    if (dwBase == NULL)
-        return false;
 
     for (const auto& it : orderedMapping)
     {
@@ -169,5 +165,5 @@ bool Utils::IsAddressInModuledRange(const DWORD dwBase, const std::string& strMa
                 *bCloacking = true;
         }
     }
-    return false;
+    return false;*/
 }
