@@ -54,7 +54,7 @@ void CMemoryGuard::DoPulse()
                     GetMappedFileName(g_pSafeAntiCheat->GetProcessHandle(), m_mbi.BaseAddress, szMappedName, sizeof(szMappedName));
                     std::string strPossibleModuleName = Utils::ParseModuleNameFromPath(szMappedName);
                     bool        bCloaked = false;
-                    if (!Utils::IsAddressInModuledRange((DWORD)m_mbi.BaseAddress, strPossibleModuleName, &bCloaked))
+                    if (!Utils::IsAddressInModuledRange((DWORD)m_mbi.BaseAddress))
                     {
                         SharedUtil::AddDebugLog("Detected cloaked module at 0x%x (possible module name: %s)", strPossibleModuleName.c_str());
                     }
