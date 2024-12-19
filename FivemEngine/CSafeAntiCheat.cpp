@@ -70,7 +70,7 @@ void CSafeAntiCheat::DoPulse()
                 g_pMemoryScanner->UpdateLatestScanResult(uiScanResult);
                 jsoncons::json RequestData = jsoncons::json::object();
                 RequestData["signatures"] = vSignatures;
-                m_pSafeNetwork->SendPacket(eSafePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
+                m_pSafeNetwork->SendPacket(eSafePacketID::MALICIOUS_SIGNATURE, RequestData);
             }
             Timing.llLastMemoryScan = llCurrentTime;
         }
@@ -81,4 +81,19 @@ void CSafeAntiCheat::StartPulse()
 {
     _beginthread((_beginthread_proc_type)CSafeNetwork::StaticPulse, NULL, m_pSafeNetwork);
     m_pGuardManager->StartPulse(m_pGuardManager);
+}
+
+void CSafeAntiCheat::NotifyDetection(eDetectionType DetectionType, SMemoryDetectionReport* pDetectionInfo)
+{
+    jsoncons::json DetectionReport = jsoncons::json::object();
+    DetectionReport["allocated_base"] = (DWORD64)pDetectionInfo->AllocatedBase;
+    DetectionReport["allocated_protect"] = (DWORD64)pDetectionInfo->AllocatedProtect;
+    DetectionReport["region_size"] = (DWORD64)pDetectionInfo->RegionSize;
+    DetectionReport["base_address"] = (DWORD64)pDetectionInfo->BaseAddress;
+
+    jsoncons::json RequestData = jsoncons::json::object();
+    RequestData["detection_type"] = (int)DetectionType;
+    RequestData["memory_report"] = DetectionReport;
+    
+    m_pSafeNetwork->SendPacket(eSafePacketID::CHEAT_DETECTION, RequestData);
 }

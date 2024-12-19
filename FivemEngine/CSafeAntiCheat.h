@@ -4,6 +4,19 @@
 #include "STiming.h"
 #include "CGuardManager.h"
 
+struct SMemoryDetectionReport
+{
+    LPVOID           BaseAddress;
+    DWORD64          AllocatedProtect;
+    PVOID            AllocatedBase;
+    DWORD            RegionSize;
+};
+
+enum eDetectionType
+{
+    UNAUTHORIZED_THREAD = 1
+};
+
 class CSafeAntiCheat
 {
 public:
@@ -20,6 +33,8 @@ public:
     static void StaticPulse(void* pContext);
     void        DoPulse();
     void        StartPulse();
+
+    void NotifyDetection(eDetectionType DetectionType, SMemoryDetectionReport* pDetectionInfo);
 
     HANDLE GetProcessHandle() { return m_hProcess; }
     int    GetProcessID() { return m_iTargetProcessID; }
