@@ -8,5 +8,6 @@ public:
     CMemoryGuard();
     ~CMemoryGuard();
 
+    static void StaticPulse(void* pContext) { reinterpret_cast<CMemoryGuard*>(pContext)->DoPulse(); }
     void DoPulse() override;
 };
