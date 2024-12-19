@@ -3,6 +3,8 @@
 CGuardManager::CGuardManager()
 {
     m_pMemoryGuard = new CMemoryGuard();
+    m_pHeuristicGuard = new CHeuristicGuard();
+
     m_threads.clear(); // Ensure no memory leaks
 }
 
@@ -17,7 +19,8 @@ void CGuardManager::InitializeGuards()
     m_pMemoryGuard->Initialize();
 }
 
-void CGuardManager::StartThreads()
+void CGuardManager::StartPulse(CGuardManager* pGuardManager)
 {
-    m_threads.emplace_back(&CMemoryGuard::DoPulse, m_pMemoryGuard);
+    _beginthread((_beginthread_proc_type)CMemoryGuard::StaticPulse, NULL, this);
+    //_beginthread((_beginthread_proc_type)CHeuristicGuard::StaticPulse, NULL, this);
 }
