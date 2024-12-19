@@ -19,6 +19,7 @@ public:
 
     static void StaticPulse(void* pContext);
     void        DoPulse();
+    void        StartPulse();
 
     HANDLE GetProcessHandle() { return m_hProcess; }
     int    GetProcessID() { return m_iTargetProcessID; }

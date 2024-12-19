@@ -20,10 +20,17 @@ CSafeAntiCheat::~CSafeAntiCheat()
 
 void CSafeAntiCheat::Initialize()
 {
+    m_hProcess = GetCurrentProcess();
+    m_iTargetProcessID = GetCurrentProcessId();
     m_HWIDCache = g_pHWID->LoadHWIDCaches();
 
     if (!m_pSafeNetwork->Connect())
+    {
         MessageBox(0, "Failed to connect to the server", "Error", 0);
+        return;
+    }
+
+    m_pGuardManager->InitializeGuards();
 }
 
 void CSafeAntiCheat::StaticPulse(void* pContext)
@@ -34,19 +41,12 @@ void CSafeAntiCheat::StaticPulse(void* pContext)
 
 void CSafeAntiCheat::DoPulse()
 {
-    CSafeNetwork* pSafeNetwork = g_pSafeAntiCheat->GetNetwork();
     while (true)
     {
-        pSafeNetwork->DoPulse();
-        m_iTargetProcessID = SharedUtil::GetFivemProcessID();
-        if (!m_iTargetProcessID)
-        {
-            Sleep(50);
-            continue;
-        }
+        m_pSafeNetwork->DoPulse();
 
-        long long     llCurrentTime = time(NULL);
-        STiming&      Timing = g_pSafeAntiCheat->GetTiming();
+        long long llCurrentTime = time(NULL);
+        STiming&  Timing = g_pSafeAntiCheat->GetTiming();
 
         if (!m_hProcess)
             m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_iTargetProcessID);
@@ -58,7 +58,7 @@ void CSafeAntiCheat::DoPulse()
 
         if (llCurrentTime - Timing.llLastMemoryScan > GAME_MEMORY_SCAN_INTERVAL)
         {
-            g_pMemoryScanner->ScanStrings(pSafeNetwork->GetSignatures());
+            // g_pMemoryScanner->ScanStrings(pSafeNetwork->GetSignatures());
 
             std::vector<std::string> vSignatures = g_pMemoryScanner->GetDetectedSignatures();
             unsigned int             uiScanResult = vSignatures.size();
@@ -69,9 +69,15 @@ void CSafeAntiCheat::DoPulse()
                 g_pMemoryScanner->UpdateLatestScanResult(uiScanResult);
                 jsoncons::json RequestData = jsoncons::json::object();
                 RequestData["signatures"] = vSignatures;
-                pSafeNetwork->SendPacket(eSafePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
+                m_pSafeNetwork->SendPacket(eSafePacketID::MALICIOUS_SIGNATURE_DETECTION, RequestData);
             }
             Timing.llLastMemoryScan = llCurrentTime;
         }
     }
+}
+
+void CSafeAntiCheat::StartPulse()
+{
+    _beginthread((_beginthread_proc_type)CSafeNetwork::StaticPulse, NULL, m_pSafeNetwork);
+    m_pGuardManager->StartPulse(m_pGuardManager);
 }
