@@ -49,6 +49,8 @@ private:
 
     CSafeNetwork*  m_pSafeNetwork;
     CGuardManager* m_pGuardManager;
+
+    std::vector<eDetectionType> m_vDetectedTypes;
 };
 
 extern CSafeAntiCheat* g_pSafeAntiCheat;

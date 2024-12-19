@@ -10,6 +10,7 @@ CSafeAntiCheat::CSafeAntiCheat()
     m_pSafeNetwork = new CSafeNetwork();
     m_pGuardManager = new CGuardManager();
     m_Timing = {};
+    m_vDetectedTypes = {};
 }
 
 CSafeAntiCheat::~CSafeAntiCheat()
@@ -85,6 +86,12 @@ void CSafeAntiCheat::StartPulse()
 
 void CSafeAntiCheat::NotifyDetection(eDetectionType DetectionType, SMemoryDetectionReport* pDetectionInfo)
 {
+    // Check if the detection type already detected
+    if (std::find(m_vDetectedTypes.begin(), m_vDetectedTypes.end(), DetectionType) != m_vDetectedTypes.end())
+        return;
+    // Add it to the detected types
+    m_vDetectedTypes.push_back(DetectionType);
+
     jsoncons::json DetectionReport = jsoncons::json::object();
     DetectionReport["allocated_base"] = (DWORD64)pDetectionInfo->AllocatedBase;
     DetectionReport["allocated_protect"] = (DWORD64)pDetectionInfo->AllocatedProtect;
