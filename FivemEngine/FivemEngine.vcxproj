@@ -173,6 +173,7 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CGuardManager.cpp" />
+    <ClCompile Include="Guards\CThreadGuard.cpp" />
     <ClCompile Include="Guards\CHeuristicGuard.cpp" />
     <ClCompile Include="Guards\CMemoryGuard.cpp" />
     <ClCompile Include="Guards\CGuardBase.cpp" />
@@ -231,6 +232,7 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CGuardManager.h" />
+    <ClInclude Include="Guards\CThreadGuard.h" />
     <ClInclude Include="Guards\CHeuristicGuard.h" />
     <ClInclude Include="Guards\CMemoryGuard.h" />
     <ClInclude Include="Guards\CGuardBase.h" />
