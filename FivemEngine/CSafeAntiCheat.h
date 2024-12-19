@@ -14,7 +14,8 @@ struct SMemoryDetectionReport
 
 enum eDetectionType
 {
-    UNAUTHORIZED_THREAD = 1
+    UNAUTHORIZED_THREAD = 1,
+    UNRECOGNISED_IAT_FOUND = 2
 };
 
 class CSafeAntiCheat
