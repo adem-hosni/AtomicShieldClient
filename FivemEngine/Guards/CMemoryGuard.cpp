@@ -30,7 +30,8 @@ void CMemoryGuard::DoPulse()
         {
             if ((info.State != MEM_FREE && info.State != MEM_RELEASE) && info.Type & (MEM_IMAGE | MEM_PRIVATE) && info.Protect & mask)
             {
-                if (Utils::IsAddressInModuledRange((DWORD64)pCurrentAddress) == NULL)
+                DWORD64 dwModuleBase = Utils::IsAddressInModuledRange((DWORD64)pCurrentAddress);
+                if (dwModuleBase == -1)
                 {
                     for (DWORD_PTR z = (DWORD_PTR)pCurrentAddress; z < ((DWORD_PTR)pCurrentAddress + info.RegionSize); z++)
                     {
@@ -50,7 +51,7 @@ void CMemoryGuard::DoPulse()
                             Report.AllocatedProtect = info.AllocationProtect;
                             Report.RegionSize = info.RegionSize;
 
-                            SharedUtil::AddDebugLog("Unregistred IAT At: 0x%x", z);
+                            SharedUtil::AddDebugLog("Unregistred IAT At: 0x%x from 0x%X", z, dwModuleBase);
 
                             g_pSafeAntiCheat->NotifyDetection(eDetectionType::UNRECOGNISED_IAT_FOUND, &Report);
                             break;
