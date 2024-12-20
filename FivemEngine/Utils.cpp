@@ -141,7 +141,7 @@ DWORD64 Utils::IsAddressInModuledRange(DWORD64 dwBase)
         if (dwBase >= (DWORD64)it.first && dwBase <= ((DWORD64)it.first + it.second))
             return (DWORD64)it.first;
     }
-    return NULL;
+    return -1;
 }
 
 bool Utils::IsFunctionHooked(const char* szModuleName, const char* szFunctionName)
