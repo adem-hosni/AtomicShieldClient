@@ -79,7 +79,7 @@ std::map<LPVOID, DWORD64> Utils::BuildModuledMemoryMap()
         char buffer[144];
         memset(buffer, 0, sizeof(buffer));
         GetModuleFileName(hMods[i], buffer, sizeof(buffer));
-        //if (_stricmp(buffer, "C:\\Users\\hosni\\Desktop\\MDE-master\\MDE\\Test.dll") != 0)
+        // if (_stricmp(buffer, "C:\\Users\\hosni\\Desktop\\MDE-master\\MDE\\Test.dll") != 0)
         memoryMap.insert(memoryMap.begin(), std::pair<LPVOID, DWORD64>(modinfo.lpBaseOfDll, modinfo.SizeOfImage));
     }
     return memoryMap;
@@ -140,5 +140,38 @@ bool Utils::IsAddressInModuledRange(DWORD64 dwBase)
         if (dwBase >= (DWORD64)it.first && dwBase <= ((DWORD64)it.first + it.second))
             return true;
     }
+    return false;
+}
+
+bool Utils::IsFunctionHooked(const char* szModuleName, const char* szFunctionName)
+{
+    if (szModuleName == nullptr || szFunctionName == nullptr)
+        return false;
+
+    HMODULE hModule = GetModuleHandle(szModuleName);
+    if (hModule == NULL)
+    {
+        SharedUtil::AddDebugLog("Couldn't fetch module name '%s'!", szModuleName);
+        return false;
+    }
+
+    DWORD64 pFunction = (DWORD64)GetProcAddress(hModule, szFunctionName);
+    if (pFunction == NULL)
+    {
+        SharedUtil::AddDebugLog("Couldn't fetch address of function %s");
+        return false;
+    }
+
+    // 0xEB = short jump, 0xE8 = call X, 0xE9 = long jump, 0xEA = "jmp oper2:oper1"
+    __try
+    {
+        if (*(BYTE*)pFunction == 0xE8 || *(BYTE*)pFunction == 0xE9 || *(BYTE*)pFunction == 0xEA || *(BYTE*)pFunction == 0xEB)
+            return true;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        SharedUtil::AddDebugLog("Couldn't read bytes %s", szFunctionName);
+    }
+
     return false;
 }
