@@ -49,7 +49,7 @@ void CModuleGuard::DoPulse()
                         wstrFullDllName = LdrModule.FullDllName.Buffer;
                         wstrFullDllName.push_back('\0');
 
-                        std::wcout << "Module Found: " << wstrFullDllName.c_str() << std::endl;
+                        //std::wcout << "Module Found: " << wstrFullDllName.c_str() << std::endl;
 
 
                         Node = GetNextNode((PCHAR)LdrModule.InMemoryOrderLinks.Flink, 1);
