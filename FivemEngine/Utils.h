@@ -16,6 +16,6 @@ namespace Utils
     std::map<LPVOID, DWORD64> BuildModuledMemoryMap();
     int*                      GetModuleMemoryInfo(HANDLE hProcess, HMODULE Addr);
     DWORD64                   GetModuleBaseAddress(int iProcessID, std::string strModuleName);
-    bool                      IsAddressInModuledRange(DWORD64 dwBase);
+    DWORD64                   IsAddressInModuledRange(DWORD64 dwBase);
     bool                      IsFunctionHooked(const char* szModuleName, const char* szFunctionName);
 };            // namespace Utils

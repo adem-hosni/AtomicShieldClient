@@ -33,7 +33,8 @@ void CThreadGuard::DoPulse()
                     {
                         DWORD64 dwTempoaryBase = NULL;
                         NtQueryInformationThread(hThread, (THREADINFOCLASS)9, &dwTempoaryBase, sizeof(DWORD64), NULL);
-                        if (!Utils::IsAddressInModuledRange(dwTempoaryBase))
+                        DWORD64 dwModuleBase = Utils::IsAddressInModuledRange(dwTempoaryBase);
+                        if (dwModuleBase == NULL)
                         {
                             MEMORY_BASIC_INFORMATION mbi;
                             SMemoryDetectionReport   Report;
@@ -43,6 +44,11 @@ void CThreadGuard::DoPulse()
                             Report.AllocatedBase = mbi.AllocationBase;
                             Report.AllocatedProtect = mbi.AllocationProtect;
                             Report.RegionSize = mbi.RegionSize;
+                            char szFilePath[MAX_PATH];
+
+                            GetModuleFileName((HMODULE)dwModuleBase, szFilePath, MAX_PATH);
+
+                            SharedUtil::AddDebugLog("detected thread at 0x%x, spawned from 0x%x possible module name: %s", dwTempoaryBase, dwModuleBase, szFilePath);
 
                             g_pSafeAntiCheat->NotifyDetection(eDetectionType::UNAUTHORIZED_THREAD, &Report);
                         }

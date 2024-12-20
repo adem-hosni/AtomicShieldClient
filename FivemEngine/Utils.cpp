@@ -79,7 +79,8 @@ std::map<LPVOID, DWORD64> Utils::BuildModuledMemoryMap()
         char buffer[144];
         memset(buffer, 0, sizeof(buffer));
         GetModuleFileName(hMods[i], buffer, sizeof(buffer));
-        // if (_stricmp(buffer, "C:\\Users\\hosni\\Desktop\\MDE-master\\MDE\\Test.dll") != 0)
+        std::string modname = Utils::ParseModuleNameFromPath(buffer);
+        
         memoryMap.insert(memoryMap.begin(), std::pair<LPVOID, DWORD64>(modinfo.lpBaseOfDll, modinfo.SizeOfImage));
     }
     return memoryMap;
@@ -132,15 +133,15 @@ DWORD64 Utils::GetModuleBaseAddress(int iProcessID, std::string strModuleName)
     return dwBaseAddress;
 }
 
-bool Utils::IsAddressInModuledRange(DWORD64 dwBase)
+DWORD64 Utils::IsAddressInModuledRange(DWORD64 dwBase)
 {
     std::map<LPVOID, DWORD64> memory = BuildModuledMemoryMap();
     for (const auto& it : memory)
     {
         if (dwBase >= (DWORD64)it.first && dwBase <= ((DWORD64)it.first + it.second))
-            return true;
+            return (DWORD64)it.first;
     }
-    return false;
+    return NULL;
 }
 
 bool Utils::IsFunctionHooked(const char* szModuleName, const char* szFunctionName)
