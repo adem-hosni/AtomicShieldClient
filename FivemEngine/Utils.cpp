@@ -141,29 +141,4 @@ bool Utils::IsAddressInModuledRange(DWORD64 dwBase)
             return true;
     }
     return false;
-
-
-
-    /*if (!orderedMapping.size())
-    {
-        BuildModuledMemoryMap();
-        SharedUtil::AddDebugLog("Moduled Memory Map Size: %d", orderedMapping.size());
-    }
-
-    for (const auto& it : orderedMapping)
-    {
-        if (dwBase >= it.first && dwBase <= (it.first + it.second))
-            return true;
-    }
-    if (!strMappedName.empty() && strMappedName.length() > 4)
-    {
-        if (GetModuleBaseAddress(g_pSafeAntiCheat->GetProcessID(), strMappedName) == dwBase)
-            return true;
-        else
-        {
-            if (bCloacking != nullptr)
-                *bCloacking = true;
-        }
-    }
-    return false;*/
 }
