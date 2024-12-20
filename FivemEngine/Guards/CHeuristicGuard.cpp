@@ -24,7 +24,6 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::strin
         else
             m_Signatures[name] = std::move(vector);
     }
-    SharedUtil::AddDebugLog("Sigs: %d", m_Signatures.size());
 }
 
 void CHeuristicGuard::DoPulse()
