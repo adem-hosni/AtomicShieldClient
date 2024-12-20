@@ -26,3 +26,4 @@
 #include "Guards/CMemoryGuard.h"
 #include "Guards/CHeuristicGuard.h"
 #include "Guards/CThreadGuard.h"
+#include "Guards/CModuleGuard.h"
