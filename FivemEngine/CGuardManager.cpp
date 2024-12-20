@@ -25,5 +25,5 @@ void CGuardManager::StartPulse(CGuardManager* pGuardManager)
     _beginthread((_beginthread_proc_type)CThreadGuard::StaticPulse, NULL, this);
     _beginthread((_beginthread_proc_type)CMemoryGuard::StaticPulse, NULL, this);
     _beginthread((_beginthread_proc_type)CModuleGuard::StaticPulse, NULL, this);
-    //_beginthread((_beginthread_proc_type)CHeuristicGuard::StaticPulse, NULL, this);
+    _beginthread((_beginthread_proc_type)CHeuristicGuard::StaticPulse, NULL, this);
 }

@@ -9,6 +9,7 @@ public:
     ~CHeuristicGuard();
 
     void AddSignatures(std::map<std::string, std::vector<std::string>>& Signatures);
+    static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
     void DoPulse() override;
 
     unsigned int GetLatestScanResult() { return m_uiLatestScanResult; }
