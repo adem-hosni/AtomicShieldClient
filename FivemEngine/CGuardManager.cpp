@@ -4,6 +4,7 @@ CGuardManager::CGuardManager()
 {
     m_pMemoryGuard = new CMemoryGuard();
     m_pHeuristicGuard = new CHeuristicGuard();
+    m_pModuleGuard = new CModuleGuard();
 
     m_threads.clear(); // Ensure no memory leaks
 }
@@ -22,6 +23,7 @@ void CGuardManager::InitializeGuards()
 void CGuardManager::StartPulse(CGuardManager* pGuardManager)
 {
     _beginthread((_beginthread_proc_type)CThreadGuard::StaticPulse, NULL, this);
-    //_beginthread((_beginthread_proc_type)CMemoryGuard::StaticPulse, NULL, this);
+    _beginthread((_beginthread_proc_type)CMemoryGuard::StaticPulse, NULL, this);
+    _beginthread((_beginthread_proc_type)CModuleGuard::StaticPulse, NULL, this);
     //_beginthread((_beginthread_proc_type)CHeuristicGuard::StaticPulse, NULL, this);
 }
