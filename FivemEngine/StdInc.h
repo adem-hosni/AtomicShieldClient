@@ -16,6 +16,7 @@
 #include "CHWID.h"
 #include "CMemoryScanner.h"
 #include "CSafeNetwork.h"
+#include "CAtomicThread.h"
 #include "CSafeAntiCheat.h"
 #include "SharedUtil.h"
 #include "Utils.h"

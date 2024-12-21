@@ -36,6 +36,9 @@ public:
     void        StartPulse();
 
     void NotifyDetection(eDetectionType DetectionType, SMemoryDetectionReport* pDetectionInfo);
+    
+    bool                         IsAtomicThread(HANDLE hThread);
+    std::vector<CAtomicThread*>& GetAtomicThreads() { return m_vAtomicThreads; }
 
     HANDLE GetProcessHandle() { return m_hProcess; }
     int    GetProcessID() { return m_iTargetProcessID; }
@@ -51,6 +54,7 @@ private:
     CGuardManager* m_pGuardManager;
 
     std::vector<eDetectionType> m_vDetectedTypes;
+    std::vector<CAtomicThread*> m_vAtomicThreads;
 };
 
 extern CSafeAntiCheat* g_pSafeAntiCheat;

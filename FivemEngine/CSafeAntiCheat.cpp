@@ -30,7 +30,7 @@ bool CSafeAntiCheat::Initialize()
         MessageBox(0, "Failed to connect to the server", "Error", 0);
         return false;
     }
-    
+
     m_pGuardManager->InitializeGuards();
     return true;
 }
@@ -101,6 +101,11 @@ void CSafeAntiCheat::NotifyDetection(eDetectionType DetectionType, SMemoryDetect
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["detection_type"] = (int)DetectionType;
     RequestData["memory_report"] = DetectionReport;
-    
+
     m_pSafeNetwork->SendPacket(eSafePacketID::CHEAT_DETECTION, RequestData);
+}
+
+bool CSafeAntiCheat::IsAtomicThread(HANDLE hThread)
+{
+    return std::any_of(m_vAtomicThreads.begin(), m_vAtomicThreads.end(), [hThread](CAtomicThread* pThread) { return pThread->GetHandle() == hThread; });
 }
