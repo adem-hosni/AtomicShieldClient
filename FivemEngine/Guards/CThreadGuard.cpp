@@ -54,8 +54,8 @@ void CThreadGuard::DoPulse()
                                 g_pSafeAntiCheat->NotifyDetection(eDetectionType::UNAUTHORIZED_THREAD, &Report);
                             }
                         }
+                        CloseHandle(hThread);
                     }
-                    CloseHandle(hThread);
                 }
             } while (Thread32Next(hSnapshot, &th32));
         }
