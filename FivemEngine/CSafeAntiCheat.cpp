@@ -399,3 +399,7 @@ void CSafeAntiCheat::NotifyDetection(eDetectionType DetectionType, SMemoryDetect
 
     m_pSafeNetwork->SendPacket(eSafePacketID::CHEAT_DETECTION, RequestData);
 }
+bool CSafeAntiCheat::IsAtomicThread(HANDLE hThread)
+{
+    return std::any_of(m_vAtomicThreads.begin(), m_vAtomicThreads.end(), [hThread](CAtomicThread* pThread) { return pThread->GetHandle() == hThread; });
+}

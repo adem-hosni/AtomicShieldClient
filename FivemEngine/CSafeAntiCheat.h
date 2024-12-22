@@ -49,6 +49,9 @@ public:
     HANDLE GetProcessHandle() { return m_hProcess; }
     int    GetProcessID() { return m_iTargetProcessID; }
 
+    bool IsAtomicThread(HANDLE hThread);
+    std::vector<CAtomicThread*>& GetAtomicThreads() { return m_vAtomicThreads; }
+
 private:
     int     m_iTargetProcessID;
     HANDLE  m_hProcess;
@@ -60,6 +63,7 @@ private:
     CGuardManager* m_pGuardManager;
 
     std::vector<eDetectionType> m_vDetectedTypes;
+    std::vector<CAtomicThread*> m_vAtomicThreads;
 };
 
 extern CSafeAntiCheat* g_pSafeAntiCheat;
