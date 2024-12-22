@@ -1,6 +1,7 @@
 #pragma once
 #include <Windows.h>
 #include <shlobj.h>
+#include <string>
 
 namespace SharedUtil
 {
@@ -14,4 +15,5 @@ namespace SharedUtil
     bool        IsRunningAsAdministator();
     void        AddDebugLog(const char* szLog, ...);
     std::string GetKnownDirectory(const KNOWNFOLDERID fid);
+    bool        SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL bEnablePrivilege);
 }            // namespace SharedUtil

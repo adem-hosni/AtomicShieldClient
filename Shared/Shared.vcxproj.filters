@@ -21,6 +21,9 @@
     <ClCompile Include="SharedUtil.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SharedProtocols.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SharedChecks.h">
@@ -1380,6 +1383,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vendor\VMProtect\VMProtectSDK.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SharedProtocols.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
