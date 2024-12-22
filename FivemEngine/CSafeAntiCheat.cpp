@@ -1,6 +1,9 @@
 #include "CSafeAntiCheat.h"
 #include "SharedUtil.h"
 #include <ctime>
+#include <filesystem>
+#include <WbemCli.h>
+#include <comutil.h>
 
 CSafeAntiCheat* g_pSafeAntiCheat = new CSafeAntiCheat();
 
@@ -41,6 +44,298 @@ void CSafeAntiCheat::StaticPulse(void* pContext)
     pInstance->DoPulse();
 }
 
+void CSafeAntiCheat::CheckPlugins()
+{
+    std::string basePath = "C:\\Users\\" + g_pHWID->GetComputerName_() + "\\AppData\\Local\\FiveM\\FiveM.app\\plugins";
+    for (const auto& entry : std::filesystem::directory_iterator(basePath))
+    {
+        if (entry.is_regular_file() && entry.path().extension() == ".dll")
+        {
+            std::string fileName = entry.path().filename().string();
+            if (fileName.find("d3d9") != std::string::npos || fileName.find("d3d10") != std::string::npos)
+            {
+                std::cout << "DirectX detected: " << fileName << std::endl;            /// filename for information
+                g_pSafeAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND, nullptr);
+            }
+        }
+    }
+}
+std::string CSafeAntiCheat::GetWindowsDrive()
+{
+    CHAR  volumePath[MAX_PATH];
+    DWORD charCount;
+
+    charCount = GetWindowsDirectoryA(volumePath, MAX_PATH);
+    if (charCount == 0)
+    {
+        //     Logger::logf("UltimateAnticheat.log", Err, "Failed to retrieve Windows directory path @ Services::GetWindowsPath: %d\n", GetLastError());
+        return "";
+    }
+
+    CHAR volumeName[MAX_PATH];
+    if (!GetVolumePathNameA(volumePath, volumeName, MAX_PATH))
+    {
+        //     Logger::logf("UltimateAnticheat.log", Err, "Failed to retrieve volume path name @ Services::GetWindowsPath: %d\n", GetLastError());
+        return "";
+    }
+
+    return volumeName;
+}
+
+void CSafeAntiCheat::TestsigningEnabled()
+{
+    HANDLE              hReadPipe, hWritePipe;
+    SECURITY_ATTRIBUTES sa;
+    STARTUPINFOA        si;
+    PROCESS_INFORMATION pi;
+    char                szOutput[1024];
+    DWORD               bytesRead;
+
+    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+    sa.bInheritHandle = TRUE;
+    sa.lpSecurityDescriptor = NULL;
+
+    std::string volumeName = GetWindowsDrive();
+
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0))            // use a pipe to read output of bcdedit command
+    {
+        std::cout << "CreatePipe failed @ Services::IsMachineAllowingSelfSignedDrivers: %d\n", GetLastError();
+        return;
+    }
+
+    memset(&si, 0, sizeof(si));
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESTDHANDLES;
+    si.hStdOutput = hWritePipe;
+
+    std::string bcdedit_location = "Windows\\System32\\bcdedit.exe";
+    std::string fullpath_bcdedit = (volumeName.c_str() + bcdedit_location);
+
+    if (!CreateProcessA(fullpath_bcdedit.c_str(), NULL, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+    {
+        std::cout << "CreateProcess failed @ Services::IsMachineAllowingSelfSignedDrivers: %d\n", GetLastError();
+        CloseHandle(hReadPipe);
+        CloseHandle(hWritePipe);
+        return;
+    }
+
+    //..wait for the process to finish
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(hWritePipe);
+    CloseHandle(pi.hThread);
+
+    if (!ReadFile(hReadPipe, szOutput, 1024 - 1, &bytesRead, NULL))            // now read our pipe
+    {
+        std::cout << "ReadFile failed @ Services::IsMachineAllowingSelfSignedDrivers: %d\n", GetLastError();
+        CloseHandle(hReadPipe);
+        return;
+    }
+
+    CloseHandle(hReadPipe);
+
+    szOutput[bytesRead] = '\0';
+
+    if (strstr(szOutput, "The boot configuration data store could not be opened") != NULL)
+    {
+        std::cout << "Failed to run bcdedit @ IsMachineAllowingSelfSignedDrivers. Please make sure program is run as administrator\n";
+        return;
+    }
+
+    char* token = strtok(szOutput, "\r\n");
+
+    while (token != NULL)
+    {
+        if (strstr(token, "testsigning") != NULL && strstr(token, "Yes") != NULL)
+        {
+            g_pSafeAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED, nullptr);
+            std::cout << "Test Signing is Enabled\n";
+        }
+
+        token = strtok(NULL, "\r\n");
+    }
+}
+
+void CSafeAntiCheat::DebugModeEnabled()
+{
+    HANDLE              hReadPipe, hWritePipe;
+    SECURITY_ATTRIBUTES sa;
+    STARTUPINFOA        si;
+    PROCESS_INFORMATION pi;
+    char                szOutput[1024];
+    DWORD               bytesRead;
+
+    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+    sa.bInheritHandle = TRUE;
+    sa.lpSecurityDescriptor = NULL;
+
+    std::string volumeName = GetWindowsDrive();
+
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0))
+    {
+        std::cout << "CreatePipe failed @CSafeAntiCheat::IsMachineAllowingSelfSignedDrivers : % d\n ", GetLastError();
+        return;
+    }
+
+    memset(&si, 0, sizeof(si));
+    si.cb = sizeof(si);
+    si.dwFlags = STARTF_USESTDHANDLES;
+    si.hStdOutput = hWritePipe;
+
+    std::string bcdedit_location = "Windows\\System32\\bcdedit.exe";
+    std::string fullpath_bcdedit = (volumeName + bcdedit_location);
+
+    if (!CreateProcessA(fullpath_bcdedit.c_str(), NULL, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+    {
+        std::cout << "CreateProcess failed @ CSafeAntiCheat::IsDebugModeEnabled: %d\n", GetLastError();
+        CloseHandle(hReadPipe);
+        CloseHandle(hWritePipe);
+        return;
+    }
+
+    WaitForSingleObject(pi.hProcess, INFINITE);
+
+    CloseHandle(hWritePipe);
+    CloseHandle(pi.hThread);
+
+    if (!ReadFile(hReadPipe, szOutput, 1024 - 1, &bytesRead, NULL))            // now read our pipe
+    {
+        std::cout << "ReadFile failed @ CSafeAntiCheat::IsDebugModeEnabled: %d\n", GetLastError();
+        CloseHandle(hReadPipe);
+        return;
+    }
+
+    CloseHandle(hReadPipe);
+
+    szOutput[bytesRead] = '\0';
+
+    if (strstr(szOutput, "The boot configuration data store could not be opened") != NULL)
+    {
+        std::cout << "Failed to run bcdedit @ IsMachineAllowingSelfSignedDrivers. Please make sure program is run as administrator\n";
+        return;
+    }
+
+    char* token = strtok(szOutput, "\r\n");            // split based on new line
+
+    while (token != NULL)            // Iterate through tokens, both "yes" and "debug" on same line = debug mode
+    {
+        if (strstr(token, "debug") != NULL && strstr(token, "Yes") != NULL)
+        {
+            g_pSafeAntiCheat->NotifyDetection(eDetectionType::DEBUG_MODE_ENABLED, nullptr);
+            std::cout << "Debug Mode is Enabled\n";
+        }
+
+        token = strtok(NULL, "\r\n");
+    }
+}
+
+void CSafeAntiCheat::SecureBootEnabled()
+{
+    HRESULT        hr;
+    IWbemLocator*  pLoc = nullptr;
+    IWbemServices* pSvc = nullptr;
+
+    hr = CoInitializeEx(0, COINIT_MULTITHREADED);
+    if (FAILED(hr))
+    {
+        std::cerr << "Failed to initialize COM library.\n";
+        return;
+    }
+
+    // Initialize COM security
+    hr = CoInitializeSecurity(nullptr, -1, nullptr, nullptr, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, nullptr, EOAC_NONE, nullptr);
+    if (FAILED(hr))
+    {
+        std::cerr << "Failed to initialize security.\n";
+        CoUninitialize();
+        return;
+    }
+
+    // Create the WMI locator object
+    hr = CoCreateInstance(CLSID_WbemLocator, nullptr, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (void**)&pLoc);
+    if (FAILED(hr))
+    {
+        std::cerr << "Failed to create IWbemLocator object.\n";
+        CoUninitialize();
+        return;
+    }
+
+    // Connect to the WMI namespace
+    hr = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), nullptr, nullptr, nullptr, 0, nullptr, nullptr, &pSvc);
+    if (FAILED(hr))
+    {
+        std::cerr << "Could not connect to WMI namespace.\n";
+        pLoc->Release();
+        CoUninitialize();
+        return;
+    }
+
+    // Set proxy blanket for security
+    hr = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, nullptr, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, nullptr, EOAC_NONE);
+    if (FAILED(hr))
+    {
+        std::cerr << "Could not set proxy blanket.\n";
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+        return;
+    }
+
+    // Query Secure Boot status
+    IEnumWbemClassObject* pEnumerator = nullptr;
+    hr = pSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT SecureBootEnabled FROM Win32_ComputerSystem"), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+                         nullptr, &pEnumerator);
+    if (FAILED(hr))
+    {
+        std::cerr << "Query for SecureBootEnabled failed.\n";
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+        return;
+    }
+
+    IWbemClassObject* pClassObj = nullptr;
+    ULONG             uReturn = 0;
+
+    // Check if we have data
+    hr = pEnumerator->Next(WBEM_INFINITE, 1, &pClassObj, &uReturn);
+    if (FAILED(hr) || uReturn == 0)
+    {
+        std::cerr << "Failed to retrieve SecureBootEnabled information.\n";
+        pEnumerator->Release();
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+        return;
+    }
+
+    VARIANT vtProp;
+    hr = pClassObj->Get(L"SecureBootEnabled", 0, &vtProp, nullptr, nullptr);
+    if (SUCCEEDED(hr))
+    {
+        bool secureBootEnabled = vtProp.boolVal == VARIANT_TRUE;
+        if (!secureBootEnabled)
+        {
+            g_pSafeAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED, nullptr);
+            std::cout << "Secure Boot is disabled.\n";
+        }
+        else
+        {
+            std::cout << "Secure Boot is enabled.\n";
+        }
+        VariantClear(&vtProp);
+    }
+    else
+    {
+        std::cerr << "Failed to retrieve SecureBootEnabled property.\n";
+    }
+
+    pClassObj->Release();
+    pEnumerator->Release();
+    pSvc->Release();
+    pLoc->Release();
+    CoUninitialize();
+}
 void CSafeAntiCheat::DoPulse()
 {
     while (true)
@@ -103,9 +398,4 @@ void CSafeAntiCheat::NotifyDetection(eDetectionType DetectionType, SMemoryDetect
     RequestData["memory_report"] = DetectionReport;
 
     m_pSafeNetwork->SendPacket(eSafePacketID::CHEAT_DETECTION, RequestData);
-}
-
-bool CSafeAntiCheat::IsAtomicThread(HANDLE hThread)
-{
-    return std::any_of(m_vAtomicThreads.begin(), m_vAtomicThreads.end(), [hThread](CAtomicThread* pThread) { return pThread->GetHandle() == hThread; });
 }

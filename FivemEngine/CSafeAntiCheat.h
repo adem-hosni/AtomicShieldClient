@@ -6,16 +6,20 @@
 
 struct SMemoryDetectionReport
 {
-    LPVOID           BaseAddress;
-    DWORD64          AllocatedProtect;
-    PVOID            AllocatedBase;
-    DWORD            RegionSize;
+    LPVOID  BaseAddress;
+    DWORD64 AllocatedProtect;
+    PVOID   AllocatedBase;
+    DWORD   RegionSize;
 };
 
 enum eDetectionType
 {
     UNAUTHORIZED_THREAD = 1,
-    UNRECOGNISED_IAT_FOUND = 2
+    UNRECOGNISED_IAT_FOUND = 2,
+    DLL_FOUND = 3,
+    SECURE_BOOT_DISABLED = 4,
+    DEBUG_MODE_ENABLED = 5,
+    TEST_SIGNING_ENABLED = 6
 };
 
 class CSafeAntiCheat
@@ -35,10 +39,12 @@ public:
     void        DoPulse();
     void        StartPulse();
 
-    void NotifyDetection(eDetectionType DetectionType, SMemoryDetectionReport* pDetectionInfo);
-    
-    bool                         IsAtomicThread(HANDLE hThread);
-    std::vector<CAtomicThread*>& GetAtomicThreads() { return m_vAtomicThreads; }
+    void        CheckPlugins();
+    void        DebugModeEnabled();
+    void        SecureBootEnabled();
+    void        TestsigningEnabled();
+    std::string GetWindowsDrive();
+    void        NotifyDetection(eDetectionType DetectionType, SMemoryDetectionReport* pDetectionInfo);
 
     HANDLE GetProcessHandle() { return m_hProcess; }
     int    GetProcessID() { return m_iTargetProcessID; }
@@ -54,7 +60,6 @@ private:
     CGuardManager* m_pGuardManager;
 
     std::vector<eDetectionType> m_vDetectedTypes;
-    std::vector<CAtomicThread*> m_vAtomicThreads;
 };
 
 extern CSafeAntiCheat* g_pSafeAntiCheat;
