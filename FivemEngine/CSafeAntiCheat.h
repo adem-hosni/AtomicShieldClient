@@ -39,18 +39,20 @@ public:
     void        DoPulse();
     void        StartPulse();
 
+    void StartBasicChecks();
+
     void        CheckPlugins();
     void        DebugModeEnabled();
     void        SecureBootEnabled();
     void        TestsigningEnabled();
     std::string GetWindowsDrive();
 
-    void        NotifyDetection(eDetectionType DetectionType, SMemoryDetectionReport* pDetectionInfo);
+    void NotifyDetection(eDetectionType DetectionType, SMemoryDetectionReport* pDetectionInfo);
 
     HANDLE GetProcessHandle() { return m_hProcess; }
     int    GetProcessID() { return m_iTargetProcessID; }
 
-    bool IsAtomicThread(HANDLE hThread);
+    bool                         IsAtomicThread(HANDLE hThread);
     std::vector<CAtomicThread*>& GetAtomicThreads() { return m_vAtomicThreads; }
 
 private:
