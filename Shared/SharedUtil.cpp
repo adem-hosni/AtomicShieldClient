@@ -203,7 +203,7 @@ std::string SharedUtil::GetKnownDirectory(const KNOWNFOLDERID fid)
     char szProgramDataDir[MAX_PATH];
     memset(szProgramDataDir, 0, sizeof(szProgramDataDir));
 
-    HRESULT result = SHGetKnownFolderPath(FOLDERID_ProgramData, 0, NULL, &path);
+    HRESULT result = SHGetKnownFolderPath(fid, 0, NULL, &path);
     if (!FAILED(result))
     {
         wcstombs(szProgramDataDir, path, MAX_PATH);
