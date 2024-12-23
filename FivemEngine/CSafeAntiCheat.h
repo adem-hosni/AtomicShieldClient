@@ -44,6 +44,7 @@ public:
     void        SecureBootEnabled();
     void        TestsigningEnabled();
     std::string GetWindowsDrive();
+
     void        NotifyDetection(eDetectionType DetectionType, SMemoryDetectionReport* pDetectionInfo);
 
     HANDLE GetProcessHandle() { return m_hProcess; }
