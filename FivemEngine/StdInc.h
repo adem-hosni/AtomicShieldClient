@@ -19,6 +19,7 @@
 #include "CAtomicThread.h"
 #include "CSafeAntiCheat.h"
 #include "SharedUtil.h"
+#include "SharedProtocols.h"
 #include "Utils.h"
 
 // Guards
