@@ -12,6 +12,7 @@
 
 #include <CRC32/CRC32.h>
 
+#include "FileAuthentication.h"
 #include "SafePacketID.h"
 #include "CHWID.h"
 #include "CMemoryScanner.h"
