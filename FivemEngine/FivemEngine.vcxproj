@@ -175,6 +175,7 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CAtomicThread.cpp" />
+    <ClCompile Include="FileAuthentication.cpp" />
     <ClCompile Include="CGuardManager.cpp" />
     <ClCompile Include="Guards\CModuleGuard.cpp" />
     <ClCompile Include="Guards\CThreadGuard.cpp" />
@@ -236,6 +237,7 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CAtomicThread.h" />
+    <ClInclude Include="FileAuthentication.h" />
     <ClInclude Include="CGuardManager.h" />
     <ClInclude Include="Guards\CModuleGuard.h" />
     <ClInclude Include="Guards\CThreadGuard.h" />

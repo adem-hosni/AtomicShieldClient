@@ -48,9 +48,15 @@ void CModuleGuard::DoPulse()
                         wstrFullDllName = std::wstring(LdrModule.FullDllName.Length / sizeof(WCHAR), 0);
                         wstrFullDllName = LdrModule.FullDllName.Buffer;
                         wstrFullDllName.push_back('\0');
-
-                        //std::wcout << "Module Found: " << wstrFullDllName.c_str() << std::endl;
-
+                        
+                        if (!wstrFullDllName.empty())
+                        {
+                            if (!FileAuthentication::HasSignature(wstrFullDllName.c_str()))
+                            {
+                                SharedUtil::AddDebugLog("Unsigned module detected");
+                                wprintf(L"File Path: %s\n", wstrFullDllName.c_str());
+                            }
+                        }
 
                         Node = GetNextNode((PCHAR)LdrModule.InMemoryOrderLinks.Flink, 1);
                     } while (Head != Node);
@@ -66,5 +72,6 @@ void CModuleGuard::DoPulse()
             SharedUtil::AddDebugLog("NtQueryInformationProcess failed with error 0x%x", GetLastError());
         }
         Sleep(3000);
+        break;
     }
 }
