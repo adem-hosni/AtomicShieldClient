@@ -19,7 +19,8 @@ enum eDetectionType
     DLL_FOUND = 3,
     SECURE_BOOT_DISABLED = 4,
     DEBUG_MODE_ENABLED = 5,
-    TEST_SIGNING_ENABLED = 6
+    TEST_SIGNING_ENABLED = 6,
+    INJECTED_DLL = 7
 };
 
 class CSafeAntiCheat
