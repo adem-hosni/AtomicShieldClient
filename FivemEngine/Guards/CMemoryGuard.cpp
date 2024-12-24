@@ -15,6 +15,7 @@ void CMemoryGuard::DoPulse()
 {
     while (true)
     {
+        int                      iDetectionCount = 0;
         DWORD                    mask = (PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_READ);
         MEMORY_BASIC_INFORMATION info;
         const void*              pCurrentAddress = START_ADDRESS;
@@ -40,12 +41,18 @@ void CMemoryGuard::DoPulse()
                         };
                         if (bCompletedSequence)
                         {
+                            iDetectionCount++;
+
                             SMemoryDetectionReport Report;
                             Report.AllocatedBase = info.AllocationBase;
                             Report.AllocatedProtect = info.AllocationProtect;
                             Report.RegionSize = info.RegionSize;
 
-                            //SharedUtil::AddDebugLog("Unregistred IAT At: 0x%x from 0x%X", z, dwModuleBase);
+                            SharedUtil::AddDebugLog("Unregistred IAT At: 0x%x from 0x%X (%d)", z, dwModuleBase, iDetectionCount);
+                            if (iDetectionCount > 32)
+                            {
+                                SharedUtil::AddDebugLog("CHEATING DETECTION !!!!!!!!!");
+                            }
 
                             //g_pSafeAntiCheat->NotifyDetection(eDetectionType::UNRECOGNISED_IAT_FOUND, &Report);
                             break;
