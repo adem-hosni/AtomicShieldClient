@@ -5,16 +5,10 @@
 
 CMemoryGuard::CMemoryGuard()
 {
-    m_mbi = {0};
-    m_systemInfo = {0};
-    m_dwCurrentAddress = (DWORD)START_ADDRESS;
-    m_dwMaxAddress = NULL;
 }
 
 CMemoryGuard::~CMemoryGuard()
 {
-    m_mbi = {0};
-    m_systemInfo = {0};
 }
 
 void CMemoryGuard::DoPulse()
@@ -51,9 +45,9 @@ void CMemoryGuard::DoPulse()
                             Report.AllocatedProtect = info.AllocationProtect;
                             Report.RegionSize = info.RegionSize;
 
-                            SharedUtil::AddDebugLog("Unregistred IAT At: 0x%x from 0x%X", z, dwModuleBase);
+                            //SharedUtil::AddDebugLog("Unregistred IAT At: 0x%x from 0x%X", z, dwModuleBase);
 
-                            g_pSafeAntiCheat->NotifyDetection(eDetectionType::UNRECOGNISED_IAT_FOUND, &Report);
+                            //g_pSafeAntiCheat->NotifyDetection(eDetectionType::UNRECOGNISED_IAT_FOUND, &Report);
                             break;
                         }
                     }

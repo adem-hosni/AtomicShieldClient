@@ -2,15 +2,10 @@
 
 CModuleGuard::CModuleGuard()
 {
-    m_mbi = {0};
-    m_systemInfo = {0};
-    m_dwMaxAddress = NULL;
 }
 
 CModuleGuard::~CModuleGuard()
 {
-    m_mbi = {0};
-    m_systemInfo = {0};
 }
 
 PLDR_DATA_TABLE_ENTRY GetNextNode(PCHAR node, int iOffset)
