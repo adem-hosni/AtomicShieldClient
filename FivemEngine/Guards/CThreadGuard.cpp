@@ -2,16 +2,10 @@
 
 CThreadGuard::CThreadGuard()
 {
-    m_mbi = {0};
-    m_systemInfo = {0};
-    m_dwCurrentAddress = NULL;
-    m_dwMaxAddress = NULL;
 }
 
 CThreadGuard::~CThreadGuard()
 {
-    m_mbi = {0};
-    m_systemInfo = {0};
 }
 
 void CThreadGuard::DoPulse()

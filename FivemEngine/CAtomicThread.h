@@ -15,6 +15,7 @@ public:
     ~CAtomicThread();
 
     bool Create();
+    static CAtomicThread* Create(PVOID lpStartAddress, PVOID lpParameter);
     HANDLE GetHandle() { return m_hThread; }
 
 private:

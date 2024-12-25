@@ -1,18 +1,14 @@
 #include "StdInc.h"
 
+#define START_ADDRESS (PVOID)0x00000000010000
+#define END_ADDRESS   (0x00007FF8F2580000 - 0x00000000010000)
+
 CHeuristicGuard::CHeuristicGuard()
 {
-    m_mbi = {0};
-    m_systemInfo = {0};
-    m_dwCurrentAddress = NULL;
-    m_dwMaxAddress = NULL;
-    m_Signatures = {};
 }
 
 CHeuristicGuard::~CHeuristicGuard()
 {
-    m_mbi = {0};
-    m_systemInfo = {0};
 }
 
 void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::string>>& Signatures)
@@ -28,35 +24,37 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::strin
 
 void CHeuristicGuard::DoPulse()
 {
-    char* currentmemorypage = 0;
-    SharedUtil::AddDebugLog("Begin Scan");
-    std::string Signature = "api.tzproject.com";
-
-    SharedUtil::AddDebugLog("m_Sig: %d", m_Signatures.size());
-
-    while (currentmemorypage < m_systemInfo.lpMaximumApplicationAddress)
+    char* text = (char*)"api.tzproject.com";
+    const char* text2 = "api.tzproject.com";
+    while (true)
     {
-        NtQueryVirtualMemory(GetCurrentProcess(), currentmemorypage, MemoryBasicInformation, &m_mbi, sizeof(m_mbi), 0);
+        SharedUtil::AddDebugLog("Begin scan");
+        char* currentmemorypage = 0;
 
-        if (m_mbi.State == MEM_COMMIT)
+        MEMORY_BASIC_INFORMATION info;
+        DWORD                    mask = (PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_READ);
+
+        const void* pCurrentAddress = START_ADDRESS;
+        const void* end = (const void*)((const char*)pCurrentAddress + END_ADDRESS);
+        while (pCurrentAddress < end && VirtualQuery(pCurrentAddress, &info, sizeof(info)) == sizeof(info))
         {
-            if (m_mbi.Protect == PAGE_READWRITE)
+            if ((info.State != MEM_FREE && info.State != MEM_RELEASE) && info.Type & (MEM_IMAGE | MEM_PRIVATE) && info.Protect & mask)
             {
                 std::string buffer;
-                buffer.resize(m_mbi.RegionSize + m_mbi.RegionSize / 2);            // so the buffer don"t overflow
+                buffer.resize(info.RegionSize + info.RegionSize / 2);            // so the buffer don"t overflow
 
-                ZwReadVirtualMemory(GetCurrentProcess(), currentmemorypage, &buffer.at(0), m_mbi.RegionSize, 0);
+                ZwReadVirtualMemory(GetCurrentProcess(), currentmemorypage, &buffer.at(0), info.RegionSize, 0);
 
-                for (int begin = 0; begin < m_mbi.RegionSize; begin++)
+                for (int begin = 0; begin < info.RegionSize; begin++)
                 {
                     for (const auto& Item : m_Signatures)
                     {
                         std::string              SignatureTitle = Item.first;
                         std::vector<std::string> SignaturesList = Item.second;
 
-                        for (auto Signature : SignaturesList)
+                        for (std::string& Signature : SignaturesList)
                         {
-                            if (buffer[begin] == Signature.at(0) && buffer[begin + Signature.length() - 1] == Signature.back())
+                            if (buffer[begin] == Signature.at(0) /*&& buffer[begin + Signature.length() - 1] == Signature.back()*/)
                             {
                                 std::string stringbuffer = buffer.substr(begin, Signature.length());
 
@@ -64,7 +62,7 @@ void CHeuristicGuard::DoPulse()
                                 {
                                     char szModulePath[MAX_PATH];
                                     memset(szModulePath, 0, sizeof(szModulePath));
-                                    HMODULE hModule = reinterpret_cast<HMODULE>(m_mbi.AllocationBase);
+                                    HMODULE hModule = reinterpret_cast<HMODULE>(info.AllocationBase);
                                     if (!GetModuleFileName(hModule, szModulePath, sizeof(szModulePath)))
                                         sprintf(szModulePath, "<Failed to retreive module path 0x%x>", GetLastError());
                                     SharedUtil::AddDebugLog("Found %s at 0x%x in %s", Signature.c_str(), (uintptr_t)currentmemorypage + begin, szModulePath);
@@ -74,10 +72,9 @@ void CHeuristicGuard::DoPulse()
                     }
                 }
             }
+            pCurrentAddress = (const void*)((const char*)(info.BaseAddress) + info.RegionSize);
         }
+        SharedUtil::AddDebugLog("End scan");
 
-        currentmemorypage += m_mbi.RegionSize;
     }
-    SharedUtil::AddDebugLog("End Scan");
-    currentmemorypage = 0;
 }

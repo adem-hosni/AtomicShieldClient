@@ -50,3 +50,11 @@ bool CAtomicThread::Create()
     return true;
 
 }
+
+CAtomicThread* CAtomicThread::Create(PVOID lpStartAddress, PVOID lpParameter)
+{
+    CAtomicThread* pAtomicThread = new CAtomicThread(lpStartAddress, lpParameter);
+    pAtomicThread->Create();
+
+    return pAtomicThread;
+}
