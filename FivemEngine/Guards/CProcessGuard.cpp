@@ -3,15 +3,12 @@ using namespace std;
 
 CProcessGuard::CProcessGuard()
 {
-    m_mbi = {0};
-    m_systemInfo = {0};
-    m_dwMaxAddress = NULL;
+
 }
 
 CProcessGuard::~CProcessGuard()
 {
-    m_mbi = {0};
-    m_systemInfo = {0};
+
 }
 
 std::vector<Handles::SYSTEM_HANDLE> Handles::GetHandles()

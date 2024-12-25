@@ -41,7 +41,7 @@ NTSTATUS __stdcall CModuleGuard::_LdrLoadDll(PWSTR SearchPath OPTIONAL, PULONG D
 
             LdrLoadDll(SearchPath, DllCharacteristics, DllName, BaseAddress);
 
-            HookLoadDll(lpAddr);
+         //   HookLoadDll(lpAddr);
         }
     }
 
