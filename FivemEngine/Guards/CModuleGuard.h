@@ -15,11 +15,10 @@ public:
 
 
     VOID HookLoadDll(LPVOID lpAddr);
-    static NTSTATUS __stdcall _LdrLoadDll(PWSTR SearchPath OPTIONAL, PULONG DllCharacteristics OPTIONAL, PUNICODE_STRING DllName, PVOID* BaseAddress);
-    #define dwAllowDllCount 1
-    static constexpr CHAR cAllowDlls[1][MAX_PATH] = {"C:\\Windows\\System32\\rsaenh.dll"};
+    NTSTATUS __stdcall _LdrLoadDll(PWSTR SearchPath OPTIONAL, PULONG DllCharacteristics OPTIONAL, PUNICODE_STRING DllName, PVOID* BaseAddress);
+    std::vector<const char*> cAllowDlls;
     typedef void(WINAPI* LdrLoadDll_)(PWSTR SearchPath OPTIONAL, PULONG DllCharacteristics OPTIONAL, PUNICODE_STRING DllName, PVOID* BaseAddress);
 
-    static LPVOID lpAddr;
-    static CHAR   OriginalBytes[50];
+    LPVOID lpAddr;
+    CHAR   OriginalBytes[50];
 };

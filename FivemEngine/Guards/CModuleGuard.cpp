@@ -1,7 +1,13 @@
 #include "StdInc.h"
 
+#define dwAllowDllCount 1
+
+
 CModuleGuard::CModuleGuard()
 {
+    cAllowDlls = {"C:\\Windows\\System32\\rsaenh.dll"};
+    OriginalBytes[50] = {0};
+    lpAddr = nullptr;
 }
 
 CModuleGuard::~CModuleGuard()
@@ -13,9 +19,6 @@ PLDR_DATA_TABLE_ENTRY GetNextNode(PCHAR node, int iOffset)
     node -= sizeof(LIST_ENTRY) * iOffset;
     return (PLDR_DATA_TABLE_ENTRY)node;
 }
-
-
-
 
 NTSTATUS __stdcall CModuleGuard::_LdrLoadDll(PWSTR SearchPath OPTIONAL, PULONG DllCharacteristics OPTIONAL, PUNICODE_STRING DllName, PVOID* BaseAddress)
 {
@@ -57,13 +60,13 @@ NTSTATUS __stdcall CModuleGuard::_LdrLoadDll(PWSTR SearchPath OPTIONAL, PULONG D
 VOID CModuleGuard::HookLoadDll(LPVOID lpAddr)
 {
     DWORD oldProtect, oldOldProtect;
-    void* hLdrLoadDll = &CModuleGuard::_LdrLoadDll;
-
+    
     // our trampoline
     unsigned char boing[] = { 0x49, 0xbb, 0xde, 0xad, 0xc0, 0xde, 0xde, 0xad, 0xc0, 0xde, 0x41, 0xff, 0xe3 };
 
     // add in the address of our hook
-    *(void**)(boing + 2) = &CModuleGuard::_LdrLoadDll;
+    auto func = std::bind(&CModuleGuard::_LdrLoadDll, this, std::placeholders::_1);
+    *(void**)(boing + 2) = &func;
 
     // write the hook
     VirtualProtect(lpAddr, 13, PAGE_EXECUTE_READWRITE, &oldProtect);
@@ -76,8 +79,8 @@ VOID CModuleGuard::HookLoadDll(LPVOID lpAddr)
 
 void CModuleGuard::DoPulse()
 {
-    LPVOID lpAddr = (LPVOID)GetProcAddress(GetModuleHandle("ntdll.dll"), "LdrLoadDll");
-    BYTE OriginalBytes[50] = {0};
+    lpAddr = (LPVOID)GetProcAddress(GetModuleHandle("ntdll.dll"), "LdrLoadDll");
+    OriginalBytes[50] = {0};
     memcpy(OriginalBytes, lpAddr, 50);
 
     HookLoadDll(lpAddr);
