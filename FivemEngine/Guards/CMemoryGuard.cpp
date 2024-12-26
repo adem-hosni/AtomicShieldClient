@@ -15,6 +15,8 @@ void CMemoryGuard::DoPulse()
 {
     while (true)
     {
+        int founds = 0;
+        SharedUtil::AddDebugLog("Begin Memory Guard Scan");
         int                      iDetectionCount = 0;
         DWORD                    mask = (PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_READ);
         MEMORY_BASIC_INFORMATION info;
@@ -48,8 +50,8 @@ void CMemoryGuard::DoPulse()
                             Report.AllocatedProtect = info.AllocationProtect;
                             Report.RegionSize = info.RegionSize;
 
-                            SharedUtil::AddDebugLog("Unregistred IAT At: 0x%x from 0x%X (%d)", z, dwModuleBase, iDetectionCount);
-                            if (iDetectionCount > 32)
+                            SharedUtil::AddDebugLog("Unregistred IAT At: 0x%p (%d)", z, iDetectionCount);
+                            if (iDetectionCount > 152)
                             {
                                 SharedUtil::AddDebugLog("CHEATING DETECTION !!!!!!!!!");
                             }
@@ -58,9 +60,12 @@ void CMemoryGuard::DoPulse()
                             break;
                         }
                     }
+                
                 }
             }
             pCurrentAddress = (const void*)((const char*)(info.BaseAddress) + info.RegionSize);
         }
+        SharedUtil::AddDebugLog("End Memory Guard Scan");
+
     }
 }
