@@ -148,7 +148,8 @@ void CSafeAntiCheat::TestsigningEnabled()
     {
         if (strstr(token, "testsigning") != NULL && strstr(token, "Yes") != NULL)
         {
-            g_pSafeAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED, nullptr);
+            SMemoryDetectionReport report = {0};
+            g_pSafeAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED, &report);
             SharedUtil::AddDebugLog("Test Signing is Enabled\n");
         }
 

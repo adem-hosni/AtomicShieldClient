@@ -10,7 +10,7 @@
 
 namespace Handles
 {
-    typedef enum _SYSTEM_INFORMATION_CLASS
+    /*typedef enum _SYSTEM_INFORMATION_CLASS
     {
         SystemBasicInformation = 0,
         SystemPerformanceInformation = 2,
@@ -21,7 +21,7 @@ namespace Handles
         SystemExceptionInformation = 33,
         SystemRegistryQuotaInformation = 37,
         SystemLookasideInformation = 45
-    } SYSTEM_INFORMATION_CLASS;
+    } SYSTEM_INFORMATION_CLASS;*/
 
     typedef NTSTATUS(NTAPI* NtQuerySystemInformationFunc)(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation,
                                                           ULONG SystemInformationLength, PULONG ReturnLength);
