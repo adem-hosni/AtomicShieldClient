@@ -183,6 +183,9 @@
     <ClCompile Include="Guards\CProcessGuard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CAtomicHook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdInc.h">
@@ -396,6 +399,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Guards\CProcessGuard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAtomicHook.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
