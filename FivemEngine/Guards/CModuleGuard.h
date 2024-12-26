@@ -3,19 +3,16 @@
 #include "CGuardBase.h"
 #include <winternl.h>
 
-
 class CModuleGuard final : public CGuardBase
 {
 public:
     CModuleGuard();
     ~CModuleGuard();
+
+    void __stdcall Initialize() override;
     static void StaticPulse(void* pContext) { reinterpret_cast<CModuleGuard*>(pContext)->DoPulse(); }
+    void        DoPulse() override;
 
-    void DoPulse() override;
-
-
-    VOID HookLoadDll(LPVOID lpAddr);
-    NTSTATUS __stdcall _LdrLoadDll(PWSTR SearchPath OPTIONAL, PULONG DllCharacteristics OPTIONAL, PUNICODE_STRING DllName, PVOID* BaseAddress);
     std::vector<const char*> cAllowDlls;
     typedef void(WINAPI* LdrLoadDll_)(PWSTR SearchPath OPTIONAL, PULONG DllCharacteristics OPTIONAL, PUNICODE_STRING DllName, PVOID* BaseAddress);
 
