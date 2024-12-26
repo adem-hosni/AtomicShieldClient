@@ -19,14 +19,14 @@ CGuardManager::~CGuardManager()
 void CGuardManager::InitializeGuards()
 {
     m_pMemoryGuard->Initialize();
+    m_pModuleGuard->Initialize();
 }
 
 void CGuardManager::StartPulse(CGuardManager* pGuardManager)
 {
-    SharedUtil::AddDebugLog("Start pulse");
-    CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard);
-    CAtomicThread::Create(CThreadGuard::StaticPulse, m_pThreadGuard);
     CAtomicThread::Create(CMemoryGuard::StaticPulse, m_pMemoryGuard);
-    CAtomicThread::Create(CModuleGuard::StaticPulse, m_pModuleGuard);
     CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard);
+    CAtomicThread::Create(CThreadGuard::StaticPulse, m_pThreadGuard);
+    /*CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard);
+    CAtomicThread::Create(CModuleGuard::StaticPulse, m_pModuleGuard);*/
 }

@@ -1,7 +1,7 @@
 #include "StdInc.h"
+#include <synchapi.h>
 
 #define dwAllowDllCount 1
-
 
 CModuleGuard::CModuleGuard()
 {
@@ -14,39 +14,34 @@ CModuleGuard::~CModuleGuard()
 {
 }
 
-PLDR_DATA_TABLE_ENTRY GetNextNode(PCHAR node, int iOffset)
+NTSTATUS NTAPI _LdrLoadDll(PWCHAR PathToFile_OPTIONAL, ULONG Flags, PUNICODE_STRING ModuleFileName, PHANDLE ModuleHandle)
 {
-    node -= sizeof(LIST_ENTRY) * iOffset;
-    return (PLDR_DATA_TABLE_ENTRY)node;
-}
-
-NTSTATUS __stdcall CModuleGuard::_LdrLoadDll(PWSTR SearchPath OPTIONAL, PULONG DllCharacteristics OPTIONAL, PUNICODE_STRING DllName, PVOID* BaseAddress)
-{
+    SharedUtil::AddDebugLog("Hook call");
     INT   i;
     DWORD dwOldProtect;
     BOOL  bAllow = FALSE;
     DWORD dwbytesWritten;
     CHAR  cDllName[MAX_PATH];
-    sprintf(cDllName, "%S", DllName->Buffer);
-    for (i = 0; i < dwAllowDllCount; i++)
-    {
-        if (strcmp(cDllName, cAllowDlls[i]) == 0)
-        {
-            bAllow = TRUE;
+    sprintf(cDllName, "%S", ModuleFileName->Buffer);
+    // for (i = 0; i < dwAllowDllCount; i++)
+    //{
+    //     if (strcmp(cDllName, cAllowDlls[i]) == 0)
+    //     {
+    //         bAllow = TRUE;
 
-            printf("Allowing DLL: %s\n", cDllName);
+    //        printf("Allowing DLL: %s\n", cDllName);
 
-            VirtualProtect(lpAddr, sizeof(OriginalBytes), PAGE_EXECUTE_READWRITE, &dwOldProtect);
-            memcpy(lpAddr, OriginalBytes, sizeof(OriginalBytes));
-            VirtualProtect(lpAddr, sizeof(OriginalBytes), dwOldProtect, &dwOldProtect);
+    //        VirtualProtect(lpAddr, sizeof(OriginalBytes), PAGE_EXECUTE_READWRITE, &dwOldProtect);
+    //        memcpy(lpAddr, OriginalBytes, sizeof(OriginalBytes));
+    //        VirtualProtect(lpAddr, sizeof(OriginalBytes), dwOldProtect, &dwOldProtect);
 
-            LdrLoadDll_ LdrLoadDll = (LdrLoadDll_)GetProcAddress(LoadLibrary("ntdll.dll"), "LdrLoadDll");
+    //        LdrLoadDll_ LdrLoadDll = (LdrLoadDll_)GetProcAddress(LoadLibrary("ntdll.dll"), "LdrLoadDll");
 
-            LdrLoadDll(SearchPath, DllCharacteristics, DllName, BaseAddress);
+    //        LdrLoadDll(SearchPath, DllCharacteristics, DllName, BaseAddress);
 
-         //   HookLoadDll(lpAddr);
-        }
-    }
+    //     //   HookLoadDll(lpAddr);
+    //    }
+    //}
 
     if (!bAllow)
     {
@@ -57,34 +52,20 @@ NTSTATUS __stdcall CModuleGuard::_LdrLoadDll(PWSTR SearchPath OPTIONAL, PULONG D
     return 0;
 }
 
-VOID CModuleGuard::HookLoadDll(LPVOID lpAddr)
+void CModuleGuard::Initialize()
 {
-    DWORD oldProtect, oldOldProtect;
-    
-    // our trampoline
-    unsigned char boing[] = { 0x49, 0xbb, 0xde, 0xad, 0xc0, 0xde, 0xde, 0xad, 0xc0, 0xde, 0x41, 0xff, 0xe3 };
-
-    // add in the address of our hook
-    auto func = std::bind(&CModuleGuard::_LdrLoadDll, this, std::placeholders::_1);
-    *(void**)(boing + 2) = &func;
-
-    // write the hook
-    VirtualProtect(lpAddr, 13, PAGE_EXECUTE_READWRITE, &oldProtect);
-    memcpy(lpAddr, boing, sizeof(boing));
-    VirtualProtect(lpAddr, 13, oldProtect, &oldProtect);
-
-    return;
+    lpAddr = (LPVOID)GetProcAddress(LoadLibrary("ntdll.dll"), "LdrLoadDll");
+    CAtomicHook::Create(lpAddr, &_LdrLoadDll);
 }
 
+PLDR_DATA_TABLE_ENTRY GetNextNode(PCHAR node, int iOffset)
+{
+    node -= sizeof(LIST_ENTRY) * iOffset;
+    return (PLDR_DATA_TABLE_ENTRY)node;
+}
 
 void CModuleGuard::DoPulse()
 {
-    lpAddr = (LPVOID)GetProcAddress(GetModuleHandle("ntdll.dll"), "LdrLoadDll");
-    OriginalBytes[50] = {0};
-    memcpy(OriginalBytes, lpAddr, 50);
-
-    HookLoadDll(lpAddr);
-
     std::wstring wstrFullDllName;
     while (true)
     {
