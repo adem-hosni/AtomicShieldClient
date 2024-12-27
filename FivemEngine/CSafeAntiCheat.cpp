@@ -272,8 +272,7 @@ void CSafeAntiCheat::TestsigningEnabled()
 {
     if (IsTestSignEnabled())
     {
-        SMemoryDetectionReport report = {0};
-        g_pSafeAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED, &report);
+        g_pSafeAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED);
     }
 }
 
@@ -342,7 +341,7 @@ void CSafeAntiCheat::DebugModeEnabled()
     {
         if (strstr(token, "debug") != NULL && strstr(token, "Yes") != NULL)
         {
-            g_pSafeAntiCheat->NotifyDetection(eDetectionType::DEBUG_MODE_ENABLED, nullptr);
+            g_pSafeAntiCheat->NotifyDetection(eDetectionType::DEBUG_MODE_ENABLED);
         }
 
         token = strtok(NULL, "\r\n");
@@ -351,8 +350,6 @@ void CSafeAntiCheat::DebugModeEnabled()
 
 void CSafeAntiCheat::SecureBootEnabled()
 {
-    SharedUtil::AddDebugLog("SecureBoot Checked");
-
     HKEY        hKey;
     LONG        lResult;
     DWORD       dwSize = sizeof(DWORD);
@@ -371,7 +368,6 @@ void CSafeAntiCheat::SecureBootEnabled()
 
     if (lResult != ERROR_SUCCESS)
     {
-        //  Logger::logf("UltimateAnticheat.log", Warning, "RegCloseKey failed with error: %d @ Services::IsSecureBootEnabled_RegKey\n", lResult);
         RegCloseKey(hKey);
         return;
     }
@@ -379,14 +375,11 @@ void CSafeAntiCheat::SecureBootEnabled()
     if (dwValue == 1)
     {
         RegCloseKey(hKey);
-        SharedUtil::AddDebugLog("SecureBoot Enabled");
     }
     else
     {
         RegCloseKey(hKey);
-        SharedUtil::AddDebugLog("SecureBoot Disabled");
-        SMemoryDetectionReport report = {0};
-        g_pSafeAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED, &report);
+        g_pSafeAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED);
     }
 }
 void CSafeAntiCheat::DoPulse()
@@ -443,23 +436,38 @@ void CSafeAntiCheat::StartBasicChecks()
     TestsigningEnabled();
 }
 
-void CSafeAntiCheat::NotifyDetection(eDetectionType DetectionType, SMemoryDetectionReport* pDetectionInfo)
+void CSafeAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs)
 {
     // Check if the detection type already detected
     if (std::find(m_vDetectedTypes.begin(), m_vDetectedTypes.end(), DetectionType) != m_vDetectedTypes.end())
         return;
+
     // Add it to the detected types
     m_vDetectedTypes.push_back(DetectionType);
 
-    jsoncons::json DetectionReport = jsoncons::json::object();
-    DetectionReport["allocated_base"] = (DWORD64)pDetectionInfo->AllocatedBase;
-    DetectionReport["allocated_protect"] = (DWORD64)pDetectionInfo->AllocatedProtect;
-    DetectionReport["region_size"] = (DWORD64)pDetectionInfo->RegionSize;
-    DetectionReport["base_address"] = (DWORD64)pDetectionInfo->BaseAddress;
+    jsoncons::json Report = jsoncons::json::object();
 
+    auto AddToReport = [&Report](std::unordered_map<std::string, ArgType> ReportKwargs)
+    {
+        jsoncons::json j;
+
+        for (const auto& [key, value] : ReportKwargs)
+        {
+            if (std::holds_alternative<int>(value))
+            {
+                j[key] = std::get<int>(value);
+            }
+            else if (std::holds_alternative<std::string>(value))
+            {
+                j[key] = std::get<std::string>(value);
+            }
+        };
+    };
+    AddToReport(kwargs);
+        
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["detection_type"] = (int)DetectionType;
-    RequestData["memory_report"] = DetectionReport;
+    RequestData["report"] = Report;
 
     m_pSafeNetwork->SendPacket(eSafePacketID::CHEAT_DETECTION, RequestData);
 }

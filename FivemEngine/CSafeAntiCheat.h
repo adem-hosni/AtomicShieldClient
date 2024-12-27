@@ -12,15 +12,18 @@ struct SMemoryDetectionReport
     DWORD   RegionSize;
 };
 
+using ArgType = std::variant<int, DWORD64, std::string, bool>;
+
 enum eDetectionType
 {
     UNAUTHORIZED_THREAD = 1,
-    UNRECOGNISED_IAT_FOUND = 2,
-    DLL_FOUND = 3,
-    SECURE_BOOT_DISABLED = 4,
-    DEBUG_MODE_ENABLED = 5,
-    TEST_SIGNING_ENABLED = 6,
-    INJECTED_DLL = 7
+    UNRECOGNISED_IAT_FOUND,
+    DLL_FOUND,
+    SECURE_BOOT_DISABLED,
+    DEBUG_MODE_ENABLED,
+    TEST_SIGNING_ENABLED,
+    INJECTED_DLL,
+    CHEAT_SIGNATURE_FOUND
 };
 
 class CSafeAntiCheat
@@ -48,7 +51,7 @@ public:
     void        TestsigningEnabled();
     std::string GetWindowsDrive();
 
-    void NotifyDetection(eDetectionType DetectionType, SMemoryDetectionReport* pDetectionInfo);
+    void NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs = {});
 
     HANDLE GetProcessHandle() { return m_hProcess; }
     int    GetProcessID() { return m_iTargetProcessID; }
