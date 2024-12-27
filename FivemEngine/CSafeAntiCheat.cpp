@@ -55,9 +55,9 @@ void CSafeAntiCheat::CheckPlugins()
             std::string fileName = entry.path().filename().string();
             if (fileName.find("d3d9") != std::string::npos || fileName.find("d3d10") != std::string::npos)
             {
-                SharedUtil::AddDebugLog("Found Dll ",fileName);
-              //  SMemoryDetectionReport report = {0};
-             //   g_pSafeAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND, &report);
+                SharedUtil::AddDebugLog("Found Dll ", fileName);
+                //  SMemoryDetectionReport report = {0};
+                //   g_pSafeAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND, &report);
             }
         }
     }
@@ -270,18 +270,11 @@ bool IsTestSignEnabled()
 
 void CSafeAntiCheat::TestsigningEnabled()
 {
-    SharedUtil::AddDebugLog("TestSigning Checked");
-
     if (IsTestSignEnabled())
     {
-        SharedUtil::AddDebugLog("TestSigning Enabled");
-
         SMemoryDetectionReport report = {0};
         g_pSafeAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED, &report);
     }
-    SharedUtil::AddDebugLog("TestSigning Disabled");
-
-
 }
 
 void CSafeAntiCheat::DebugModeEnabled()
@@ -378,8 +371,7 @@ void CSafeAntiCheat::SecureBootEnabled()
 
     if (lResult != ERROR_SUCCESS)
     {
-        
-      //  Logger::logf("UltimateAnticheat.log", Warning, "RegCloseKey failed with error: %d @ Services::IsSecureBootEnabled_RegKey\n", lResult);
+        //  Logger::logf("UltimateAnticheat.log", Warning, "RegCloseKey failed with error: %d @ Services::IsSecureBootEnabled_RegKey\n", lResult);
         RegCloseKey(hKey);
         return;
     }
@@ -388,7 +380,6 @@ void CSafeAntiCheat::SecureBootEnabled()
     {
         RegCloseKey(hKey);
         SharedUtil::AddDebugLog("SecureBoot Enabled");
-
     }
     else
     {
@@ -397,7 +388,6 @@ void CSafeAntiCheat::SecureBootEnabled()
         SMemoryDetectionReport report = {0};
         g_pSafeAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED, &report);
     }
-
 }
 void CSafeAntiCheat::DoPulse()
 {
@@ -446,7 +436,7 @@ void CSafeAntiCheat::StartBasicChecks()
 {
     CheckPlugins();
 
-  //  DebugModeEnabled();
+    //  DebugModeEnabled();
 
     SecureBootEnabled();
 
