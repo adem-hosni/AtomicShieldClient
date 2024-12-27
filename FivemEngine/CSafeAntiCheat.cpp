@@ -54,7 +54,8 @@ void CSafeAntiCheat::CheckPlugins()
             std::string fileName = entry.path().filename().string();
             if (fileName.find("d3d9") != std::string::npos || fileName.find("d3d10") != std::string::npos)
             {
-                g_pSafeAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND, nullptr);
+                SMemoryDetectionReport report = {0};
+                g_pSafeAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND, &report);
             }
         }
     }
@@ -82,78 +83,195 @@ std::string CSafeAntiCheat::GetWindowsDrive()
     return volumeName;
 }
 
+inline bool CheckTestSign_Type1()
+{
+    SYSTEM_CODEINTEGRITY_INFORMATION sci = {0};
+    sci.Length = sizeof(sci);
+
+    auto dwcbSz = 0UL;
+    auto ntStat = NtQuerySystemInformation(SystemCodeIntegrityInformation, &sci, sizeof(sci), &dwcbSz);
+    if (!NT_SUCCESS(ntStat) || dwcbSz != sizeof(sci))
+        return false;
+
+    auto bTestsigningEnabled = !!(sci.CodeIntegrityOptions & CODEINTEGRITY_OPTION_TESTSIGN);
+    return bTestsigningEnabled;
+}
+
+inline bool CheckTestSign_Type2()
+{
+    bool  bRet = false;
+    char  RegKey[_MAX_PATH] = {0};
+    DWORD BufSize = _MAX_PATH;
+    DWORD dataType = REG_DWORD;
+
+    HKEY hKey;
+    long lError = RegOpenKeyExA(HKEY_LOCAL_MACHINE, ("SYSTEM\\CurrentControlSet\\Control\\CI"), NULL, KEY_QUERY_VALUE, &hKey);
+    if (lError == ERROR_SUCCESS)
+    {
+        long lVal = RegQueryValueExA(hKey, ("DebugFlags"), NULL, &dataType, (LPBYTE)&RegKey, &BufSize);
+        if (lVal == ERROR_SUCCESS)
+        {
+            if (!strcmp(RegKey, ("1")))
+                bRet = true;
+        }
+        RegCloseKey(hKey);
+    }
+    return bRet;
+}
+
+inline bool CheckTestSign_Type3()
+{
+    bool  bRet = false;
+    char  RegKey[_MAX_PATH] = {0};
+    DWORD BufSize = _MAX_PATH;
+    DWORD dataType = REG_SZ;
+
+    HKEY hKey;
+    long lError = RegOpenKeyExA(HKEY_LOCAL_MACHINE, ("SYSTEM\\CurrentControlSet\\Control"), NULL, KEY_QUERY_VALUE, &hKey);
+    if (lError == ERROR_SUCCESS)
+    {
+        long lVal = RegQueryValueExA(hKey, ("SystemStartOptions"), NULL, &dataType, (LPBYTE)&RegKey, &BufSize);
+        if (lVal == ERROR_SUCCESS)
+        {
+            if (strstr(RegKey, ("TESTSIGNING")))
+                bRet = true;
+        }
+        RegCloseKey(hKey);
+    }
+    return bRet;
+}
+
+inline bool CheckTestSign_Type4()
+{
+    bool  bRet = false;
+    char  RegKey[_MAX_PATH] = {0};
+    DWORD BufSize = _MAX_PATH;
+    DWORD dataType = REG_SZ;
+
+    HKEY hKey;
+    long lError = RegOpenKeyExA(HKEY_LOCAL_MACHINE, ("SYSTEM\\CurrentControlSet\\Control"), NULL, KEY_QUERY_VALUE, &hKey);
+    if (lError == ERROR_SUCCESS)
+    {
+        long lVal = RegQueryValueExA(hKey, ("SystemStartOptions"), NULL, &dataType, (LPBYTE)&RegKey, &BufSize);
+        if (lVal == ERROR_SUCCESS)
+        {
+            if (strstr(RegKey, ("DISABLE_INTEGRITY_CHECKS")))
+                bRet = true;
+        }
+        RegCloseKey(hKey);
+    }
+    return bRet;
+}
+
+inline bool CheckTestSign_Type5()
+{
+    HKEY hTestKey;
+    if (RegOpenKeyExA(HKEY_LOCAL_MACHINE, ("BCD00000000\\Objects"), 0, KEY_READ, &hTestKey) != ERROR_SUCCESS)
+        return false;
+
+    char     achKey[255];
+    DWORD    cbName;
+    char     achClass[MAX_PATH] = "";
+    DWORD    cchClassName = MAX_PATH;
+    DWORD    cSubKeys = 0;
+    DWORD    cbMaxSubKey;
+    DWORD    cchMaxClass;
+    DWORD    cValues;
+    DWORD    cchMaxValue;
+    DWORD    cbMaxValueData;
+    DWORD    cbSecurityDescriptor;
+    FILETIME ftLastWriteTime;
+
+    bool bRet = false;
+
+    DWORD dwReturn[1000];
+    DWORD dwBufSize = sizeof(dwReturn);
+
+    auto dwApiRetCode = RegQueryInfoKeyA(hTestKey, achClass, &cchClassName, NULL, &cSubKeys, &cbMaxSubKey, &cchMaxClass, &cValues, &cchMaxValue,
+                                         &cbMaxValueData, &cbSecurityDescriptor, &ftLastWriteTime);
+
+    if (cSubKeys)
+    {
+        for (DWORD i = 0; i < cSubKeys; i++)
+        {
+            cbName = 255;
+            dwApiRetCode = RegEnumKeyExA(hTestKey, i, achKey, &cbName, NULL, NULL, NULL, &ftLastWriteTime);
+            if (dwApiRetCode == ERROR_SUCCESS)
+            {
+                char szNewWay[4096];
+                sprintf(szNewWay, ("BCD00000000\\Objects\\%s\\Elements\\16000049"), achKey);
+
+                HKEY hnewKey;
+                long lError = RegOpenKeyExA(HKEY_LOCAL_MACHINE, szNewWay, NULL, KEY_QUERY_VALUE, &hnewKey);
+                if (lError == ERROR_SUCCESS)
+                {
+                    long lVal = RegQueryValueExA(hnewKey, ("Element"), NULL, 0, (LPBYTE)dwReturn, &dwBufSize);
+                    if (lVal == ERROR_SUCCESS)
+                    {
+                        if (dwReturn[0] == 1UL)
+                            bRet = true;
+                    }
+                    RegCloseKey(hnewKey);
+                }
+            }
+        }
+    }
+
+    RegCloseKey(hTestKey);
+    return bRet;
+}
+
+bool CheckTestSign_Type6()
+{
+    bool  bRet = false;
+    BYTE  Result;
+    DWORD BufSize = sizeof(Result);
+    DWORD dataType = REG_BINARY;
+
+    HKEY hKey;
+    long lError = RegOpenKeyExA(HKEY_LOCAL_MACHINE, ("SOFTWARE\\Microsoft\\Driver Signing"), NULL, KEY_QUERY_VALUE, &hKey);
+    if (lError == ERROR_SUCCESS)
+    {
+        long lVal = RegQueryValueExA(hKey, ("Policy"), NULL, &dataType, &Result, &BufSize);
+        if (lVal == ERROR_SUCCESS)
+        {
+            if (Result == 0x02)
+                bRet = true;
+        }
+        RegCloseKey(hKey);
+    }
+    return bRet;
+}
+
+bool IsTestSignEnabled()
+{
+    if (CheckTestSign_Type1())
+        return true;
+
+    if (CheckTestSign_Type2())
+        return true;
+
+    if (CheckTestSign_Type3())
+        return true;
+
+    if (CheckTestSign_Type4())
+        return true;
+
+    if (CheckTestSign_Type5())
+        return true;
+
+    if (CheckTestSign_Type6())
+        return true;
+
+    return false;
+}
+
 void CSafeAntiCheat::TestsigningEnabled()
 {
-    HANDLE              hReadPipe, hWritePipe;
-    SECURITY_ATTRIBUTES sa;
-    STARTUPINFOA        si;
-    PROCESS_INFORMATION pi;
-    char                szOutput[1024];
-    DWORD               bytesRead;
-
-    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.bInheritHandle = TRUE;
-    sa.lpSecurityDescriptor = NULL;
-
-    std::string volumeName = GetWindowsDrive();
-
-    if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0))            // use a pipe to read output of bcdedit command
+    if (IsTestSignEnabled)
     {
-        SharedUtil::AddDebugLog("CreatePipe failed @ Services::IsMachineAllowingSelfSignedDrivers: %d", GetLastError());
-        return;
-    }
-
-    memset(&si, 0, sizeof(si));
-    si.cb = sizeof(si);
-    si.dwFlags = STARTF_USESTDHANDLES;
-    si.hStdOutput = hWritePipe;
-
-    std::string bcdedit_location = "Windows\\System32\\bcdedit.exe";
-    std::string fullpath_bcdedit = (volumeName.c_str() + bcdedit_location);
-
-    if (!CreateProcessA(fullpath_bcdedit.c_str(), NULL, NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
-    {
-        SharedUtil::AddDebugLog("CreateProcess failed @ Services::IsMachineAllowingSelfSignedDrivers: %d", GetLastError());
-        CloseHandle(hReadPipe);
-        CloseHandle(hWritePipe);
-        return;
-    }
-
-    //..wait for the process to finish
-    WaitForSingleObject(pi.hProcess, INFINITE);
-
-    CloseHandle(hWritePipe);
-    CloseHandle(pi.hThread);
-
-    if (!ReadFile(hReadPipe, szOutput, 1024 - 1, &bytesRead, NULL))            // now read our pipe
-    {
-        SharedUtil::AddDebugLog("ReadFile failed @ Services::IsMachineAllowingSelfSignedDrivers: %d", GetLastError());
-        CloseHandle(hReadPipe);
-        return;
-    }
-
-    CloseHandle(hReadPipe);
-
-    szOutput[bytesRead] = '\0';
-
-    if (strstr(szOutput, "The boot configuration data store could not be opened") != NULL)
-    {
-        SharedUtil::AddDebugLog("Failed to run bcdedit @ IsMachineAllowingSelfSignedDrivers. Please make sure program is run as administrator\n");
-        return;
-    }
-
-    char* token = strtok(szOutput, "\r\n");
-
-    while (token != NULL)
-    {
-        if (strstr(token, "testsigning") != NULL && strstr(token, "Yes") != NULL)
-        {
-            SMemoryDetectionReport report = {0};
-            g_pSafeAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED, &report);
-            SharedUtil::AddDebugLog("Test Signing is Enabled\n");
-        }
-
-        token = strtok(NULL, "\r\n");
+        SMemoryDetectionReport report = {0};
+        g_pSafeAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED, &report);
     }
 }
 
@@ -231,101 +349,42 @@ void CSafeAntiCheat::DebugModeEnabled()
 
 void CSafeAntiCheat::SecureBootEnabled()
 {
-    HRESULT        hr;
-    IWbemLocator*  pLoc = nullptr;
-    IWbemServices* pSvc = nullptr;
+    HKEY        hKey;
+    LONG        lResult;
+    DWORD       dwSize = sizeof(DWORD);
+    DWORD       dwValue = 0;
+    const char* registryPath = "SYSTEM\\CurrentControlSet\\Control\\SecureBoot\\State";            // optionally xor this
+    const char* valueName = "UEFISecureBootEnabled";
 
-    hr = CoInitializeEx(0, COINIT_MULTITHREADED);
-    if (FAILED(hr))
+    lResult = RegOpenKeyExA(HKEY_LOCAL_MACHINE, registryPath, 0, KEY_READ, &hKey);
+
+    if (lResult != ERROR_SUCCESS)
     {
-        SharedUtil::AddDebugLog("Failed to initialize COM library.");
         return;
     }
 
-    // Create the WMI locator object
-    hr = CoCreateInstance(CLSID_WbemLocator, nullptr, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (void**)&pLoc);
-    if (FAILED(hr))
+    lResult = RegQueryValueExA(hKey, valueName, NULL, NULL, (LPBYTE)&dwValue, &dwSize);
+
+    if (lResult != ERROR_SUCCESS)
     {
-        SharedUtil::AddDebugLog("Failed to create IWbemLocator object.");
-        CoUninitialize();
+        
+      //  Logger::logf("UltimateAnticheat.log", Warning, "RegCloseKey failed with error: %d @ Services::IsSecureBootEnabled_RegKey\n", lResult);
+        RegCloseKey(hKey);
         return;
     }
 
-    // Connect to the WMI namespace
-    hr = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"), nullptr, nullptr, nullptr, 0, nullptr, nullptr, &pSvc);
-    if (FAILED(hr))
+    if (dwValue == 1)
     {
-        SharedUtil::AddDebugLog("Could not connect to WMI namespace.");
-        pLoc->Release();
-        CoUninitialize();
-        return;
-    }
-
-    // Set proxy blanket for security
-    hr = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, nullptr, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, nullptr, EOAC_NONE);
-    if (FAILED(hr))
-    {
-        SharedUtil::AddDebugLog("Could not set proxy blanket.");
-        pSvc->Release();
-        pLoc->Release();
-        CoUninitialize();
-        return;
-    }
-
-    // Query Secure Boot status
-    IEnumWbemClassObject* pEnumerator = nullptr;
-    hr = pSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT SecureBootEnabled FROM Win32_ComputerSystem"), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
-                         nullptr, &pEnumerator);
-    if (FAILED(hr))
-    {
-        SharedUtil::AddDebugLog("Query for SecureBootEnabled failed.");
-        pSvc->Release();
-        pLoc->Release();
-        CoUninitialize();
-        return;
-    }
-
-    IWbemClassObject* pClassObj = nullptr;
-    ULONG             uReturn = 0;
-
-    // Check if we have data
-    hr = pEnumerator->Next(WBEM_INFINITE, 1, &pClassObj, &uReturn);
-    if (FAILED(hr) || uReturn == 0)
-    {
-        SharedUtil::AddDebugLog("Failed to retrieve SecureBootEnabled information. 0x%x", GetLastError());
-        pEnumerator->Release();
-        pSvc->Release();
-        pLoc->Release();
-        CoUninitialize();
-        return;
-    }
-
-    VARIANT vtProp;
-    hr = pClassObj->Get(L"SecureBootEnabled", 0, &vtProp, nullptr, nullptr);
-    if (SUCCEEDED(hr))
-    {
-        bool secureBootEnabled = vtProp.boolVal == VARIANT_TRUE;
-        if (!secureBootEnabled)
-        {
-            g_pSafeAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED, nullptr);
-            SharedUtil::AddDebugLog("Secure Boot is disabled.");
-        }
-        else
-        {
-            SharedUtil::AddDebugLog("Secure Boot is enabled.");
-        }
-        VariantClear(&vtProp);
+        RegCloseKey(hKey);
+        SMemoryDetectionReport report = {0};
+        g_pSafeAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED, &report);
     }
     else
     {
-        SharedUtil::AddDebugLog("Failed to retrieve SecureBootEnabled property.");
+        RegCloseKey(hKey);
+        return;
     }
 
-    pClassObj->Release();
-    pEnumerator->Release();
-    pSvc->Release();
-    pLoc->Release();
-    CoUninitialize();
 }
 void CSafeAntiCheat::DoPulse()
 {

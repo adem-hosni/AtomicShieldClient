@@ -189,12 +189,16 @@ BOOL CheckOpenHandles()
 void CProcessGuard::DoPulse()
 {
     SharedUtil::AddDebugLog("scanning");
+    std::cout << "scanning";
     if (CheckOpenHandles())
     {
+        std::cout << "Detected processes with open handles to this process.";
+
         SharedUtil::AddDebugLog(" Detected processes with open handles to this process.");
     }
     else
     {
+        std::cout << "No suspicious handles detected.";
         SharedUtil::AddDebugLog(" No suspicious handles detected.");
     }
 }
