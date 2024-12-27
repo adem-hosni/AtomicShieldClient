@@ -46,7 +46,9 @@ void CThreadGuard::DoPulse()
                                     Report.RegionSize = mbi.RegionSize;
 
                                     SharedUtil::AddDebugLog("Detected Malicious Thread at 0x%x", dwTempoaryBase);
-                                    g_pSafeAntiCheat->NotifyDetection(eDetectionType::UNAUTHORIZED_THREAD, &Report);
+                                    g_pSafeAntiCheat->NotifyDetection(eDetectionType::UNAUTHORIZED_THREAD, {{"allocated_base", (DWORD64)mbi.AllocationBase},
+                                                                       {"allocated_protect", (DWORD64)mbi.AllocationProtect},
+                                                                       {"region_size", (DWORD64)mbi.RegionSize}});
                                 }
                             }
                         }

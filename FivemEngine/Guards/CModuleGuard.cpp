@@ -47,8 +47,7 @@ NTSTATUS NTAPI _LdrLoadDll(PWCHAR PathToFile_OPTIONAL, ULONG Flags, PUNICODE_STR
     {
         printf("Blocked DLL: %s\n", cDllName);
     }
-    SMemoryDetectionReport report{0};
-    g_pSafeAntiCheat->NotifyDetection(eDetectionType::INJECTED_DLL, &report);
+    g_pSafeAntiCheat->NotifyDetection(eDetectionType::INJECTED_DLL, {{"dll_path", cDllName}});
     return 0;
 }
 
