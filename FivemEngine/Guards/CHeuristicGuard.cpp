@@ -11,70 +11,67 @@ CHeuristicGuard::~CHeuristicGuard()
 {
 }
 
-void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::string>>& Signatures)
+void SearchForString(LPVOID lpAddress)
 {
-    for (auto& [name, vector] : Signatures)
-    {
-        if (m_Signatures.count(name))
-            m_Signatures[name].insert(m_Signatures[name].end(), std::make_move_iterator(vector.begin()), std::make_move_iterator(vector.end()));
-        else
-            m_Signatures[name] = std::move(vector);
-    }
-}
-
-void CHeuristicGuard::DoPulse()
-{
-    char* text = (char*)"api.tzproject.com";
-    const char* text2 = "api.tzproject.com";
+    std::string strSignature = *reinterpret_cast<std::string*>(lpAddress);
     while (true)
     {
-        SharedUtil::AddDebugLog("Begin scan");
-        char* currentmemorypage = 0;
-
+        SYSTEM_INFO si;
+        char*       currentmemorypage = 0;
+        GetSystemInfo(&si);
         MEMORY_BASIC_INFORMATION info;
-        DWORD                    mask = (PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_READ);
 
-        const void* pCurrentAddress = START_ADDRESS;
-        const void* end = (const void*)((const char*)pCurrentAddress + END_ADDRESS);
-        while (pCurrentAddress < end && VirtualQuery(pCurrentAddress, &info, sizeof(info)) == sizeof(info))
+        while (currentmemorypage < si.lpMaximumApplicationAddress)
         {
-            if ((info.State != MEM_FREE && info.State != MEM_RELEASE) && info.Type & (MEM_IMAGE | MEM_PRIVATE) && info.Protect & mask)
+            NtQueryVirtualMemory(GetCurrentProcess(), currentmemorypage, MemoryBasicInformation, &info, sizeof(info), 0);
+
+            if (info.State == MEM_COMMIT)
             {
-                std::string buffer;
-                buffer.resize(info.RegionSize + info.RegionSize / 2);            // so the buffer don"t overflow
-
-                ZwReadVirtualMemory(GetCurrentProcess(), currentmemorypage, &buffer.at(0), info.RegionSize, 0);
-
-                for (int begin = 0; begin < info.RegionSize; begin++)
+                if (info.Protect == PAGE_READWRITE)
                 {
-                    for (const auto& Item : m_Signatures)
+                    std::string buffer;
+                    buffer.resize(info.RegionSize + info.RegionSize / 2);            // so the buffer don"t overflow
+
+                    ZwReadVirtualMemory(GetCurrentProcess(), currentmemorypage, &buffer.at(0), info.RegionSize, 0);
+
+                    for (int begin = 0; begin < info.RegionSize; begin++)
                     {
-                        std::string              SignatureTitle = Item.first;
-                        std::vector<std::string> SignaturesList = Item.second;
-
-                        for (std::string& Signature : SignaturesList)
+                        if (buffer[begin] == strSignature.at(0) && buffer[begin + strSignature.length() - 1] == strSignature.back())
                         {
-                            if (buffer[begin] == Signature.at(0) /*&& buffer[begin + Signature.length() - 1] == Signature.back()*/)
-                            {
-                                std::string stringbuffer = buffer.substr(begin, Signature.length());
+                            std::string stringbuffer = buffer.substr(begin, strSignature.length());
 
-                                if (Signature.find(stringbuffer) != std::string::npos)
-                                {
-                                    char szModulePath[MAX_PATH];
-                                    memset(szModulePath, 0, sizeof(szModulePath));
-                                    HMODULE hModule = reinterpret_cast<HMODULE>(info.AllocationBase);
-                                    if (!GetModuleFileName(hModule, szModulePath, sizeof(szModulePath)))
-                                        sprintf(szModulePath, "<Failed to retreive module path 0x%x>", GetLastError());
-                                    SharedUtil::AddDebugLog("Found %s at 0x%x in %s", Signature.c_str(), (uintptr_t)currentmemorypage + begin, szModulePath);
-                                }
+                            if (strSignature.find(stringbuffer) != std::string::npos)
+                            {
+                                char szModulePath[MAX_PATH];
+                                memset(szModulePath, 0, sizeof(szModulePath));
+                                HMODULE hModule = reinterpret_cast<HMODULE>(info.AllocationBase);
+                                if (!GetModuleFileName(hModule, szModulePath, MAX_PATH))
+                                    sprintf(szModulePath, "<UNKNOWN>", GetLastError());
+                                SharedUtil::AddDebugLog("Found \"%s\" at 0x%p in %s", strSignature.c_str(), (uintptr_t)currentmemorypage + begin, szModulePath);
                             }
                         }
                     }
                 }
             }
-            pCurrentAddress = (const void*)((const char*)(info.BaseAddress) + info.RegionSize);
+            currentmemorypage += info.RegionSize;
         }
-        SharedUtil::AddDebugLog("End scan");
+        currentmemorypage = 0;
+        Sleep(50);
+    }
+}
 
+void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::string>>& Signatures)
+{
+    for (auto& [name, vector] : Signatures)
+    {
+        for (auto Signature : vector)
+        {
+            CAtomicThread::Create(&SearchForString, reinterpret_cast<PVOID>(&Signature));
+        }
+
+        if (m_Signatures.count(name))
+            m_Signatures[name].insert(m_Signatures[name].end(), std::make_move_iterator(vector.begin()), std::make_move_iterator(vector.end()));
+        else
+            m_Signatures[name] = std::move(vector);
     }
 }
