@@ -48,6 +48,9 @@ void SearchForString(LPVOID lpAddress)
                                 if (!GetModuleFileName(hModule, szModulePath, MAX_PATH))
                                     strcat(szModulePath, "<UNKNOWN>");
                                 SharedUtil::AddDebugLog("Found \"%s\" at 0x%p in %s", strSignature.c_str(), (uintptr_t)currentmemorypage + begin, szModulePath);
+                                g_pSafeAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"signature", strSignature.c_str()},
+                                                                                          {"found_at", (DWORD64)(currentmemorypage + begin)},
+                                                                                          {"possible_module_path", szModulePath}});
                             }
                         }
                     }
