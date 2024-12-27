@@ -55,7 +55,7 @@ NTSTATUS NTAPI _LdrLoadDll(PWCHAR PathToFile_OPTIONAL, ULONG Flags, PUNICODE_STR
 void CModuleGuard::Initialize()
 {
     lpAddr = (LPVOID)GetProcAddress(LoadLibrary("ntdll.dll"), "LdrLoadDll");
-    CAtomicHook::Create(lpAddr, &_LdrLoadDll);
+ //   CAtomicHook::Create(lpAddr, &_LdrLoadDll);
 }
 
 PLDR_DATA_TABLE_ENTRY GetNextNode(PCHAR node, int iOffset)

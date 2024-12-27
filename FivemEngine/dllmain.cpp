@@ -16,7 +16,7 @@ void EntryPoint(LPVOID lpThreadParameter)
 
     if (g_pSafeAntiCheat->Initialize())
     {
-        //g_pSafeAntiCheat->StartBasicChecks();
+        g_pSafeAntiCheat->StartBasicChecks();
     }
 }
 

@@ -27,6 +27,6 @@ void CGuardManager::StartPulse(CGuardManager* pGuardManager)
    // CAtomicThread::Create(CMemoryGuard::StaticPulse, m_pMemoryGuard);
   //  CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard);
   //  CAtomicThread::Create(CThreadGuard::StaticPulse, m_pThreadGuard);
-    CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard);
+ //   CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard);
   //  CAtomicThread::Create(CModuleGuard::StaticPulse, m_pModuleGuard);*/
 }

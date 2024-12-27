@@ -46,6 +46,7 @@ void CSafeAntiCheat::StaticPulse(void* pContext)
 
 void CSafeAntiCheat::CheckPlugins()
 {
+    SharedUtil::AddDebugLog("Plugins Checked");
     std::string basePath = SharedUtil::GetKnownDirectory(FOLDERID_LocalAppData) + "\\FiveM\\FiveM.app\\plugins";
     for (const auto& entry : std::filesystem::directory_iterator(basePath))
     {
@@ -54,8 +55,9 @@ void CSafeAntiCheat::CheckPlugins()
             std::string fileName = entry.path().filename().string();
             if (fileName.find("d3d9") != std::string::npos || fileName.find("d3d10") != std::string::npos)
             {
-                SMemoryDetectionReport report = {0};
-                g_pSafeAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND, &report);
+                SharedUtil::AddDebugLog("Found Dll ",fileName);
+              //  SMemoryDetectionReport report = {0};
+             //   g_pSafeAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND, &report);
             }
         }
     }
@@ -268,11 +270,18 @@ bool IsTestSignEnabled()
 
 void CSafeAntiCheat::TestsigningEnabled()
 {
-    if (IsTestSignEnabled)
+    SharedUtil::AddDebugLog("TestSigning Checked");
+
+    if (IsTestSignEnabled())
     {
+        SharedUtil::AddDebugLog("TestSigning Enabled");
+
         SMemoryDetectionReport report = {0};
         g_pSafeAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED, &report);
     }
+    SharedUtil::AddDebugLog("TestSigning Disabled");
+
+
 }
 
 void CSafeAntiCheat::DebugModeEnabled()
@@ -349,6 +358,8 @@ void CSafeAntiCheat::DebugModeEnabled()
 
 void CSafeAntiCheat::SecureBootEnabled()
 {
+    SharedUtil::AddDebugLog("SecureBoot Checked");
+
     HKEY        hKey;
     LONG        lResult;
     DWORD       dwSize = sizeof(DWORD);
@@ -376,13 +387,15 @@ void CSafeAntiCheat::SecureBootEnabled()
     if (dwValue == 1)
     {
         RegCloseKey(hKey);
-        SMemoryDetectionReport report = {0};
-        g_pSafeAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED, &report);
+        SharedUtil::AddDebugLog("SecureBoot Enabled");
+
     }
     else
     {
         RegCloseKey(hKey);
-        return;
+        SharedUtil::AddDebugLog("SecureBoot Disabled");
+        SMemoryDetectionReport report = {0};
+        g_pSafeAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED, &report);
     }
 
 }
@@ -433,7 +446,7 @@ void CSafeAntiCheat::StartBasicChecks()
 {
     CheckPlugins();
 
-    DebugModeEnabled();
+  //  DebugModeEnabled();
 
     SecureBootEnabled();
 
