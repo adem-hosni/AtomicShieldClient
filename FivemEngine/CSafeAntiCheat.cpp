@@ -46,7 +46,6 @@ void CSafeAntiCheat::StaticPulse(void* pContext)
 
 void CSafeAntiCheat::CheckPlugins()
 {
-    SharedUtil::AddDebugLog("Plugins Checked");
     std::string basePath = SharedUtil::GetKnownDirectory(FOLDERID_LocalAppData) + "\\FiveM\\FiveM.app\\plugins";
     for (const auto& entry : std::filesystem::directory_iterator(basePath))
     {
