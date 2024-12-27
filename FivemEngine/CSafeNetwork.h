@@ -15,6 +15,7 @@ public:
 
     bool           Connect();
     bool           IsConnected() { return m_bConnected; }
+    bool           IsJoinedNetwork() { return m_bNetworkJoined; }
     void           SendPacket(eSafePacketID PacketID, jsoncons::json Data = jsoncons::json());
     jsoncons::json WaitReponse(eSafePacketID PacketID);
 
@@ -38,6 +39,7 @@ private:
     std::map<eSafePacketID, jsoncons::json>        m_UnhandledPackets;
     std::map<std::string, std::vector<std::string>> m_Signatures;
 
+    bool m_bNetworkJoined;
     bool m_bConnected;
 };
 

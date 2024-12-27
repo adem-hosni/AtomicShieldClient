@@ -9,6 +9,7 @@ CSafeNetwork* g_pSafeNetwork = new CSafeNetwork();
 CSafeNetwork::CSafeNetwork() : m_bConnected(false)
 {
     m_pWebSocket = new ix::WebSocket();
+    m_bNetworkJoined = false;
 }
 
 CSafeNetwork::~CSafeNetwork()
@@ -30,7 +31,12 @@ bool CSafeNetwork::Connect()
     m_pWebSocket->start();
 
     if (result.success)
+    {
         m_pWebSocket->enableAutomaticReconnection();
+
+        while (!m_bNetworkJoined)
+            Sleep(25);
+    }
 
     return result.success;
 }
@@ -121,6 +127,7 @@ bool CSafeNetwork::JoinNetwork()
         MessageBox(0, Response["message"].as_string().c_str(), "ERROR", MB_ICONERROR);
     }
 
+    m_bNetworkJoined = Response["success"].as_bool();
     return Response["success"].as_bool();
 }
 
@@ -187,6 +194,8 @@ void CSafeNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
 
 void CSafeNetwork::Reconnect()
 {
+    m_bNetworkJoined = false;
+
     while (m_pWebSocket->getReadyState() == ix::ReadyState::Closed || m_pWebSocket->getReadyState() == ix::ReadyState::Closing)
     {
         Connect();
