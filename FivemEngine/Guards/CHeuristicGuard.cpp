@@ -46,7 +46,7 @@ void SearchForString(LPVOID lpAddress)
                                 memset(szModulePath, 0, sizeof(szModulePath));
                                 HMODULE hModule = reinterpret_cast<HMODULE>(info.AllocationBase);
                                 if (!GetModuleFileName(hModule, szModulePath, MAX_PATH))
-                                    sprintf(szModulePath, "<UNKNOWN>", GetLastError());
+                                    strcat(szModulePath, "<UNKNOWN>");
                                 SharedUtil::AddDebugLog("Found \"%s\" at 0x%p in %s", strSignature.c_str(), (uintptr_t)currentmemorypage + begin, szModulePath);
                             }
                         }
