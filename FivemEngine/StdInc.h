@@ -12,12 +12,17 @@
 
 #include <CRC32/CRC32.h>
 
+#include <Windows.h>
+#include <winternl.h>
+#include <vector>
+#include <Psapi.h>
+#include <iostream>
+
 #include "CAtomicHook.h"
 #include "FileAuthentication.h"
 #include "BasicChecks.h"
 #include "SafePacketID.h"
 #include "CHWID.h"
-#include "CMemoryScanner.h"
 #include "CSafeNetwork.h"
 #include "CAtomicThread.h"
 #include "CSafeAntiCheat.h"
