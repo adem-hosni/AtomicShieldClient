@@ -188,7 +188,6 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
     <ClCompile Include="CSafeAntiCheat.cpp" />
     <ClCompile Include="CSafeNetwork.cpp" />
     <ClCompile Include="CHWID.cpp" />
-    <ClCompile Include="CMemoryScanner.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Utils.cpp" />
@@ -253,7 +252,6 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
     <ClInclude Include="CSafeAntiCheat.h" />
     <ClInclude Include="CSafeNetwork.h" />
     <ClInclude Include="CHWID.h" />
-    <ClInclude Include="CMemoryScanner.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="STiming.h" />
     <ClInclude Include="Utils.h" />

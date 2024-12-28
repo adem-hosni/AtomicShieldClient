@@ -30,9 +30,6 @@
     <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CMemoryScanner.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CSafeAntiCheat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -360,9 +357,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vendor\LiteRegedit\LiteRegedit.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CMemoryScanner.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CSafeAntiCheat.h">
