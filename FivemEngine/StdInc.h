@@ -14,6 +14,7 @@
 
 #include "CAtomicHook.h"
 #include "FileAuthentication.h"
+#include "BasicChecks.h"
 #include "SafePacketID.h"
 #include "CHWID.h"
 #include "CMemoryScanner.h"

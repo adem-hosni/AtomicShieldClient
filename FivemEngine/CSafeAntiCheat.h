@@ -46,12 +46,6 @@ public:
 
     void StartBasicChecks();
 
-    void        CheckPlugins();
-    void        DebugModeEnabled();
-    void        SecureBootEnabled();
-    void        TestsigningEnabled();
-    std::string GetWindowsDrive();
-
     void NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs = {});
 
     HANDLE GetProcessHandle() { return m_hProcess; }
