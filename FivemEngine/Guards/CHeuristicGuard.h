@@ -8,7 +8,7 @@ public:
     CHeuristicGuard();
     ~CHeuristicGuard();
 
-    void AddSignatures(std::map<std::string, std::vector<std::string>>& Signatures);
+    void        AddSignatures(std::map<std::string, std::unordered_set<std::string>>& Signatures);
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
     void        DoPulse() override {}
 

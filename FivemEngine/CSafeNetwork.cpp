@@ -89,7 +89,8 @@ jsoncons::json CSafeNetwork::WaitReponse(eSafePacketID PacketID)
     {
         __fastfail(0);
         // Return an empty data to crash the engine if the __fastfail was tampered
-        return {};
+        jsoncons::json j;
+        return j;
     }
 
     m_UnhandledPackets.erase(PacketID);
@@ -144,15 +145,20 @@ bool CSafeNetwork::SyncMaliciousSignatures()
 
         if (SignaturesList.is_array())
         {
-            std::vector<std::string> vSignatures;
+            std::unordered_set<std::string> vSignatures = {};
             for (const auto& element : SignaturesList.array_range())
             {
-                vSignatures.push_back(element.as<std::string>());
+                vSignatures.insert(element.as<std::string>());
             }
             m_Signatures[SignatureTitle] = vSignatures;
         }
     }
     g_pSafeAntiCheat->GetGuardManager()->GetHeuristicGuard()->AddSignatures(m_Signatures);
+    
+    //Signatures.clear();
+    m_Signatures.clear();
+
+
     return true;
 }
 

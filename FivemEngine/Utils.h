@@ -18,4 +18,5 @@ namespace Utils
     DWORD64                   GetModuleBaseAddress(int iProcessID, std::string strModuleName);
     DWORD64                   IsAddressInModuledRange(DWORD64 dwBase);
     bool                      IsFunctionHooked(const char* szModuleName, const char* szFunctionName);
+    std::string               CaesarDecrypt(const std::string& ciphertext, int shift);
 };            // namespace Utils

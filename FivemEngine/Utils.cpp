@@ -176,3 +176,22 @@ bool Utils::IsFunctionHooked(const char* szModuleName, const char* szFunctionNam
 
     return false;
 }
+
+std::string Utils::CaesarDecrypt(const std::string& ciphertext, int shift)
+{
+    std::string decrypted_text = "";
+    for (char c : ciphertext)
+    {
+        if (isalpha(c))
+        {                                                                         // Check if the character is a letter
+            char base = isupper(c) ? 'A' : 'a';                                   // Determine base for uppercase or lowercase
+            char decrypted_char = (c - base - shift + 26) % 26 + base;            // Subtract the shift
+            decrypted_text += decrypted_char;
+        }
+        else
+        {
+            decrypted_text += c;            // Non-alphabetic characters remain unchanged
+        }
+    }
+    return decrypted_text;
+}

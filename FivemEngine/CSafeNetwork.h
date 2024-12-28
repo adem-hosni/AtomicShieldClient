@@ -21,23 +21,23 @@ public:
 
     static void OnConnect();
     static void StaticPulse(void* pContext);
-    void DoPulse();
+    void        DoPulse();
 
     bool JoinNetwork();
     bool SyncMaliciousSignatures();
 
     void OnReceivePacket(const ix::WebSocketMessagePtr& Message);
 
-    std::map<std::string, std::vector<std::string>> GetSignatures() { return m_Signatures; }
+    std::map<std::string, std::unordered_set<std::string>> GetSignatures() { return m_Signatures; }
 
 private:
     void Reconnect();
 
-    ix::WebSocket*                                  m_pWebSocket;
-    std::mutex                                      m_mutex;
-    std::condition_variable                         m_condition;
-    std::map<eSafePacketID, jsoncons::json>        m_UnhandledPackets;
-    std::map<std::string, std::vector<std::string>> m_Signatures;
+    ix::WebSocket*                                         m_pWebSocket;
+    std::mutex                                             m_mutex;
+    std::condition_variable                                m_condition;
+    std::map<eSafePacketID, jsoncons::json>                m_UnhandledPackets;
+    std::map<std::string, std::unordered_set<std::string>> m_Signatures;
 
     bool m_bNetworkJoined;
     bool m_bConnected;
