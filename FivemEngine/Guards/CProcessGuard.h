@@ -23,9 +23,6 @@ namespace Handles
         SystemLookasideInformation = 45
     } SYSTEM_INFORMATION_CLASS;*/
 
-    typedef NTSTATUS(NTAPI* NtQuerySystemInformationFunc)(SYSTEM_INFORMATION_CLASS SystemInformationClass, PVOID SystemInformation,
-                                                          ULONG SystemInformationLength, PULONG ReturnLength);
-
     typedef struct _SYSTEM_HANDLE
     {
         ULONG       ProcessId;
@@ -47,7 +44,7 @@ namespace Handles
     std::vector<SYSTEM_HANDLE> DetectOpenHandlesToProcess();
     bool                       DoesProcessHaveOpenHandleTous(DWORD pid, std::vector<Handles::SYSTEM_HANDLE> handleList);
 
-    static const wchar_t*      Whitelisted[] = {{L"FiveM.exe"}};
+    static const char* Whitelisted[] = {"conhost.exe"};
 }
 
 
