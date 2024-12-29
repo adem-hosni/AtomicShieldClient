@@ -86,17 +86,26 @@ void CSafeAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unordere
 
     auto AddToReport = [&Report](std::unordered_map<std::string, ArgType> ReportKwargs)
     {
-        jsoncons::json j;
-
         for (const auto& [key, value] : ReportKwargs)
         {
             if (std::holds_alternative<int>(value))
             {
-                j[key] = std::get<int>(value);
+                Report[key] = std::get<int>(value);
+            }
+            else if (std::holds_alternative<DWORD64>(value))
+            {
+                char buffer[64];
+                memset(buffer, 0, sizeof(buffer));
+                sprintf(buffer, "0x%p", std::get<DWORD64>(value));
+                Report[key] = std::string(buffer);
             }
             else if (std::holds_alternative<std::string>(value))
             {
-                j[key] = std::get<std::string>(value);
+                Report[key] = std::get<std::string>(value);
+            }
+            else if (std::holds_alternative<bool>(value))
+            {
+                Report[key] = std::get<bool>(value);
             }
         };
     };
