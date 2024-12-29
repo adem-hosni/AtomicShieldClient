@@ -194,6 +194,7 @@ void SharedUtil::AddDebugLog(const char* szLog, ...)
         vfprintf(hFile, szTimestamp, args);
         va_end(args);
         fclose(hFile);
+        delete[] szTimestamp;
     }
 }
 
