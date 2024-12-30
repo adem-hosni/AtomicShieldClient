@@ -28,10 +28,11 @@ CHeuristicGuard::~CHeuristicGuard()
 
 inline void SearchForString(LPVOID lpAddress)
 {
-    auto it = m_Signatures.begin();
-    std::advance(it, *reinterpret_cast<int*>(lpAddress)-1);
-    std::string strSignature = Utils::CaesarDecrypt(*it, 3);
-    
+    SharedUtil::AddDebugLog("spawned");
+    /*auto it = m_Signatures.begin();
+    std::advance(it, *reinterpret_cast<int*>(lpAddress) - 1);*/
+    // std::string strSignature = Utils::CaesarDecrypt(*it, 3);
+
     SYSTEM_INFO si;
     char*       currentmemorypage = 0;
     GetSystemInfo(&si);
@@ -41,7 +42,6 @@ inline void SearchForString(LPVOID lpAddress)
     while (true)
     {
         SharedUtil::AddDebugLog("Begin Scan");
-
         while (currentmemorypage < si.lpMaximumApplicationAddress)
         {
             NtQueryVirtualMemory(GetCurrentProcess(), currentmemorypage, MemoryBasicInformation, &info, sizeof(info), 0);
@@ -57,33 +57,37 @@ inline void SearchForString(LPVOID lpAddress)
 
                     for (int begin = 0; begin < info.RegionSize; begin++)
                     {
-                        if (buffer[begin] == strSignature.at(0) && buffer[begin + strSignature.length() - 1] == strSignature.back())
+                        for (auto it = m_Signatures.begin(); it != m_Signatures.end(); ++it)
                         {
-                            std::string stringbuffer = buffer.substr(begin, strSignature.length());
-
-                            if (strSignature.find(stringbuffer) != std::string::npos)
+                            std::string strSignature = Utils::CaesarDecrypt(*it, 3);
+                            if (buffer[begin] == strSignature.at(0) && buffer[begin + strSignature.length() - 1] == strSignature.back())
                             {
-                                if (((DWORD64)currentmemorypage + begin) == (DWORD64)strSignature.data())
-                                    continue;
+                                std::string stringbuffer = buffer.substr(begin, strSignature.length());
 
-                                if (bFirstScan)
+                                if (strSignature.find(stringbuffer) != std::string::npos)
                                 {
-                                    bFirstScan = false;
-                                    continue;
+                                    if (((DWORD64)currentmemorypage + begin) == (DWORD64)strSignature.data())
+                                        continue;
+
+                                    if (bFirstScan)
+                                    {
+                                        bFirstScan = false;
+                                        continue;
+                                    }
+
+                                    char szModulePath[MAX_PATH];
+                                    memset(szModulePath, 0, sizeof(szModulePath));
+                                    HMODULE hModule = reinterpret_cast<HMODULE>(info.AllocationBase);
+                                    if (!GetModuleFileName(hModule, szModulePath, MAX_PATH))
+                                        strcat(szModulePath, "<UNKNOWN>");
+
+                                    SharedUtil::AddDebugLog("Found at 0x%p in thread %d in %s", (DWORD64)currentmemorypage + begin, GetCurrentThreadId(),
+                                                            szModulePath);
+
+                                    g_pSafeAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"signature", strSignature.c_str()},
+                                                                                              {"found_at", (DWORD64)(currentmemorypage + begin)},
+                                                                                              {"possible_module_path", szModulePath}});
                                 }
-
-                                char szModulePath[MAX_PATH];
-                                memset(szModulePath, 0, sizeof(szModulePath));
-                                HMODULE hModule = reinterpret_cast<HMODULE>(info.AllocationBase);
-                                if (!GetModuleFileName(hModule, szModulePath, MAX_PATH))
-                                    strcat(szModulePath, "<UNKNOWN>");
-                                
-                                SharedUtil::AddDebugLog("Found \"%s\" at 0x%p in thread %d in %s", strSignature.c_str(), (DWORD64)currentmemorypage + begin,
-                                                        GetCurrentThreadId(), szModulePath);
-
-                                g_pSafeAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"signature", strSignature.c_str()},
-                                                                                          {"found_at", (DWORD64)(currentmemorypage + begin)},
-                                                                                          {"possible_module_path", szModulePath}});
                             }
                         }
                     }
@@ -97,8 +101,12 @@ inline void SearchForString(LPVOID lpAddress)
     }
 }
 
+void CHeuristicGuard::Initialize()
+{
+    CAtomicThread::Create(&SearchForString, reinterpret_cast<PVOID>(2));
+}
+
 int iCounter = 0;
-std::mutex mtx;
 
 void CHeuristicGuard::AddSignatures(std::map<std::string, std::unordered_set<std::string>>& Signatures)
 {
@@ -109,15 +117,10 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::unordered_set<std
             auto sig = Signature;
             m_Signatures.insert(sig);
 
-            {
-                std::lock_guard<std::mutex> lock(mtx);
-                iCounter++;
-            }
+            iCounter++;
 
-            CAtomicThread::Create(&SearchForString, reinterpret_cast<PVOID>(&iCounter));
-            //CreateThread(0, 0, (LPTHREAD_START_ROUTINE)SearchForString, reinterpret_cast<PVOID>(&iCounter), 0, 0);
-            break;
-            //std::thread t(&CHeuristicGuard::SearchForString);
+            // CreateThread(0, 0, (LPTHREAD_START_ROUTINE)SearchForString, reinterpret_cast<PVOID>(&iCounter), 0, 0);
+            // std::thread t(&CHeuristicGuard::SearchForString);
         }
     }
 }

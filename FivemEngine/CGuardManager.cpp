@@ -20,6 +20,7 @@ void CGuardManager::InitializeGuards()
 {
     m_pMemoryGuard->Initialize();
     m_pModuleGuard->Initialize();
+    m_pHeuristicGuard->Initialize();
 }
 
 void CGuardManager::StartPulse(CGuardManager* pGuardManager)

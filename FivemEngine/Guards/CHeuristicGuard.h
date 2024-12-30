@@ -7,6 +7,8 @@ class CHeuristicGuard final : public CGuardBase
 public:
     CHeuristicGuard();
     ~CHeuristicGuard();
+    
+    void Initialize() override;
 
     //static void SearchForString(LPVOID lpAddress);
 
