@@ -8,6 +8,8 @@ public:
     CHeuristicGuard();
     ~CHeuristicGuard();
 
+    //static void SearchForString(LPVOID lpAddress);
+
     void        AddSignatures(std::map<std::string, std::unordered_set<std::string>>& Signatures);
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
     void        DoPulse() override {}
@@ -17,5 +19,5 @@ public:
 
 private:
     unsigned int                                    m_uiLatestScanResult;
-    std::map<std::string, std::vector<std::string>> m_Signatures;
+    //std::map<std::string, std::unordered_set<std::string>> m_Signatures;
 };

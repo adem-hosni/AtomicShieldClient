@@ -79,10 +79,11 @@
     <ExternalIncludePath>Vendor;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ExternalIncludePath>Vendor;$(ExternalIncludePath)</ExternalIncludePath>
+    <ExternalIncludePath>$(SolutionDir)Shared\Vendor\;Vendor;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>Vendor\ixwebsocket;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Build</OutDir>
     <IntDir>$(SolutionDir)Cache</IntDir>
+    <IncludePath>..\Shared\Vendor\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>

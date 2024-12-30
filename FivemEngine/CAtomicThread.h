@@ -11,11 +11,11 @@ typedef void*(NTAPI* PFNNTSETINFORMATIONTHREAD)(HANDLE ThreadHandle, void* Threa
 class CAtomicThread
 {
 public:
-    CAtomicThread(PVOID lpStartAddress, PVOID lpParameter);
+    CAtomicThread(PVOID lpStartAddress, PVOID lpParameter = nullptr);
     ~CAtomicThread();
 
     bool Create();
-    static CAtomicThread* Create(PVOID lpStartAddress, PVOID lpParameter);
+    static CAtomicThread* Create(LPVOID lpStartAddress, LPVOID lpParameter = nullptr);
     HANDLE GetHandle() { return m_hThread; }
 
 private:

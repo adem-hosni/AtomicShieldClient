@@ -194,7 +194,7 @@ void SharedUtil::AddDebugLog(const char* szLog, ...)
         vfprintf(hFile, szTimestamp, args);
         va_end(args);
         fclose(hFile);
-        delete[] szTimestamp;
+
     }
 }
 
@@ -213,31 +213,35 @@ std::string SharedUtil::GetKnownDirectory(const KNOWNFOLDERID fid)
     return std::string(szProgramDataDir);
 }
 
-bool SharedUtil::SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL bEnablePrivilege)
+bool SharedUtil::SetPrivilege(LPCTSTR lpszPrivilege)
 {
-    TOKEN_PRIVILEGES tp = {0};
-    LUID             luid{0};
-    
-    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
-        return false;
-    
-    if (!LookupPrivilegeValueA(0, lpszPrivilege, &luid))
-        return false;
-    
-    tp.PrivilegeCount = 1;
-    tp.Privileges[0].Luid = luid;
-    
-    if (bEnablePrivilege)
-    {
-        tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
-    }
-    else
-    {
-        tp.Privileges[0].Attributes = 0;
-    }
-    
-    if (!AdjustTokenPrivileges(hToken, 0, &tp, sizeof(tp), 0, 0))
-        return false;
+    HANDLE           hToken;
+    TOKEN_PRIVILEGES tkp;
 
-    return true;
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+        return FALSE;
+
+    if (!LookupPrivilegeValue(NULL, lpszPrivilege, &tkp.Privileges[0].Luid))
+    {
+        CloseHandle(hToken);
+        return FALSE;
+    }
+
+    tkp.PrivilegeCount = 1;
+    tkp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+    if (!AdjustTokenPrivileges(hToken, FALSE, &tkp, sizeof(tkp), NULL, NULL))
+    {
+        CloseHandle(hToken);
+        return FALSE;
+    }
+
+    if (GetLastError() == ERROR_NOT_ALL_ASSIGNED)
+    {
+        CloseHandle(hToken);
+        return FALSE;
+    }
+
+    CloseHandle(hToken);
+    return TRUE;
 }

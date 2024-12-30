@@ -15,5 +15,5 @@ namespace SharedUtil
     bool        IsRunningAsAdministator();
     void        AddDebugLog(const char* szLog, ...);
     std::string GetKnownDirectory(const KNOWNFOLDERID fid);
-    bool        SetPrivilege(HANDLE hToken, LPCTSTR lpszPrivilege, BOOL bEnablePrivilege);
+    bool        SetPrivilege(LPCTSTR lpszPrivilege);
 }            // namespace SharedUtil
