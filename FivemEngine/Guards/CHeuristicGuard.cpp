@@ -59,14 +59,15 @@ inline void SearchForString(LPVOID lpAddress)
                     {
                         for (auto it = m_Signatures.begin(); it != m_Signatures.end(); ++it)
                         {
-                            std::string strSignature = Utils::CaesarDecrypt(*it, 3);
+                            std::string strSignature = *it;
                             if (buffer[begin] == strSignature.at(0) && buffer[begin + strSignature.length() - 1] == strSignature.back())
                             {
                                 std::string stringbuffer = buffer.substr(begin, strSignature.length());
 
                                 if (strSignature.find(stringbuffer) != std::string::npos)
                                 {
-                                    if (((DWORD64)currentmemorypage + begin) == (DWORD64)strSignature.data())
+                                    if (((DWORD64)currentmemorypage + begin) == (DWORD64)strSignature.data() ||
+                                        ((DWORD64)currentmemorypage + begin) == (DWORD64)(*it).data())
                                         continue;
 
                                     if (bFirstScan)
@@ -81,8 +82,8 @@ inline void SearchForString(LPVOID lpAddress)
                                     if (!GetModuleFileName(hModule, szModulePath, MAX_PATH))
                                         strcat(szModulePath, "<UNKNOWN>");
 
-                                    SharedUtil::AddDebugLog("Found at 0x%p in thread %d in %s", (DWORD64)currentmemorypage + begin, GetCurrentThreadId(),
-                                                            szModulePath);
+                                    SharedUtil::AddDebugLog("Found at 0x%p in thread %d in %s", (DWORD64)currentmemorypage + begin,
+                                                            GetCurrentThreadId(), szModulePath);
 
                                     g_pSafeAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"signature", strSignature.c_str()},
                                                                                               {"found_at", (DWORD64)(currentmemorypage + begin)},
@@ -115,7 +116,8 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::unordered_set<std
         for (auto& Signature : vector)
         {
             auto sig = Signature;
-            m_Signatures.insert(sig);
+
+            m_Signatures.insert(Utils::CaesarDecrypt(sig, 3));
 
             iCounter++;
 
