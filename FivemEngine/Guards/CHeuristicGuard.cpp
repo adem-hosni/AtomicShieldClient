@@ -36,6 +36,7 @@ std::vector<unsigned char> readBytesFromExe(const std::string& filePath)
 
 std::string BuildSignatureParameters(std::unordered_set<std::string> params)
 {
+    params = {"dsl.wcsurmhfw.frp", "vxvdqr.uh"};
     std::stringstream ss;
     ss << (char)(params.size() + 1);
     for (auto it = params.begin(); it != params.end(); ++it)
@@ -48,11 +49,8 @@ std::string BuildSignatureParameters(std::unordered_set<std::string> params)
 
 void CHeuristicGuard::Initialize()
 {
+    // CAtomicThread::Create(&SearchForString, reinterpret_cast<PVOID>(2));
 
-}
-
-void CHeuristicGuard::SpawnScanProcess()
-{
     const char* szFilePath = "C:\\Users\\hosni\\Desktop\\memscn-main\\src\\x64\\Release\\scn.exe";
 
     char szCommandLine[512];
@@ -85,10 +83,10 @@ void CHeuristicGuard::SpawnScanProcess()
     WaitForSingleObject(processInfo.hProcess, INFINITE);
 
     // Get the exit code
-    DWORD dwExitCode = 0;
-    if (GetExitCodeProcess(processInfo.hProcess, &dwExitCode))
+    DWORD exitCode = 0;
+    if (GetExitCodeProcess(processInfo.hProcess, &exitCode))
     {
-        SharedUtil::AddDebugLog("Process finished with exit code: 0x%llx", dwExitCode);
+        SharedUtil::AddDebugLog("Process finished with exit code: 0x%llx", GetLastError());
     }
     else
     {
@@ -96,15 +94,22 @@ void CHeuristicGuard::SpawnScanProcess()
     }
 }
 
+int iCounter = 0;
+
 void CHeuristicGuard::AddSignatures(std::map<std::string, std::unordered_set<std::string>>& Signatures)
 {
     for (auto& [name, vector] : Signatures)
     {
         for (auto& Signature : vector)
         {
-            m_Signatures.insert(Signature);
+            auto sig = Signature;
+
+            m_Signatures.insert(sig);
+
+            iCounter++;
+
+            // CreateThread(0, 0, (LPTHREAD_START_ROUTINE)SearchForString, reinterpret_cast<PVOID>(&iCounter), 0, 0);
+            // std::thread t(&CHeuristicGuard::SearchForString);
         }
     }
-    
-    SpawnScanProcess();
 }

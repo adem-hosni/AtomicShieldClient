@@ -10,7 +10,7 @@ public:
     
     void Initialize() override;
 
-    void SpawnScanProcess();
+    //static void SearchForString(LPVOID lpAddress);
 
     void        AddSignatures(std::map<std::string, std::unordered_set<std::string>>& Signatures);
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
