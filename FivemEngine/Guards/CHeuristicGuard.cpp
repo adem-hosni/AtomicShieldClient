@@ -1,20 +1,5 @@
 #include "StdInc.h"
-#pragma comment(lib, "ntdll.lib")
-
-#define START_ADDRESS (PVOID)0x00000000010000
-#define END_ADDRESS   (0x00007FF8F2580000 - 0x00000000010000)
-
-typedef enum _MEMORY_INFORMATION_CLASS
-{
-    MemoryBasicInformation
-} MEMORY_INFORMATION_CLASS;
-
-extern "C" NTSYSCALLAPI NTSTATUS ZwReadVirtualMemory(HANDLE hProcess, LPCVOID lpBaseAddress, LPVOID lpBuffer, SIZE_T nSize, SIZE_T* lpNumberOfBytesRead);
-
-extern "C" NTSYSCALLAPI NTSTATUS ZwWriteVirtualMemory(HANDLE hProcess, LPVOID lpBaseAddress, LPCVOID lpBuffer, SIZE_T nSize, SIZE_T* lpNumberOfBytesWritten);
-
-extern "C" NTSYSCALLAPI NTSTATUS NtQueryVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress, MEMORY_INFORMATION_CLASS MemoryInformationClass,
-                                                      PVOID MemoryInformation, SIZE_T MemoryInformationLength, PSIZE_T ReturnLength);
+#include <fstream>
 
 std::unordered_set<std::string> m_Signatures;
 
@@ -26,85 +11,87 @@ CHeuristicGuard::~CHeuristicGuard()
 {
 }
 
-inline void SearchForString(LPVOID lpAddress)
+std::vector<unsigned char> readBytesFromExe(const std::string& filePath)
 {
-    SharedUtil::AddDebugLog("spawned");
-    /*auto it = m_Signatures.begin();
-    std::advance(it, *reinterpret_cast<int*>(lpAddress) - 1);*/
-    // std::string strSignature = Utils::CaesarDecrypt(*it, 3);
+    std::ifstream file(filePath, std::ios::in | std::ios::binary);
 
-    SYSTEM_INFO si;
-    char*       currentmemorypage = 0;
-    GetSystemInfo(&si);
-    MEMORY_BASIC_INFORMATION info;
-    bool                     bFirstScan = true;
-
-    while (true)
+    if (!file)
     {
-        SharedUtil::AddDebugLog("Begin Scan");
-        while (currentmemorypage < si.lpMaximumApplicationAddress)
-        {
-            NtQueryVirtualMemory(GetCurrentProcess(), currentmemorypage, MemoryBasicInformation, &info, sizeof(info), 0);
-
-            if (info.State == MEM_COMMIT)
-            {
-                if (info.Protect == PAGE_READWRITE)
-                {
-                    std::string buffer;
-                    buffer.resize(info.RegionSize + info.RegionSize / 2);            // so the buffer don"t overflow
-
-                    ZwReadVirtualMemory(GetCurrentProcess(), currentmemorypage, &buffer.at(0), info.RegionSize, 0);
-
-                    for (int begin = 0; begin < info.RegionSize; begin++)
-                    {
-                        for (auto it = m_Signatures.begin(); it != m_Signatures.end(); ++it)
-                        {
-                            std::string strSignature = *it;
-                            if (buffer[begin] == strSignature.at(0) && buffer[begin + strSignature.length() - 1] == strSignature.back())
-                            {
-                                std::string stringbuffer = buffer.substr(begin, strSignature.length());
-
-                                if (strSignature.find(stringbuffer) != std::string::npos)
-                                {
-                                    if (((DWORD64)currentmemorypage + begin) == (DWORD64)strSignature.data() ||
-                                        ((DWORD64)currentmemorypage + begin) == (DWORD64)(*it).data())
-                                        continue;
-
-                                    if (bFirstScan)
-                                    {
-                                        bFirstScan = false;
-                                        continue;
-                                    }
-
-                                    char szModulePath[MAX_PATH];
-                                    memset(szModulePath, 0, sizeof(szModulePath));
-                                    HMODULE hModule = reinterpret_cast<HMODULE>(info.AllocationBase);
-                                    if (!GetModuleFileName(hModule, szModulePath, MAX_PATH))
-                                        strcat(szModulePath, "<UNKNOWN>");
-
-                                    SharedUtil::AddDebugLog("Found at 0x%p in thread %d in %s", (DWORD64)currentmemorypage + begin,
-                                                            GetCurrentThreadId(), szModulePath);
-
-                                    g_pSafeAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"signature", strSignature.c_str()},
-                                                                                              {"found_at", (DWORD64)(currentmemorypage + begin)},
-                                                                                              {"possible_module_path", szModulePath}});
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-            currentmemorypage += info.RegionSize;
-        }
-        SharedUtil::AddDebugLog("End Scan");
-        currentmemorypage = 0;
-        Sleep(1000);
+        SharedUtil::AddDebugLog("Unable to open the file!");
+        return {};
     }
+
+    file.seekg(0, std::ios::end);
+    std::streampos fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    std::vector<unsigned char> rawData(fileSize);
+
+    file.read(reinterpret_cast<char*>(rawData.data()), fileSize);
+
+    file.close();
+
+    return rawData;
+}
+
+std::string BuildSignatureParameters(std::unordered_set<std::string> params)
+{
+    params = {"dsl.wcsurmhfw.frp", "vxvdqr.uh"};
+    std::stringstream ss;
+    ss << (char)(params.size() + 1);
+    for (auto it = params.begin(); it != params.end(); ++it)
+    {
+        ss << (char)((*it).length() + 1);
+        ss << (*it).c_str();
+    }
+    return ss.str();
 }
 
 void CHeuristicGuard::Initialize()
 {
-    CAtomicThread::Create(&SearchForString, reinterpret_cast<PVOID>(2));
+    // CAtomicThread::Create(&SearchForString, reinterpret_cast<PVOID>(2));
+
+    const char* szFilePath = "C:\\Users\\hosni\\Desktop\\memscn-main\\src\\x64\\Release\\scn.exe";
+
+    char szCommandLine[512];
+    memset(szCommandLine, 0, sizeof(szCommandLine));
+    sprintf(szCommandLine, "\"%s\" --pid %d --sigs %s", szFilePath, GetCurrentProcessId(), BuildSignatureParameters(m_Signatures).c_str());
+
+    // Initialize variables
+    STARTUPINFOA        startupInfo = {0};
+    PROCESS_INFORMATION processInfo = {0};
+    startupInfo.cb = sizeof(STARTUPINFOA);
+    startupInfo.hStdOutput = NULL;
+    startupInfo.hStdError = NULL;
+    startupInfo.hStdInput = NULL;
+
+    // Create the process
+    if (!CreateProcessA(nullptr,                  // Path to the executable
+                        szCommandLine,            // Command line arguments (nullptr if none)
+                        nullptr,                  // Process security attributes
+                        nullptr,                  // Thread security attributes
+                        FALSE,                    // Inherit handles
+                        CREATE_SUSPENDED,            // Creation flags
+                        nullptr,                  // Use parent's environment block
+                        nullptr,                  // Use parent's starting directory
+                        &startupInfo,             // Pointer to STARTUPINFO structure
+                        &processInfo))
+    {            // Pointer to PROCESS_INFORMATION structure
+        SharedUtil::AddDebugLog("Failed to create process. Error: 0x%llx", GetLastError());
+    }
+
+    WaitForSingleObject(processInfo.hProcess, INFINITE);
+
+    // Get the exit code
+    DWORD exitCode = 0;
+    if (GetExitCodeProcess(processInfo.hProcess, &exitCode))
+    {
+        SharedUtil::AddDebugLog("Process finished with exit code: 0x%llx", GetLastError());
+    }
+    else
+    {
+        SharedUtil::AddDebugLog("Failed to get exit code. Error: 0x%llx", GetLastError());
+    }
 }
 
 int iCounter = 0;
@@ -117,7 +104,7 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::unordered_set<std
         {
             auto sig = Signature;
 
-            m_Signatures.insert(Utils::CaesarDecrypt(sig, 3));
+            m_Signatures.insert(sig);
 
             iCounter++;
 
