@@ -15,8 +15,7 @@ void BasicChecks::CheckPlugins()
             if (fileName.find("d3d9") != std::string::npos || fileName.find("d3d10") != std::string::npos)
             {
                 SharedUtil::AddDebugLog("Found Dll ", fileName);
-                //  SMemoryDetectionReport report = {0};
-                //   g_pSafeAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND, &report);
+                g_pSafeAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND);
             }
         }
     }
@@ -439,6 +438,6 @@ void BasicChecks::SecureBootEnabled()
     else
     {
         RegCloseKey(hKey);
-        // g_pSafeAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED);
+        g_pSafeAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED);
     }
 }
