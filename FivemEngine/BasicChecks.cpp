@@ -80,6 +80,107 @@ inline bool CheckTestSign_Type2()
     return bRet;
 }
 
+struct Service
+{
+    std::wstring displayName;
+    std::wstring serviceName;
+    DWORD   pid;
+    bool    isRunning;
+};
+
+bool ContainsWStringInsensitive(const std::wstring& str, const std::wstring& substr)
+{
+    auto it = search(str.begin(), str.end(), substr.begin(), substr.end(), [](wchar_t ch1, wchar_t ch2) { return towlower(ch1) == towlower(ch2); });
+    return it != str.end();
+}
+
+bool GetLoadedDrivers(std::vector<std::wstring> & driverPaths, std::vector<std::wstring>& foundBlacklistedDrivers, const std::vector<std::wstring>& blacklistedDrivers)
+{
+    DWORD cbNeeded;
+    HMODULE drivers[1024];
+    DWORD numDrivers;
+
+    if (!EnumDeviceDrivers((LPVOID*)drivers, sizeof(drivers), &cbNeeded)) {
+        std::wcerr << L"Failed to enumerate device drivers. Error: " << GetLastError() << std::endl;
+        return false;
+    }
+
+    numDrivers = cbNeeded / sizeof(HMODULE);
+
+    for (DWORD i = 0; i < numDrivers; i++) {
+        TCHAR driverPath[MAX_PATH];
+
+        if (GetDeviceDriverFileName(drivers[i], driverPath, MAX_PATH)) {
+            driverPaths.push_back(driverPath);
+
+            for (const std::wstring& blacklisted : blacklistedDrivers) {
+                if (ContainsWStringInsensitive(driverPath, blacklisted)) {
+                   std::wcout << L"Found blacklisted driver: " << driverPath << std::endl;
+                    foundBlacklistedDrivers.push_back(driverPath);
+                   g_pSafeAntiCheat->NotifyDetection(eDetectionType::BLACKLISTED_DRIVER_LOADED);
+
+                }
+            }
+        }
+        else {
+            std::wcerr << L"Failed to get driver information. Error: " << GetLastError() << std::endl;
+        }
+    }
+
+    return true;
+}
+
+
+
+void checkBlacklistedDrivers()
+{
+    std::vector<std::wstring> blacklistedDrivers = {L"ntguard.sys",
+                                          L"BEDaisy.sys",
+                                          L"Gdrv.sys",
+                                          L"AsIO.sys",
+                                          L"AsUpIO.sys",
+                                          L"CPUID.sys",
+                                          L"ENE.sys",
+                                          L"iqvw64e.sys",
+                                          L"hxctl.sys",
+                                          L"kprocesshacker.sys",
+                                          L"kprocesshacker2.sys",
+                                          L"EIO64.sys",
+                                          L"IOMap64.sys",
+                                          L"ATSZIO64.sys",
+                                          L"atillk64.sys",
+                                          L"aswVmm.sys",
+                                          L"BS_Flash64.sys",
+                                          L"Capcom.sys",
+                                          L"cpuz141.sys",
+                                          L"WinRing0x64.sys",
+                                          L"FairplayKD.sys",
+                                          L"pgldqpoc.sys",
+                                          L"HwOs2Ec10x64.sys",
+                                          L"Phymemx64.sys",
+                                          L"Monitor_win10_x64.sys",
+                                          L"driver.sys",
+                                          L"lha.sys",
+                                          L"Mslo64.sys",
+                                          L"NTIOLib_x64.sys",
+                                          L"pcdsrvc_x64.pkms",
+                                          L"HWiNFO64A.sys",
+                                          L"rzpnk.sys",
+                                          L"magdrvamd64.sys",
+                                          L"speedfan.sys",
+                                          L"zam64.sys",
+                                          L"DBK64.sys"};
+
+    std::vector<std::wstring> driverPaths;
+    std::vector<std::wstring> foundBlacklistedDrivers;
+
+    if (GetLoadedDrivers(driverPaths, foundBlacklistedDrivers, blacklistedDrivers))
+    {
+        std::wcout << L"Loaded drivers successfully retrieved." << std::endl;
+    }
+}
+
+
 inline bool CheckTestSign_Type3()
 {
     bool  bRet = false;

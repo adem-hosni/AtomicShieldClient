@@ -3,7 +3,7 @@
 #include <sstream>
 #include <unordered_set>
 #include <variant>
-
+#include <vector>
 // Third Parties
 // Jsoncons
 #include "jsoncons/json.hpp"
