@@ -71,7 +71,7 @@ void CHeuristicGuard::Initialize()
                         nullptr,                  // Process security attributes
                         nullptr,                  // Thread security attributes
                         FALSE,                    // Inherit handles
-                        CREATE_SUSPENDED,            // Creation flags
+                        NULL,            // Creation flags
                         nullptr,                  // Use parent's environment block
                         nullptr,                  // Use parent's starting directory
                         &startupInfo,             // Pointer to STARTUPINFO structure
