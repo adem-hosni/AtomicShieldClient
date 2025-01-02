@@ -36,23 +36,23 @@ std::vector<unsigned char> readBytesFromExe(const std::string& filePath)
 
 std::string BuildSignatureParameters(std::unordered_set<std::string> params)
 {
-    params = {"dsl.wcsurmhfw.frp", "vxvdqr.uh"};
     std::stringstream ss;
     ss << (char)(params.size() + 1);
-    for (auto it = params.begin(); it != params.end(); ++it)
+
+    for (const auto& param : params)
     {
-        ss << (char)((*it).length() + 1);
-        ss << (*it).c_str();
+        ss << static_cast<char>(param.length() + 1);
+        ss << param.c_str();
     }
     return ss.str();
 }
 
 void CHeuristicGuard::Initialize()
 {
-    SharedUtil::AddDebugLog("test");
+}
 
-    // CAtomicThread::Create(&SearchForString, reinterpret_cast<PVOID>(2));
-
+void CHeuristicGuard::SpawnScanProcess()
+{
     const char* szFilePath = "C:\\Users\\amenn\\OneDrive\\Desktop\\memscn-main\\src\\x64\\Release\\scn.exe";
 
     char szCommandLine[512];
@@ -68,43 +68,37 @@ void CHeuristicGuard::Initialize()
     startupInfo.hStdInput = NULL;
 
     // Create the process
-    if (!CreateProcessA(nullptr,                  // Path to the executable
-                        szCommandLine,            // Command line arguments (nullptr if none)
-                        nullptr,                  // Process security attributes
-                        nullptr,                  // Thread security attributes
-                        FALSE,                    // Inherit handles
+    if (!CreateProcessA(nullptr,                     // Path to the executable
+                        szCommandLine,               // Command line arguments (nullptr if none)
+                        nullptr,                     // Process security attributes
+                        nullptr,                     // Thread security attributes
+                        FALSE,                       // Inherit handles
                         CREATE_NO_WINDOW,            // Creation flags
-                        nullptr,                  // Use parent's environment block
-                        nullptr,                  // Use parent's starting directory
-                        &startupInfo,             // Pointer to STARTUPINFO structure
+                        nullptr,                     // Use parent's environment block
+                        nullptr,                     // Use parent's starting directory
+                        &startupInfo,                // Pointer to STARTUPINFO structure
                         &processInfo))
     {            // Pointer to PROCESS_INFORMATION structure
         SharedUtil::AddDebugLog("Failed to create process. Error: 0x%llx", GetLastError());
     }
 
     WaitForSingleObject(processInfo.hProcess, INFINITE);
-    DWORD exitCode = 0;
-    if (GetExitCodeProcess(processInfo.hProcess, &exitCode))
+
+    // Get the exit code
+    DWORD dwExitCode = 0;
+    if (GetExitCodeProcess(processInfo.hProcess, &dwExitCode))
     {
-        if (exitCode % 2 == 0)
-        {
-            SharedUtil::AddDebugLog("string detected. Exit code: 0x%llx", exitCode);
-        }
-        else
-        {
-            SharedUtil::AddDebugLog("No string detected. Exit code: 0x%llx", exitCode);
-        }
+        SharedUtil::AddDebugLog("Process finished with exit code: 0x%llx", dwExitCode);
     }
     else
     {
         SharedUtil::AddDebugLog("Failed to get exit code. Error: 0x%llx", GetLastError());
     }
-    TerminateProcess(processInfo.hProcess, exitCode);
+
+    TerminateProcess(processInfo.hProcess, dwExitCode);
     CloseHandle(processInfo.hProcess);
     CloseHandle(processInfo.hThread);
 }
-
-int iCounter = 0;
 
 void CHeuristicGuard::AddSignatures(std::map<std::string, std::unordered_set<std::string>>& Signatures)
 {
@@ -112,14 +106,9 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::unordered_set<std
     {
         for (auto& Signature : vector)
         {
-            auto sig = Signature;
-
-            m_Signatures.insert(sig);
-
-            iCounter++;
-
-            // CreateThread(0, 0, (LPTHREAD_START_ROUTINE)SearchForString, reinterpret_cast<PVOID>(&iCounter), 0, 0);
-            // std::thread t(&CHeuristicGuard::SearchForString);
+            m_Signatures.insert(Signature);
         }
     }
+
+    SpawnScanProcess();
 }
