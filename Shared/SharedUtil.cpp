@@ -165,7 +165,7 @@ const char* SharedUtil::GetParentProcessName()
 void SharedUtil::AddDebugLog(const char* szLog, ...)
 {
     std::string log_name = "Trace.logs";
-    char*       szLogDirectory = (char*)"C:\\Users\\hosni\\Documents\\GitHub\\SafeGuardClient\\FivemEngine";
+    char*       szLogDirectory = (char*)"C:\\AtomicShield\\AtomicShieldClient\\AtomicEngine";
     char        szNewDirectory[600];
     memset(szNewDirectory, 0, sizeof(szNewDirectory));
     sprintf(szNewDirectory, "%s\\%s", szLogDirectory, log_name.c_str());
