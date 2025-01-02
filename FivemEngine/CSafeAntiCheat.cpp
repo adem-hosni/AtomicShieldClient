@@ -66,11 +66,11 @@ void CSafeAntiCheat::StartBasicChecks()
 {
     BasicChecks::CheckPlugins();
 
-    BasicChecks::checkBlacklistedDrivers();
+    BasicChecks::CheckBlacklistedDrivers();
 
     //  DebugModeEnabled();
 
-    BasicChecks::SecureBootEnabled();
+    //BasicChecks::SecureBootEnabled();
 
     BasicChecks::TestsigningEnabled();
 }

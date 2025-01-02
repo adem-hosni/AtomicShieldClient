@@ -7,5 +7,5 @@ namespace BasicChecks
     void DebugModeEnabled();
     void SecureBootEnabled();
     void TestsigningEnabled();
-    void checkBlacklistedDrivers();
+    void CheckBlacklistedDrivers();
 };
