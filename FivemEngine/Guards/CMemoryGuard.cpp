@@ -50,22 +50,61 @@ void CMemoryGuard::DoPulse()
                             Report.AllocatedProtect = info.AllocationProtect;
                             Report.RegionSize = info.RegionSize;
 
-                            SharedUtil::AddDebugLog("Unregistred IAT At: 0x%p (%d)", z, iDetectionCount);
-                            if (iDetectionCount > 152)
+                            SharedUtil::AddDebugLog("Unregistred IAT At: 0x%p (%d) base address: 0x%p allocation base: 0x%p", z, iDetectionCount,
+                                                    (DWORD64)info.BaseAddress, (DWORD64)info.AllocationBase);
+
+                            HMODULE hModule = NULL;
+                            if (!GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT,
+                                                   (wchar_t*)info.BaseAddress, &hModule) &&
+                                hModule == NULL)
                             {
-                                SharedUtil::AddDebugLog("CHEATING DETECTION !!!!!!!!!");
+                                const char pattern[] = {
+                                    "\x48\x8B\xC4\x48\x89\x58\x20\x4C\x89\x40\x18\x89\x50\x10\x48\x89\x48\x08\x56\x57\x41\x56\x48\x83\xEC\x40\x49\x8B\xF0\x8B"
+                                    "\xFA"
+                                    "\x4C\x8B\xF1\x85\xD2\x75\x0F\x39\x15\x00\x00\x00\x00\x7F\x07\x33\xC0\xE9\x00\x00\x00\x00"};
+                                const char wildcard[] = {"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx????xxxxx????"};
+
+                                bool  found = false;
+                                DWORD patternLength = (DWORD)strlen(wildcard);
+                                __try
+                                {
+                                    for (DWORD j = 0; j < patternLength; j++)
+                                    {
+                                        found &= wildcard[j] == '?' || pattern[j] == *(char*)(z + j);
+                                    }
+                                }
+                                __except (EXCEPTION_EXECUTE_HANDLER)
+                                {
+                                };
+
+                                if (found)
+                                {
+                                    SharedUtil::AddDebugLog("Injected module!");
+                                }
+                            }
+                            else
+                            {
+                                __try
+                                {
+                                    IMAGE_DOS_HEADER* dosHeader = static_cast<IMAGE_DOS_HEADER*>(info.BaseAddress);
+                                    if (dosHeader->e_magic == IMAGE_DOS_SIGNATURE)
+                                    {
+                                        SharedUtil::AddDebugLog("Valid PE Header!");
+                                    }
+                                }
+                                __except (EXCEPTION_EXECUTE_HANDLER)
+                                {
+                                }
                             }
 
-                            //g_pSafeAntiCheat->NotifyDetection(eDetectionType::UNRECOGNISED_IAT_FOUND, &Report);
+                            // g_pSafeAntiCheat->NotifyDetection(eDetectionType::UNRECOGNISED_IAT_FOUND, &Report);
                             break;
                         }
                     }
-                
                 }
             }
             pCurrentAddress = (const void*)((const char*)(info.BaseAddress) + info.RegionSize);
         }
         SharedUtil::AddDebugLog("End Memory Guard Scan");
-
     }
 }

@@ -53,7 +53,7 @@ void CHeuristicGuard::Initialize()
 
 void CHeuristicGuard::SpawnScanProcess()
 {
-    const char* szFilePath = "C:\\Users\\amenn\\OneDrive\\Desktop\\memscn-main\\src\\x64\\Release\\scn.exe";
+    const char* szFilePath = "C:\\Users\\hosni\\Desktop\\memscn-main\\src\\x64\\Release\\scn.exe";
 
     char szCommandLine[512];
     memset(szCommandLine, 0, sizeof(szCommandLine));
