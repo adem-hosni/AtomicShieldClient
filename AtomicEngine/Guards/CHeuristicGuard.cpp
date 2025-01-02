@@ -1,8 +1,6 @@
 #include "StdInc.h"
 #include <fstream>
 
-std::unordered_set<std::string> m_Signatures;
-
 CHeuristicGuard::CHeuristicGuard()
 {
 }
@@ -34,12 +32,12 @@ std::vector<unsigned char> readBytesFromExe(const std::string& filePath)
     return rawData;
 }
 
-std::string BuildSignatureParameters(std::unordered_set<std::string> params)
+std::string CHeuristicGuard::BuildSignatureParameters()
 {
     std::stringstream ss;
-    ss << (char)(params.size() + 1);
+    ss << (char)(m_Signatures.size() + 1);
 
-    for (const auto& param : params)
+    for (const std::string& param : m_Signatures)
     {
         ss << static_cast<char>(param.length() + 1);
         ss << param.c_str();
@@ -57,7 +55,7 @@ void CHeuristicGuard::SpawnScanProcess()
 
     char szCommandLine[512];
     memset(szCommandLine, 0, sizeof(szCommandLine));
-    sprintf(szCommandLine, "\"%s\" --pid %d --sigs %s", szFilePath, GetCurrentProcessId(), BuildSignatureParameters(m_Signatures).c_str());
+    sprintf(szCommandLine, "\"%s\" --pid %d --sigs %s", szFilePath, GetCurrentProcessId(), BuildSignatureParameters().c_str());
 
     // Initialize variables
     STARTUPINFOA        startupInfo = {0};

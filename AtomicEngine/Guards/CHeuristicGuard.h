@@ -10,6 +10,7 @@ public:
     
     void Initialize() override;
 
+    std::string BuildSignatureParameters();
     void SpawnScanProcess();
 
     void        AddSignatures(std::map<std::string, std::unordered_set<std::string>>& Signatures);
@@ -17,5 +18,5 @@ public:
     void        DoPulse() override {}
 
 private:
-    //std::map<std::string, std::unordered_set<std::string>> m_Signatures;
+    std::unordered_set<std::string> m_Signatures;
 };
