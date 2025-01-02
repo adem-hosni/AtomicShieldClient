@@ -5,7 +5,7 @@ VisualStudioVersion = 17.10.34928.147
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Shared", "Shared\Shared.vcxproj", "{4E58B5B0-73C8-4A5D-B79B-9BFAA2371E3C}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FivemEngine", "FivemEngine\FivemEngine.vcxproj", "{9C3446C8-B8EF-444C-A278-36354B3317C6}"
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "FivemEngine", "AtomicEngine\AtomicEngine.vcxproj", "{9C3446C8-B8EF-444C-A278-36354B3317C6}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "AtomicAgent", "AtomicAgent\AtomicAgent.vcxproj", "{4165A294-21F2-44CA-9B38-E3F935ABADF5}"
 EndProject
