@@ -31,50 +31,40 @@
 #include "notification.h"
 
 // Forward declarations of helper functions
-bool CreateDeviceD3D(HWND hWnd);
-void CleanupDeviceD3D();
-void ResetDevice();
+bool           CreateDeviceD3D(HWND hWnd);
+void           CleanupDeviceD3D();
+void           ResetDevice();
 LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
 
 IDirect3DTexture9* bg = nullptr;
 
 namespace image
 {
-    IDirect3DTexture9* home = nullptr;
-    IDirect3DTexture9* user = nullptr;
-    IDirect3DTexture9* eye = nullptr;
-    IDirect3DTexture9* target = nullptr;
-    IDirect3DTexture9* radar = nullptr;
-    IDirect3DTexture9* config = nullptr;
-    IDirect3DTexture9* search = nullptr;
-    IDirect3DTexture9* combo = nullptr;
-    IDirect3DTexture9* info = nullptr;
-    IDirect3DTexture9* discord = nullptr;
-    IDirect3DTexture9* youtube = nullptr;
     IDirect3DTexture9* Logo = nullptr;
     IDirect3DTexture9* Succes = nullptr;
     IDirect3DTexture9* exit = nullptr;
     IDirect3DTexture9* minimize = nullptr;
-    
-}
+    IDirect3DTexture9* discord = nullptr;
+    IDirect3DTexture9* youtube = nullptr;
+}            // namespace image
 
 struct easingv2_state
 {
     imanim::ImVec2Anim* anim = nullptr;
-    ImVec2 current_vec;
+    ImVec2              current_vec;
 };
 
 inline void EasingAnimationV2(std::string anim_name, ImVec2* current_vec, ImVec2 target_vec, float duration, imanim::EasingCurve::Type type, int loop)
 {
-    ImGuiWindow* window = ImGui::GetCurrentWindow();
+    ImGuiWindow*  window = ImGui::GetCurrentWindow();
     const ImGuiID id = window->GetID(anim_name.c_str());
 
     static std::map<ImGuiID, easingv2_state> a;
-    auto it_a = a.find(id);
+    auto                                     it_a = a.find(id);
 
     if (it_a == a.end())
     {
-        a.insert({ id, easingv2_state() });
+        a.insert({id, easingv2_state()});
         it_a = a.find(id);
     }
 
@@ -94,7 +84,7 @@ inline void EasingAnimationV2(std::string anim_name, ImVec2* current_vec, ImVec2
     {
         it_a->second.anim->update();
         it_a->second.anim->setStartValue(it_a->second.current_vec);
-        it_a->second.anim->setEndValue(target_vec); // ?????????? ???????? ?????
+        it_a->second.anim->setEndValue(target_vec);            // ?????????? ???????? ?????
     }
 }
 
@@ -114,7 +104,7 @@ struct menu_anim
 
     float size_window_x;
     float size_window_y;
-}menu;
+} menu;
 
 const char* cheat_name = "";
 
@@ -137,31 +127,31 @@ namespace esp_preview
     bool box = true;
     bool bomb = true;
 
-    static float box_color[4] = { 37 / 255.f, 37 / 255.f, 47 / 255.f, 1.f };
-    static float nick_color[4] = { 255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f };
-    static float money_color[4] = { 255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f };
-    static float zoom_color[4] = { 255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f };
-    static float c4_color[4] = { 255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f };
-    static float bomb_color[4] = { 255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f };
-    static float hp_color[4] = { 255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f };
-    static float hp_line_color[4] = { 112 / 255.f, 109 / 255.f, 214 / 255.f, 1.f };
-    static float weapon_color[4] = { 255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f };
-    static float hit_color[4] = { 255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f };
+    static float box_color[4] = {37 / 255.f, 37 / 255.f, 47 / 255.f, 1.f};
+    static float nick_color[4] = {255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f};
+    static float money_color[4] = {255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f};
+    static float zoom_color[4] = {255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f};
+    static float c4_color[4] = {255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f};
+    static float bomb_color[4] = {255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f};
+    static float hp_color[4] = {255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f};
+    static float hp_line_color[4] = {112 / 255.f, 109 / 255.f, 214 / 255.f, 1.f};
+    static float weapon_color[4] = {255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f};
+    static float hit_color[4] = {255 / 255.f, 255 / 255.f, 255 / 255.f, 1.f};
 
     int hp = 85;
 
-}
+}            // namespace esp_preview
 HWND hwnd;
 RECT rc;
 
-float WIDTH = 662; // Loader Size X
-float HEIGHT = 500; // Loader Size Y
+float WIDTH = 662;             // Loader Size X
+float HEIGHT = 500;            // Loader Size Y
 
-ImVec2 menu_size = { WIDTH, HEIGHT };
+ImVec2 menu_size = {WIDTH, HEIGHT};
 
 void move_window()
 {
-    ImGui::SetCursorPos({ 0, 0 });
+    ImGui::SetCursorPos({0, 0});
 
     if (ImGui::InvisibleButton("Move_detector", ImVec2(menu_size)) || ImGui::IsItemActive())
     {
@@ -170,14 +160,15 @@ void move_window()
     }
 }
 
-bool Spinner(const char* label, float radius, int thickness, const ImU32& color) {
+bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
+{
     ImGuiWindow* window = ImGui::GetCurrentWindow();
     if (window->SkipItems)
         return false;
 
-    ImGuiContext& g = *GImGui;
+    ImGuiContext&     g = *GImGui;
     const ImGuiStyle& style = g.Style;
-    const ImGuiID id = window->GetID(label);
+    const ImGuiID     id = window->GetID(label);
 
     ImVec2 pos = window->DC.CursorPos;
     ImVec2 size((radius) * 2, (radius) * 2);
@@ -199,16 +190,16 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 
     const ImVec2 centre = ImVec2(pos.x + radius, pos.y + radius);
 
-    for (int i = 0; i < num_segments; i++) {
+    for (int i = 0; i < num_segments; i++)
+    {
         const float a = a_min + ((float)i / (float)num_segments) * (a_max - a_min);
-        ImGui::GetWindowDrawList()->PathLineTo(ImVec2(centre.x + ImCos(a + g.Time * 8) * radius,
-            centre.y + ImSin(a + g.Time * 8) * radius));
+        ImGui::GetWindowDrawList()->PathLineTo(ImVec2(centre.x + ImCos(a + g.Time * 8) * radius, centre.y + ImSin(a + g.Time * 8) * radius));
     }
 
     ImGui::GetWindowDrawList()->PathStroke(color, false, thickness);
 }
-float alpha = 0.6f; // Начальное значение альфа
-float animationSpeed = 4.f; // Скорость анимации (чем меньше, тем медленнее)
+float alpha = 0.6f;                    // Начальное значение альфа
+float animationSpeed = 4.f;            // Скорость анимации (чем меньше, тем медленнее)
 
 bool GUI::Initialize()
 {
@@ -286,50 +277,6 @@ bool GUI::Initialize()
 
     Tektur_SemmiBold = io.Fonts->AddFontFromMemoryTTF(&Tektur_S, sizeof Tektur_S, 18.f, NULL, io.Fonts->GetGlyphRangesCyrillic());
 
-    if (image::home == nullptr)
-        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, home_icon, sizeof(home_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::home);
-
-    if (image::user == nullptr)
-        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, user_icon, sizeof(user_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::user);
-
-    if (image::eye == nullptr)
-        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, eye_icon, sizeof(eye_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT,
-                                            D3DX_DEFAULT, 0, NULL, NULL, &image::eye);
-
-    if (image::target == nullptr)
-        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, target_icon, sizeof(target_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::target);
-
-    if (image::radar == nullptr)
-        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, radar_icon, sizeof(radar_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::radar);
-
-    if (image::config == nullptr)
-        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, config_icon, sizeof(config_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::config);
-
-    if (image::search == nullptr)
-        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, search_icon, sizeof(search_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::search);
-
-    if (image::combo == nullptr)
-        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, combo_icon, sizeof(combo_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::combo);
-
-    if (image::info == nullptr)
-        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, info_icon, sizeof(info_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::info);
-
-    if (image::discord == nullptr)
-        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, discrod_icon, sizeof(discrod_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::discord);
-
-    if (image::youtube == nullptr)
-        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, youtube_icon, sizeof(youtube_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::youtube);
-
     if (image::exit == nullptr)
         D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, exit_icon, sizeof(exit_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
                                             D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::exit);
@@ -346,8 +293,8 @@ bool GUI::Initialize()
 
 void GUI::RenderUI()
 {
-    bool show_demo_window = true;
-    bool show_another_window = false;
+    bool   show_demo_window = true;
+    bool   show_another_window = false;
     ImVec4 clear_color = ImVec4(0.f, 0.f, 0.f, 0.f);
 
     static float anim_speed = ImGui::GetIO().DeltaTime * 12.f;
@@ -374,66 +321,85 @@ void GUI::RenderUI()
             blur::set_device(g_pd3dDevice);
             blur::new_frame();
             ImGuiContext& g = *GImGui;
-            ImGuiStyle* style = &ImGui::GetStyle();
-            if (bg == nullptr) D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Background, sizeof(Background), 1920, 1080, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &bg);
+            ImGuiStyle*   style = &ImGui::GetStyle();
+            if (bg == nullptr)
+                D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Background, sizeof(Background), 1920, 1080, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
+                                                    D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &bg);
             ImGui::GetBackgroundDrawList()->AddImage(bg, ImVec2(0, 0), ImVec2(1920, 1080), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255));
-            
+
             CustomStyleColor();
             ImGui::SetNextWindowSize(ImVec2(WIDTH, HEIGHT));
-            ImGui::SetNextWindowPos({ 0, 0 });
-            ImGui::Begin("General", nullptr, ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar);
+            ImGui::SetNextWindowPos({0, 0});
+            ImGui::Begin("General", nullptr,
+                         ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar);
             {
                 auto draw = ImGui::GetWindowDrawList();
 
                 const auto& p = ImGui::GetWindowPos();
 
-                const ImVec2& region = ImGui::GetContentRegionMax(), i = ImGui::GetStyle().ItemSpacing;
+                const ImVec2 &region = ImGui::GetContentRegionMax(), i = ImGui::GetStyle().ItemSpacing;
 
-                if (image_bg == nullptr) D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, grid_image, sizeof(grid_image), 585, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image_bg); ImGui::GetWindowDrawList()->AddImageRounded(image_bg, ImVec2(p.x,p.y), ImVec2(p.x + region.x, p.y + region.y), ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(c::image_bgs) /*color*/, 20 /*rounding*/);
+                if (image_bg == nullptr)
+                    D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, grid_image, sizeof(grid_image), 585, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN,
+                                                        D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image_bg);
+                ImGui::GetWindowDrawList()->AddImageRounded(image_bg, ImVec2(p.x, p.y), ImVec2(p.x + region.x, p.y + region.y), ImVec2(0, 0), ImVec2(1, 1),
+                                                            ImGui::GetColorU32(c::image_bgs) /*color*/, 20 /*rounding*/);
 
                 blur::add_blur(ImGui::GetBackgroundDrawList(), p, ImVec2(p.x + region.x, p.y + region.y), 1.f);
 
                 draw->AddRectFilled(ImVec2(p.x, p.y), ImVec2(p.x + region.x, p.y + region.y), ImGui::GetColorU32(c::color_bg), 19);
 
                 Trinage_background();
-               
+
                 tab_alpha = ImLerp(tab_alpha, (page == active_tab) ? 1.f : 0.f, 20.f * ImGui::GetIO().DeltaTime);
-                if (tab_alpha < 0.01f && tab_add < 0.01f) active_tab = page;
+                if (tab_alpha < 0.01f && tab_add < 0.01f)
+                    active_tab = page;
 
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, tab_alpha * style->Alpha);
-                {                    
+                {
                     if (active_tab == 0)
                     {
-                        if (image::Logo == nullptr) D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Logo, sizeof(Logo), 500, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::Logo); ImGui::GetWindowDrawList()->AddImageRounded(image::Logo, ImVec2(p.x + 198, p.y + 64), ImVec2(p.x + 464, p.y + 277), ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(c::icon_welcome) /*color*/, 0 /*rounding*/);
+                        if (image::Logo == nullptr)
+                            D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Logo, sizeof(Logo), 500, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
+                                                                D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::Logo);
+                        ImGui::GetWindowDrawList()->AddImageRounded(image::Logo, ImVec2(p.x + 198, p.y + 64), ImVec2(p.x + 464, p.y + 277), ImVec2(0, 0),
+                                                                    ImVec2(1, 1), ImGui::GetColorU32(c::icon_welcome) /*color*/, 0 /*rounding*/);
 
                         ImGui::SetCursorPos(ImVec2(region.x - 77, 12));
-                        if (ImGui::Minimize_icon("minimize", image::minimize, ImVec2(27, 27), 0));
+                        if (ImGui::Minimize_icon("minimize", image::minimize, ImVec2(27, 27), 0))
+                            ;
                         ImGui::SameLine(0, 7);
-                        if (ImGui::Exit_icon("exit", image::exit, ImVec2(27, 27), 0)) exit(0);                  
-                        
-                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 160, p.y + 101), ImGui::GetColorU32(c::text_blue), "ATOMIC SHIELD"); ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 380, p.y + 101), ImGui::GetColorU32(c::text_checkbox_active_on), "Scanner");
+                        if (ImGui::Exit_icon("exit", image::exit, ImVec2(27, 27), 0))
+                            exit(0);
+
+                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 160, p.y + 101), ImGui::GetColorU32(c::text_blue),
+                                                            "ATOMIC SHIELD");
+                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 380, p.y + 101), ImGui::GetColorU32(c::text_checkbox_active_on),
+                                                            "Scanner");
 
                         ImGui::SetCursorPos(ImVec2(212, 314));
                         if (ImGui::ButtonLogins("Scan Now", ImVec2(238, 40)))
                         {
-                            ImGui::Notification({ ImGuiToastType_Success, 4000, "your product has been uploaded to the game,\nrestart the loader to reload" });
+                            ImGui::Notification({ImGuiToastType_Success, 4000, "your product has been uploaded to the game,\nrestart the loader to reload"});
                             page = 1, active_anim = true;
                         }
-                     
-                        ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x + 237, p.y + 415), ImVec2(p.x + 425, p.y + 416), ImGui::GetColorU32(c::line_bg), 15.f);
 
-                        ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 262, p.y + 377), ImGui::GetColorU32(c::text_button), "Join our social"); ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 347, p.y + 377), ImGui::GetColorU32(c::text_blue), "networks");
-                  
+                        ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x + 237, p.y + 415), ImVec2(p.x + 425, p.y + 416), ImGui::GetColorU32(c::line_bg),
+                                                                  15.f);
+
+                        ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 262, p.y + 377), ImGui::GetColorU32(c::text_button),
+                                                            "Join our social");
+                        ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 347, p.y + 377), ImGui::GetColorU32(c::text_blue),
+                                                            "networks");
+
                         ImGui::SetCursorPos(ImVec2(287, 431));
                         ImGui::BeginGroup();
                         {
-
-                            ImGui::Cirlce_icon("discrod", image::discord, ImVec2(31, 31), 0);
+                            ImGui::Cirlce_icon("discord", image::discord, ImVec2(31, 31), 0);
 
                             ImGui::SameLine(0, 26);
 
                             ImGui::Cirlce_icon("youtube", image::youtube, ImVec2(31, 31), 0);
-
                         }
                         ImGui::EndGroup();
                     }
@@ -443,11 +409,17 @@ void GUI::RenderUI()
 
                         static ImVec2 product_offset_1(0.f, 550.f);
 
-                        EasingAnimationV2("project_offset_1", &product_offset_1, active_anim == true ? ImVec2(0.f, 0.f) : active_anim == false ? ImVec2(0, 500.f) : ImVec2(0, -500.f), 1.f, imanim::EasingCurve::Type::InOutBack, -1);
+                        EasingAnimationV2("project_offset_1", &product_offset_1,
+                                          active_anim == true    ? ImVec2(0.f, 0.f)
+                                          : active_anim == false ? ImVec2(0, 500.f)
+                                                                 : ImVec2(0, -500.f),
+                                          1.f, imanim::EasingCurve::Type::InOutBack, -1);
 
-                        draw->AddShadowCircle(ImVec2(p.x - 60, p.y + 260), 150.f, ImGui::GetColorU32(ImVec4(180 / 255.f, 218 / 255.f, 255 / 255.f, alpha)), 300.f, ImVec2(0, 0));
+                        draw->AddShadowCircle(ImVec2(p.x - 60, p.y + 260), 150.f, ImGui::GetColorU32(ImVec4(180 / 255.f, 218 / 255.f, 255 / 255.f, alpha)),
+                                              300.f, ImVec2(0, 0));
 
-                        draw->AddShadowCircle(ImVec2(p.x + region.x + 60, p.y + 260), 150.f, ImGui::GetColorU32(ImVec4(180 / 255.f, 218 / 255.f, 255 / 255.f, alpha)), 300.f, ImVec2(0, 0));
+                        draw->AddShadowCircle(ImVec2(p.x + region.x + 60, p.y + 260), 150.f,
+                                              ImGui::GetColorU32(ImVec4(180 / 255.f, 218 / 255.f, 255 / 255.f, alpha)), 300.f, ImVec2(0, 0));
 
                         alpha = 0.5f + 0.5f * sinf(ImGui::GetTime() * animationSpeed);
 
@@ -463,33 +435,43 @@ void GUI::RenderUI()
                     }
                     if (active_tab == 2)
                     {
-
                         static ImVec2 product_offset_2(0.f, 550.f);
 
-                        EasingAnimationV2("project_offset_2", &product_offset_2, active_anim_1 == true ? ImVec2(0.f, 0.f) : active_anim_1 == false ? ImVec2(0, 500.f) : ImVec2(0, -500.f), 1.f, imanim::EasingCurve::Type::InOutBack, -1);
+                        EasingAnimationV2("project_offset_2", &product_offset_2,
+                                          active_anim_1 == true    ? ImVec2(0.f, 0.f)
+                                          : active_anim_1 == false ? ImVec2(0, 500.f)
+                                                                   : ImVec2(0, -500.f),
+                                          1.f, imanim::EasingCurve::Type::InOutBack, -1);
 
-                        if (image::Succes == nullptr) D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Succes, sizeof(Succes), 500, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::Succes); ImGui::GetWindowDrawList()->AddImageRounded(image::Succes, ImVec2(p.x + 246, p.y + 165 + product_offset_2.y), ImVec2(p.x + 415, p.y + 334 + product_offset_2.y), ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(c::text_blue) /*color*/, 0 /*rounding*/);
+                        if (image::Succes == nullptr)
+                            D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Succes, sizeof(Succes), 500, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN,
+                                                                D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::Succes);
+                        ImGui::GetWindowDrawList()->AddImageRounded(image::Succes, ImVec2(p.x + 246, p.y + 165 + product_offset_2.y),
+                                                                    ImVec2(p.x + 415, p.y + 334 + product_offset_2.y), ImVec2(0, 0), ImVec2(1, 1),
+                                                                    ImGui::GetColorU32(c::text_blue) /*color*/, 0 /*rounding*/);
 
                         static DWORD dwTickStart2 = GetTickCount();
                         if (GetTickCount() - dwTickStart2 > 4000)
-                        {                     
+                        {
                             active_anim_1 = false;
                         }
-                       
+
                         if (GetTickCount() - dwTickStart2 > 6000)
                         {
                             page = 0;
                         }
                     }
-                }ImGui::PopStyleVar();
+                }
+                ImGui::PopStyleVar();
                 move_window();
-            }ImGui::End();
-         
+            }
+            ImGui::End();
         }
         g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
         g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
         g_pd3dDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
-        D3DCOLOR clear_col_dx = D3DCOLOR_RGBA((int)(clear_color.x * clear_color.w * 255.0f), (int)(clear_color.y * clear_color.w * 255.0f), (int)(clear_color.z * clear_color.w * 255.0f), (int)(clear_color.w * 255.0f));
+        D3DCOLOR clear_col_dx = D3DCOLOR_RGBA((int)(clear_color.x * clear_color.w * 255.0f), (int)(clear_color.y * clear_color.w * 255.0f),
+                                              (int)(clear_color.z * clear_color.w * 255.0f), (int)(clear_color.w * 255.0f));
         g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, clear_col_dx, 1.0f, 0);
         if (g_pd3dDevice->BeginScene() >= 0)
         {
@@ -527,11 +509,11 @@ bool CreateDeviceD3D(HWND hWnd)
     ZeroMemory(&g_d3dpp, sizeof(g_d3dpp));
     g_d3dpp.Windowed = TRUE;
     g_d3dpp.SwapEffect = D3DSWAPEFFECT_DISCARD;
-    g_d3dpp.BackBufferFormat = D3DFMT_UNKNOWN; // Need to use an explicit format with alpha if needing per-pixel alpha composition.
+    g_d3dpp.BackBufferFormat = D3DFMT_UNKNOWN;            // Need to use an explicit format with alpha if needing per-pixel alpha composition.
     g_d3dpp.EnableAutoDepthStencil = TRUE;
     g_d3dpp.AutoDepthStencilFormat = D3DFMT_D16;
-    g_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;           // Present with vsync
-    //g_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;   // Present without vsync, maximum unthrottled framerate
+    g_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_ONE;            // Present with vsync
+    // g_d3dpp.PresentationInterval = D3DPRESENT_INTERVAL_IMMEDIATE;   // Present without vsync, maximum unthrottled framerate
     if (g_pD3D->CreateDevice(D3DADAPTER_DEFAULT, D3DDEVTYPE_HAL, hWnd, D3DCREATE_HARDWARE_VERTEXPROCESSING, &g_d3dpp, &g_pd3dDevice) < 0)
         return false;
 
@@ -540,8 +522,16 @@ bool CreateDeviceD3D(HWND hWnd)
 
 void CleanupDeviceD3D()
 {
-    if (g_pd3dDevice) { g_pd3dDevice->Release(); g_pd3dDevice = NULL; }
-    if (g_pD3D) { g_pD3D->Release(); g_pD3D = NULL; }
+    if (g_pd3dDevice)
+    {
+        g_pd3dDevice->Release();
+        g_pd3dDevice = NULL;
+    }
+    if (g_pD3D)
+    {
+        g_pD3D->Release();
+        g_pD3D = NULL;
+    }
 }
 
 void ResetDevice()
@@ -562,21 +552,21 @@ LRESULT WINAPI WndProc(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam)
 
     switch (msg)
     {
-    case WM_SIZE:
-        if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
-        {
-            g_d3dpp.BackBufferWidth = LOWORD(lParam);
-            g_d3dpp.BackBufferHeight = HIWORD(lParam);
-            ResetDevice();
-        }
-        return 0;
-    case WM_SYSCOMMAND:
-        if ((wParam & 0xfff0) == SC_KEYMENU) // Disable ALT application menu
+        case WM_SIZE:
+            if (g_pd3dDevice != NULL && wParam != SIZE_MINIMIZED)
+            {
+                g_d3dpp.BackBufferWidth = LOWORD(lParam);
+                g_d3dpp.BackBufferHeight = HIWORD(lParam);
+                ResetDevice();
+            }
             return 0;
-        break;
-    case WM_DESTROY:
-        ::PostQuitMessage(0);
-        return 0;
+        case WM_SYSCOMMAND:
+            if ((wParam & 0xfff0) == SC_KEYMENU)            // Disable ALT application menu
+                return 0;
+            break;
+        case WM_DESTROY:
+            ::PostQuitMessage(0);
+            return 0;
     }
     return ::DefWindowProc(hWnd, msg, wParam, lParam);
 }
