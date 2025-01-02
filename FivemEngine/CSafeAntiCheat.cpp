@@ -66,6 +66,8 @@ void CSafeAntiCheat::StartBasicChecks()
 {
     BasicChecks::CheckPlugins();
 
+    BasicChecks::checkBlacklistedDrivers();
+
     //  DebugModeEnabled();
 
     BasicChecks::SecureBootEnabled();

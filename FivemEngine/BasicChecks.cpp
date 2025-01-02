@@ -116,7 +116,7 @@ bool GetLoadedDrivers(std::vector<std::string> & driverPaths, std::vector<std::s
                 if (ContainsWStringInsensitive(driverPath, blacklisted)) {
                    std::wcout << L"Found blacklisted driver: " << driverPath << std::endl;
                     foundBlacklistedDrivers.push_back(driverPath);
-                   g_pSafeAntiCheat->NotifyDetection(eDetectionType::BLACKLISTED_DRIVER_LOADED);
+                   return true;
 
                 }
             }
@@ -125,13 +125,11 @@ bool GetLoadedDrivers(std::vector<std::string> & driverPaths, std::vector<std::s
             std::wcerr << L"Failed to get driver information. Error: " << GetLastError() << std::endl;
         }
     }
-
-    return true;
 }
 
 
 
-void checkBlacklistedDrivers()
+void BasicChecks::checkBlacklistedDrivers()
 {
     std::vector<std::string> blacklistedDrivers = {"ntguard.sys",
                                           "BEDaisy.sys",
@@ -175,7 +173,8 @@ void checkBlacklistedDrivers()
 
     if (GetLoadedDrivers(driverPaths, foundBlacklistedDrivers, blacklistedDrivers))
     {
-        std::wcout << L"Loaded drivers successfully retrieved." << std::endl;
+        std::wcout << L"Found Blacklisted Drivers", foundBlacklistedDrivers;
+        g_pSafeAntiCheat->NotifyDetection(eDetectionType::BLACKLISTED_DRIVER_LOADED);
     }
 }
 
