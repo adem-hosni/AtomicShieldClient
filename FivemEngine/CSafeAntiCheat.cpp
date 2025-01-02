@@ -70,7 +70,7 @@ void CSafeAntiCheat::StartBasicChecks()
 
     //  DebugModeEnabled();
 
-    //BasicChecks::SecureBootEnabled();
+    BasicChecks::SecureBootEnabled();
 
     BasicChecks::TestsigningEnabled();
 }
