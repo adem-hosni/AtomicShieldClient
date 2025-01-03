@@ -82,6 +82,9 @@
     <ClCompile Include="CAtomicCore.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="Vendor\ImGui\misc\freetype\imgui_freetype.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\blur.hpp" />
@@ -172,6 +175,21 @@
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="GUI\Variables.h" />
     <ClInclude Include="CAtomicAPI.h" />
+    <ClInclude Include="ManualMapInjector.hpp" />
     <ClInclude Include="CAtomicCore.h" />
+    <ClInclude Include="Vendor\curl\curl.h" />
+    <ClInclude Include="Vendor\curl\curlver.h" />
+    <ClInclude Include="Vendor\curl\easy.h" />
+    <ClInclude Include="Vendor\curl\header.h" />
+    <ClInclude Include="Vendor\curl\mprintf.h" />
+    <ClInclude Include="Vendor\curl\multi.h" />
+    <ClInclude Include="Vendor\curl\options.h" />
+    <ClInclude Include="Vendor\curl\stdcheaders.h" />
+    <ClInclude Include="Vendor\curl\system.h" />
+    <ClInclude Include="Vendor\curl\typecheck-gcc.h" />
+    <ClInclude Include="Vendor\curl\urlapi.h" />
+    <ClInclude Include="Vendor\curl\websockets.h" />
+    <ClInclude Include="Vendor\ImGui\misc\freetype\imgui_freetype.h" />
+    <ClInclude Include="Vendor\ImGui\misc\single_file\imgui_single_file.h" />
   </ItemGroup>
 </Project>

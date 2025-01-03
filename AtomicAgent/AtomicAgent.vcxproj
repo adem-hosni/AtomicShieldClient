@@ -76,7 +76,7 @@
     <IntDir>$(SolutionDir)Cache\$(Configuration)</IntDir>
     <TargetName>$(ProjectName).$(Configuration)</TargetName>
     <IncludePath>$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir);$(ProjectDir)Vendor\freetype\include;$(ProjectDir)Vendor;$(ProjectDir)Vendor\ImGui\backends;$(ProjectDir)Vendor\ImGui;D:\SDK LIB\Include;D:\ВСЕ МОИ МЕНЮ!!!!!!!!!!!!!\freetype\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(OutDir);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <LibraryPath>$(ProjectDir)Vendor;$(OutDir);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
@@ -86,7 +86,7 @@
     <OutDir>$(SolutionDir)Build</OutDir>
     <IntDir>$(SolutionDir)Cache\$(Configuration)</IntDir>
     <IncludePath>$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir);$(ProjectDir)Vendor\freetype\include;$(ProjectDir)Vendor;$(ProjectDir)Vendor\ImGui\backends;$(ProjectDir)Vendor\ImGui;D:\SDK LIB\Include;D:\ВСЕ МОИ МЕНЮ!!!!!!!!!!!!!\freetype\include;$(IncludePath)</IncludePath>
-    <LibraryPath>$(OutDir);D:\SDK LIB\Lib\x64;D:\ВСЕ МОИ МЕНЮ!!!!!!!!!!!!!\freetype\win64;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(ProjectDir)Vendor;$(OutDir);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
     <TargetName>$(ProjectName).$(Configuration)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -108,13 +108,13 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..;..\..\backends;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)/Lib/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;Shared.lib;freetype/win64/freetype.lib;curl/libcurl.lib;Ws2_32.lib;Wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -145,7 +145,7 @@
       <AdditionalIncludeDirectories>..\..;..\..\backends;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include;</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
@@ -153,7 +153,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)/Lib/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d9.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;Shared.lib;freetype/win64/freetype.lib;curl/libcurl.lib;Ws2_32.lib;Wldap32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
     </Link>
   </ItemDefinitionGroup>
@@ -182,6 +182,7 @@
     <ClCompile Include="Vendor\ImGui\imgui_draw.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_tables.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui_widgets.cpp" />
+    <ClCompile Include="Vendor\ImGui\misc\freetype\imgui_freetype.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CAtomicAPI.h" />
@@ -192,6 +193,7 @@
     <ClInclude Include="GUI\Customs.hpp" />
     <ClInclude Include="GUI\Elements.h" />
     <ClInclude Include="GUI\Variables.h" />
+    <ClInclude Include="ManualMapInjector.hpp" />
     <ClInclude Include="Resources\Font.h" />
     <ClInclude Include="GUI\Utils.h" />
     <ClInclude Include="Resources\Image.h" />
@@ -210,6 +212,18 @@
     <ClInclude Include="GUI\GUI.h" />
     <ClInclude Include="GUI\Notification.h" />
     <ClInclude Include="StdInc.h" />
+    <ClInclude Include="Vendor\curl\curl.h" />
+    <ClInclude Include="Vendor\curl\curlver.h" />
+    <ClInclude Include="Vendor\curl\easy.h" />
+    <ClInclude Include="Vendor\curl\header.h" />
+    <ClInclude Include="Vendor\curl\mprintf.h" />
+    <ClInclude Include="Vendor\curl\multi.h" />
+    <ClInclude Include="Vendor\curl\options.h" />
+    <ClInclude Include="Vendor\curl\stdcheaders.h" />
+    <ClInclude Include="Vendor\curl\system.h" />
+    <ClInclude Include="Vendor\curl\typecheck-gcc.h" />
+    <ClInclude Include="Vendor\curl\urlapi.h" />
+    <ClInclude Include="Vendor\curl\websockets.h" />
     <ClInclude Include="Vendor\freetype\include\freetype\config\ftconfig.h" />
     <ClInclude Include="Vendor\freetype\include\freetype\config\ftheader.h" />
     <ClInclude Include="Vendor\freetype\include\freetype\config\ftmodule.h" />
@@ -273,6 +287,8 @@
     <ClInclude Include="Vendor\ImGui\imstb_rectpack.h" />
     <ClInclude Include="Vendor\ImGui\imstb_textedit.h" />
     <ClInclude Include="Vendor\ImGui\imstb_truetype.h" />
+    <ClInclude Include="Vendor\ImGui\misc\freetype\imgui_freetype.h" />
+    <ClInclude Include="Vendor\ImGui\misc\single_file\imgui_single_file.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
