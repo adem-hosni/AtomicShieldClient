@@ -1,4 +1,2 @@
-[3:6:39] Temp file created! File: nm1
-[3:6:40] Temp file created! File: nm1
-[3:13:19] Buffer: 
-[3:13:19] Process finished with exit code: 0x1
+[22:16:54] Failed to set DEP policy @ EnableProcessMitigations: 0x32
+[22:16:54] Failed to set system call disable policy @EnableProcessMitigations: 0x13
