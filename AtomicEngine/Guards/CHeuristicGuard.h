@@ -7,11 +7,11 @@ class CHeuristicGuard final : public CGuardBase
 public:
     CHeuristicGuard();
     ~CHeuristicGuard();
-    
+
     void Initialize() override;
 
     std::string BuildSignatureParameters();
-    void SpawnScanProcess();
+    void        SpawnScanProcess();
 
     void        AddSignatures(std::map<std::string, std::unordered_set<std::string>>& Signatures);
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
