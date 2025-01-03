@@ -117,7 +117,7 @@
       <AdditionalDependencies>d3d9.lib;Shared.lib;freetype/win64/freetype.lib;curl/libcurl.lib;Ws2_32.lib;Wldap32.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <UACUIAccess>true</UACUIAccess>
+      <UACUIAccess>false</UACUIAccess>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
@@ -158,7 +158,7 @@
       <AdditionalDependencies>d3d9.lib;Shared.lib;freetype/win64/freetype.lib;curl/libcurl.lib;Ws2_32.lib;Wldap32.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
-      <UACUIAccess>true</UACUIAccess>
+      <UACUIAccess>false</UACUIAccess>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
