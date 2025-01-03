@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "Main.h"
-#include "GUI/GUI.h"
+#include "SharedChecks.h"
+#include "SharedProtocols.h"
 
 int main(int argc, char* argv[])
 {
