@@ -75,7 +75,8 @@
     <OutDir>$(SolutionDir)Build</OutDir>
     <IntDir>$(SolutionDir)Cache\$(Configuration)</IntDir>
     <TargetName>$(ProjectName).$(Configuration)</TargetName>
-    <IncludePath>$(ProjectDir);$(ProjectDir)Vendor\freetype\include;$(ProjectDir)Vendor;$(ProjectDir)Vendor\ImGui\backends;$(ProjectDir)Vendor\ImGui;D:\SDK LIB\Include;D:\ВСЕ МОИ МЕНЮ!!!!!!!!!!!!!\freetype\include;$(IncludePath)</IncludePath>
+    <IncludePath>$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir);$(ProjectDir)Vendor\freetype\include;$(ProjectDir)Vendor;$(ProjectDir)Vendor\ImGui\backends;$(ProjectDir)Vendor\ImGui;D:\SDK LIB\Include;D:\ВСЕ МОИ МЕНЮ!!!!!!!!!!!!!\freetype\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OutDir);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
     <OutDir>$(ProjectDir)$(Configuration)\</OutDir>
@@ -84,8 +85,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build</OutDir>
     <IntDir>$(SolutionDir)Cache\$(Configuration)</IntDir>
-    <IncludePath>$(ProjectDir);$(ProjectDir)Vendor\ImGui\backends;$(ProjectDir)Vendor\ImGui;$(ProjectDir)Vendor\ImGui;D:\SDK LIB\Include;D:\ВСЕ МОИ МЕНЮ!!!!!!!!!!!!!\freetype\include;$(IncludePath)</IncludePath>
-    <LibraryPath>D:\SDK LIB\Lib\x64;D:\ВСЕ МОИ МЕНЮ!!!!!!!!!!!!!\freetype\win64;$(LibraryPath)</LibraryPath>
+    <IncludePath>$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir);$(ProjectDir)Vendor\freetype\include;$(ProjectDir)Vendor;$(ProjectDir)Vendor\ImGui\backends;$(ProjectDir)Vendor\ImGui;D:\SDK LIB\Include;D:\ВСЕ МОИ МЕНЮ!!!!!!!!!!!!!\freetype\include;$(IncludePath)</IncludePath>
+    <LibraryPath>$(OutDir);D:\SDK LIB\Lib\x64;D:\ВСЕ МОИ МЕНЮ!!!!!!!!!!!!!\freetype\win64;$(LibraryPath)</LibraryPath>
     <TargetName>$(ProjectName).$(Configuration)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -157,6 +158,8 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CAtomicAPI.cpp" />
+    <ClCompile Include="CAtomicCore.cpp" />
     <ClCompile Include="GUI\blur.cpp" />
     <ClCompile Include="GUI\Customs.cpp" />
     <ClCompile Include="GUI\Draw.cpp" />
@@ -181,6 +184,8 @@
     <ClCompile Include="Vendor\ImGui\imgui_widgets.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CAtomicAPI.h" />
+    <ClInclude Include="CAtomicCore.h" />
     <ClInclude Include="GUI\blur.hpp" />
     <ClInclude Include="GUI\blur_x.h" />
     <ClInclude Include="GUI\blur_y.h" />

@@ -76,6 +76,12 @@
     <ClCompile Include="StdInc.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="CAtomicAPI.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
+    <ClCompile Include="CAtomicCore.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\blur.hpp" />
@@ -165,5 +171,7 @@
     <ClInclude Include="Main.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="GUI\Variables.h" />
+    <ClInclude Include="CAtomicAPI.h" />
+    <ClInclude Include="CAtomicCore.h" />
   </ItemGroup>
 </Project>
