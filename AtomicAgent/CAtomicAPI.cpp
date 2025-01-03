@@ -26,12 +26,9 @@ jsoncons::json CAtomicAPI::GetStatus()
     return jsoncons::json::parse(buffer);
 }
 
-void CAtomicAPI::DownloadAgentPEB(std::string* buffer)
+void CAtomicAPI::DownloadEngine(std::string* buffer)
 {
     *buffer = PostRequest(API_BASE_URL "/resources/scan/fivem");
-    //*buffer = g_pSafeCore->Decrypt(encrypted_buffer.data());
-
-    auto s = *buffer;
 }
 
 std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, bool bEncryptRequestBody, bool bDecryptRespnseBody)
