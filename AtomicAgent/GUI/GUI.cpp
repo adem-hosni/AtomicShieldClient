@@ -29,6 +29,8 @@
 #include "ImAnim/ImVec2Anim.h"
 #include "ImAnim/ImVec4Anim.h"
 #include "notification.h"
+#include <CAtomicAPI.h>
+#include <ManualMapInjector.hpp>
 
 // Forward declarations of helper functions
 bool           CreateDeviceD3D(HWND hWnd);
@@ -159,6 +161,8 @@ void move_window()
         MoveWindow(hwnd, rc.left + ImGui::GetMouseDragDelta().x, rc.top + ImGui::GetMouseDragDelta().y, menu_size.x, menu_size.y, TRUE);
     }
 }
+
+
 
 bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 {
@@ -296,6 +300,10 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
     bool   show_demo_window = true;
     bool   show_another_window = false;
     ImVec4 clear_color = ImVec4(0.f, 0.f, 0.f, 0.f);
+    static bool        bDownloading = false;
+    static std::string strAgentPEBBuffer;
+    static bool        bInjected = false;
+    static char        szLoadingMessage[144];
 
     static float anim_speed = ImGui::GetIO().DeltaTime * 12.f;
 
@@ -379,12 +387,65 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                         ImGui::SetCursorPos(ImVec2(212, 314));
                         
-                        // If there is no error so the player can launch the anticheat
                         if (!bNoErrors)
                         {
                             if (ImGui::ButtonLogins("Scan Now", ImVec2(238, 40)))
                             {
-                                ImGui::Notification({ImGuiToastType_Success, 4000, "your product has been uploaded to the game,\nrestart the loader to reload"});
+                                if (!bDownloading)
+                                {
+                                    SharedUtil::AddDebugLog("downloading");
+                                    ImGui::Notification({ImGuiToastType_Success, 4000, "Downloading..."});
+
+                                    // Thread for downloading
+                                    std::thread AgentPEBDownloader(
+                                        [&]()
+                                        {
+                                            g_pAtomicAPI->DownloadEngine(&strAgentPEBBuffer);
+                                            bDownloading = false;            // Set this to false after downloading is complete
+                                        });
+
+                                    AgentPEBDownloader.detach();
+                                    bDownloading = true;
+
+                                    // Poll for download completion
+                                    while (bDownloading || strAgentPEBBuffer.empty())
+                                    {
+                                        std::this_thread::sleep_for(std::chrono::milliseconds(100));            // Prevent busy waiting
+                                    }
+
+                                    // Once download is complete
+                                    if (!strAgentPEBBuffer.empty() && !bInjected)
+                                    {
+                                        int iProcessID = SharedUtil::GetProcessID("Notepad.exe");
+                                        SharedUtil::AddDebugLog("Process ID retrieved: %d", iProcessID);
+
+                                        if (iProcessID > 0)
+                                        {
+                                            HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
+                                            if (hProcess)
+                                            {
+                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                strcat(szLoadingMessage, "Please wait, we're getting everything ready for you!");
+                                                bInjected =
+                                                    ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()), strAgentPEBBuffer.size());
+                                                if (bInjected)
+                                                    __fastfail(0);
+                                                SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
+                                                bInjected = true;            // Avoid multiple memory allocations attempts if the injection was wrong
+                                            }
+                                            else
+                                            {
+                                                SharedUtil::AddDebugLog("Failed to get process handle!\n");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            SharedUtil::AddDebugLog("waiting");
+                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                            strcat(szLoadingMessage, "Waiting for FiveM to launch");
+                                        }
+                                    }
+                                }
                                 page = 1, active_anim = true;
                             }
                         }

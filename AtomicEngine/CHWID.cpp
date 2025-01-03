@@ -468,21 +468,21 @@ void CHWID::StoreHWIDCaches(jsoncons::json hwid)
 {
     PWSTR       path = nullptr;
     
-    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "SAFEGUARD_CPU", hwid["cpu"].as_string());
-    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "SAFEGUARD_MTS", hwid["motherboard_serial"].as_string());
-    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "SAFEGUARD_BIOS", hwid["bios"].as_string());
-    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_RoamingAppData), "SAFEGUARD_PNPDEV", hwid["pnp_device"].as_string());
-    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_RoamingAppData), "SAFEGUARD_DISKS", hwid["disks"].as_string());
+    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "ATOMICSHIELD_CPU", hwid["cpu"].as_string());
+    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "ATOMICSHIELD_MTS", hwid["motherboard_serial"].as_string());
+    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "ATOMICSHIELD_BIOS", hwid["bios"].as_string());
+    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_RoamingAppData), "ATOMICSHIELD_PNPDEV", hwid["pnp_device"].as_string());
+    WriteADS(SharedUtil::GetKnownDirectory(FOLDERID_RoamingAppData), "ATOMICSHIELD_DISKS", hwid["disks"].as_string());
 }
 
 jsoncons::json CHWID::LoadHWIDCaches()
 {
     jsoncons::json json;
-    json["cpu"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "SAFEGUARD_CPU");
-    json["motherboard_serial"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "SAFEGUARD_MTS");
-    json["bios"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "SAFEGUARD_BIOS");
-    json["pnp_device"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_RoamingAppData), "SAFEGUARD_PNPDEV");
-    json["disks"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_RoamingAppData), "SAFEGUARD_DISKS");
+    json["cpu"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "ATOMICSHIELD_CPU");
+    json["motherboard_serial"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "ATOMICSHIELD_MTS");
+    json["bios"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_ProgramData), "ATOMICSHIELD_BIOS");
+    json["pnp_device"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_RoamingAppData), "ATOMICSHIELD_PNPDEV");
+    json["disks"] = ReadADS(SharedUtil::GetKnownDirectory(FOLDERID_RoamingAppData), "ATOMICSHIELD_DISKS");
     
     return json;
 }
