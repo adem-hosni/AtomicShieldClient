@@ -23,6 +23,7 @@
 
 #include "CAtomicHook.h"
 #include "FileAuthentication.h"
+#include "Screenshot.h"
 #include "BasicChecks.h"
 #include "SafePacketID.h"
 #include "CHWID.h"

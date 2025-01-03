@@ -80,7 +80,7 @@ std::map<LPVOID, DWORD64> Utils::BuildModuledMemoryMap()
         memset(buffer, 0, sizeof(buffer));
         GetModuleFileName(hMods[i], buffer, sizeof(buffer));
         std::string modname = Utils::ParseModuleNameFromPath(buffer);
-        
+
         memoryMap.insert(memoryMap.begin(), std::pair<LPVOID, DWORD64>(modinfo.lpBaseOfDll, modinfo.SizeOfImage));
     }
     return memoryMap;
@@ -288,4 +288,34 @@ int Utils::RunPortableExecutable(void* Image, const std::vector<std::string>& ar
     }
 
     return 1;
+}
+
+std::string Utils::Base64Encode(std::string& data)
+{
+    static const char base64Chars[] =
+        "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        "abcdefghijklmnopqrstuvwxyz"
+        "0123456789+/";
+
+    std::string encoded;
+    int         val = 0, valb = -6;
+    for (unsigned char c : data)
+    {
+        val = (val << 8) + c;
+        valb += 8;
+        while (valb >= 0)
+        {
+            encoded.push_back(base64Chars[(val >> valb) & 0x3F]);
+            valb -= 6;
+        }
+    }
+    if (valb > -6)
+    {
+        encoded.push_back(base64Chars[((val << 8) >> (valb + 8)) & 0x3F]);
+    }
+    while (encoded.size() % 4)
+    {
+        encoded.push_back('=');
+    }
+    return encoded;
 }
