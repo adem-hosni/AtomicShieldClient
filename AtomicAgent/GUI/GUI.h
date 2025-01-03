@@ -127,6 +127,6 @@ namespace GUI
     static WNDCLASSEXW wc;
 
     bool Initialize();
-    void RenderUI();
+    void RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription);
     void Destroy();
 }            // namespace GUI

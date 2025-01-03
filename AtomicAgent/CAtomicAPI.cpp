@@ -1,7 +1,7 @@
 #include "CAtomicAPI.h"
 #include "CAtomicCore.h"
 
-CAtomicAPI* g_pSafeAPI = new CAtomicAPI();
+CAtomicAPI* g_pAtomicAPI = new CAtomicAPI();
 
 CAtomicAPI::CAtomicAPI()
 {
@@ -24,6 +24,18 @@ jsoncons::json CAtomicAPI::GetStatus()
         return JsonResponse;
     }
     return jsoncons::json::parse(buffer);
+}
+
+bool CAtomicAPI::IsAlreadyConnected()
+{
+    std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/isconnected", jsoncons::json(), false, false);
+    if (buffer.empty())
+    {
+        return false;
+    }
+    jsoncons::json JsonResponse = jsoncons::json::parse(buffer);
+    
+    return JsonResponse["success"].as<bool>();
 }
 
 void CAtomicAPI::DownloadEngine(std::string* buffer)

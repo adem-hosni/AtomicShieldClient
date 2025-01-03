@@ -9,6 +9,7 @@ public:
     ~CAtomicAPI();
 
     jsoncons::json GetStatus();
+    bool           IsAlreadyConnected();
     void           DownloadEngine(std::string* buffer);
 
 private:

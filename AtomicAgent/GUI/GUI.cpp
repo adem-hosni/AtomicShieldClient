@@ -291,7 +291,7 @@ bool GUI::Initialize()
     return true;
 }
 
-void GUI::RenderUI()
+void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription)
 {
     bool   show_demo_window = true;
     bool   show_another_window = false;
@@ -378,10 +378,25 @@ void GUI::RenderUI()
                                                             "Scanner");
 
                         ImGui::SetCursorPos(ImVec2(212, 314));
-                        if (ImGui::ButtonLogins("Scan Now", ImVec2(238, 40)))
+                        
+                        // If there is no error so the player can launch the anticheat
+                        if (!bNoErrors)
                         {
-                            ImGui::Notification({ImGuiToastType_Success, 4000, "your product has been uploaded to the game,\nrestart the loader to reload"});
-                            page = 1, active_anim = true;
+                            if (ImGui::ButtonLogins("Scan Now", ImVec2(238, 40)))
+                            {
+                                ImGui::Notification({ImGuiToastType_Success, 4000, "your product has been uploaded to the game,\nrestart the loader to reload"});
+                                page = 1, active_anim = true;
+                            }
+                        }
+                        else
+                        {
+                            // Show the the player the occured error
+                            ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(200, 285), ImGui::GetColorU32(c::text_blue),
+                                                                strErrorTitle.c_str());
+                            /*ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 32.f, ImVec2(210, 395),
+                                                                ImGui::GetColorU32(c::text_checkbox_active_on), strErrorDescription.c_str());*/
+                            ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(187, 330), ImGui::GetColorU32(c::text),
+                                                                strErrorDescription.c_str());
                         }
 
                         ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x + 237, p.y + 415), ImVec2(p.x + 425, p.y + 416), ImGui::GetColorU32(c::line_bg),
