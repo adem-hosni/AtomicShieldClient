@@ -138,7 +138,7 @@
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>../Build/Shared.lib;ws2_32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../Build/Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -161,7 +161,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>../Build/Shared.lib;ws2_32.lib;ntdll.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>../Build/Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <EntryPointSymbol>
       </EntryPointSymbol>
     </Link>
@@ -190,6 +190,7 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
     <ClCompile Include="CSafeNetwork.cpp" />
     <ClCompile Include="CHWID.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="Screenshot.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Vendor\ixwebsocket\IXBench.cpp" />
@@ -253,6 +254,7 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
     <ClInclude Include="CSafeAntiCheat.h" />
     <ClInclude Include="CSafeNetwork.h" />
     <ClInclude Include="CHWID.h" />
+    <ClInclude Include="Screenshot.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="STiming.h" />
     <ClInclude Include="Utils.h" />

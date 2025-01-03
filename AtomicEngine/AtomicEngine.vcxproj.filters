@@ -186,6 +186,9 @@
     <ClCompile Include="BasicChecks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Screenshot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdInc.h">
@@ -402,6 +405,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BasicChecks.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Screenshot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
