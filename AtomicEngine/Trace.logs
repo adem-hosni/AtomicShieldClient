@@ -1,2 +1,2 @@
-[22:16:54] Failed to set DEP policy @ EnableProcessMitigations: 0x32
-[22:16:54] Failed to set system call disable policy @EnableProcessMitigations: 0x13
+[22:34:12] Failed to set DEP policy @ EnableProcessMitigations: 0x32
+[22:34:12] Failed to set system call disable policy @EnableProcessMitigations: 0x13

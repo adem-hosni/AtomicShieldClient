@@ -21,7 +21,7 @@ bool CSafeNetwork::Connect()
     if (!ix::initNetSystem())
         return false;
 
-    m_pWebSocket->setUrl(WEBSOCKET_BASE_URL "/c/safeguardagent/");
+    m_pWebSocket->setUrl(WEBSOCKET_BASE_URL "/c/atomicshieldagent/");
 
     m_pWebSocket->setOnMessageCallback(std::bind(&CSafeNetwork::OnReceivePacket, this, std::placeholders::_1));
 
