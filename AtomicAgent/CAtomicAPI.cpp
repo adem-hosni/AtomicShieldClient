@@ -28,19 +28,35 @@ jsoncons::json CAtomicAPI::GetStatus()
 
 bool CAtomicAPI::IsAlreadyConnected()
 {
-    std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/isconnected", jsoncons::json(), false, false);
+    std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/isconnected");
     if (buffer.empty())
     {
         return false;
     }
     jsoncons::json JsonResponse = jsoncons::json::parse(buffer);
-    
+
+    return JsonResponse["success"].as<bool>();
+}
+
+bool CAtomicAPI::IsValidVersion(const char* szVersion)
+{
+    jsoncons::json RequestBody = jsoncons::json::object();
+    RequestBody["version"] = szVersion;
+
+    std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/version", RequestBody);
+    if (buffer.empty())
+    {
+        return false;
+    }
+    jsoncons::json JsonResponse = jsoncons::json::parse(buffer);
+
     return JsonResponse["success"].as<bool>();
 }
 
 void CAtomicAPI::DownloadEngine(std::string* buffer)
 {
     *buffer = PostRequest(API_BASE_URL "/resources/scan/fivem");
+    std::string s = *buffer;
 }
 
 std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, bool bEncryptRequestBody, bool bDecryptRespnseBody)
@@ -54,25 +70,32 @@ std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, bool
     {
         curl_easy_setopt(curl, CURLOPT_URL, szURL);
 
-        auto request_body_buffer = bEncryptRequestBody ? g_pAtomicCore->Encrypt((BYTE*)Data.to_string().c_str()) : (BYTE*)Data.to_string().c_str();
+        auto request_body_buffer = /*bEncryptRequestBody ? g_pAtomicCore->Encrypt((BYTE*)Data.to_string().c_str()) : */ Data.to_string();
 
-        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body_buffer);
+        curl_easy_setopt(curl, CURLOPT_POST, 1L);
+
+        curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body_buffer.c_str());
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_buffer);
 
+        struct curl_slist* headers = NULL;
+        headers = curl_slist_append(headers, "Content-Type: application/json");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
         response_code = curl_easy_perform(curl);
         if (response_code != CURLE_OK)
         {
-            std::cerr << "curl_easy_perform() failed: " << curl_easy_strerror(response_code) << std::endl;
+            SharedUtil::AddDebugLog("curl_easy_perform() failed: %s (0x%x)", curl_easy_strerror(response_code), response_code);
         }
+
+        curl_slist_free_all(headers);            // Free the headers
+        curl_easy_cleanup(curl);                 // Cleanup cURL
     }
 
     if (bDecryptRespnseBody)
     {
         printf("Encrypted response size: %d\n", response_buffer.size());
-
-        return response_buffer;
     }
 
     return response_buffer;

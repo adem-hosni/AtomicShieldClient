@@ -13,7 +13,7 @@ int main(int argc, char* argv[])
 #endif
 
     // Enable microsoft process mitigations (Avoid unsigned code execution, ...)
-    SharedProtocols::EnableProcessMitigations();
+    //SharedProtocols::EnableProcessMitigations();
 
     // Check the launcher process (for anti-debugging)
     SharedProtocols::CheckLauncherProcess();
@@ -22,11 +22,11 @@ int main(int argc, char* argv[])
 
     std::string strTitle = "ERROR";
     std::string strMessage = "Unknown Error!";
-    bool        bError = true;
+    bool        bSuccess = true;
 
     if (!Status["alive"].as_bool())
     {
-        bError = false;
+        bSuccess = false;
         if (Status.contains("title"))
             strTitle = Status["title"].as<std::string>();
 
@@ -35,17 +35,27 @@ int main(int argc, char* argv[])
     }
     else
     {
-        if (g_pAtomicAPI->IsAlreadyConnected())
+        if (g_pAtomicAPI->IsValidVersion(PROJECT_VERSION))
         {
-            bError = false;
-            strTitle = "ALREADY CONNECTED";
-            strMessage = "You are already connected to the AtomicShield network.";
+            if (g_pAtomicAPI->IsAlreadyConnected())
+            {
+                bSuccess = false;
+                strTitle = "ALREADY CONNECTED";
+                strMessage = "You are already connected to the network.";
+            }
         }
+        else
+        {
+            bSuccess = false;
+            strTitle = "OUTDATED VERSION";
+            strMessage = "This version of AtomicShield is no longer supported. Please update to the latest version to continue.";
+        }
+
     }
 
     if (GUI::Initialize())
     {
-        GUI::RenderUI(!bError, strTitle, strMessage);
+        GUI::RenderUI(!bSuccess, strTitle, strMessage);
     }
     GUI::Destroy();
 

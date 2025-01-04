@@ -10,6 +10,7 @@ public:
 
     jsoncons::json GetStatus();
     bool           IsAlreadyConnected();
+    bool           IsValidVersion(const char* szVersion);
     void           DownloadEngine(std::string* buffer);
 
 private:
