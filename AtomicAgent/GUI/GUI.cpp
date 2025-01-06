@@ -406,45 +406,6 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                                     AgentPEBDownloader.detach();
                                     bDownloading = true;
-
-                                    // Poll for download completion
-                                    while (bDownloading || strAgentPEBBuffer.empty())
-                                    {
-                                        std::this_thread::sleep_for(std::chrono::milliseconds(100));            // Prevent busy waiting
-                                    }
-
-                                    // Once download is complete
-                                    if (!strAgentPEBBuffer.empty() && !bInjected)
-                                    {
-                                        int iProcessID = SharedUtil::GetProcessID("Notepad.exe");
-                                        SharedUtil::AddDebugLog("Process ID retrieved: %d", iProcessID);
-
-                                        if (iProcessID > 0)
-                                        {
-                                            HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
-                                            if (hProcess)
-                                            {
-                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                                strcat(szLoadingMessage, "Please wait, we're getting everything ready for you!");
-                                                bInjected =
-                                                    ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()), strAgentPEBBuffer.size());
-                                                if (bInjected)
-                                                    __fastfail(0);
-                                                SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
-                                                bInjected = true;            // Avoid multiple memory allocations attempts if the injection was wrong
-                                            }
-                                            else
-                                            {
-                                                SharedUtil::AddDebugLog("Failed to get process handle!\n");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            SharedUtil::AddDebugLog("waiting");
-                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                            strcat(szLoadingMessage, "Waiting for FiveM to launch");
-                                        }
-                                    }
                                 }
                                 page = 1, active_anim = true;
                             }
@@ -526,15 +487,38 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                                                     ImVec2(p.x + 415, p.y + 334 + product_offset_2.y), ImVec2(0, 0), ImVec2(1, 1),
                                                                     ImGui::GetColorU32(c::text_blue) /*color*/, 0 /*rounding*/);
 
-                        static DWORD dwTickStart2 = GetTickCount();
-                        if (GetTickCount() - dwTickStart2 > 4000)
+                        
+                                                            if (!strAgentPEBBuffer.empty() && !bInjected)
                         {
-                            active_anim_1 = false;
-                        }
+                            int iProcessID = SharedUtil::GetProcessID("notepad.exe");
+                            SharedUtil::AddDebugLog("Process ID retrieved: %d", iProcessID);
 
-                        if (GetTickCount() - dwTickStart2 > 6000)
-                        {
-                            page = 0;
+                            if (iProcessID > 0)
+                            {
+                                HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
+                                if (hProcess)
+                                {
+                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                    strcat(szLoadingMessage, "Please wait, we're getting everything ready for you!");
+                                    bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()), strAgentPEBBuffer.size());
+                                    if (bInjected)
+                                        __fastfail(0);
+                                    SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
+                                    active_anim_1 = false;
+                                    page = 0;
+                                    bInjected = true;            // Avoid multiple memory allocations attempts if the injection was wrong
+                                }
+                                else
+                                {
+                                    SharedUtil::AddDebugLog("Failed to get process handle!\n");
+                                }
+                            }
+                            else
+                            {
+                                SharedUtil::AddDebugLog("waiting");
+                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                strcat(szLoadingMessage, "Waiting for FiveM to launch");
+                            }
                         }
                     }
                 }
