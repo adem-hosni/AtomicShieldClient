@@ -13,7 +13,7 @@ CAtomicAPI::~CAtomicAPI()
 
 jsoncons::json CAtomicAPI::GetStatus()
 {
-    std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/agent", jsoncons::json(), false, false);
+    std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/agent", jsoncons::json());
     if (buffer.empty())
     {
         jsoncons::json JsonResponse = jsoncons::json::object();
@@ -49,7 +49,6 @@ bool CAtomicAPI::IsValidVersion(const char* szVersion)
         return false;
     }
     jsoncons::json JsonResponse = jsoncons::json::parse(buffer);
-
     return JsonResponse["success"].as<bool>();
 }
 
@@ -70,7 +69,9 @@ std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, bool
     {
         curl_easy_setopt(curl, CURLOPT_URL, szURL);
 
-        auto request_body_buffer = /*bEncryptRequestBody ? g_pAtomicCore->Encrypt((BYTE*)Data.to_string().c_str()) : */ Data.to_string();
+        auto request_body_buffer = bEncryptRequestBody
+                                       ? SharedUtil::Base64Encode(Data.to_string().length() >= 16 ? g_pAtomicCore->Encrypt(Data.to_string()) : Data.to_string())
+                                       : Data.to_string();
 
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
 
@@ -79,23 +80,18 @@ std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, bool
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_buffer);
 
-        struct curl_slist* headers = NULL;
-        headers = curl_slist_append(headers, "Content-Type: application/json");
-        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
-
         response_code = curl_easy_perform(curl);
         if (response_code != CURLE_OK)
         {
             SharedUtil::AddDebugLog("curl_easy_perform() failed: %s (0x%x)", curl_easy_strerror(response_code), response_code);
         }
 
-        curl_slist_free_all(headers);            // Free the headers
-        curl_easy_cleanup(curl);                 // Cleanup cURL
+        curl_easy_cleanup(curl);            // Cleanup cURL
     }
 
     if (bDecryptRespnseBody)
     {
-        printf("Encrypted response size: %d\n", response_buffer.size());
+        return g_pAtomicCore->Decrypt(SharedUtil::Base64Decode(response_buffer));
     }
 
     return response_buffer;

@@ -16,4 +16,6 @@ namespace SharedUtil
     void        AddDebugLog(const char* szLog, ...);
     std::string GetKnownDirectory(const KNOWNFOLDERID fid);
     bool        SetPrivilege(LPCTSTR lpszPrivilege);
+    std::string Base64Encode(std::string& data);
+    std::string Base64Decode(std::string& data);
 }            // namespace SharedUtil
