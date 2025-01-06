@@ -13,16 +13,17 @@ int main(int argc, char* argv[])
 #endif
 
     // Enable microsoft process mitigations (Avoid unsigned code execution, ...)
-    //SharedProtocols::EnableProcessMitigations();
+    // SharedProtocols::EnableProcessMitigations();
 
     // Check the launcher process (for anti-debugging)
     SharedProtocols::CheckLauncherProcess();
 
     jsoncons::json Status = g_pAtomicAPI->GetStatus();
-
-    std::string strTitle = "ERROR";
-    std::string strMessage = "Unknown Error!";
-    bool        bSuccess = true;
+    std::string   processName = StartUpManager::GetCurrentProcessName();
+    std::string    strTitle = "ERROR";
+    std::string    strMessage = "Unknown Error!";
+    bool           bSuccess = true;
+    bool           isStartup = false;
 
     if (!Status["alive"].as_bool())
     {
@@ -50,12 +51,24 @@ int main(int argc, char* argv[])
             strTitle = "OUTDATED VERSION";
             strMessage = "This version of AtomicShield is no longer supported. Please update to the latest version to continue.";
         }
-
+    }
+    for (int i = 1; i < argc; ++i)
+    {
+        if (strcmp(argv[i], "--startup") == 0)
+        {
+            isStartup = true;
+            break;
+        }
     }
 
+    if (isStartup)
+    {
+        StartUpManager::StartupFunction(!bSuccess, strTitle, strMessage);
+        return 0;
+    }
     if (GUI::Initialize())
     {
-        GUI::RenderUI(!bSuccess, strTitle, strMessage);
+        GUI::RenderUI(!bSuccess, strTitle, strMessage, processName);
     }
     GUI::Destroy();
 

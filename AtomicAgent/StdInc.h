@@ -6,6 +6,7 @@
 
 #include <XorStr.h>
 #include "SharedUtil.h"
+#include <StartUpManager.h>
 #include "GUI/GUI.h"
 
 #include "CAtomicAPI.h"

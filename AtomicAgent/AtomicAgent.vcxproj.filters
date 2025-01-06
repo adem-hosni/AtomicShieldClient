@@ -85,6 +85,9 @@
     <ClCompile Include="Vendor\ImGui\misc\freetype\imgui_freetype.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="StartUpManager.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\blur.hpp" />
@@ -191,5 +194,6 @@
     <ClInclude Include="Vendor\curl\websockets.h" />
     <ClInclude Include="Vendor\ImGui\misc\freetype\imgui_freetype.h" />
     <ClInclude Include="Vendor\ImGui\misc\single_file\imgui_single_file.h" />
+    <ClInclude Include="StartUpManager.h" />
   </ItemGroup>
 </Project>
