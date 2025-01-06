@@ -41,7 +41,7 @@ std::string CAtomicCore::Encrypt(std::string buffer)
     std::vector<BYTE> plaintext(buffer.begin(), buffer.end());
     std::vector<BYTE>             out = aes.EncryptCBC(plaintext, key, iv);
 
-    std::string outbuffer = reinterpret_cast<char*>(out.data());
+    std::string outbuffer(out.begin(), out.end());
     outbuffer = (char)(byte_key_index + 31) + outbuffer;
     return outbuffer;
 }
