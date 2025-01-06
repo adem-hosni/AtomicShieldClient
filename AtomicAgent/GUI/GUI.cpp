@@ -90,11 +90,6 @@ inline void EasingAnimationV2(std::string anim_name, ImVec2* current_vec, ImVec2
     }
 }
 
-namespace image
-{
-
-}
-
 struct menu_anim
 {
     float if_auth_offset;
@@ -161,8 +156,6 @@ void move_window()
         MoveWindow(hwnd, rc.left + ImGui::GetMouseDragDelta().x, rc.top + ImGui::GetMouseDragDelta().y, menu_size.x, menu_size.y, TRUE);
     }
 }
-
-
 
 bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 {
@@ -292,14 +285,22 @@ bool GUI::Initialize()
     if (texture::esp_preview == nullptr)
         D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, esp_preview1, sizeof(esp_preview1), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
                                             D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &texture::esp_preview);
+
+    if (image::discord == nullptr)
+        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, discrod_icon, sizeof(discrod_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
+                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::discord);
+
+    if (image::youtube == nullptr)
+        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, youtube_icon, sizeof(youtube_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
+                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::youtube);
     return true;
 }
 
 void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription)
 {
-    bool   show_demo_window = true;
-    bool   show_another_window = false;
-    ImVec4 clear_color = ImVec4(0.f, 0.f, 0.f, 0.f);
+    bool               show_demo_window = true;
+    bool               show_another_window = false;
+    ImVec4             clear_color = ImVec4(0.f, 0.f, 0.f, 0.f);
     static bool        bDownloading = false;
     static std::string strAgentPEBBuffer;
     static bool        bInjected = false;
@@ -386,7 +387,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                                             "Scanner");
 
                         ImGui::SetCursorPos(ImVec2(212, 314));
-                        
+
                         if (!bNoErrors)
                         {
                             if (ImGui::ButtonLogins("Scan Now", ImVec2(238, 40)))
@@ -413,8 +414,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         else
                         {
                             // Show the the player the occured error
-                            ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(200, 285), ImGui::GetColorU32(c::text_blue),
-                                                                strErrorTitle.c_str());
+                            ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(200, 285), ImGui::GetColorU32(c::text_blue), strErrorTitle.c_str());
                             /*ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 32.f, ImVec2(210, 395),
                                                                 ImGui::GetColorU32(c::text_checkbox_active_on), strErrorDescription.c_str());*/
                             ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(187, 330), ImGui::GetColorU32(c::text),
@@ -487,8 +487,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                                                     ImVec2(p.x + 415, p.y + 334 + product_offset_2.y), ImVec2(0, 0), ImVec2(1, 1),
                                                                     ImGui::GetColorU32(c::text_blue) /*color*/, 0 /*rounding*/);
 
-                        
-                                                            if (!strAgentPEBBuffer.empty() && !bInjected)
+                        if (!strAgentPEBBuffer.empty() && !bInjected)
                         {
                             int iProcessID = SharedUtil::GetProcessID("notepad.exe");
                             SharedUtil::AddDebugLog("Process ID retrieved: %d", iProcessID);
