@@ -503,8 +503,6 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                     if (bInjected)
                                         __fastfail(0);
                                     SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
-                                    active_anim_1 = false;
-                                    page = 0;
                                     bInjected = true;            // Avoid multiple memory allocations attempts if the injection was wrong
                                 }
                                 else
