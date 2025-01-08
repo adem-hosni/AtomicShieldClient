@@ -10,8 +10,7 @@ public:
 
     void Initialize() override;
 
-    std::string BuildSignatureParameters();
-    void        SpawnScanProcess();
+    inline static void __fastcall ScanForString();
 
     void        AddSignatures(std::map<std::string, std::unordered_set<std::string>>& Signatures);
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
