@@ -15,7 +15,7 @@ public:
 
     void        AddSignatures(std::map<std::string, std::unordered_set<std::string>>& Signatures);
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
-    void        DoPulse() override {}
+    void        DoPulse() override;
 
 private:
     std::unordered_set<std::string> m_Signatures;

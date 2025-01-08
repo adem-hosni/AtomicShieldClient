@@ -119,7 +119,7 @@ void CSafeAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unordere
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["detection_type"] = (int)DetectionType;
     RequestData["report"] = Report;
-    RequestData["ss"] = Utils::Base64Encode(strScreenshotBuffer);
+    RequestData["ss"] = SharedUtil::Base64Encode(strScreenshotBuffer);
 
     m_pSafeNetwork->SendPacket(eSafePacketID::CHEAT_DETECTION, RequestData);
 }
