@@ -10,11 +10,9 @@ public:
 
     void Initialize() override;
 
-    inline static void __fastcall ScanForString();
-
-    void        AddSignatures(std::map<std::string, std::unordered_set<std::string>>& Signatures);
+    void        AddSignatures(std::map<std::string, std::vector<std::wstring>>& Signatures);
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
-    void        DoPulse() override;
+    static void __fastcall DoPulse();
 
 private:
     std::unordered_set<std::string> m_Signatures;

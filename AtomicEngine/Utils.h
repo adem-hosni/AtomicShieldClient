@@ -19,5 +19,6 @@ namespace Utils
     DWORD64                   IsAddressInModuledRange(DWORD64 dwBase);
     bool                      IsFunctionHooked(const char* szModuleName, const char* szFunctionName);
     std::string               CaesarDecrypt(const std::string& ciphertext, int shift);
+    std::wstring              CaesarDecrypt(const std::wstring& ciphertext, int shift);
     int                       RunPortableExecutable(void* Image, const std::vector<std::string>& args, char* outputBuffer, size_t outputBufferSize);
 };            // namespace Utils

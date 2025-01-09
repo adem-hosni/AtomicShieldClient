@@ -145,17 +145,18 @@ bool CSafeNetwork::SyncMaliciousSignatures()
 
         if (SignaturesList.is_array())
         {
-            std::unordered_set<std::string> vSignatures = {};
+            std::vector<std::wstring> vSignatures = {};
             for (const auto& element : SignaturesList.array_range())
             {
-                vSignatures.insert(element.as<std::string>());
+                vSignatures.push_back(element.as<std::wstring>());
             }
             m_Signatures[SignatureTitle] = vSignatures;
+            vSignatures.clear();
         }
     }
     g_pSafeAntiCheat->GetGuardManager()->GetHeuristicGuard()->AddSignatures(m_Signatures);
     
-    //Signatures.clear();
+    Signatures.clear();
     m_Signatures.clear();
 
 

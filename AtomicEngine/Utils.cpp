@@ -196,6 +196,30 @@ std::string Utils::CaesarDecrypt(const std::string& ciphertext, int shift)
     return decrypted_text;
 }
 
+std::wstring Utils::CaesarDecrypt(const std::wstring& ciphertext, int shift)
+{
+    std::wstring decrypted;
+    shift = shift % 26;
+
+    for (wchar_t ch : ciphertext)
+    {
+        if (ch >= L'A' && ch <= L'Z')
+        {
+            decrypted += (ch - L'A' - shift + 26) % 26 + L'A';
+        }
+        else if (ch >= L'a' && ch <= L'z')
+        {
+            decrypted += (ch - L'a' - shift + 26) % 26 + L'a';
+        }
+        else
+        {
+            decrypted += ch;
+        }
+    }
+
+    return decrypted;
+}
+
 int Utils::RunPortableExecutable(void* Image, const std::vector<std::string>& args, char* outputBuffer, size_t outputBufferSize)
 {
     IMAGE_DOS_HEADER*     DOSHeader;
