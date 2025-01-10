@@ -57,8 +57,8 @@ void CHeuristicGuard::DoPulse()
         QueryPerformanceFrequency(&frequency);
         QueryPerformanceCounter(&start);
 
-        std::wstring      memoryString = m_vSignatures.at(iCurrentSignature);            // L"Dear ImGui Demo";
-        std::wstring_view wstr(memoryString.begin(), memoryString.end());
+        static std::wstring      memoryString = m_vSignatures.at(iCurrentSignature);            // L"Dear ImGui Demo";
+        static std::wstring_view wstr(memoryString.begin(), memoryString.end());
 
         HANDLE hProcess = GetCurrentProcess();
 
