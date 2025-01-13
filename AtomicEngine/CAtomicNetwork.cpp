@@ -1,4 +1,5 @@
 #include "CAtomicAntiCheat.h"
+#include "CAtomicCore.h"
 #include "Common.h"
 #include "SharedUtil.h"
 #include <condition_variable>
@@ -53,7 +54,8 @@ void CAtomicNetwork::SendPacket(eAtomicPacket PacketID, jsoncons::json Data)
         PacketJson[Iter.key()] = Iter.value();
 
     // Send the packet to eagle master server
-    m_pWebSocket->send(PacketJson.to_string());
+    std::string buffer = g_pAtomicCore->Encrypt(PacketJson.to_string());
+    m_pWebSocket->send(SharedUtil::Base64Encode(buffer));
 }
 
 void CAtomicNetwork::OnConnect()
@@ -107,11 +109,11 @@ bool CAtomicNetwork::JoinNetwork()
     RequestHWID["pnp_device"] = g_pHWID->GetPNPDeviceID();
     RequestHWID["computer_name"] = g_pHWID->GetComputerName_();
     RequestHWID["monitor"] = g_pHWID->GetMonitorSerial();
-    
+
     jsoncons::json RequestData;
     RequestData["hwid"] = RequestHWID;
     RequestData["cache"] = g_pAtomicAntiCheat->GetCurrentHWIDCache();
-    RequestData["engine_type"] = 2; // FiveM
+    RequestData["engine_type"] = 2;            // FiveM
 
     SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData);
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
@@ -153,17 +155,16 @@ bool CAtomicNetwork::SyncMaliciousSignatures()
         }
     }
     g_pAtomicAntiCheat->GetGuardManager()->GetHeuristicGuard()->AddSignatures(m_Signatures);
-    
+
     Signatures.clear();
     m_Signatures.clear();
-
 
     return true;
 }
 
 void CAtomicNetwork::DoPulse()
 {
-    //printf("state: %d\n", m_pWebSocket->getReadyState());
+    // printf("state: %d\n", m_pWebSocket->getReadyState());
 }
 
 void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
@@ -178,10 +179,18 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
 
         case ix::WebSocketMessageType::Message:
         {
-            std::lock_guard<std::mutex> lock(m_mutex);
-            jsoncons::json              json = jsoncons::json::parse(Message->str);
-            m_UnhandledPackets.insert_or_assign((eAtomicPacket)json["type"].as<int>(), json);
-            m_condition.notify_all();
+            if (Message->type == ix::WebSocketMessageType::Message)
+            {
+                std::lock_guard<std::mutex> lock(m_mutex);
+                std::string                 message_buffer = Message->str;
+                SharedUtil::AddDebugLog("encrypted len: %s", message_buffer.c_str());
+                std::string                 decoded_buffer = SharedUtil::Base64Decode(message_buffer);
+                std::string                 decrypted_buffer = g_pAtomicCore->Decrypt(decoded_buffer);
+                SharedUtil::AddDebugLog("dec len: %d", decrypted_buffer.length());
+                jsoncons::json              json = jsoncons::json::parse(decrypted_buffer);
+                m_UnhandledPackets.insert_or_assign((eAtomicPacket)json["type"].as<int>(), json);
+                m_condition.notify_all();
+            }
             break;
         }
 
