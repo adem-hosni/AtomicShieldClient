@@ -162,7 +162,6 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CAtomicAPI.cpp" />
-    <ClCompile Include="CAtomicCore.cpp" />
     <ClCompile Include="GUI\blur.cpp" />
     <ClCompile Include="GUI\Customs.cpp" />
     <ClCompile Include="GUI\Draw.cpp" />
@@ -190,7 +189,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CAtomicAPI.h" />
-    <ClInclude Include="CAtomicCore.h" />
     <ClInclude Include="GUI\blur.hpp" />
     <ClInclude Include="GUI\blur_x.h" />
     <ClInclude Include="GUI\blur_y.h" />

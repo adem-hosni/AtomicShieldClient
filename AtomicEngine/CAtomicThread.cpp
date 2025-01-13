@@ -51,7 +51,7 @@ bool CAtomicThread::Create()
     {
         SharedUtil::AddDebugLog("Unable to set thread protection! status: 0x%llx last error: 0x%llx", NTThreadBreakOnTermination, GetLastError());
     }
-    g_pSafeAntiCheat->GetAtomicThreads().push_back(this);
+    g_pAtomicAntiCheat->GetAtomicThreads().push_back(this);
     return true;
 }
 

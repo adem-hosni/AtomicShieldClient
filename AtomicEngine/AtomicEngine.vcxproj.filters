@@ -21,7 +21,7 @@
     <ClCompile Include="StdInc.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CSafeNetwork.cpp">
+    <ClCompile Include="CAtomicNetwork.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="CHWID.cpp">
@@ -30,7 +30,7 @@
     <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CSafeAntiCheat.cpp">
+    <ClCompile Include="CAtomicAntiCheat.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Guards\CGuardBase.cpp">
@@ -197,7 +197,7 @@
     <ClInclude Include="StdInc.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CSafeNetwork.h">
+    <ClInclude Include="CAtomicNetwork.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vendor\ixwebsocket\IXBase64.h">
@@ -365,7 +365,7 @@
     <ClInclude Include="Vendor\LiteRegedit\LiteRegedit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CSafeAntiCheat.h">
+    <ClInclude Include="CAtomicAntiCheat.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="STiming.h">
@@ -417,6 +417,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="KernelCalls.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="AtomicPacket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

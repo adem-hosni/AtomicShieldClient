@@ -27,6 +27,9 @@
     <ClCompile Include="Helpers\AES.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CAtomicCore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SharedChecks.h">
@@ -1034,9 +1037,6 @@
     <ClInclude Include="Vendor\jsoncons_ext\ubjson\ubjson_type.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="SafePacketID.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Common.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -1047,6 +1047,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Helpers\AES.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAtomicCore.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

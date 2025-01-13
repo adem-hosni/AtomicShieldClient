@@ -97,7 +97,7 @@ void CMemoryGuard::DoPulse()
                                 }
                             }
 
-                            // g_pSafeAntiCheat->NotifyDetection(eDetectionType::UNRECOGNISED_IAT_FOUND, &Report);
+                            // g_pAtomicAntiCheat->NotifyDetection(eDetectionType::UNRECOGNISED_IAT_FOUND, &Report);
                             break;
                         }
                     }

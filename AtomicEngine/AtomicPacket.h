@@ -1,6 +1,6 @@
 #pragma once
 
-enum eSafePacketID
+enum eAtomicPacket
 {
     NETWORK_JOIN = 1,
     SYNC_SIGNATURES,

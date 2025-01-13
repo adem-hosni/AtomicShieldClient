@@ -15,7 +15,7 @@ void BasicChecks::CheckPlugins()
             if (fileName.find("d3d9") != std::string::npos || fileName.find("d3d10") != std::string::npos)
             {
                 SharedUtil::AddDebugLog("Found Dll ", fileName);
-                g_pSafeAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND);
+                g_pAtomicAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND);
             }
         }
     }
@@ -183,7 +183,7 @@ void BasicChecks::CheckBlacklistedDrivers()
             params.insert_or_assign("BlackListed Driver", driver);
         }
 
-        g_pSafeAntiCheat->NotifyDetection(eDetectionType::BLACKLISTED_DRIVER_LOADED, params);
+        g_pAtomicAntiCheat->NotifyDetection(eDetectionType::BLACKLISTED_DRIVER_LOADED, params);
     }
 }
 
@@ -338,7 +338,7 @@ void BasicChecks::TestsigningEnabled()
 {
     if (IsTestSignEnabled())
     {
-        g_pSafeAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED);
+        g_pAtomicAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED);
     }
 }
 
@@ -407,7 +407,7 @@ void BasicChecks::DebugModeEnabled()
     {
         if (strstr(token, "debug") != NULL && strstr(token, "Yes") != NULL)
         {
-            g_pSafeAntiCheat->NotifyDetection(eDetectionType::DEBUG_MODE_ENABLED);
+            g_pAtomicAntiCheat->NotifyDetection(eDetectionType::DEBUG_MODE_ENABLED);
         }
 
         token = strtok(NULL, "\r\n");
@@ -445,6 +445,6 @@ void BasicChecks::SecureBootEnabled()
     else
     {
         RegCloseKey(hKey);
-        g_pSafeAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED);
+        g_pAtomicAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED);
     }
 }

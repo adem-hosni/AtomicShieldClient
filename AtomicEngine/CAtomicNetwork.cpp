@@ -1,29 +1,27 @@
-#include "CSafeAntiCheat.h"
+#include "CAtomicAntiCheat.h"
 #include "Common.h"
 #include "SharedUtil.h"
 #include <condition_variable>
 #include <future>
 
-CSafeNetwork* g_pSafeNetwork = new CSafeNetwork();
-
-CSafeNetwork::CSafeNetwork() : m_bConnected(false)
+CAtomicNetwork::CAtomicNetwork() : m_bConnected(false)
 {
     m_pWebSocket = new ix::WebSocket();
     m_bNetworkJoined = false;
 }
 
-CSafeNetwork::~CSafeNetwork()
+CAtomicNetwork::~CAtomicNetwork()
 {
 }
 
-bool CSafeNetwork::Connect()
+bool CAtomicNetwork::Connect()
 {
     if (!ix::initNetSystem())
         return false;
 
     m_pWebSocket->setUrl(WEBSOCKET_BASE_URL "/c/atomicshieldagent/");
 
-    m_pWebSocket->setOnMessageCallback(std::bind(&CSafeNetwork::OnReceivePacket, this, std::placeholders::_1));
+    m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
 
     m_pWebSocket->setPingInterval(3);
 
@@ -41,7 +39,7 @@ bool CSafeNetwork::Connect()
     return result.success;
 }
 
-void CSafeNetwork::SendPacket(eSafePacketID PacketID, jsoncons::json Data)
+void CAtomicNetwork::SendPacket(eAtomicPacket PacketID, jsoncons::json Data)
 {
     // Allocate new json object
     jsoncons::json PacketJson = jsoncons::json::object();
@@ -58,25 +56,25 @@ void CSafeNetwork::SendPacket(eSafePacketID PacketID, jsoncons::json Data)
     m_pWebSocket->send(PacketJson.to_string());
 }
 
-void CSafeNetwork::OnConnect()
+void CAtomicNetwork::OnConnect()
 {
-    if (!g_pSafeAntiCheat->GetNetwork()->JoinNetwork())
+    if (!g_pAtomicAntiCheat->GetNetwork()->JoinNetwork())
     {
         FreeModule(GetModuleHandle(NULL));
         return;
     }
 
-    if (!g_pSafeAntiCheat->GetNetwork()->SyncMaliciousSignatures())
+    if (!g_pAtomicAntiCheat->GetNetwork()->SyncMaliciousSignatures())
         MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
 }
 
-void CSafeNetwork::StaticPulse(void* pContext)
+void CAtomicNetwork::StaticPulse(void* pContext)
 {
-    CSafeNetwork* pNetwork = reinterpret_cast<CSafeNetwork*>(pContext);
+    CAtomicNetwork* pNetwork = reinterpret_cast<CAtomicNetwork*>(pContext);
     pNetwork->DoPulse();
 }
 
-jsoncons::json CSafeNetwork::WaitReponse(eSafePacketID PacketID)
+jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
 {
     while (m_UnhandledPackets.find(PacketID) == m_UnhandledPackets.end())
     {
@@ -97,7 +95,7 @@ jsoncons::json CSafeNetwork::WaitReponse(eSafePacketID PacketID)
     return Response;
 }
 
-bool CSafeNetwork::JoinNetwork()
+bool CAtomicNetwork::JoinNetwork()
 {
     jsoncons::json RequestHWID;
     RequestHWID["extra"] = g_pHWID->GetExtraData();
@@ -112,16 +110,16 @@ bool CSafeNetwork::JoinNetwork()
     
     jsoncons::json RequestData;
     RequestData["hwid"] = RequestHWID;
-    RequestData["cache"] = g_pSafeAntiCheat->GetCurrentHWIDCache();
+    RequestData["cache"] = g_pAtomicAntiCheat->GetCurrentHWIDCache();
     RequestData["engine_type"] = 2; // FiveM
 
-    SendPacket(eSafePacketID::NETWORK_JOIN, RequestData);
+    SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData);
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
 
     if (Response["success"].as_bool())
     {
         g_pHWID->StoreHWIDCaches(RequestHWID);
-        g_pSafeAntiCheat->StartPulse();
+        g_pAtomicAntiCheat->StartPulse();
     }
     else
     {
@@ -132,7 +130,7 @@ bool CSafeNetwork::JoinNetwork()
     return Response["success"].as_bool();
 }
 
-bool CSafeNetwork::SyncMaliciousSignatures()
+bool CAtomicNetwork::SyncMaliciousSignatures()
 {
     SendPacket(SYNC_SIGNATURES);
     jsoncons::json Response = WaitReponse(SYNC_SIGNATURES);
@@ -154,7 +152,7 @@ bool CSafeNetwork::SyncMaliciousSignatures()
             vSignatures.clear();
         }
     }
-    g_pSafeAntiCheat->GetGuardManager()->GetHeuristicGuard()->AddSignatures(m_Signatures);
+    g_pAtomicAntiCheat->GetGuardManager()->GetHeuristicGuard()->AddSignatures(m_Signatures);
     
     Signatures.clear();
     m_Signatures.clear();
@@ -163,18 +161,18 @@ bool CSafeNetwork::SyncMaliciousSignatures()
     return true;
 }
 
-void CSafeNetwork::DoPulse()
+void CAtomicNetwork::DoPulse()
 {
     //printf("state: %d\n", m_pWebSocket->getReadyState());
 }
 
-void CSafeNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
+void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
 {
     switch (Message->type)
     {
         case ix::WebSocketMessageType::Open:
         {
-            _beginthread((_beginthread_proc_type)&CSafeNetwork::OnConnect, NULL, this);
+            _beginthread((_beginthread_proc_type)&CAtomicNetwork::OnConnect, NULL, this);
             break;
         }
 
@@ -182,7 +180,7 @@ void CSafeNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         {
             std::lock_guard<std::mutex> lock(m_mutex);
             jsoncons::json              json = jsoncons::json::parse(Message->str);
-            m_UnhandledPackets.insert_or_assign((eSafePacketID)json["type"].as<int>(), json);
+            m_UnhandledPackets.insert_or_assign((eAtomicPacket)json["type"].as<int>(), json);
             m_condition.notify_all();
             break;
         }
@@ -199,7 +197,7 @@ void CSafeNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
     }
 }
 
-void CSafeNetwork::Reconnect()
+void CAtomicNetwork::Reconnect()
 {
     m_bNetworkJoined = false;
 

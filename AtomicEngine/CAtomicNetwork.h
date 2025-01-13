@@ -7,17 +7,17 @@
 #include <mutex>
 #include <map>
 
-class CSafeNetwork
+class CAtomicNetwork
 {
 public:
-    CSafeNetwork();
-    ~CSafeNetwork();
+    CAtomicNetwork();
+    ~CAtomicNetwork();
 
     bool           Connect();
     bool           IsConnected() { return m_bConnected; }
     bool           IsJoinedNetwork() { return m_bNetworkJoined; }
-    void           SendPacket(eSafePacketID PacketID, jsoncons::json Data = jsoncons::json());
-    jsoncons::json WaitReponse(eSafePacketID PacketID);
+    void           SendPacket(eAtomicPacket PacketID, jsoncons::json Data = jsoncons::json());
+    jsoncons::json WaitReponse(eAtomicPacket PacketID);
 
     static void OnConnect();
     static void StaticPulse(void* pContext);
@@ -36,11 +36,9 @@ private:
     ix::WebSocket*                                         m_pWebSocket;
     std::mutex                                             m_mutex;
     std::condition_variable                                m_condition;
-    std::map<eSafePacketID, jsoncons::json>                m_UnhandledPackets;
+    std::map<eAtomicPacket, jsoncons::json>                m_UnhandledPackets;
     std::map<std::string, std::vector<std::wstring>> m_Signatures;
 
     bool m_bNetworkJoined;
     bool m_bConnected;
 };
-
-extern CSafeNetwork* g_pSafeNetwork;

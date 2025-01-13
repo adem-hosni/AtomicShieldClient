@@ -14,9 +14,9 @@ void EntryPoint(LPVOID lpThreadParameter)
 
     //SharedProtocols::EnableProcessMitigations(true, true, true, true, true);
 
-    if (g_pSafeAntiCheat->Initialize())
+    if (g_pAtomicAntiCheat->Initialize())
     {
-        g_pSafeAntiCheat->StartBasicChecks();
+        g_pAtomicAntiCheat->StartBasicChecks();
     }
 }
 

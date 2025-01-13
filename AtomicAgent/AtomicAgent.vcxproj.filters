@@ -79,9 +79,6 @@
     <ClCompile Include="CAtomicAPI.cpp">
       <Filter>sources</Filter>
     </ClCompile>
-    <ClCompile Include="CAtomicCore.cpp">
-      <Filter>sources</Filter>
-    </ClCompile>
     <ClCompile Include="Vendor\ImGui\misc\freetype\imgui_freetype.cpp">
       <Filter>sources</Filter>
     </ClCompile>
@@ -179,7 +176,6 @@
     <ClInclude Include="GUI\Variables.h" />
     <ClInclude Include="CAtomicAPI.h" />
     <ClInclude Include="ManualMapInjector.hpp" />
-    <ClInclude Include="CAtomicCore.h" />
     <ClInclude Include="Vendor\curl\curl.h" />
     <ClInclude Include="Vendor\curl\curlver.h" />
     <ClInclude Include="Vendor\curl\easy.h" />

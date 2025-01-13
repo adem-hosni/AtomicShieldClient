@@ -1,8 +1,7 @@
+
 #include <fstream>
 #include "StdInc.h"
 #include "KernelCalls.hpp"
-
-std::vector<std::wstring> m_vSignatures;
 
 CHeuristicGuard::CHeuristicGuard()
 {
@@ -12,20 +11,120 @@ CHeuristicGuard::~CHeuristicGuard()
 {
 }
 
+std::vector<unsigned char> readBytesFromExe(const std::string& filePath)
+{
+    std::ifstream file(filePath, std::ios::in | std::ios::binary);
+
+    if (!file)
+    {
+        SharedUtil::AddDebugLog("Unable to open the file!");
+        return {};
+    }
+
+    file.seekg(0, std::ios::end);
+    std::streampos fileSize = file.tellg();
+    file.seekg(0, std::ios::beg);
+
+    std::vector<unsigned char> rawData(fileSize);
+
+    file.read(reinterpret_cast<char*>(rawData.data()), fileSize);
+
+    file.close();
+
+    return rawData;
+}
+
+std::wstring CHeuristicGuard::BuildSignatureParameters()
+{
+    std::wstringstream ss;
+    ss << (char)(m_Signatures.size() + 1);
+
+    for (const std::wstring& param : m_Signatures)
+    {
+        ss << static_cast<char>(param.length() + 1);
+        ss << param.c_str();
+    }
+    return ss.str();
+}
+
 void CHeuristicGuard::Initialize()
 {
 }
 
-bool isAddressInVector(const std::vector<std::wstring>& vec, const void* address)
+void CHeuristicGuard::SpawnScanProcess()
 {
-    for (const auto& element : vec)
+    const char* szFilePath = "C:\\Users\\hosni\\Desktop\\memscn-main\\src\\x64\\Release\\scn.exe";
+
+    char szCommandLine[512];
+    memset(szCommandLine, 0, sizeof(szCommandLine));
+    sprintf(szCommandLine, "\"%s\" --pid %d --sigs %s", szFilePath, GetCurrentProcessId(), BuildSignatureParameters().c_str());
+
+    SECURITY_ATTRIBUTES sa = {0};
+    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
+    sa.bInheritHandle = TRUE;
+    sa.lpSecurityDescriptor = nullptr;
+
+    HANDLE hReadPipe, hWritePipe;
+    if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0))
     {
-        if ((DWORD64)element.data() == (DWORD64)address)
+        SharedUtil::AddDebugLog("Failed to create pipe. Error: 0x%llx", GetLastError());
+    }
+
+    STARTUPINFOA        startupInfo = {0};
+    PROCESS_INFORMATION processInfo = {0};
+    startupInfo.cb = sizeof(STARTUPINFOA);
+    startupInfo.hStdOutput = hWritePipe;
+    startupInfo.hStdError = hWritePipe;
+    startupInfo.hStdInput = NULL;
+
+    if (!CreateProcess(nullptr,                     // Path to the executable
+                       szCommandLine,               // Command line arguments (nullptr if none)
+                       nullptr,                     // Process security attributes
+                       nullptr,                     // Thread security attributes
+                       FALSE,                       // Inherit handles
+                       CREATE_NO_WINDOW,            // Creation flags
+                       nullptr,                     // Use parent's environment block
+                       nullptr,                     // Use parent's starting directory
+                       &startupInfo,                // Pointer to STARTUPINFO structure
+                       &processInfo))
+    {            // Pointer to PROCESS_INFORMATION structure
+        SharedUtil::AddDebugLog("Failed to create process. Error: 0x%llx", GetLastError());
+    }
+
+    CloseHandle(hWritePipe);
+
+    WaitForSingleObject(processInfo.hProcess, INFINITE);
+
+    char buffer[4096];
+    memset(buffer, 0, sizeof(buffer));
+    DWORD dwBytesRead;
+    while (ReadFile(hReadPipe, buffer, sizeof(buffer) - 1, &dwBytesRead, NULL) && dwBytesRead > 0)
+    {
+        buffer[dwBytesRead] = '\0';            // Null-terminate the buffer
+        std::cout << buffer;                   // Print the output
+    }
+    SharedUtil::AddDebugLog("Buffer: %s", buffer);
+
+    // Get the exit code
+    DWORD dwExitCode = 0;
+    if (GetExitCodeProcess(processInfo.hProcess, &dwExitCode))
+    {
+        SharedUtil::AddDebugLog("Process finished with exit code: 0x%llx", dwExitCode);
+
+        if (dwExitCode == 0x1c8)
         {
-            return true;
+            g_pAtomicAntiCheat->NotifyDetection(eDetectionType::CHEAT_SIGNATURE_FOUND);
         }
     }
-    return false;
+    else
+    {
+        SharedUtil::AddDebugLog("Failed to get exit code. Error: 0x%llx", GetLastError());
+    }
+
+    CloseHandle(hReadPipe);
+    TerminateProcess(processInfo.hProcess, dwExitCode);
+    CloseHandle(processInfo.hProcess);
+    CloseHandle(processInfo.hThread);
 }
 
 void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstring>>& Signatures)
@@ -34,33 +133,27 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
     {
         for (auto& Signature : vector)
         {
-            m_vSignatures.push_back(Utils::CaesarDecrypt(Signature, 3));
+            m_Signatures.push_back(Signature);
         }
     }
 
     // SpawnScanProcess();
 }
 
-void CHeuristicGuard::DoPulse()
+inline static void __fastcall rpm()
 {
-    int iCurrentSignature = 0;
+    DWORD p[1024];
+    DWORD n, j;
 
-    while (true)
+    std::wstring      memoryString = L"Dear ImGui Demo";
+    std::wstring_view wstr(memoryString.begin(), memoryString.end());
+
+    const DWORD  currentProcessId = GetCurrentProcessId();
+    const HANDLE currentProcess = GetCurrentProcess();
+
+    // for (DWORD i = 0; i < j; i++)
     {
-        if (m_vSignatures.size() == 0)
-            continue;
-
-        if (iCurrentSignature > m_vSignatures.size())
-            iCurrentSignature = 0;
-
-        LARGE_INTEGER frequency, start, end;
-        QueryPerformanceFrequency(&frequency);
-        QueryPerformanceCounter(&start);
-
-        static std::wstring      memoryString = m_vSignatures.at(iCurrentSignature);            // L"Dear ImGui Demo";
-        static std::wstring_view wstr(memoryString.begin(), memoryString.end());
-
-        HANDLE hProcess = GetCurrentProcess();
+        DWORD targetProcessId = GetCurrentProcessId();
 
         NTSTATUS                      status;
         KernelCalls_OBJECT_ATTRIBUTES objAttr{};
@@ -70,7 +163,11 @@ void CHeuristicGuard::DoPulse()
         RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
         objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
         RtlSecureZeroMemory(&clientId, sizeof(KernelCalls_CLIENT_ID));
-        clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(GetCurrentProcessId()));
+        clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(targetProcessId));
+
+        /*status = SysNtOpenProcess(&processHandle, (0x0400) | (0x0010), &objAttr, &clientId);
+        if (!NT_SUCCESS(status))
+            continue;*/
 
         SYSTEM_INFO sysInfo;
         GetSystemInfo(&sysInfo);
@@ -88,9 +185,11 @@ void CHeuristicGuard::DoPulse()
             if (!NT_SUCCESS(status) || memoryInfo.State != MEM_COMMIT || memoryInfo.Protect & PAGE_NOACCESS)
                 continue;
 
+
+
             SIZE_T allocationSize = memoryInfo.RegionSize + wstr.size() * sizeof(wchar_t) - 1;            // Extra space for overlap
             PVOID  buffer = nullptr;
-            status = SysNtAllocateVirtualMemory(hProcess, &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+            status = SysNtAllocateVirtualMemory(currentProcess, &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
             if (!NT_SUCCESS(status))
                 continue;
 
@@ -107,7 +206,7 @@ void CHeuristicGuard::DoPulse()
                 {
                     found = true;
                     LPVOID lpFlaggedAddress = static_cast<LPBYTE>(memoryInfo.BaseAddress) + foundPos * sizeof(wchar_t);
-                    if ((DWORD64)lpFlaggedAddress != (DWORD64)memoryString.data() && !isAddressInVector(m_vSignatures, lpFlaggedAddress))
+                    if ((DWORD64)lpFlaggedAddress != (DWORD64)memoryString.data())
                     {
                         SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress, (DWORD64)memoryString.data());
                     }
@@ -115,17 +214,29 @@ void CHeuristicGuard::DoPulse()
                 }
             }
 
-            SysNtFreeVirtualMemory(hProcess, &buffer, &allocationSize, MEM_RELEASE);
+            SysNtFreeVirtualMemory(currentProcess, &buffer, &allocationSize, MEM_RELEASE);
             if (found)
                 break;
-            iCurrentSignature++;
         }
 
         SysNtClose(processHandle);
+    }
+}
+
+void CHeuristicGuard::DoPulse()
+{
+
+    LoadLibrary("\\Users\\hosni\\AppData\\Local\\FiveM\\FiveM.app\\imgui.dll");
+    while (true)
+    {
+        LARGE_INTEGER frequency, start, end;
+        QueryPerformanceFrequency(&frequency);
+        QueryPerformanceCounter(&start);
+
+        rpm();
 
         QueryPerformanceCounter(&end);
-        float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
-        SharedUtil::AddDebugLog("[+] Scan completed in %.5fs", fElapsedTime);
-
+        float elapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+        SharedUtil::AddDebugLog("[+] Scan completed in %.4fs", elapsedTime);
     }
 }

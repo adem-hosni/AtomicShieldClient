@@ -1,30 +1,30 @@
-#include "CSafeAntiCheat.h"
+#include "CAtomicAntiCheat.h"
 #include "SharedUtil.h"
 
-CSafeAntiCheat* g_pSafeAntiCheat = new CSafeAntiCheat();
+CAtomicAntiCheat* g_pAtomicAntiCheat = new CAtomicAntiCheat();
 
-CSafeAntiCheat::CSafeAntiCheat()
+CAtomicAntiCheat::CAtomicAntiCheat()
 {
     m_iTargetProcessID = 0;
-    m_pSafeNetwork = new CSafeNetwork();
+    m_pAtomicNetwork = new CAtomicNetwork();
     m_pGuardManager = new CGuardManager();
     m_Timing = {};
     m_vDetectedTypes = {};
 }
 
-CSafeAntiCheat::~CSafeAntiCheat()
+CAtomicAntiCheat::~CAtomicAntiCheat()
 {
-    if (m_pSafeNetwork)
-        delete m_pSafeNetwork;
+    if (m_pAtomicNetwork)
+        delete m_pAtomicNetwork;
 }
 
-bool CSafeAntiCheat::Initialize()
+bool CAtomicAntiCheat::Initialize()
 {
     m_hProcess = GetCurrentProcess();
     m_iTargetProcessID = GetCurrentProcessId();
     m_HWIDCache = g_pHWID->LoadHWIDCaches();
 
-    if (!m_pSafeNetwork->Connect())
+    if (!m_pAtomicNetwork->Connect())
     {
         MessageBox(0, "Failed to connect to the server", "Error", 0);
         return false;
@@ -34,20 +34,20 @@ bool CSafeAntiCheat::Initialize()
     return true;
 }
 
-void CSafeAntiCheat::StaticPulse(void* pContext)
+void CAtomicAntiCheat::StaticPulse(void* pContext)
 {
-    CSafeAntiCheat* pInstance = reinterpret_cast<CSafeAntiCheat*>(pContext);
+    CAtomicAntiCheat* pInstance = reinterpret_cast<CAtomicAntiCheat*>(pContext);
     pInstance->DoPulse();
 }
 
-void CSafeAntiCheat::DoPulse()
+void CAtomicAntiCheat::DoPulse()
 {
     while (true)
     {
-        m_pSafeNetwork->DoPulse();
+        m_pAtomicNetwork->DoPulse();
 
         long long llCurrentTime = time(NULL);
-        STiming&  Timing = g_pSafeAntiCheat->GetTiming();
+        STiming&  Timing = g_pAtomicAntiCheat->GetTiming();
 
         if (!m_hProcess)
             m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_iTargetProcessID);
@@ -56,13 +56,13 @@ void CSafeAntiCheat::DoPulse()
     }
 }
 
-void CSafeAntiCheat::StartPulse()
+void CAtomicAntiCheat::StartPulse()
 {
-    _beginthread((_beginthread_proc_type)CSafeNetwork::StaticPulse, NULL, m_pSafeNetwork);
+    _beginthread((_beginthread_proc_type)CAtomicNetwork::StaticPulse, NULL, m_pAtomicNetwork);
     m_pGuardManager->StartPulse(m_pGuardManager);
 }
 
-void CSafeAntiCheat::StartBasicChecks()
+void CAtomicAntiCheat::StartBasicChecks()
 {
     BasicChecks::CheckPlugins();
 
@@ -75,7 +75,7 @@ void CSafeAntiCheat::StartBasicChecks()
     BasicChecks::TestsigningEnabled();
 }
 
-void CSafeAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs)
+void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs)
 {
     // Check if the detection type already detected
     if (std::find(m_vDetectedTypes.begin(), m_vDetectedTypes.end(), DetectionType) != m_vDetectedTypes.end())
@@ -121,10 +121,10 @@ void CSafeAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unordere
     RequestData["report"] = Report;
     RequestData["ss"] = SharedUtil::Base64Encode(strScreenshotBuffer);
 
-    m_pSafeNetwork->SendPacket(eSafePacketID::CHEAT_DETECTION, RequestData);
+    m_pAtomicNetwork->SendPacket(eAtomicPacket::CHEAT_DETECTION, RequestData);
 }
 
-bool CSafeAntiCheat::IsAtomicThread(HANDLE hThread)
+bool CAtomicAntiCheat::IsAtomicThread(HANDLE hThread)
 {
     return std::any_of(m_vAtomicThreads.begin(), m_vAtomicThreads.end(), [hThread](CAtomicThread* pThread) { return pThread->GetHandle() == hThread; });
 }

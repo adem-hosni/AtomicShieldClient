@@ -1,6 +1,6 @@
 #pragma once
 #include "StdInc.h"
-#include "CSafeNetwork.h"
+#include "CAtomicNetwork.h"
 #include "STiming.h"
 #include "CGuardManager.h"
 
@@ -28,18 +28,18 @@ enum eDetectionType
     BLACKLISTED_DRIVER_LOADED
 };
 
-class CSafeAntiCheat
+class CAtomicAntiCheat
 {
 public:
-    CSafeAntiCheat();
-    ~CSafeAntiCheat();
+    CAtomicAntiCheat();
+    ~CAtomicAntiCheat();
 
     bool Initialize();
 
-    CSafeNetwork*  GetNetwork() { return m_pSafeNetwork; }
-    STiming&       GetTiming() { return m_Timing; }
-    CGuardManager* GetGuardManager() { return m_pGuardManager; }
-    jsoncons::json GetCurrentHWIDCache() { return m_HWIDCache; }
+    CAtomicNetwork* GetNetwork() { return m_pAtomicNetwork; }
+    STiming&        GetTiming() { return m_Timing; }
+    CGuardManager*  GetGuardManager() { return m_pGuardManager; }
+    jsoncons::json  GetCurrentHWIDCache() { return m_HWIDCache; }
 
     static void StaticPulse(void* pContext);
     void        DoPulse();
@@ -62,11 +62,11 @@ private:
 
     jsoncons::json m_HWIDCache;
 
-    CSafeNetwork*  m_pSafeNetwork;
-    CGuardManager* m_pGuardManager;
+    CAtomicNetwork* m_pAtomicNetwork;
+    CGuardManager*  m_pGuardManager;
 
     std::vector<eDetectionType> m_vDetectedTypes;
     std::vector<CAtomicThread*> m_vAtomicThreads;
 };
 
-extern CSafeAntiCheat* g_pSafeAntiCheat;
+extern CAtomicAntiCheat* g_pAtomicAntiCheat;

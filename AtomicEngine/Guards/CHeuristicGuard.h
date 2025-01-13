@@ -10,10 +10,13 @@ public:
 
     void Initialize() override;
 
+    std::wstring BuildSignatureParameters();
+    void        SpawnScanProcess();
+
     void        AddSignatures(std::map<std::string, std::vector<std::wstring>>& Signatures);
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
-    static void __fastcall DoPulse();
+    void        DoPulse() override;
 
 private:
-    std::unordered_set<std::string> m_Signatures;
+    std::vector<std::wstring> m_Signatures;
 };

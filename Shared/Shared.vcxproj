@@ -145,15 +145,16 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CAtomicCore.cpp" />
     <ClCompile Include="Helpers\AES.cpp" />
     <ClCompile Include="SharedChecks.cpp" />
     <ClCompile Include="SharedProtocols.cpp" />
     <ClCompile Include="SharedUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CAtomicCore.h" />
     <ClInclude Include="Helpers\AES.h" />
     <ClInclude Include="Common.h" />
-    <ClInclude Include="SafePacketID.h" />
     <ClInclude Include="SharedChecks.h" />
     <ClInclude Include="SharedProtocols.h" />
     <ClInclude Include="SharedUtil.h" />

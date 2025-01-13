@@ -26,7 +26,7 @@ void CThreadGuard::DoPulse()
                     HANDLE hThread = OpenThread(THREAD_ALL_ACCESS, FALSE, th32.th32ThreadID);
                     if (hThread)
                     {
-                        if (!g_pSafeAntiCheat->IsAtomicThread(hThread))
+                        if (!g_pAtomicAntiCheat->IsAtomicThread(hThread))
                         {
                             DWORD64 dwTempoaryBase = NULL;
                             NtQueryInformationThread(hThread, (THREADINFOCLASS)9, &dwTempoaryBase, sizeof(DWORD64), NULL);
@@ -46,7 +46,7 @@ void CThreadGuard::DoPulse()
                                     Report.RegionSize = mbi.RegionSize;
 
                                     SharedUtil::AddDebugLog("Detected Malicious Thread at 0x%x", dwTempoaryBase);
-                                    g_pSafeAntiCheat->NotifyDetection(eDetectionType::UNAUTHORIZED_THREAD, {{"allocated_base", (DWORD64)mbi.AllocationBase},
+                                    g_pAtomicAntiCheat->NotifyDetection(eDetectionType::UNAUTHORIZED_THREAD, {{"allocated_base", (DWORD64)mbi.AllocationBase},
                                                                        {"allocated_protect", (DWORD64)mbi.AllocationProtect},
                                                                        {"region_size", (DWORD64)mbi.RegionSize}});
                                 }

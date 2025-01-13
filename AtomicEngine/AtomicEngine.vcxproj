@@ -135,6 +135,7 @@
       <AdditionalIncludeDirectories>..\Shared;Vendor;..\Shared\Vendor\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -189,8 +190,8 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
     <ClCompile Include="Guards\CHeuristicGuard.cpp" />
     <ClCompile Include="Guards\CMemoryGuard.cpp" />
     <ClCompile Include="Guards\CGuardBase.cpp" />
-    <ClCompile Include="CSafeAntiCheat.cpp" />
-    <ClCompile Include="CSafeNetwork.cpp" />
+    <ClCompile Include="CAtomicAntiCheat.cpp" />
+    <ClCompile Include="CAtomicNetwork.cpp" />
     <ClCompile Include="CHWID.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="KernelCalls.c" />
@@ -255,11 +256,12 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
     <ClInclude Include="Guards\CHeuristicGuard.h" />
     <ClInclude Include="Guards\CMemoryGuard.h" />
     <ClInclude Include="Guards\CGuardBase.h" />
-    <ClInclude Include="CSafeAntiCheat.h" />
-    <ClInclude Include="CSafeNetwork.h" />
+    <ClInclude Include="CAtomicAntiCheat.h" />
+    <ClInclude Include="CAtomicNetwork.h" />
     <ClInclude Include="CHWID.h" />
     <ClInclude Include="KernelCalls.h" />
     <ClInclude Include="KernelCalls.hpp" />
+    <ClInclude Include="AtomicPacket.h" />
     <ClInclude Include="Screenshot.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="STiming.h" />

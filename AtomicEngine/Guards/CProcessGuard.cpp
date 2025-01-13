@@ -152,7 +152,7 @@ void CProcessGuard::DoPulse()
                         {
                             std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
                             SharedUtil::AddDebugLog("The Process %s with pid %d is opening our process!", strProcessName.c_str(), handle.ProcessId);
-                            g_pSafeAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
+                            g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
                                                                                               {"process_path", strProcessPath},
                                                                                               {"pid", handle.ProcessId},
                                                                                               {"granted_access", handle.GrantedAccess}});
