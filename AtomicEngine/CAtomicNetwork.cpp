@@ -183,10 +183,8 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
             {
                 std::lock_guard<std::mutex> lock(m_mutex);
                 std::string                 message_buffer = Message->str;
-                SharedUtil::AddDebugLog("encrypted len: %s", message_buffer.c_str());
                 std::string                 decoded_buffer = SharedUtil::Base64Decode(message_buffer);
                 std::string                 decrypted_buffer = g_pAtomicCore->Decrypt(decoded_buffer);
-                SharedUtil::AddDebugLog("dec len: %d", decrypted_buffer.length());
                 jsoncons::json              json = jsoncons::json::parse(decrypted_buffer);
                 m_UnhandledPackets.insert_or_assign((eAtomicPacket)json["type"].as<int>(), json);
                 m_condition.notify_all();
