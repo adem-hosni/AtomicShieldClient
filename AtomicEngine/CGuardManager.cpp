@@ -6,6 +6,7 @@ CGuardManager::CGuardManager()
     m_pHeuristicGuard = new CHeuristicGuard();
     m_pModuleGuard = new CModuleGuard();
     m_pProcessGuard = new CProcessGuard();
+    m_pThreadGuard = new CThreadGuard();
 
     m_threads.clear();            // Ensure no memory leaks
 }
@@ -21,13 +22,14 @@ void CGuardManager::InitializeGuards()
     m_pMemoryGuard->Initialize();
     m_pModuleGuard->Initialize();
     m_pHeuristicGuard->Initialize();
+    m_pThreadGuard->Initialize();
 }
 
 void CGuardManager::StartPulse(CGuardManager* pGuardManager)
 {
-    CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard);
+    CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard);
+    //CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard);
     //CAtomicThread::Create(CMemoryGuard::StaticPulse, m_pMemoryGuard);
-    //  CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard);
     //   CAtomicThread::Create(CThreadGuard::StaticPulse, m_pThreadGuard);
     //   CAtomicThread::Create(CModuleGuard::StaticPulse, m_pModuleGuard);*/
 }
