@@ -81,7 +81,7 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <ExternalIncludePath>$(SolutionDir)Shared\Vendor\;Vendor;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>Vendor\ixwebsocket;$(LibraryPath)</LibraryPath>
+    <LibraryPath>Vendor;Vendor\ixwebsocket;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Build</OutDir>
     <IntDir>$(SolutionDir)Cache</IntDir>
     <IncludePath>..\Shared\Vendor\;$(IncludePath)</IncludePath>
@@ -267,6 +267,7 @@ rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngi
     <ClInclude Include="STiming.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Vendor\CRC32\CRC32.h" />
+    <ClInclude Include="Vendor\Detours\detours.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXBase64.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXBench.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXCancellationRequest.h" />

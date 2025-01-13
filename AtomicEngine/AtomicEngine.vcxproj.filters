@@ -422,6 +422,9 @@
     <ClInclude Include="AtomicPacket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Vendor\Detours\detours.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Vendor\ixwebsocket\ixwebsocket.lib" />
