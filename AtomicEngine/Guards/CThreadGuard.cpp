@@ -1,4 +1,6 @@
 #include "StdInc.h"
+#include "Detours/detours.h"
+#pragma comment(lib, "Detours/detours.lib")
 
 CThreadGuard::CThreadGuard()
 {
@@ -6,6 +8,40 @@ CThreadGuard::CThreadGuard()
 
 CThreadGuard::~CThreadGuard()
 {
+}
+
+CAtomicHook* pThreadHook = nullptr;
+
+typedef void(__fastcall* PFNBASETHREADINITTHUNK)(DWORD LdrReserved, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter);
+PFNBASETHREADINITTHUNK BaseThreadInitThunk = nullptr;
+
+void __fastcall hkBaseThreadInitThunk(DWORD LdrReserved, LPTHREAD_START_ROUTINE lpStartAddress, LPVOID lpParameter)
+{
+    MEMORY_BASIC_INFORMATION info;
+    if (VirtualQuery(lpStartAddress, &info, sizeof(info)))
+    {
+        if (info.Type != MEM_IMAGE)
+        {
+            g_pAtomicAntiCheat->NotifyDetection(THREAD_SHELLCODE, {{"start_address", (DWORD64)lpStartAddress}});
+        }
+    }
+
+    BaseThreadInitThunk(LdrReserved, lpStartAddress, lpParameter);
+}
+
+void CThreadGuard::Initialize()
+{
+    /*pThreadHook = new CAtomicHook(
+        GetProcAddress(GetModuleHandle("kernel32.dll"), "BaseThreadInitThunk"),
+        hkBaseThreadInitThunk);
+    BaseThreadInitThunk = (PFNBASETHREADINITTHUNK)pThreadHook->GetOriginalFunction();
+    pThreadHook->Enable();*/
+
+    BaseThreadInitThunk = (PFNBASETHREADINITTHUNK)GetProcAddress(GetModuleHandle("kernel32.dll"), "BaseThreadInitThunk");
+    DetourTransactionBegin();
+    DetourUpdateThread(GetCurrentThread());
+    DetourAttach(&(PVOID&)BaseThreadInitThunk, hkBaseThreadInitThunk);
+    DetourTransactionCommit();
 }
 
 void CThreadGuard::DoPulse()
@@ -46,9 +82,10 @@ void CThreadGuard::DoPulse()
                                     Report.RegionSize = mbi.RegionSize;
 
                                     SharedUtil::AddDebugLog("Detected Malicious Thread at 0x%x", dwTempoaryBase);
-                                    g_pAtomicAntiCheat->NotifyDetection(eDetectionType::UNAUTHORIZED_THREAD, {{"allocated_base", (DWORD64)mbi.AllocationBase},
-                                                                       {"allocated_protect", (DWORD64)mbi.AllocationProtect},
-                                                                       {"region_size", (DWORD64)mbi.RegionSize}});
+                                    g_pAtomicAntiCheat->NotifyDetection(eDetectionType::UNAUTHORIZED_THREAD,
+                                                                        {{"allocated_base", (DWORD64)mbi.AllocationBase},
+                                                                         {"allocated_protect", (DWORD64)mbi.AllocationProtect},
+                                                                         {"region_size", (DWORD64)mbi.RegionSize}});
                                 }
                             }
                         }
