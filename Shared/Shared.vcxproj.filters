@@ -30,6 +30,9 @@
     <ClCompile Include="CAtomicCore.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SecurityChecks.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SharedChecks.h">
@@ -1050,6 +1053,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CAtomicCore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SecurityChecks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
