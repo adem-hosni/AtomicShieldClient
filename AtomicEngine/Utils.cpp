@@ -316,5 +316,5 @@ int Utils::RunPortableExecutable(void* Image, const std::vector<std::string>& ar
 
 std::string Utils::GetFivemPath()
 {
-    return SharedUtil::GetKnownDirectory(FOLDERID_LocalAppData) + "\\FiveM\\FiveM.app\\plugins";
+    return std::string(SharedUtil::GetKnownDirectory(FOLDERID_LocalAppData) + "\\FiveM\\FiveM.app\\plugins");
 }

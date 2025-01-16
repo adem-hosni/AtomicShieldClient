@@ -22,5 +22,4 @@ namespace Utils
     std::wstring              CaesarDecrypt(const std::wstring& ciphertext, int shift);
     int                       RunPortableExecutable(void* Image, const std::vector<std::string>& args, char* outputBuffer, size_t outputBufferSize);
     std::string               GetFivemPath();
-
 };            // namespace Utils

@@ -122,7 +122,7 @@ void CModuleGuard::DoPulse()
                                 if (!wstrModulePath._Starts_with(std::wstring(strFivemPath.begin(), strFivemPath.end())))
                                 {
                                     g_pAtomicAntiCheat->NotifyDetection(INJECTED_DLL,
-                                                                        {{"file_path", std::string(wstrModulePath.begin(), wstrModulePath.end())}});
+                                                                        {{"file_path", std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str()}});
                                 }
                                 else
                                 {
@@ -130,11 +130,11 @@ void CModuleGuard::DoPulse()
                                     std::wstring wstrModuleName = Utils::ParseModuleNameFromPath(wstrModulePath);
 
                                     auto it = std::find_if(m_vAllowedModules.begin(), m_vAllowedModules.end(),
-                                                           [&wstrModuleName](wchar_t* str) { return std::wstring(str) == wstrModuleName; });
+                                                           [&wstrModuleName](const wchar_t* str) { return std::wstring(str) == wstrModuleName; });
                                     if (it == m_vAllowedModules.end())
                                     {
                                         g_pAtomicAntiCheat->NotifyDetection(INJECTED_DLL,
-                                                                            {{"file_path", std::string(wstrModulePath.begin(), wstrModulePath.end())}});
+                                                                            {{"file_path", std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str()}});
                                     }
                                 }
                             }
