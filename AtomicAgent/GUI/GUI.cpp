@@ -382,7 +382,10 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                         ImGui::SetCursorPos(ImVec2(region.x - 77, 12));
                         if (ImGui::Minimize_icon("minimize", image::minimize, ImVec2(27, 27), 0))
-                            ;
+                        {
+                            ShowWindow(hwnd, SW_MINIMIZE);
+                        }
+                            
                         ImGui::SameLine(0, 7);
                         if (ImGui::Exit_icon("exit", image::exit, ImVec2(27, 27), 0))
                             exit(0);
