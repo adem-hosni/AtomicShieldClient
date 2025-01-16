@@ -1,1 +1,4 @@
-[21:27:20] curl_easy_perform() failed: Could not connect to server (0x7)
+[23:32:26] spawned
+[23:32:26] 
+[23:32:27] Buffer: 
+[23:32:27] Process finished with exit code: 0x1c8
