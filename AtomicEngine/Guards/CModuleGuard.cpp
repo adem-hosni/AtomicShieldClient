@@ -5,7 +5,27 @@
 
 CModuleGuard::CModuleGuard()
 {
-    cAllowDlls = {"C:\\Windows\\System32\\rsaenh.dll"};
+    m_vAllowedModules = {
+        L"icuuc.dll",
+        L"icui18n.dll",
+        L"chrome_elf.dll",
+        L"libEGL.dll",
+        L"libGLESv2.dll",
+        L"libcef.dll",
+        L"ros.dll",
+        L"gfsdk_shadowlib.dll",
+        L"SwiftShaderD3D9_64.dll",
+        L"FiveM_b3095_GTAProcess.exe",
+        L"icuuc.dll",
+        L"icui18n.dll",
+        L"chrome_elf.dll",
+        L"libEGL.dll",
+        L"libGLESv2.dll",
+        L"libcef.dll",
+        L"ros.dll",
+        L"gfsdk_shadowlib.dll",
+        L"SwiftShaderD3D9_64.dll",
+    };
     OriginalBytes[50] = {0};
     lpAddr = nullptr;
 }
@@ -54,7 +74,7 @@ NTSTATUS NTAPI _LdrLoadDll(PWCHAR PathToFile_OPTIONAL, ULONG Flags, PUNICODE_STR
 void CModuleGuard::Initialize()
 {
     lpAddr = (LPVOID)GetProcAddress(LoadLibrary("ntdll.dll"), "LdrLoadDll");
- //   CAtomicHook::Create(lpAddr, &_LdrLoadDll);
+    //   CAtomicHook::Create(lpAddr, &_LdrLoadDll);
 }
 
 PLDR_DATA_TABLE_ENTRY GetNextNode(PCHAR node, int iOffset)
@@ -65,7 +85,7 @@ PLDR_DATA_TABLE_ENTRY GetNextNode(PCHAR node, int iOffset)
 
 void CModuleGuard::DoPulse()
 {
-    std::wstring wstrFullDllName;
+    std::wstring wstrModulePath;
     while (true)
     {
         PROCESS_BASIC_INFORMATION PBI = {0};
@@ -89,16 +109,34 @@ void CModuleGuard::DoPulse()
                     do
                     {
                         LdrModule = *(LDR_DATA_TABLE_ENTRY*)Node;
-                        wstrFullDllName = std::wstring(LdrModule.FullDllName.Length / sizeof(WCHAR), 0);
-                        wstrFullDllName = LdrModule.FullDllName.Buffer;
-                        wstrFullDllName.push_back('\0');
+                        wstrModulePath = std::wstring(LdrModule.FullDllName.Length / sizeof(WCHAR), 0);
+                        wstrModulePath = LdrModule.FullDllName.Buffer;
+                        wstrModulePath.push_back('\0');
 
-                        if (!wstrFullDllName.empty())
+                        if (!wstrModulePath.empty())
                         {
-                            if (!FileAuthentication::HasSignature(wstrFullDllName.c_str()))
+                            if (!FileAuthentication::HasSignature(wstrModulePath.c_str()))
                             {
-                                SharedUtil::AddDebugLog("Unsigned module detected");
-                                wprintf(L"File Path: %s\n", wstrFullDllName.c_str());
+                                static std::string strFivemPath = Utils::GetFivemPath();
+                                // The module is not in fivem directory
+                                if (!wstrModulePath._Starts_with(std::wstring(strFivemPath.begin(), strFivemPath.end())))
+                                {
+                                    g_pAtomicAntiCheat->NotifyDetection(INJECTED_DLL,
+                                                                        {{"file_path", std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str()}});
+                                }
+                                else
+                                {
+                                    // The module is unsigned and in fivem directory, CHEATER?
+                                    std::wstring wstrModuleName = Utils::ParseModuleNameFromPath(wstrModulePath);
+
+                                    auto it = std::find_if(m_vAllowedModules.begin(), m_vAllowedModules.end(),
+                                                           [&wstrModuleName](const wchar_t* str) { return std::wstring(str) == wstrModuleName; });
+                                    if (it == m_vAllowedModules.end())
+                                    {
+                                        g_pAtomicAntiCheat->NotifyDetection(INJECTED_DLL,
+                                                                            {{"file_path", std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str()}});
+                                    }
+                                }
                             }
                         }
 
