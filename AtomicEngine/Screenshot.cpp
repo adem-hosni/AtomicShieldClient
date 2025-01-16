@@ -72,7 +72,6 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData)
 
     /// Temp File
     auto pTempFile = "nm1";
-    SharedUtil::AddDebugLog("Temp file created! File: %s", pTempFile);
 
     /// GDI+ Init
     ULONG_PTR           gdiplusToken;
