@@ -331,6 +331,9 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
             blur::new_frame();
             ImGuiContext& g = *GImGui;
             ImGuiStyle*   style = &ImGui::GetStyle();
+            style->Alpha = 1.0f;            // No global transparency
+            style->Colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);            // Fully opaque window background
+
             if (bg == nullptr)
                 D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Background, sizeof(Background), 1920, 1080, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
                                                     D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &bg);
@@ -352,11 +355,14 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                     D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, grid_image, sizeof(grid_image), 585, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN,
                                                         D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image_bg);
                 ImGui::GetWindowDrawList()->AddImageRounded(image_bg, ImVec2(p.x, p.y), ImVec2(p.x + region.x, p.y + region.y), ImVec2(0, 0), ImVec2(1, 1),
-                                                            ImGui::GetColorU32(c::image_bgs) /*color*/, 20 /*rounding*/);
+                                                            ImGui::GetColorU32(ImVec4(0.1f, 0.1f, 0.1f, 1.0f)),            // Fully opaque color
+                                                            20                                                             // rounding
+                );
 
-                blur::add_blur(ImGui::GetBackgroundDrawList(), p, ImVec2(p.x + region.x, p.y + region.y), 1.f);
+            //    blur::add_blur(ImGui::GetBackgroundDrawList(), p, ImVec2(p.x + region.x, p.y + region.y), 1.f);
+                ImVec4 color(13.0f / 255.0f, 13.0f / 255.0f, 13.0f / 255.0f, 1.0f);
 
-                draw->AddRectFilled(ImVec2(p.x, p.y), ImVec2(p.x + region.x, p.y + region.y), ImGui::GetColorU32(c::color_bg), 19);
+                draw->AddRectFilled(ImVec2(p.x, p.y), ImVec2(p.x + region.x, p.y + region.y), ImGui::GetColorU32(color), 19);
 
                 Trinage_background();
 
@@ -364,7 +370,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                 if (tab_alpha < 0.01f && tab_add < 0.01f)
                     active_tab = page;
 
-                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, tab_alpha * style->Alpha);
+                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1.0f);
                 {
                     if (active_tab == 0)
                     {
@@ -384,13 +390,13 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 160, p.y + 101), ImGui::GetColorU32(c::text_blue),
                                                             "ATOMIC SHIELD");
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 380, p.y + 101), ImGui::GetColorU32(c::text_checkbox_active_on),
-                                                            "Scanner");
+                                                            "Agent");
 
                         ImGui::SetCursorPos(ImVec2(212, 314));
 
                         if (!bNoErrors)
                         {
-                            if (ImGui::ButtonLogins("Scan Now", ImVec2(238, 40)))
+                            if (ImGui::ButtonLogins("Enable Now", ImVec2(238, 40)))
                             {
 
                                 if (!StartUpManager::IsAppInRegistry(processName))
