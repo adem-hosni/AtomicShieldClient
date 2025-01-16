@@ -1,5 +1,6 @@
 #include "StdInc.h"
 #include <synchapi.h>
+#include <cwchar>
 
 #define dwAllowDllCount 1
 
@@ -16,15 +17,6 @@ CModuleGuard::CModuleGuard()
         L"gfsdk_shadowlib.dll",
         L"SwiftShaderD3D9_64.dll",
         L"FiveM_b3095_GTAProcess.exe",
-        L"icuuc.dll",
-        L"icui18n.dll",
-        L"chrome_elf.dll",
-        L"libEGL.dll",
-        L"libGLESv2.dll",
-        L"libcef.dll",
-        L"ros.dll",
-        L"gfsdk_shadowlib.dll",
-        L"SwiftShaderD3D9_64.dll",
     };
     OriginalBytes[50] = {0};
     lpAddr = nullptr;
@@ -127,14 +119,29 @@ void CModuleGuard::DoPulse()
                                 else
                                 {
                                     // The module is unsigned and in fivem directory, CHEATER?
-                                    std::wstring wstrModuleName = Utils::ParseModuleNameFromPath(wstrModulePath);
-
-                                    auto it = std::find_if(m_vAllowedModules.begin(), m_vAllowedModules.end(),
-                                                           [&wstrModuleName](const wchar_t* str) { return std::wstring(str) == wstrModuleName; });
-                                    if (it == m_vAllowedModules.end())
+                                    if (wstrModulePath.length() > 0)
                                     {
-                                        g_pAtomicAntiCheat->NotifyDetection(INJECTED_DLL,
-                                                                            {{"file_path", std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str()}});
+                                        std::wstring wstrModuleName = Utils::ParseModuleNameFromPath(wstrModulePath);
+                                        if (wstrModuleName.length() > 2)
+                                        {
+                                            bool found = false;
+                                            for (const wchar_t* str : m_vAllowedModules)
+                                            {
+                                                if (str && std::wcscmp(str, wstrModuleName.c_str()) == 0)
+                                                {
+                                                    found = true;
+                                                    break;
+                                                }
+                                            }
+
+                                            if (found)
+                                            {
+                                                SharedUtil::AddDebugLog("Hmm: %s", std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str());
+                                                g_pAtomicAntiCheat->NotifyDetection(
+                                                    INJECTED_DLL, {{"file_path", std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str()}});
+                                            }
+                                            SharedUtil::AddDebugLog("-----------");
+                                        }
                                     }
                                 }
                             }
@@ -153,7 +160,5 @@ void CModuleGuard::DoPulse()
         {
             SharedUtil::AddDebugLog("NtQueryInformationProcess failed with error 0x%x", GetLastError());
         }
-
-        Sleep(3000);
     }
 }
