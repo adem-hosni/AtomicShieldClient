@@ -77,16 +77,32 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
     SpawnScanProcess();
 }
 
+#include <fstream>
+#include <windows.h>
+#include <scanner.h>
+
 void CHeuristicGuard::SpawnScanProcess()
 {
     SharedUtil::AddDebugLog("spawned");
     SharedUtil::AddDebugLog(BuildSignatureParameters().c_str());
 
-    const char* szFilePath = "C:\\Users\\amenn\\OneDrive\\Desktop\\memscn-main - Test ganja\\src\\x64\\Release\\scn.exe";
+
+    char szTempFilePath[MAX_PATH];
+    GetTempPathA(MAX_PATH, szTempFilePath);
+    strcat_s(szTempFilePath, "scn.tmp");
+
+    std::ofstream tempFile(szTempFilePath, std::ios::binary);
+    if (!tempFile.is_open())
+    {
+        SharedUtil::AddDebugLog("Failed to open temporary file for writing.");
+        return;
+    }
+    tempFile.write(reinterpret_cast<const char*>(scanner), sizeof(scanner));
+    tempFile.close();
 
     char szCommandLine[512];
     memset(szCommandLine, 0, sizeof(szCommandLine));
-    sprintf(szCommandLine, "\"%s\" --pid %d --sigs %s", szFilePath, GetCurrentProcessId(), BuildSignatureParameters().c_str());
+    sprintf(szCommandLine, "\"%s\" --pid %d --sigs %s", szTempFilePath, GetCurrentProcessId(), BuildSignatureParameters().c_str());
 
     SECURITY_ATTRIBUTES sa = {0};
     sa.nLength = sizeof(SECURITY_ATTRIBUTES);
@@ -116,7 +132,7 @@ void CHeuristicGuard::SpawnScanProcess()
                        nullptr,                     // Use parent's starting directory
                        &startupInfo,                // Pointer to STARTUPINFO structure
                        &processInfo))
-    {            // Pointer to PROCESS_INFORMATION structure
+    {         
         SharedUtil::AddDebugLog("Failed to create process. Error: 0x%llx", GetLastError());
     }
 
@@ -134,7 +150,6 @@ void CHeuristicGuard::SpawnScanProcess()
     }
     SharedUtil::AddDebugLog("Buffer: %s", buffer);
 
-    // Get the exit code
     DWORD dwExitCode = 0;
     if (GetExitCodeProcess(processInfo.hProcess, &dwExitCode))
     {
@@ -154,4 +169,6 @@ void CHeuristicGuard::SpawnScanProcess()
     TerminateProcess(processInfo.hProcess, dwExitCode);
     CloseHandle(processInfo.hProcess);
     CloseHandle(processInfo.hThread);
+
+  //  DeleteFileA(szTempFilePath);
 }

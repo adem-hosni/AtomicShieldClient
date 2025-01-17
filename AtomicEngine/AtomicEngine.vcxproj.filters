@@ -425,6 +425,9 @@
     <ClInclude Include="Vendor\Detours\detours.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="scanner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Vendor\ixwebsocket\ixwebsocket.lib" />
