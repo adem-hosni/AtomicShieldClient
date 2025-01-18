@@ -146,9 +146,7 @@ void CHeuristicGuard::SpawnScanProcess()
     while (ReadFile(hReadPipe, buffer, sizeof(buffer) - 1, &dwBytesRead, NULL) && dwBytesRead > 0)
     {
         buffer[dwBytesRead] = '\0';            // Null-terminate the buffer
-        std::cout << buffer;                   // Print the output
     }
-    SharedUtil::AddDebugLog("Buffer: %s", buffer);
 
     DWORD dwExitCode = 0;
     if (GetExitCodeProcess(processInfo.hProcess, &dwExitCode))
