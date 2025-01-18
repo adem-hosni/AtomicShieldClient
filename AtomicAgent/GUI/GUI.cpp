@@ -495,12 +495,6 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         ImGui::SetCursorPos(ImVec2(region) / 2 - ImVec2(80, 80 + product_offset_1.y));
                         Spinner("NULL", 80.f, 5.f, ImGui::GetColorU32(c::text_blue));
 
-                        ImVec2 text_size = ImGui::CalcTextSize(szLoadingMessage, nullptr, true, 0.0f);
-
-                        float center_area_x = p.x + 100;
-                        float center_area_width = 320;
-                        float centered_x = center_area_x + (center_area_width - text_size.x) * 0.5f;
-
                         if (!strAgentPEBBuffer.empty() && !bInjected)
                         {
                             int iProcessID = SharedUtil::GetProcessID("notepad.exe");
@@ -514,7 +508,15 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                     strcat(szLoadingMessage, "Please wait, we're getting everything ready for you!");
                                     bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()), strAgentPEBBuffer.size());
                                     if (bInjected)
-                                        __fastfail(0);
+                                    {
+                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                        strcat(szLoadingMessage, "Have fun!");
+                                    }
+                                    else
+                                    {
+                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                        strcat(szLoadingMessage, "An error occured while loading the AntiCheat!");
+                                    }
                                     SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
                                     bInjected = true;            // Avoid multiple memory allocations attempts if the injection was wrong
                                 }
@@ -530,7 +532,12 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                             }
                         }
 
-                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(centered_x, p.y + 401), ImGui::GetColorU32(c::text_blue),
+                        ImVec2 text_size = ImGui::CalcTextSize(szLoadingMessage, nullptr, true, 0.0f);
+                        float  center_area_x = p.x + 100;
+                        float  center_area_width = 320;
+                        float  centered_x = center_area_x + (center_area_width - text_size.x) * 0.5f;
+
+                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 30.f, ImVec2(centered_x, p.y + 401), ImGui::GetColorU32(c::text_blue),
                                                             szLoadingMessage);
 
                         /*page = 2;
