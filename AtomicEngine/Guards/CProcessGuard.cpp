@@ -144,13 +144,12 @@ void CProcessGuard::DoPulse()
 
                 for (int i = 0; i < size; i++)
                 {
-                    // Flag only unsigned processes
                     if (!FileAuthentication::HasSignature(std::wstring(strProcessPath.begin(), strProcessPath.end()).c_str()))
                     {
-                        // Check if the target process is not whitelisted
-                        if (strcmp(Handles::Whitelisted[i], strProcessPath.c_str()) != 0)
+                        std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
+                        if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) != 0)
                         {
-                            std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
+
                             SharedUtil::AddDebugLog("The Process %s with pid %d is opening our process!", strProcessName.c_str(), handle.ProcessId);
                             g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
                                                                                               {"process_path", strProcessPath},

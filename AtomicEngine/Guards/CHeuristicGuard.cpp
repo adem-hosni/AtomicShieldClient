@@ -1,7 +1,9 @@
 #include <fstream>
 #include "StdInc.h"
 #include "KernelCalls.hpp"
-
+#include <fstream>
+#include <windows.h>
+#include <scanner.h>
 std::vector<std::wstring> m_vSignatures;
 
 CHeuristicGuard::CHeuristicGuard()
@@ -42,12 +44,13 @@ std::vector<unsigned char> readBytesFromExe(const std::string& filePath)
 std::string CHeuristicGuard::BuildSignatureParameters()
 {
     std::stringstream ss;
-    ss << (char)(m_Signatures.size() + 1);
+    ss << (char)(m_vSignatures.size() + 1);
 
-    for (const std::string& param : m_Signatures)
+    for (const std::wstring& param : m_vSignatures)
     {
+
         ss << static_cast<char>(param.length() + 1);
-        ss << param.c_str();
+        ss << std::string(param.begin(), param.end());
     }
     return ss.str();
 }
@@ -66,10 +69,12 @@ bool isAddressInVector(const std::vector<std::wstring>& vec, const void* address
 
 void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstring>>& Signatures)
 {
+
     for (auto& [name, vector] : Signatures)
     {
         for (auto& Signature : vector)
         {
+
             m_vSignatures.push_back(Utils::CaesarDecrypt(Signature, 3));
         }
     }
@@ -77,15 +82,10 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
     SpawnScanProcess();
 }
 
-#include <fstream>
-#include <windows.h>
-#include <scanner.h>
+
 
 void CHeuristicGuard::SpawnScanProcess()
 {
-    SharedUtil::AddDebugLog("spawned");
-    SharedUtil::AddDebugLog(BuildSignatureParameters().c_str());
-
 
     char szTempFilePath[MAX_PATH];
     GetTempPathA(MAX_PATH, szTempFilePath);
@@ -168,5 +168,5 @@ void CHeuristicGuard::SpawnScanProcess()
     CloseHandle(processInfo.hProcess);
     CloseHandle(processInfo.hThread);
 
-  //  DeleteFileA(szTempFilePath);
+    DeleteFileA(szTempFilePath);
 }

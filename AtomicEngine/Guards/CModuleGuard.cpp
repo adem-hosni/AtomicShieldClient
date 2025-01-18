@@ -17,6 +17,7 @@ CModuleGuard::CModuleGuard()
         L"gfsdk_shadowlib.dll",
         L"SwiftShaderD3D9_64.dll",
         L"FiveM_b3095_GTAProcess.exe",
+        L"FiveM_b2699_GTAProcess.exe"
     };
     OriginalBytes[50] = {0};
     lpAddr = nullptr;
@@ -101,48 +102,41 @@ void CModuleGuard::DoPulse()
                     do
                     {
                         LdrModule = *(LDR_DATA_TABLE_ENTRY*)Node;
-                        wstrModulePath = std::wstring(LdrModule.FullDllName.Length / sizeof(WCHAR), 0);
-                        wstrModulePath = LdrModule.FullDllName.Buffer;
-                        wstrModulePath.push_back('\0');
+                        wstrModulePath = std::wstring(LdrModule.FullDllName.Buffer, LdrModule.FullDllName.Length / sizeof(WCHAR));
 
                         if (!wstrModulePath.empty())
                         {
+                            std::wstring wstrModuleName = Utils::ParseModuleNameFromPath(wstrModulePath);
+                            bool         isWhitelisted = false;
+
+                            // Check if the module is in the whitelist
+                            for (const wchar_t* allowedModule : m_vAllowedModules)
+                            {
+                                if (_wcsicmp(wstrModuleName.c_str(), allowedModule) == 0)
+                                {
+                                    isWhitelisted = true;
+                                    break;
+                                }
+                            }
+
+                            // Skip logging or flagging if the module is whitelisted
+                            if (isWhitelisted)
+                            {
+                                continue;
+                            }
+
+                            // Perform further checks for unsigned or suspicious modules
                             if (!FileAuthentication::HasSignature(wstrModulePath.c_str()))
                             {
                                 static std::string strFivemPath = Utils::GetFivemPath();
-                                // The module is not in fivem directory
                                 if (!wstrModulePath._Starts_with(std::wstring(strFivemPath.begin(), strFivemPath.end())))
                                 {
                                     g_pAtomicAntiCheat->NotifyDetection(INJECTED_DLL,
-                                                                        {{"file_path", std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str()}});
+                                                                        {{"file_path", std::string(wstrModulePath.begin(), wstrModulePath.end())}});
                                 }
                                 else
                                 {
-                                    // The module is unsigned and in fivem directory, CHEATER?
-                                    if (wstrModulePath.length() > 0)
-                                    {
-                                        std::wstring wstrModuleName = Utils::ParseModuleNameFromPath(wstrModulePath);
-                                        if (wstrModuleName.length() > 2)
-                                        {
-                                            bool found = false;
-                                            for (const wchar_t* str : m_vAllowedModules)
-                                            {
-                                                if (str && std::wcscmp(str, wstrModuleName.c_str()) == 0)
-                                                {
-                                                    found = true;
-                                                    break;
-                                                }
-                                            }
-
-                                            if (found)
-                                            {
-                                                SharedUtil::AddDebugLog("Hmm: %s", std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str());
-                                                g_pAtomicAntiCheat->NotifyDetection(
-                                                    INJECTED_DLL, {{"file_path", std::string(wstrModulePath.begin(), wstrModulePath.end()).c_str()}});
-                                            }
-                                            SharedUtil::AddDebugLog("-----------");
-                                        }
-                                    }
+                                    SharedUtil::AddDebugLog("Unsigned module in FiveM directory: %S", wstrModulePath.c_str());
                                 }
                             }
                         }
