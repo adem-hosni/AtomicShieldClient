@@ -142,22 +142,27 @@ void CProcessGuard::DoPulse()
                 std::string strProcessPath = GetProcessPath(handle.ProcessId);
                 int         size = sizeof(Handles::Whitelisted) / sizeof(UINT64);
 
+                bool        bIsWhitelisted = false;
+                std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
+
                 for (int i = 0; i < size; i++)
                 {
-                    if (!FileAuthentication::HasSignature(std::wstring(strProcessPath.begin(), strProcessPath.end()).c_str()))
+                    // if (!FileAuthentication::HasSignature(std::wstring(strProcessPath.begin(), strProcessPath.end()).c_str()))
                     {
-                        std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
-                        if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) != 0)
+                        if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) == 0)
                         {
-
-                            SharedUtil::AddDebugLog("The Process %s with pid %d is opening our process!", strProcessName.c_str(), handle.ProcessId);
-                            g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
-                                                                                              {"process_path", strProcessPath},
-                                                                                              {"pid", handle.ProcessId},
-                                                                                              {"granted_access", handle.GrantedAccess}});
-                            bFoundHandle = TRUE;
+                            bIsWhitelisted = true;
                         }
                     }
+                }
+                if (!bIsWhitelisted)
+                {
+                    SharedUtil::AddDebugLog("The Process %s with pid %d is opening our process!", strProcessName.c_str(), handle.ProcessId);
+                    g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
+                                                                                        {"process_path", strProcessPath},
+                                                                                        {"pid", handle.ProcessId},
+                                                                                        {"granted_access", handle.GrantedAccess}});
+                    bFoundHandle = TRUE;
                 }
             }
             Sleep(60);
