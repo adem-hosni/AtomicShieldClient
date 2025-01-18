@@ -331,7 +331,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
             blur::new_frame();
             ImGuiContext& g = *GImGui;
             ImGuiStyle*   style = &ImGui::GetStyle();
-            style->Alpha = 1.0f;            // No global transparency
+            style->Alpha = 1.0f;                                                          // No global transparency
             style->Colors[ImGuiCol_WindowBg] = ImVec4(0.1f, 0.1f, 0.1f, 1.0f);            // Fully opaque window background
 
             if (bg == nullptr)
@@ -355,11 +355,11 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                     D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, grid_image, sizeof(grid_image), 585, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN,
                                                         D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image_bg);
                 ImGui::GetWindowDrawList()->AddImageRounded(image_bg, ImVec2(p.x, p.y), ImVec2(p.x + region.x, p.y + region.y), ImVec2(0, 0), ImVec2(1, 1),
-                                                            ImGui::GetColorU32(ImVec4(0.1f, 0.1f, 0.1f, 1.0f)),            // Fully opaque color
-                                                            20                                                             // rounding
+                                                            ImGui::GetColorU32(c::image_bgs) /*color*/,            // Fully opaque color
+                                                            20                                                     // rounding
                 );
 
-            //    blur::add_blur(ImGui::GetBackgroundDrawList(), p, ImVec2(p.x + region.x, p.y + region.y), 1.f);
+                //    blur::add_blur(ImGui::GetBackgroundDrawList(), p, ImVec2(p.x + region.x, p.y + region.y), 1.f);
                 ImVec4 color(13.0f / 255.0f, 13.0f / 255.0f, 13.0f / 255.0f, 1.0f);
 
                 draw->AddRectFilled(ImVec2(p.x, p.y), ImVec2(p.x + region.x, p.y + region.y), ImGui::GetColorU32(color), 19);
@@ -370,7 +370,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                 if (tab_alpha < 0.01f && tab_add < 0.01f)
                     active_tab = page;
 
-                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1.0f);
+                ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1.0f);
                 {
                     if (active_tab == 0)
                     {
@@ -385,7 +385,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         {
                             ShowWindow(hwnd, SW_MINIMIZE);
                         }
-                            
+
                         ImGui::SameLine(0, 7);
                         if (ImGui::Exit_icon("exit", image::exit, ImVec2(27, 27), 0))
                             exit(0);
@@ -401,7 +401,6 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         {
                             if (ImGui::ButtonLogins("Start Now", ImVec2(238, 40)))
                             {
-
                                 if (!StartupManager::IsAppInRegistry(processName))
                                 {
                                     int msgResult =
@@ -422,54 +421,23 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                 if (!bDownloading)
                                 {
                                     SharedUtil::AddDebugLog("downloading");
+                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                    strcat(szLoadingMessage, "Loading...");
                                     ImGui::Notification({ImGuiToastType_Success, 4000, "Downloading..."});
 
                                     std::thread AgentPEBDownloader(
                                         [&]()
                                         {
                                             g_pAtomicAPI->DownloadEngine(&strAgentPEBBuffer);
-                                            bDownloading = false;            
+                                            bDownloading = false;
                                         });
 
                                     AgentPEBDownloader.detach();
                                     bDownloading = true;
 
-
                                     while (bDownloading || strAgentPEBBuffer.empty())
                                     {
                                         std::this_thread::sleep_for(std::chrono::milliseconds(100));            // Prevent busy waiting
-                                    }
-
-                                    if (!strAgentPEBBuffer.empty() && !bInjected)
-                                    {
-                                        int iProcessID = SharedUtil::GetProcessID("Notepad.exe");
-                                        SharedUtil::AddDebugLog("Process ID retrieved: %d", iProcessID);
-
-                                        if (iProcessID > 0)
-                                        {
-                                            HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
-                                            if (hProcess)
-                                            {
-                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                                strcat(szLoadingMessage, "Please wait, we're getting everything ready for you!");
-                                                bInjected =
-                                                    ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()), strAgentPEBBuffer.size());
-                                                if (bInjected)
-                                                    __fastfail(0);
-                                                SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
-                                                bInjected = true;            // Avoid multiple memory allocations attempts if the injection was wrong
-                                            }
-                                            else
-                                            {
-                                                SharedUtil::AddDebugLog("Failed to get process handle!\n");
-                                            }
-                                        }
-                                        else
-                                        {
-                                            SharedUtil::AddDebugLog("waiting");
-                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                            strcat(szLoadingMessage, "Waiting for FiveM to launch");
-                                        }
                                     }
                                 }
                                 page = 1, active_anim = true;
@@ -527,34 +495,15 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         ImGui::SetCursorPos(ImVec2(region) / 2 - ImVec2(80, 80 + product_offset_1.y));
                         Spinner("NULL", 80.f, 5.f, ImGui::GetColorU32(c::text_blue));
 
-                        static DWORD dwTickStart = GetTickCount();
-                        if (GetTickCount() - dwTickStart > 6000)
-                        {
-                            page = 2;
-                            active_anim_1 = true;
-                        }
-                    }
-                    if (active_tab == 2)
-                    {
-                        static ImVec2 product_offset_2(0.f, 550.f);
+                        ImVec2 text_size = ImGui::CalcTextSize(szLoadingMessage, nullptr, true, 0.0f);
 
-                        EasingAnimationV2("project_offset_2", &product_offset_2,
-                                          active_anim_1 == true    ? ImVec2(0.f, 0.f)
-                                          : active_anim_1 == false ? ImVec2(0, 500.f)
-                                                                   : ImVec2(0, -500.f),
-                                          1.f, imanim::EasingCurve::Type::InOutBack, -1);
-
-                        if (image::Succes == nullptr)
-                            D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Succes, sizeof(Succes), 500, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN,
-                                                                D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::Succes);
-                        ImGui::GetWindowDrawList()->AddImageRounded(image::Succes, ImVec2(p.x + 246, p.y + 165 + product_offset_2.y),
-                                                                    ImVec2(p.x + 415, p.y + 334 + product_offset_2.y), ImVec2(0, 0), ImVec2(1, 1),
-                                                                    ImGui::GetColorU32(c::text_blue) /*color*/, 0 /*rounding*/);
+                        float center_area_x = p.x + 100;
+                        float center_area_width = 320;
+                        float centered_x = center_area_x + (center_area_width - text_size.x) * 0.5f;
 
                         if (!strAgentPEBBuffer.empty() && !bInjected)
                         {
                             int iProcessID = SharedUtil::GetProcessID("notepad.exe");
-                            SharedUtil::AddDebugLog("Process ID retrieved: %d", iProcessID);
 
                             if (iProcessID > 0)
                             {
@@ -576,11 +525,33 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                             }
                             else
                             {
-                                SharedUtil::AddDebugLog("waiting");
                                 memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                 strcat(szLoadingMessage, "Waiting for FiveM to launch");
                             }
                         }
+
+                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(centered_x, p.y + 401), ImGui::GetColorU32(c::text_blue),
+                                                            szLoadingMessage);
+
+                        /*page = 2;
+                        active_anim_1 = true;*/
+                    }
+                    if (active_tab == 2)
+                    {
+                        static ImVec2 product_offset_2(0.f, 550.f);
+
+                        EasingAnimationV2("project_offset_2", &product_offset_2,
+                                          active_anim_1 == true    ? ImVec2(0.f, 0.f)
+                                          : active_anim_1 == false ? ImVec2(0, 500.f)
+                                                                   : ImVec2(0, -500.f),
+                                          1.f, imanim::EasingCurve::Type::InOutBack, -1);
+
+                        if (image::Succes == nullptr)
+                            D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Succes, sizeof(Succes), 500, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN,
+                                                                D3DPOOL_MANAGED, D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::Succes);
+                        ImGui::GetWindowDrawList()->AddImageRounded(image::Succes, ImVec2(p.x + 246, p.y + 165 + product_offset_2.y),
+                                                                    ImVec2(p.x + 415, p.y + 334 + product_offset_2.y), ImVec2(0, 0), ImVec2(1, 1),
+                                                                    ImGui::GetColorU32(c::text_blue) /*color*/, 0 /*rounding*/);
                     }
                 }
                 ImGui::PopStyleVar();
