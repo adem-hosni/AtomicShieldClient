@@ -51,8 +51,6 @@ void CAtomicAntiCheat::DoPulse()
 
         if (!m_hProcess)
             m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_iTargetProcessID);
-
-        m_pGuardManager->GetMemoryGuard()->DoPulse();
     }
 }
 

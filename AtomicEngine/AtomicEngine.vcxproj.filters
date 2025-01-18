@@ -36,9 +36,6 @@
     <ClCompile Include="Guards\CGuardBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Guards\CMemoryGuard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="CGuardManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -163,9 +160,6 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Guards\CHeuristicGuard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Guards\CThreadGuard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Guards\CModuleGuard.cpp">
@@ -374,9 +368,6 @@
     <ClInclude Include="Guards\CGuardBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Guards\CMemoryGuard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="CGuardManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -387,9 +378,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Guards\CHeuristicGuard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Guards\CThreadGuard.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Guards\CModuleGuard.h">

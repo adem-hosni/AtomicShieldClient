@@ -145,10 +145,10 @@ bool CAtomicNetwork::SyncMaliciousSignatures()
 
         if (SignaturesList.is_array())
         {
-            std::vector<std::string> vSignatures = {};
+            std::vector<std::wstring> vSignatures = {};
             for (const auto& element : SignaturesList.array_range())
             {
-                vSignatures.push_back(element.as<std::string>());
+                vSignatures.push_back(element.as<std::wstring>());
             }
             m_Signatures[SignatureTitle] = vSignatures;
             vSignatures.clear();
