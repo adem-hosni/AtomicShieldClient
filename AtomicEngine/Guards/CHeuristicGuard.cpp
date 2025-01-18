@@ -48,7 +48,6 @@ std::string CHeuristicGuard::BuildSignatureParameters()
 
     for (const std::wstring& param : m_vSignatures)
     {
-
         ss << static_cast<char>(param.length() + 1);
         ss << std::string(param.begin(), param.end());
     }
@@ -69,24 +68,19 @@ bool isAddressInVector(const std::vector<std::wstring>& vec, const void* address
 
 void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstring>>& Signatures)
 {
-
     for (auto& [name, vector] : Signatures)
     {
         for (auto& Signature : vector)
         {
-
-            m_vSignatures.push_back(Utils::CaesarDecrypt(Signature, 3));
+            m_vSignatures.push_back(Signature);
         }
     }
 
     SpawnScanProcess();
 }
 
-
-
 void CHeuristicGuard::SpawnScanProcess()
 {
-
     char szTempFilePath[MAX_PATH];
     GetTempPathA(MAX_PATH, szTempFilePath);
     strcat_s(szTempFilePath, "scn.tmp");
@@ -132,7 +126,7 @@ void CHeuristicGuard::SpawnScanProcess()
                        nullptr,                     // Use parent's starting directory
                        &startupInfo,                // Pointer to STARTUPINFO structure
                        &processInfo))
-    {         
+    {
         SharedUtil::AddDebugLog("Failed to create process. Error: 0x%llx", GetLastError());
     }
 
