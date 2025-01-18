@@ -3,7 +3,7 @@
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 
-bool StartUpManager::IsAppInRegistry(std::string& appName)
+bool StartupManager::IsAppInRegistry(std::string& appName)
 {
     HKEY hKey;
     if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
@@ -23,7 +23,7 @@ bool StartUpManager::IsAppInRegistry(std::string& appName)
     return false;
 }
 
-bool StartUpManager::AddAppToRegistry(std::string& appName)
+bool StartupManager::AddAppToRegistry(std::string& appName)
 {
     HKEY        hKey;
     std::string appPath = "\"";
@@ -50,7 +50,7 @@ bool StartUpManager::AddAppToRegistry(std::string& appName)
     return false;
 }
 
-std::string StartUpManager::GetCurrentProcessName()
+std::string StartupManager::GetCurrentProcessName()
 {
     char szPath[MAX_PATH];
     if (GetModuleFileName(NULL, szPath, MAX_PATH) == 0)
@@ -62,7 +62,7 @@ std::string StartUpManager::GetCurrentProcessName()
     return fileName;
 }
 
-void StartUpManager::StartupFunction(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription)
+void StartupManager::StartupFunction(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription)
 {
     static bool        bDownloading = false;
     static std::string strAgentPEBBuffer;

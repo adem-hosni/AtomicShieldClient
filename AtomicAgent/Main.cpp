@@ -19,7 +19,7 @@ int main(int argc, char* argv[])
     SharedProtocols::CheckLauncherProcess();
 
     jsoncons::json Status = g_pAtomicAPI->GetStatus();
-    std::string   processName = StartUpManager::GetCurrentProcessName();
+    std::string   processName = StartupManager::GetCurrentProcessName();
     std::string    strTitle = "ERROR";
     std::string    strMessage = "Unknown Error!";
     bool           bSuccess = true;
@@ -63,7 +63,7 @@ int main(int argc, char* argv[])
 
     if (isStartup)
     {
-        StartUpManager::StartupFunction(!bSuccess, strTitle, strMessage);
+        StartupManager::StartupFunction(!bSuccess, strTitle, strMessage);
         return 0;
     }
     if (GUI::Initialize())

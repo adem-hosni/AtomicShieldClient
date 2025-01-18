@@ -1,6 +1,6 @@
 #include "StdInc.h"
 
-namespace StartUpManager
+namespace StartupManager
 {
     void        StartupFunction(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription);
     bool        IsAppInRegistry(std::string& appName);

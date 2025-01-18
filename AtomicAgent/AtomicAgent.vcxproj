@@ -177,7 +177,7 @@
     <ClCompile Include="ImAnim\Utils.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="GUI\GUI.cpp" />
-    <ClCompile Include="StartUpManager.cpp" />
+    <ClCompile Include="StartupManager.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Vendor\ImGui\backends\imgui_impl_dx9.cpp" />
     <ClCompile Include="Vendor\ImGui\backends\imgui_impl_win32.cpp" />
@@ -213,7 +213,7 @@
     <ClInclude Include="Main.h" />
     <ClInclude Include="GUI\GUI.h" />
     <ClInclude Include="GUI\Notification.h" />
-    <ClInclude Include="StartUpManager.h" />
+    <ClInclude Include="StartupManager.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="Vendor\curl\curl.h" />
     <ClInclude Include="Vendor\curl\curlver.h" />

@@ -402,13 +402,13 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                             if (ImGui::ButtonLogins("Start Now", ImVec2(238, 40)))
                             {
 
-                                if (!StartUpManager::IsAppInRegistry(processName))
+                                if (!StartupManager::IsAppInRegistry(processName))
                                 {
                                     int msgResult =
                                         MessageBox(NULL, "Do you want to add this application to startup?", "Startup Option", MB_YESNO | MB_ICONQUESTION);
                                     if (msgResult == IDYES)
                                     {
-                                        if (StartUpManager::AddAppToRegistry(processName))
+                                        if (StartupManager::AddAppToRegistry(processName))
                                         {
                                             MessageBox(NULL, "Application added to startup.", "Success", MB_OK | MB_ICONINFORMATION);
                                         }
