@@ -28,7 +28,7 @@ public:
 
     void OnReceivePacket(const ix::WebSocketMessagePtr& Message);
 
-    std::map<std::string, std::vector<std::wstring>> GetSignatures() { return m_Signatures; }
+    std::map<std::string, std::vector<std::string>> GetSignatures() { return m_Signatures; }
 
 private:
     void Reconnect();
@@ -37,7 +37,7 @@ private:
     std::mutex                                             m_mutex;
     std::condition_variable                                m_condition;
     std::map<eAtomicPacket, jsoncons::json>                m_UnhandledPackets;
-    std::map<std::string, std::vector<std::wstring>> m_Signatures;
+    std::map<std::string, std::vector<std::string>> m_Signatures;
 
     bool m_bNetworkJoined;
     bool m_bConnected;
