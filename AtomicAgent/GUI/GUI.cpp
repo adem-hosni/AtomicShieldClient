@@ -399,7 +399,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                         if (!bNoErrors)
                         {
-                            if (ImGui::ButtonLogins("Enable Now", ImVec2(238, 40)))
+                            if (ImGui::ButtonLogins("Start Now", ImVec2(238, 40)))
                             {
 
                                 if (!StartUpManager::IsAppInRegistry(processName))
