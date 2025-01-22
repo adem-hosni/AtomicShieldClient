@@ -6,7 +6,7 @@
 bool StartupManager::IsAppInRegistry(std::string& appName)
 {
     HKEY hKey;
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_READ, &hKey) == ERROR_SUCCESS)
     {
         DWORD dwType = 0;
         DWORD dwSize = MAX_PATH;
@@ -26,7 +26,7 @@ bool StartupManager::IsAppInRegistry(std::string& appName)
 bool StartupManager::AddAppToRegistry(std::string& appName)
 {
     HKEY        hKey;
-    std::string appPath = "\"";
+    std::string appPath = skCrypt("\"").decrypt();
 
     char szPath[MAX_PATH];
     if (GetModuleFileName(NULL, szPath, MAX_PATH) == 0)
@@ -36,9 +36,9 @@ bool StartupManager::AddAppToRegistry(std::string& appName)
     }
 
     appPath += szPath;
-    appPath += "\" --startup";
+    appPath += skCrypt("\" --startup").decrypt();
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &hKey) == ERROR_SUCCESS)
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) == ERROR_SUCCESS)
     {
         if (RegSetValueEx(hKey, appName.c_str(), 0, REG_SZ, (const BYTE*)appPath.c_str(), (appPath.length() + 1) * sizeof(wchar_t)) == ERROR_SUCCESS)
         {

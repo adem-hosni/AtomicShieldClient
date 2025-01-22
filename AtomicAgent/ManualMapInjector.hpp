@@ -5,7 +5,6 @@
 #include <TlHelp32.h>
 #include <stdio.h>
 #include <string>
-#include "XorStr.h"
 #include "SharedUtil.h"
 
 using f_LoadLibraryA = HINSTANCE(WINAPI*)(const char* lpLibFilename);
@@ -237,8 +236,8 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
         {
             if (pSectionHeader->Misc.VirtualSize)
             {
-                if ((SEHExceptionSupport ? 0 : strcmp((char*)pSectionHeader->Name, XorStr(".pdata").c_str()) == 0) ||
-                    strcmp((char*)pSectionHeader->Name, XorStr(".rsrc").c_str()) == 0 || strcmp((char*)pSectionHeader->Name, XorStr(".reloc").c_str()) == 0)
+                if ((SEHExceptionSupport ? 0 : strcmp((char*)pSectionHeader->Name, skCrypt(".pdata")) == 0) ||
+                    strcmp((char*)pSectionHeader->Name, skCrypt(".rsrc")) == 0 || strcmp((char*)pSectionHeader->Name, skCrypt(".reloc")) == 0)
                 {
                     ILog("Processing %s removal", pSectionHeader->Name);
                     if (!WriteProcessMemory(hProc, pTargetBase + pSectionHeader->VirtualAddress, emptyBuffer, pSectionHeader->Misc.VirtualSize, nullptr))

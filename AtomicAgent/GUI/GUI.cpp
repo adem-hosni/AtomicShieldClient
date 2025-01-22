@@ -209,12 +209,12 @@ bool GUI::Initialize()
     GUI::wc.hIcon = LoadIcon(0, IDI_APPLICATION);
     GUI::wc.hCursor = LoadCursor(0, IDC_ARROW);
     GUI::wc.hbrBackground = nullptr;
-    GUI::wc.lpszMenuName = L"ImGui";
-    GUI::wc.lpszClassName = L"Example";
+    GUI::wc.lpszMenuName = L"AtomicShield";
+    GUI::wc.lpszClassName = L"Agent";
     GUI::wc.hIconSm = LoadIcon(0, IDI_APPLICATION);
 
     RegisterClassExW(&GUI::wc);
-    hwnd = CreateWindowExW(NULL, GUI::wc.lpszClassName, L"Loader", WS_POPUP, (GetSystemMetrics(SM_CXSCREEN) / 2) - (WIDTH / 2),
+    hwnd = CreateWindowExW(NULL, GUI::wc.lpszClassName, L"Agent", WS_POPUP, (GetSystemMetrics(SM_CXSCREEN) / 2) - (WIDTH / 2),
                            (GetSystemMetrics(SM_CYSCREEN) / 2) - (HEIGHT / 2), WIDTH, HEIGHT, 0, 0, 0, 0);
 
     SetWindowLongA(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
@@ -305,6 +305,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
     static std::string strAgentPEBBuffer;
     static bool        bInjected = false;
     static char        szLoadingMessage[144];
+    static bool        fivemFound = false;
 
     static float anim_speed = ImGui::GetIO().DeltaTime * 12.f;
 
@@ -404,16 +405,16 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                 if (!StartupManager::IsAppInRegistry(processName))
                                 {
                                     int msgResult =
-                                        MessageBox(NULL, "Do you want to add this application to startup?", "Startup Option", MB_YESNO | MB_ICONQUESTION);
+                                        MessageBox(NULL, skCrypt("Do you want to add this application to startup?"), skCrypt("Startup Option"), MB_YESNO | MB_ICONQUESTION);
                                     if (msgResult == IDYES)
                                     {
                                         if (StartupManager::AddAppToRegistry(processName))
                                         {
-                                            MessageBox(NULL, "Application added to startup.", "Success", MB_OK | MB_ICONINFORMATION);
+                                            MessageBox(NULL, skCrypt("Application added to startup."), skCrypt("Success"), MB_OK | MB_ICONINFORMATION);
                                         }
                                         else
                                         {
-                                            MessageBox(NULL, "Failed to add application to startup.", "Error", MB_OK | MB_ICONERROR);
+                                            MessageBox(NULL, skCrypt("Failed to add application to startup."), skCrypt("Error"), MB_OK | MB_ICONERROR);
                                         }
                                     }
                                 }
@@ -425,27 +426,26 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                     strcat(szLoadingMessage, "Loading...");
                                     ImGui::Notification({ImGuiToastType_Success, 4000, "Downloading..."});
 
-                                    std::thread AgentPEBDownloader(
-                                        [&]()
-                                        {
-                                            g_pAtomicAPI->DownloadEngine(&strAgentPEBBuffer);
-                                            bDownloading = false;
-                                        });
+                                   std::thread AgentPEBDownloader(
+                                       [&]()
+                                       {
+                                           g_pAtomicAPI->DownloadEngine(&strAgentPEBBuffer);
+                                           bDownloading = false;
+                                       });
 
-                                    AgentPEBDownloader.detach();
-                                    bDownloading = true;
+                                   AgentPEBDownloader.detach();
+                                   bDownloading = true;
 
-                                    while (bDownloading || strAgentPEBBuffer.empty())
-                                    {
-                                        std::this_thread::sleep_for(std::chrono::milliseconds(100));            // Prevent busy waiting
-                                    }
+                                   while (bDownloading || strAgentPEBBuffer.empty())
+                                   {
+                                       std::this_thread::sleep_for(std::chrono::milliseconds(100));            // Prevent busy waiting
+                                   }
                                 }
                                 page = 1, active_anim = true;
                             }
                         }
                         else
                         {
-                            // Show the the player the occured error
                             ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(200, 285), ImGui::GetColorU32(c::text_blue), strErrorTitle.c_str());
                             /*ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 32.f, ImVec2(210, 395),
                                                                 ImGui::GetColorU32(c::text_checkbox_active_on), strErrorDescription.c_str());*/
@@ -494,43 +494,57 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                         ImGui::SetCursorPos(ImVec2(region) / 2 - ImVec2(80, 80 + product_offset_1.y));
                         Spinner("NULL", 80.f, 5.f, ImGui::GetColorU32(c::text_blue));
-
-                        if (!strAgentPEBBuffer.empty() && !bInjected)
-                        {
-                            int iProcessID = SharedUtil::GetProcessID("notepad.exe");
-
-                            if (iProcessID > 0)
+                        std::thread CheckFivem(
+                            [&]()
                             {
-                                HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
-                                if (hProcess)
+                                while (true)            // Infinite loop to keep checking the process
                                 {
-                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                    strcat(szLoadingMessage, "Please wait, we're getting everything ready for you!");
-                                    bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()), strAgentPEBBuffer.size());
-                                    if (bInjected)
+                                    if (!strAgentPEBBuffer.empty() && !bInjected)
                                     {
-                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, "Have fun!");
+                                        int iProcessID = SharedUtil::GetFivemProcessID();
+
+                                        if (iProcessID > 0)
+                                        {
+                                            if (!fivemFound)          
+                                            {
+                                                fivemFound = true;
+                                                HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
+                                                if (hProcess)
+                                                {
+                                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                    strcat(szLoadingMessage, skCrypt("Please wait, we're getting everything ready for you!"));
+
+                                                    bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()),
+                                                                             strAgentPEBBuffer.size());
+                                                    if (bInjected)
+                                                    {
+                                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                        strcat(szLoadingMessage, skCrypt("Have fun!"));
+                                                    }
+                                                    else
+                                                    {
+                                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                        strcat(szLoadingMessage, skCrypt("An error occurred while loading the AntiCheat!"));
+                                                    }
+                                                    SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
+                                                }
+                                                else
+                                                {
+                                                    SharedUtil::AddDebugLog(skCrypt("Failed to get process handle!\n"));
+                                                }
+                                            }
+                                        }
+                                        else
+                                        {
+                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                            strcat(szLoadingMessage, skCrypt("Waiting for FiveM to launch"));
+                                        }
                                     }
-                                    else
-                                    {
-                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, "An error occured while loading the AntiCheat!");
-                                    }
-                                    SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
-                                    bInjected = true;            // Avoid multiple memory allocations attempts if the injection was wrong
+                                    std::this_thread::sleep_for(std::chrono::milliseconds(100));            // Prevent busy-waiting
                                 }
-                                else
-                                {
-                                    SharedUtil::AddDebugLog("Failed to get process handle!\n");
-                                }
-                            }
-                            else
-                            {
-                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                strcat(szLoadingMessage, "Waiting for FiveM to launch");
-                            }
-                        }
+                            });
+                        CheckFivem.detach();            // Detach thread to run independently
+
 
                         ImVec2 text_size = ImGui::CalcTextSize(szLoadingMessage, nullptr, true, 0.0f);
                         float  center_area_x = p.x + 100;

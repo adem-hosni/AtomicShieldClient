@@ -13,22 +13,28 @@ CAtomicAPI::~CAtomicAPI()
 
 jsoncons::json CAtomicAPI::GetStatus()
 {
-    std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/agent", jsoncons::json());
+    auto sk_title = skCrypt("Connection Error");
+    auto sk_message = skCrypt("Failed to connect to AtomicShield Server");
+    std::string end = API_BASE_URL + std::string(skCrypt("/anticheat/status/agent").decrypt());
+    std::string buffer = PostRequest(end.c_str(), jsoncons::json());
     if (buffer.empty())
     {
         jsoncons::json JsonResponse = jsoncons::json::object();
         JsonResponse["alive"] = false;
-        JsonResponse["title"] = "Connection Error";
-        JsonResponse["message"] = "Failed to connect to AtomicShield Server";
+        JsonResponse["title"] = std::string(sk_title.decrypt());
+        JsonResponse["message"] = std::string(sk_message.decrypt());
 
         return JsonResponse;
     }
     return jsoncons::json::parse(buffer);
 }
 
+
+
+
 bool CAtomicAPI::IsAlreadyConnected()
 {
-    std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/isconnected");
+    std::string buffer = PostRequest(API_BASE_URL ,skCrypt("/anticheat/status/isconnected").decrypt());
     if (buffer.empty())
     {
         return false;
@@ -42,8 +48,8 @@ bool CAtomicAPI::IsValidVersion(const char* szVersion)
 {
     jsoncons::json RequestBody = jsoncons::json::object();
     RequestBody["version"] = szVersion;
-
     std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/version", RequestBody);
+
     if (buffer.empty())
     {
         return false;
@@ -83,7 +89,7 @@ std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, bool
         response_code = curl_easy_perform(curl);
         if (response_code != CURLE_OK)
         {
-            SharedUtil::AddDebugLog("curl_easy_perform() failed: %s (0x%x)", curl_easy_strerror(response_code), response_code);
+            SharedUtil::AddDebugLog(skCrypt("curl_easy_perform() failed: %s (0x%x)"), curl_easy_strerror(response_code), response_code);
         }
 
         curl_easy_cleanup(curl);            // Cleanup cURL

@@ -20,8 +20,8 @@ int main(int argc, char* argv[])
 
     jsoncons::json Status = g_pAtomicAPI->GetStatus();
     std::string   processName = StartupManager::GetCurrentProcessName();
-    std::string    strTitle = "ERROR";
-    std::string    strMessage = "Unknown Error!";
+    std::string    strTitle = skCrypt("ERROR").decrypt();
+    std::string    strMessage = skCrypt("Unknown Error!").decrypt();
     bool           bSuccess = true;
     bool           isStartup = false;
 
@@ -41,15 +41,15 @@ int main(int argc, char* argv[])
             if (g_pAtomicAPI->IsAlreadyConnected())
             {
                 bSuccess = false;
-                strTitle = "ALREADY CONNECTED";
-                strMessage = "You are already connected to the network.";
+                strTitle = skCrypt("ALREADY CONNECTED");
+                strMessage = skCrypt("You are already connected to the network.");
             }
         }
         else
         {
             bSuccess = false;
-            strTitle = "OUTDATED VERSION";
-            strMessage = "This version of AtomicShield is no longer supported. Please update to the latest version to continue.";
+            strTitle = skCrypt("OUTDATED VERSION");
+            strMessage = skCrypt("This version of AtomicShield is no longer supported. Please update to the latest version to continue.");
         }
     }
     for (int i = 1; i < argc; ++i)

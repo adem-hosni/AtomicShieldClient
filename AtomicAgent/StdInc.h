@@ -11,3 +11,6 @@
 
 #include "CAtomicAPI.h"
 #include "CAtomicCore.h"
+
+
+#include "skCrypter.h"

@@ -20,4 +20,7 @@
 #define API_BASE_URL       "http://127.0.0.1:8000"
 #define WEBSOCKET_BASE_URL "ws://127.0.0.1:8000"
 
+//#define API_BASE_URL       "https://atomic-shield.com/"
+//#define WEBSOCKET_BASE_URL "ws://157.173.212.241:8000"
+
 #define STRINGIFY(x) #x
