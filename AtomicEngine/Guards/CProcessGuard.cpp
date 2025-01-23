@@ -155,7 +155,7 @@ void CProcessGuard::DoPulse()
                         }
                     }
                 }
-                if (!bIsWhitelisted)
+                if (!bIsWhitelisted && !strProcessPath.empty())
                 {
                     SharedUtil::AddDebugLog("The Process %s with pid %d is opening our process!", strProcessName.c_str(), handle.ProcessId);
                     g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},

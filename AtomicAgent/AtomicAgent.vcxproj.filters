@@ -191,5 +191,6 @@
     <ClInclude Include="Vendor\ImGui\misc\freetype\imgui_freetype.h" />
     <ClInclude Include="Vendor\ImGui\misc\single_file\imgui_single_file.h" />
     <ClInclude Include="StartupManager.h" />
+    <ClInclude Include="skCrypter.h" />
   </ItemGroup>
 </Project>
