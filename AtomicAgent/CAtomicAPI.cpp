@@ -1,5 +1,6 @@
 #include "CAtomicAPI.h"
 #include "CAtomicCore.h"
+#include "skCrypter.h"
 
 CAtomicAPI* g_pAtomicAPI = new CAtomicAPI();
 
