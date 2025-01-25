@@ -170,12 +170,8 @@
       </EntryPointSymbol>
     </Link>
     <PostBuildEvent>
-      <Command>del "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\fivem.dll"
-
-xcopy "$(OutputPath)FivemEngine.dll" "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines" /Y /R
-
-rename "C:\Users\hosni\Documents\SafeGuard\bin\debug\resources\engines\FivemEngine.dll" "fivem.dll"
-</Command>
+      <Command>
+      </Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>

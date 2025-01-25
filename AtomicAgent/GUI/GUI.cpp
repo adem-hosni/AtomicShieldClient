@@ -540,7 +540,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                             strcat(szLoadingMessage, skCrypt("Waiting for FiveM to launch"));
                                         }
                                     }
-                                    std::this_thread::sleep_for(std::chrono::milliseconds(100));            // Prevent busy-waiting
+                                    std::this_thread::sleep_for(std::chrono::milliseconds(5000));            // Prevent busy-waiting
                                 }
                             });
                         CheckFivem.detach();            // Detach thread to run independently

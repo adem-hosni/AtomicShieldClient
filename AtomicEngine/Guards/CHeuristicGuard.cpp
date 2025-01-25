@@ -76,7 +76,7 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
         }
     }
 
-    SpawnScanProcess();
+   // SpawnScanProcess();
 }
 
 void CHeuristicGuard::SpawnScanProcess()
