@@ -15,7 +15,7 @@ void BasicChecks::CheckPlugins()
             if (fileName.find("d3d9") != std::string::npos || fileName.find("d3d10") != std::string::npos)
             {
                 SharedUtil::AddDebugLog("Found Dll ", fileName);
-                g_pAtomicAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND);
+                g_pAtomicAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND, {{"plugin", fileName}});
             }
         }
     }
