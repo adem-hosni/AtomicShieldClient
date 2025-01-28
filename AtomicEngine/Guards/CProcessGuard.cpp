@@ -147,14 +147,12 @@ void CProcessGuard::DoPulse()
 
                 for (int i = 0; i < size; i++)
                 {
-                    // if (!FileAuthentication::HasSignature(std::wstring(strProcessPath.begin(), strProcessPath.end()).c_str()))
+                    if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) == 0 || strProcessName.find("FiveM") != std::string::npos)
                     {
-                        if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) == 0)
-                        {
-                            bIsWhitelisted = true;
-                        }
+                        bIsWhitelisted = true;
                     }
                 }
+
                 if (!bIsWhitelisted && !strProcessPath.empty())
                 {
                     SharedUtil::AddDebugLog("The Process %s with pid %d is opening our process!", strProcessName.c_str(), handle.ProcessId);

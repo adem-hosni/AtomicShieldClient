@@ -79,7 +79,7 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
    // SpawnScanProcess();
 }
 
-void CHeuristicGuard::SpawnScanProcess()
+void CHeuristicGuard::DoPulse()
 {
     char szTempFilePath[MAX_PATH];
     GetTempPathA(MAX_PATH, szTempFilePath);
