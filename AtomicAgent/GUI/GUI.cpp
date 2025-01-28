@@ -474,7 +474,9 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                     }
                     if (active_tab == 1)
                     {
-                        draw->AddRectFilled(ImVec2(p.x, p.y), ImVec2(p.x + region.x, p.y + region.y), ImGui::GetColorU32(ImGuiCol_WindowBg), 10);
+                        ImVec4 color(13.0f / 255.0f, 13.0f / 255.0f, 13.0f / 255.0f, 1.0f);
+
+                        draw->AddRectFilled(ImVec2(p.x, p.y), ImVec2(p.x + region.x, p.y + region.y), ImGui::GetColorU32(color), 10);
 
                         static ImVec2 product_offset_1(0.f, 550.f);
 
@@ -540,7 +542,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                             strcat(szLoadingMessage, skCrypt("Waiting for FiveM to launch"));
                                         }
                                     }
-                                    std::this_thread::sleep_for(std::chrono::milliseconds(5000));            // Prevent busy-waiting
+                                    std::this_thread::sleep_for(std::chrono::milliseconds(5000 *2));            // Prevent busy-waiting
                                 }
                             });
                         CheckFivem.detach();            // Detach thread to run independently
