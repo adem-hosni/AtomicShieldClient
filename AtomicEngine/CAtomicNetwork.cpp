@@ -162,6 +162,22 @@ bool CAtomicNetwork::SyncMaliciousSignatures()
     return true;
 }
 
+void CAtomicNetwork::HandleRequestScreenshot()
+{
+    jsoncons::json response = jsoncons::json::object();
+    char           szError[256];
+    memset(szError, 0, sizeof(szError));
+
+    std::string strScreenshotBuffer;
+    bool        bSuccess = Screenshot::CreateScreenshot(&strScreenshotBuffer, szError);
+
+    response["success"] = bSuccess;
+    response["message"] = (const char*)szError;
+    response["buffer"] = SharedUtil::Base64Encode(strScreenshotBuffer);
+
+    SendPacket(REQUEST_SCREENSHOT, response);
+}
+
 void CAtomicNetwork::DoPulse()
 {
     // printf("state: %d\n", m_pWebSocket->getReadyState());
@@ -186,6 +202,7 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
                 std::string                 decoded_buffer = SharedUtil::Base64Decode(message_buffer);
                 std::string                 decrypted_buffer = g_pAtomicCore->Decrypt(decoded_buffer);
                 jsoncons::json              json = jsoncons::json::parse(decrypted_buffer);
+                HandleIncomingPacket(json);
                 m_UnhandledPackets.insert_or_assign((eAtomicPacket)json["type"].as<int>(), json);
                 m_condition.notify_all();
             }
@@ -201,6 +218,22 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         case ix::WebSocketMessageType::Error:
             Reconnect();
             break;
+    }
+}
+
+void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
+{
+    if (!Packet.contains("type"))
+        return;
+
+    int iPacketID = Packet["type"].as<int>();
+    switch ((eAtomicPacket)iPacketID)
+    {
+        case eAtomicPacket::REQUEST_SCREENSHOT:
+            HandleRequestScreenshot();
+            break;
+        default:
+            SharedUtil::AddDebugLog("Requested An Invalid Packet ID %d!", Packet["type"].as<int>());
     }
 }
 

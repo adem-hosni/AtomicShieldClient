@@ -65,7 +65,7 @@ bool Screenshot::BitmapToJpg(const std::wstring& wszFileName, HBITMAP hbmpImage,
     return false;
 }
 
-bool Screenshot::CreateScreenshotEx(std::string* pszData)
+bool Screenshot::CreateScreenshotEx(std::string* pszData, char* szError)
 {
     static std::recursive_mutex            mutex;
     std::unique_lock<std::recursive_mutex> mutex_lock(mutex);
@@ -79,7 +79,8 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData)
     auto                sGDI = GdiplusStartup(&gdiplusToken, &gdiplusStartupInput, NULL);
     if (sGDI != Status::Ok)
     {
-        SharedUtil::AddDebugLog("GdiplusStartup fail! Error: %u", (int)sGDI);
+        sprintf(szError, "GdiplusStartup fail! Error: %u", (int)sGDI);
+        SharedUtil::AddDebugLog(szError);
         return false;
     }
 
@@ -88,7 +89,8 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData)
     HWND hwDesktop = GetDesktopWindow();
     if (GetWindowRect(hwDesktop, &rcDesktop) == FALSE)
     {
-        SharedUtil::AddDebugLog("GetWindowRect fail! Error: %u", GetLastError());
+        sprintf(szError, "GetWindowRect fail! Error: %u", GetLastError());
+        SharedUtil::AddDebugLog(szError);
         Gdiplus::GdiplusShutdown(gdiplusToken);
         return false;
     }
@@ -100,7 +102,9 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData)
     auto hDCScreen = GetDC(NULL);
     if (hDCScreen == NULL)
     {
-        SharedUtil::AddDebugLog("hDCScreen fail! Error: %u", GetLastError());
+        sprintf(szError, "hDCScreen fail! Error: %u", GetLastError());
+        SharedUtil::AddDebugLog(szError);
+
         Gdiplus::GdiplusShutdown(gdiplusToken);
         return false;
     }
@@ -108,7 +112,9 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData)
     auto hDC = CreateCompatibleDC(hDCScreen);
     if (hDC == NULL)
     {
-        SharedUtil::AddDebugLog("hDC fail! Error: %u", GetLastError());
+        sprintf(szError, "hDC fail! Error: %u", GetLastError());
+        SharedUtil::AddDebugLog(szError);
+
         Gdiplus::GdiplusShutdown(gdiplusToken);
         return false;
     }
@@ -116,7 +122,9 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData)
     auto hBitmap = CreateCompatibleBitmap(hDCScreen, iWidth, iHeight);
     if (hBitmap == NULL)
     {
-        SharedUtil::AddDebugLog("hBitmap fail! Error: %u", GetLastError());
+        sprintf(szError, "hBitmap fail! Error: %u", GetLastError());
+        SharedUtil::AddDebugLog(szError);
+
         Gdiplus::GdiplusShutdown(gdiplusToken);
         return false;
     }
@@ -124,7 +132,9 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData)
     auto hGdiObj = SelectObject(hDC, hBitmap);
     if (BitBlt(hDC, 0, 0, iWidth, iHeight, hDCScreen, 0, 0, SRCCOPY) == FALSE)
     {
-        SharedUtil::AddDebugLog("BitBlt fail! Error: %u", GetLastError());
+        sprintf(szError, "BitBlt fail! Error: %u", GetLastError());
+        SharedUtil::AddDebugLog(szError);
+
         Gdiplus::GdiplusShutdown(gdiplusToken);
         return false;
     }
@@ -133,7 +143,9 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData)
     std::wstring wszName(szTmpFileName.begin(), szTmpFileName.end());
     if (!Screenshot::BitmapToJpg(wszName, hBitmap, iWidth, iHeight, 85))
     {
-        SharedUtil::AddDebugLog("BitmapToJpg fail! Error: %u", GetLastError());
+        sprintf(szError, "BitmapToJpg fail! Error: %u", GetLastError());
+        SharedUtil::AddDebugLog(szError);
+
         Gdiplus::GdiplusShutdown(gdiplusToken);
         return false;
     }
@@ -172,12 +184,12 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData)
     return true;
 }
 
-bool Screenshot::CreateScreenshot(std::string* pszData)
+bool Screenshot::CreateScreenshot(std::string* pszData, char* szError)
 {
     auto bRet = false;
     __try
     {
-        bRet = CreateScreenshotEx(pszData);
+        bRet = CreateScreenshotEx(pszData, szError);
     }
     __except (1)
     {
