@@ -25,8 +25,11 @@ public:
 
     bool JoinNetwork();
     bool SyncMaliciousSignatures();
+    void HandleRequestScreenshot();
 
     void OnReceivePacket(const ix::WebSocketMessagePtr& Message);
+
+    void HandleIncomingPacket(jsoncons::json Packet);
 
     std::map<std::string, std::vector<std::wstring>> GetSignatures() { return m_Signatures; }
 
