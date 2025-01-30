@@ -232,8 +232,6 @@ void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
         case eAtomicPacket::REQUEST_SCREENSHOT:
             HandleRequestScreenshot();
             break;
-        default:
-            SharedUtil::AddDebugLog("Requested An Invalid Packet ID %d!", Packet["type"].as<int>());
     }
 }
 
