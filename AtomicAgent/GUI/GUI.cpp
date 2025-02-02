@@ -296,6 +296,42 @@ bool GUI::Initialize()
     return true;
 }
 
+bool InjectDLL(HANDLE hProcess,DWORD pid, const BYTE* dllPath)
+{
+
+    SIZE_T pathLen = strlen((char*)dllPath) + 1;
+    LPVOID pRemoteMemory = VirtualAllocEx(hProcess, nullptr, pathLen, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+    if (!pRemoteMemory)
+    {
+        std::cerr << "Failed to allocate memory in target process. Error: " << GetLastError() << std::endl;
+        CloseHandle(hProcess);
+        return false;
+    }
+
+    if (!WriteProcessMemory(hProcess, pRemoteMemory, dllPath, pathLen, nullptr))
+    {
+        std::cerr << "Failed to write to process memory. Error: " << GetLastError() << std::endl;
+        VirtualFreeEx(hProcess, pRemoteMemory, 0, MEM_RELEASE);
+        CloseHandle(hProcess);
+        return false;
+    }
+
+    HANDLE hThread = CreateRemoteThread(hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)LoadLibraryA, pRemoteMemory, 0, nullptr);
+    if (!hThread)
+    {
+        std::cerr << "Failed to create remote thread. Error: " << GetLastError() << std::endl;
+        VirtualFreeEx(hProcess, pRemoteMemory, 0, MEM_RELEASE);
+        CloseHandle(hProcess);
+        return false;
+    }
+
+    WaitForSingleObject(hThread, INFINITE);
+    VirtualFreeEx(hProcess, pRemoteMemory, 0, MEM_RELEASE);
+    CloseHandle(hThread);
+    CloseHandle(hProcess);
+    return true;
+}
+
 void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription, std::string processName)
 {
     bool               show_demo_window = true;
@@ -503,7 +539,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                 {
                                     if (!strAgentPEBBuffer.empty() && !bInjected)
                                     {
-                                        int iProcessID = SharedUtil::GetFivemProcessID();
+                                        int iProcessID = 118828;
 
                                         if (iProcessID > 0)
                                         {
@@ -516,8 +552,10 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                                     memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                                     strcat(szLoadingMessage, skCrypt("Please wait, we're getting everything ready for you!"));
 
-                                                    bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()),
-                                                                             strAgentPEBBuffer.size());
+                                                    //bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()),
+                                                    //                         strAgentPEBBuffer.size());
+
+                                                    bInjected = InjectDLL(hProcess,iProcessID, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()));
                                                     if (bInjected)
                                                     {
                                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));

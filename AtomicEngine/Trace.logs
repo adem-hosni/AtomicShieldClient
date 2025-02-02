@@ -1,22 +1,2 @@
-[19:6:45] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:46] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:47] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:47] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:48] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:49] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:49] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:50] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:50] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:51] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:52] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:52] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:53] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:54] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:54] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:55] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:56] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:56] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:57] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:58] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:58] The Process Test_Cheating.exe with pid 12044 is opening our process!
-[19:6:59] GetModuleBaseName failed with error 31 @Process::GetProcessName
+[0:43:17] downloading
+[0:43:49] Result from dll injection: 1 (0x0)
