@@ -16,10 +16,10 @@ int main(int argc, char* argv[])
     // SharedProtocols::EnableProcessMitigations();
 
     // Check the launcher process (for anti-debugging)
-    SharedProtocols::CheckLauncherProcess();
+    //SharedProtocols::CheckLauncherProcess();
 
     jsoncons::json Status = g_pAtomicAPI->GetStatus();
-    std::string   processName = StartupManager::GetCurrentProcessName();
+    std::string    processName = StartupManager::GetCurrentProcessName();
     std::string    strTitle = skCrypt("ERROR").decrypt();
     std::string    strMessage = skCrypt("Unknown Error!").decrypt();
     bool           bSuccess = true;

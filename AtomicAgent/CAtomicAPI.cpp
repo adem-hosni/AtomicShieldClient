@@ -30,9 +30,6 @@ jsoncons::json CAtomicAPI::GetStatus()
     return jsoncons::json::parse(buffer);
 }
 
-
-
-
 bool CAtomicAPI::IsAlreadyConnected()
 {
     std::string buffer = PostRequest(API_BASE_URL ,skCrypt("/anticheat/status/isconnected").decrypt());
@@ -81,7 +78,7 @@ std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, bool
                                        : Data.to_string();
 
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
-
+        curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body_buffer.c_str());
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
