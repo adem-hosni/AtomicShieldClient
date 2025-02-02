@@ -8,6 +8,7 @@ std::vector<std::wstring> m_vSignatures;
 
 CHeuristicGuard::CHeuristicGuard()
 {
+    m_strScanProcessName = "";
 }
 
 CHeuristicGuard::~CHeuristicGuard()
@@ -48,8 +49,8 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
 void CHeuristicGuard::SpawnScanProcess()
 {
     char szTempFilePath[MAX_PATH];
-    GetTempPathA(MAX_PATH, szTempFilePath);
-    sprintf(szTempFilePath, "s%d.tmp", SharedUtil::GenerateRandomNumber(32, 256));
+    memset(szTempFilePath, 0, sizeof(szTempFilePath));
+    strcat(szTempFilePath, GetScanProcessName().c_str());
 
     std::ofstream tempFile(szTempFilePath, std::ios::binary);
     if (!tempFile.is_open())
@@ -129,4 +130,16 @@ void CHeuristicGuard::SpawnScanProcess()
     CloseHandle(processInfo.hThread);
 
     DeleteFileA(szTempFilePath);
+}
+
+std::string CHeuristicGuard::GetScanProcessName()
+{
+    if (m_strScanProcessName.empty())
+    {
+        char szTempFilePath[MAX_PATH];
+        GetTempPathA(MAX_PATH, szTempFilePath);
+        sprintf(szTempFilePath, "%ss%d.tmp", szTempFilePath, SharedUtil::GenerateRandomNumber(32, 256));
+        m_strScanProcessName = szTempFilePath;
+    }
+    return m_strScanProcessName;
 }

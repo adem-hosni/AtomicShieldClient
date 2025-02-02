@@ -147,7 +147,9 @@ void CProcessGuard::DoPulse()
 
                 for (int i = 0; i < size; i++)
                 {
-                    if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) == 0 || strProcessName.find("FiveM") != std::string::npos)
+                    if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) == 0
+                        || strProcessName.find("FiveM") != std::string::npos
+                        || strProcessPath == g_pAtomicAntiCheat->GetGuardManager()->GetHeuristicGuard()->GetScanProcessName())
                     {
                         bIsWhitelisted = true;
                     }

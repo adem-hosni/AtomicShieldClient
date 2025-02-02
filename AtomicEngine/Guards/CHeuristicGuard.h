@@ -12,6 +12,7 @@ public:
 
     std::string BuildSignatureParameters();
     void        SpawnScanProcess();
+    std::string GetScanProcessName();
 
     void DoPulse() {}
 
@@ -19,5 +20,6 @@ public:
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
 
 private:
+    std::string              m_strScanProcessName;
     std::vector<std::string> m_Signatures;
 };
