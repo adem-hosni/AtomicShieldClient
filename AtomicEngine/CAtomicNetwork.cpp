@@ -31,8 +31,6 @@ bool CAtomicNetwork::Connect()
 
     if (result.success)
     {
-        m_pWebSocket->enableAutomaticReconnection();
-
         while (!m_bNetworkJoined)
             Sleep(25);
     }
