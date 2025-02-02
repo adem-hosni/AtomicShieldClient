@@ -18,29 +18,6 @@ void CHeuristicGuard::Initialize()
 {
 }
 
-std::vector<unsigned char> readBytesFromExe(const std::string& filePath)
-{
-    std::ifstream file(filePath, std::ios::in | std::ios::binary);
-
-    if (!file)
-    {
-        SharedUtil::AddDebugLog("Unable to open the file!");
-        return {};
-    }
-
-    file.seekg(0, std::ios::end);
-    std::streampos fileSize = file.tellg();
-    file.seekg(0, std::ios::beg);
-
-    std::vector<unsigned char> rawData(fileSize);
-
-    file.read(reinterpret_cast<char*>(rawData.data()), fileSize);
-
-    file.close();
-
-    return rawData;
-}
-
 std::string CHeuristicGuard::BuildSignatureParameters()
 {
     std::stringstream ss;
@@ -54,18 +31,6 @@ std::string CHeuristicGuard::BuildSignatureParameters()
     return ss.str();
 }
 
-bool isAddressInVector(const std::vector<std::wstring>& vec, const void* address)
-{
-    for (const auto& element : vec)
-    {
-        if ((DWORD64)element.data() == (DWORD64)address)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
 void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstring>>& Signatures)
 {
     for (auto& [name, vector] : Signatures)
@@ -76,14 +41,15 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
         }
     }
 
-   // SpawnScanProcess();
+    std::thread t(&CHeuristicGuard::SpawnScanProcess, this);
+    t.detach();
 }
 
-void CHeuristicGuard::DoPulse()
+void CHeuristicGuard::SpawnScanProcess()
 {
     char szTempFilePath[MAX_PATH];
     GetTempPathA(MAX_PATH, szTempFilePath);
-    strcat_s(szTempFilePath, "scn.tmp");
+    sprintf(szTempFilePath, "s%d.tmp", SharedUtil::GenerateRandomNumber(32, 256));
 
     std::ofstream tempFile(szTempFilePath, std::ios::binary);
     if (!tempFile.is_open())
