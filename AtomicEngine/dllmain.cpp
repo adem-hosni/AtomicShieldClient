@@ -1,7 +1,16 @@
 #include "StdInc.h"
 #include "SharedChecks.h"
 
+void EraseSelfPEHeader(LPVOID lpBaseAddress)
+{
+    DWORD OldProtect = 0;
 
+    MODULEINFO  modInfo;
+    SYSTEM_INFO systemInfo;
+    GetSystemInfo(&systemInfo);
+    VirtualProtect(lpBaseAddress, systemInfo.dwPageSize, PAGE_READWRITE, &OldProtect);
+    RtlSecureZeroMemory(lpBaseAddress, systemInfo.dwPageSize);
+}
 
 void EntryPoint(LPVOID lpThreadParameter)
 {
@@ -12,7 +21,9 @@ void EntryPoint(LPVOID lpThreadParameter)
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
 
-    //SharedProtocols::EnableProcessMitigations(true, true, true, true, true);
+    EraseSelfPEHeader(lpThreadParameter);
+
+    // SharedProtocols::EnableProcessMitigations(true, true, true, true, true);
 
     if (g_pAtomicAntiCheat->Initialize())
     {
@@ -20,22 +31,18 @@ void EntryPoint(LPVOID lpThreadParameter)
     }
 }
 
-BOOL APIENTRY DllMain( HMODULE hModule,
-                       DWORD  ul_reason_for_call,
-                       LPVOID lpReserved
-                     )
+BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
     switch (ul_reason_for_call)
     {
-    case DLL_PROCESS_ATTACH:        
-    {
-        _beginthread((_beginthread_proc_type)EntryPoint, NULL, lpReserved);
-    }
-    case DLL_THREAD_ATTACH:
-    case DLL_THREAD_DETACH:
-    case DLL_PROCESS_DETACH:
-        break;
+        case DLL_PROCESS_ATTACH:
+        {
+            _beginthread((_beginthread_proc_type)EntryPoint, NULL, hModule);
+        }
+        case DLL_THREAD_ATTACH:
+        case DLL_THREAD_DETACH:
+        case DLL_PROCESS_DETACH:
+            break;
     }
     return TRUE;
 }
-
