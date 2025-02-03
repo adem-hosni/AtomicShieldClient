@@ -122,6 +122,11 @@ static void Trinage_background()
     }
 }
 
+static void OpenURL(const char* szURL)
+{
+    ShellExecute(0, 0, szURL, 0, 0, SW_SHOWNORMAL);
+}
+
 namespace GUI
 {
     static WNDCLASSEXW wc;

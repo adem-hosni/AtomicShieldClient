@@ -495,7 +495,10 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         ImGui::SetCursorPos(ImVec2(287, 431));
                         ImGui::BeginGroup();
                         {
-                            ImGui::Cirlce_icon("discord", image::discord, ImVec2(31, 31), 0);
+                            if (ImGui::Cirlce_icon("discord", image::discord, ImVec2(31, 31), 0))
+                            {
+                                OpenURL("https://discord.gg/YFCRffsZKK");
+                            }
 
                             ImGui::SameLine(0, 26);
 
