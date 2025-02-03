@@ -296,11 +296,10 @@ bool GUI::Initialize()
     return true;
 }
 
-bool InjectDLL(HANDLE hProcess,DWORD pid, const BYTE* dllBuffer, SIZE_T dllSize)
+bool InjectDLL(HANDLE hProcess, DWORD pid, const BYTE* dllPath)
 {
-
-
-    LPVOID pRemoteMemory = VirtualAllocEx(hProcess, nullptr, dllSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    SIZE_T pathLen = strlen((char*)dllPath) + 1;
+    LPVOID pRemoteMemory = VirtualAllocEx(hProcess, nullptr, pathLen, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     if (!pRemoteMemory)
     {
         std::cerr << "Failed to allocate memory in target process. Error: " << GetLastError() << std::endl;
@@ -308,7 +307,7 @@ bool InjectDLL(HANDLE hProcess,DWORD pid, const BYTE* dllBuffer, SIZE_T dllSize)
         return false;
     }
 
-    if (!WriteProcessMemory(hProcess, pRemoteMemory, dllBuffer, dllSize, nullptr))
+    if (!WriteProcessMemory(hProcess, pRemoteMemory, dllPath, pathLen, nullptr))
     {
         std::cerr << "Failed to write to process memory. Error: " << GetLastError() << std::endl;
         VirtualFreeEx(hProcess, pRemoteMemory, 0, MEM_RELEASE);
@@ -316,7 +315,7 @@ bool InjectDLL(HANDLE hProcess,DWORD pid, const BYTE* dllBuffer, SIZE_T dllSize)
         return false;
     }
 
-    HANDLE hThread = CreateRemoteThread(hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)pRemoteMemory, nullptr, 0, nullptr);
+    HANDLE hThread = CreateRemoteThread(hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)LoadLibraryA, pRemoteMemory, 0, nullptr);
     if (!hThread)
     {
         std::cerr << "Failed to create remote thread. Error: " << GetLastError() << std::endl;
@@ -331,6 +330,7 @@ bool InjectDLL(HANDLE hProcess,DWORD pid, const BYTE* dllBuffer, SIZE_T dllSize)
     CloseHandle(hProcess);
     return true;
 }
+
 void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription, std::string processName)
 {
     bool               show_demo_window = true;
@@ -554,8 +554,11 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                                     //bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()),
                                                     //                         strAgentPEBBuffer.size());
 
-                                                    bInjected = InjectDLL(hProcess, iProcessID, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()),
-                                                                          strAgentPEBBuffer.size());
+                                                    char szTempFilePath[MAX_PATH];
+                                                    GetTempPathA(MAX_PATH, szTempFilePath);
+                                                    sprintf(szTempFilePath, "%s", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
+
+                                                    bInjected = InjectDLL(hProcess, iProcessID, reinterpret_cast<BYTE*>(szTempFilePath));
                                                     if (bInjected)
                                                     {
                                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
