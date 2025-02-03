@@ -59,7 +59,6 @@ bool CAtomicAPI::IsValidVersion(const char* szVersion)
 void CAtomicAPI::DownloadEngine(std::string* buffer)
 {
     *buffer = PostRequest(API_BASE_URL "/resources/scan/fivem");
-    std::string s = *buffer;
 }
 
 std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, bool bEncryptRequestBody, bool bDecryptRespnseBody)
