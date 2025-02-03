@@ -337,7 +337,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
     bool               show_another_window = false;
     ImVec4             clear_color = ImVec4(0.f, 0.f, 0.f, 0.f);
     static bool        bDownloading = false;
-    static std::string strAgentPEBBuffer;
+    static std::string strEngineBuffer;
     static bool        bInjected = false;
     static char        szLoadingMessage[144];
 
@@ -459,18 +459,13 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                     strcat(szLoadingMessage, "Loading...");
                                     ImGui::Notification({ImGuiToastType_Success, 4000, "Downloading..."});
 
-                                    std::thread AgentPEBDownloader(
+                                    std::thread EngineDownloaderThread(
                                         [&]()
                                         {
-                                            g_pAtomicAPI->DownloadEngine(&strAgentPEBBuffer);
+                                            g_pAtomicAPI->DownloadEngine(&strEngineBuffer);
                                             bDownloading = true;
                                         });
-                                    AgentPEBDownloader.detach();
-
-                                    //while (bDownloading || strAgentPEBBuffer.empty())
-                                    //{
-                                    //    std::this_thread::sleep_for(std::chrono::milliseconds(100));            // Prevent busy waiting
-                                    //}
+                                    EngineDownloaderThread.detach();
                                 }
                                 page = 1, active_anim = true;
                             }
@@ -502,7 +497,10 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                             ImGui::SameLine(0, 26);
 
-                            ImGui::Cirlce_icon("youtube", image::youtube, ImVec2(31, 31), 0);
+                            if (ImGui::Cirlce_icon("youtube", image::youtube, ImVec2(31, 31), 0))
+                            {
+                                OpenURL("");
+                            }
                         }
                         ImGui::EndGroup();
                     }
@@ -531,7 +529,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         ImGui::SetCursorPos(ImVec2(region) / 2 - ImVec2(80, 80 + product_offset_1.y));
                         Spinner("NULL", 80.f, 5.f, ImGui::GetColorU32(c::text_blue));
 
-                        if (!strAgentPEBBuffer.empty() && !bInjected)
+                        if (!strEngineBuffer.empty() && !bInjected)
                         {
                             int iProcessID = SharedUtil::GetFivemProcessID();
 
@@ -552,7 +550,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                     FILE* file = fopen(szTempFilePath, "wb");
                                     if (file)
                                     {
-                                        fwrite(strAgentPEBBuffer.c_str(), sizeof(char), strAgentPEBBuffer.size(), file);
+                                        fwrite(strEngineBuffer.c_str(), sizeof(char), strEngineBuffer.size(), file);
                                         fclose(file);
                                     }
 
