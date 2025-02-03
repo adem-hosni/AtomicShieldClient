@@ -155,7 +155,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)/Lib/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>d3d9.lib;Shared.lib;freetype/win64/freetype.lib;curl/libcurl.lib;Ws2_32.lib;Wldap32.lib;crypt32.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <UACUIAccess>false</UACUIAccess>
     </Link>
