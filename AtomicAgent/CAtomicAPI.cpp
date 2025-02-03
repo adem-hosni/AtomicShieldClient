@@ -32,7 +32,7 @@ jsoncons::json CAtomicAPI::GetStatus()
 
 bool CAtomicAPI::IsAlreadyConnected()
 {
-    std::string buffer = PostRequest(API_BASE_URL ,skCrypt("/anticheat/status/isconnected").decrypt());
+    std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/isconnected");
     if (buffer.empty())
     {
         return false;
