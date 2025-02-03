@@ -530,7 +530,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                         if (!strAgentPEBBuffer.empty() && !bInjected)
                         {
-                            int iProcessID = SharedUtil::GetProcessID("notepad.exe");
+                            int iProcessID = SharedUtil::GetFivemProcessID();
 
                             if (iProcessID > 0)
                             {
@@ -540,16 +540,16 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                     memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                     strcat(szLoadingMessage, skCrypt("Please wait, we're getting everything ready for you!"));
 
-                                    // bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()),
-                                    //                          strAgentPEBBuffer.size());
+                                    /*bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()),
+                                                             strAgentPEBBuffer.size());*/
 
                                     char szTempFilePath[MAX_PATH];
                                     GetTempPathA(MAX_PATH, szTempFilePath);
-                                    sprintf(szTempFilePath, "%sqsd.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
-                                    FILE* file = fopen(szTempFilePath, "w");
+                                    sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
+                                    FILE* file = fopen(szTempFilePath, "wb");
                                     if (file)
                                     {
-                                        fwrite(strAgentPEBBuffer.c_str(), sizeof(char), strAgentPEBBuffer.length(), file);
+                                        fwrite(strAgentPEBBuffer.c_str(), sizeof(char), strAgentPEBBuffer.size(), file);
                                         fclose(file);
                                     }
 
