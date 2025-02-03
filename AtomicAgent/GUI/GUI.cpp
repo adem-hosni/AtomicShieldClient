@@ -296,40 +296,41 @@ bool GUI::Initialize()
     return true;
 }
 
-bool InjectDLL(HANDLE hProcess, DWORD pid, const BYTE* dllPath)
+BOOL InjectDLL(HANDLE handleToProc,DWORD PID, const char* dll)
 {
-    SIZE_T pathLen = strlen((char*)dllPath) + 1;
-    LPVOID pRemoteMemory = VirtualAllocEx(hProcess, nullptr, pathLen, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-    if (!pRemoteMemory)
-    {
-        std::cerr << "Failed to allocate memory in target process. Error: " << GetLastError() << std::endl;
-        CloseHandle(hProcess);
-        return false;
-    }
+    LPVOID LoadLibAddr;
+    LPVOID baseAddr;
+    HANDLE remThread;
+    int    dllLength = strlen(dll) + 1;
 
-    if (!WriteProcessMemory(hProcess, pRemoteMemory, dllPath, pathLen, nullptr))
-    {
-        std::cerr << "Failed to write to process memory. Error: " << GetLastError() << std::endl;
-        VirtualFreeEx(hProcess, pRemoteMemory, 0, MEM_RELEASE);
-        CloseHandle(hProcess);
-        return false;
-    }
 
-    HANDLE hThread = CreateRemoteThread(hProcess, nullptr, 0, (LPTHREAD_START_ROUTINE)LoadLibraryA, pRemoteMemory, 0, nullptr);
-    if (!hThread)
-    {
-        std::cerr << "Failed to create remote thread. Error: " << GetLastError() << std::endl;
-        VirtualFreeEx(hProcess, pRemoteMemory, 0, MEM_RELEASE);
-        CloseHandle(hProcess);
-        return false;
-    }
+    LoadLibAddr = (LPVOID)GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA");
 
-    WaitForSingleObject(hThread, INFINITE);
-    VirtualFreeEx(hProcess, pRemoteMemory, 0, MEM_RELEASE);
-    CloseHandle(hThread);
-    CloseHandle(hProcess);
-    return true;
+    if (!LoadLibAddr)
+        return -1;
+
+    baseAddr = VirtualAllocEx(handleToProc, NULL, dllLength, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+
+    if (!baseAddr)
+        return -1;
+
+    if (!WriteProcessMemory(handleToProc, baseAddr, dll, dllLength, NULL))
+        return -1;
+
+    remThread = CreateRemoteThread(handleToProc, NULL, NULL, (LPTHREAD_START_ROUTINE)LoadLibAddr, baseAddr, 0, NULL);
+
+    if (!remThread)
+        return -1;
+
+    WaitForSingleObject(remThread, INFINITE);
+    VirtualFreeEx(handleToProc, baseAddr, dllLength, MEM_RELEASE);
+
+    CloseHandle(remThread);
+    CloseHandle(handleToProc);
+
+    return 1;
 }
+
 
 void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription, std::string processName)
 {
@@ -342,7 +343,8 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
     static char        szLoadingMessage[144];
 
     static float anim_speed = ImGui::GetIO().DeltaTime * 12.f;
-
+     ImGui::GetIO().IniFilename = NULL;
+     ImGui::GetIO().LogFilename = NULL;
     bool done = false;
     while (!done)
     {
@@ -547,6 +549,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                     char szTempFilePath[MAX_PATH];
                                     GetTempPathA(MAX_PATH, szTempFilePath);
                                     sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
+                                    printf("Generated DLL Path: %s\n", szTempFilePath);
                                     FILE* file = fopen(szTempFilePath, "wb");
                                     if (file)
                                     {
@@ -554,7 +557,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                         fclose(file);
                                     }
 
-                                    bInjected = InjectDLL(hProcess, iProcessID, reinterpret_cast<BYTE*>(szTempFilePath));
+                                    bInjected = InjectDLL(hProcess, iProcessID, szTempFilePath);
                                     if (bInjected)
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
