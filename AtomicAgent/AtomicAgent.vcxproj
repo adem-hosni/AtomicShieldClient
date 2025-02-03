@@ -84,8 +84,8 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build</OutDir>
     <IntDir>$(SolutionDir)Cache\$(Configuration)</IntDir>
-    <IncludePath>C:\vcpkg\vcpkg\installed\x64-windows\include;$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir);$(ProjectDir)Vendor\freetype\include;$(ProjectDir)Vendor;$(ProjectDir)Vendor\ImGui\backends;$(ProjectDir)Vendor\ImGui;D:\SDK LIB\Include;D:\ВСЕ МОИ МЕНЮ!!!!!!!!!!!!!\freetype\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\vcpkg\vcpkg\installed\x64-windows\lib;$(ProjectDir)Vendor;$(OutDir);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <IncludePath>C:\vcpkg\vcpkg\installed\x64-windows-static-md\include;$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir);$(ProjectDir)Vendor\freetype\include;$(ProjectDir)Vendor;$(ProjectDir)Vendor\ImGui\backends;$(ProjectDir)Vendor\ImGui;D:\SDK LIB\Include;D:\ВСЕ МОИ МЕНЮ!!!!!!!!!!!!!\freetype\include;$(IncludePath)</IncludePath>
+    <LibraryPath>C:\vcpkg\vcpkg\installed\x64-windows-static-md\lib;$(ProjectDir)Vendor;$(OutDir);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
     <TargetName>$(ProjectName).$(Configuration)</TargetName>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -150,11 +150,11 @@
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
-      <GenerateDebugInformation>true</GenerateDebugInformation>
+      <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)/Lib/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d9.lib;Shared.lib;freetype/win64/freetype.lib;curl/libcurl.lib;Ws2_32.lib;Wldap32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;Shared.lib;freetype/win64/freetype.lib;curl/libcurl.lib;Ws2_32.lib;Wldap32.lib;crypt32.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Console</SubSystem>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <UACUIAccess>false</UACUIAccess>
