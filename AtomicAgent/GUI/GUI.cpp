@@ -533,7 +533,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                         if (!strEngineBuffer.empty() && !bInjected)
                         {
-                            int iProcessID = SharedUtil::GetProcessID("notepad.exe");
+                            int iProcessID = SharedUtil::GetFivemProcessID();
 
                             if (iProcessID > 0)
                             {
@@ -549,7 +549,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                     char szTempFilePath[MAX_PATH];
                                     GetTempPathA(MAX_PATH, szTempFilePath);
                                     sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
-                                    printf("Generated DLL Path: %s\n", szTempFilePath);
+                                    //printf("Generated DLL Path: %s\n", szTempFilePath);
                                     FILE* file = fopen(szTempFilePath, "wb");
                                     if (file)
                                     {
@@ -587,7 +587,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         float  center_area_width = 320;
                         float  centered_x = center_area_x + (center_area_width - text_size.x) * 0.5f;
 
-                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 30.f, ImVec2(centered_x, p.y + 401), ImGui::GetColorU32(c::text_blue),
+                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 30.f, ImVec2(centered_x +50, p.y + 410), ImGui::GetColorU32(c::text_blue),
                                                             szLoadingMessage);
 
                         /*page = 2;
