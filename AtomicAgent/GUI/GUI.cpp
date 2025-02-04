@@ -438,7 +438,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         {
                             if (ImGui::ButtonLogins("Start Now", ImVec2(238, 40)))
                             {
-                                if (!StartupManager::IsAppInRegistry(processName))
+                                /*if (!StartupManager::IsAppInRegistry(processName))
                                 {
                                     int msgResult = MessageBox(NULL, skCrypt("Do you want to add this application to startup?"), skCrypt("Startup Option"),
                                                                MB_YESNO | MB_ICONQUESTION);
@@ -453,7 +453,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                             MessageBox(NULL, skCrypt("Failed to add application to startup."), skCrypt("Error"), MB_OK | MB_ICONERROR);
                                         }
                                     }
-                                }
+                                }*/
 
                                 if (!bDownloading)
                                 {
@@ -533,7 +533,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                         if (!strEngineBuffer.empty() && !bInjected)
                         {
-                            int iProcessID = SharedUtil::GetFivemProcessID();
+                            int iProcessID = SharedUtil::GetProcessID("notepad.exe");
 
                             if (iProcessID > 0)
                             {

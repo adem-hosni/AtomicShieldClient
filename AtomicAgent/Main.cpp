@@ -3,7 +3,8 @@
 #include "SharedChecks.h"
 #include "SharedProtocols.h"
 
-int main(int argc, char* argv[])
+//int main(int argc, char* argv[])
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 {
 #ifdef _DEBUG
     AllocConsole();
@@ -52,14 +53,8 @@ int main(int argc, char* argv[])
             strMessage = skCrypt("This version of AtomicShield is no longer supported. Please update to the latest version to continue.");
         }
     }
-    for (int i = 1; i < argc; ++i)
-    {
-        if (strcmp(argv[i], "--startup") == 0)
-        {
-            isStartup = true;
-            break;
-        }
-    }
+    
+    isStartup = std::strstr(pCmdLine, "--startup");
 
     if (isStartup)
     {
