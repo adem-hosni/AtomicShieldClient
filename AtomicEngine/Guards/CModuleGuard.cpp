@@ -119,11 +119,18 @@ void CModuleGuard::DoPulse()
                                 }
                             }
 
+                           if (wstrModuleName.find(L"FiveM") != std::wstring::npos || wstrModulePath.find(L"FiveM") != std::wstring::npos)
+                            {
+                                isWhitelisted = true;
+                            }
+
+
                             // Skip logging or flagging if the module is whitelisted
                             if (isWhitelisted)
                             {
                                 continue;
                             }
+
 
                             // Perform further checks for unsigned or suspicious modules
                             if (!FileAuthentication::HasSignature(wstrModulePath.c_str()))
