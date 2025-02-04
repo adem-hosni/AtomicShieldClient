@@ -1,16 +1,7 @@
 #include "StdInc.h"
 #include "SharedChecks.h"
-
-void EraseSelfPEHeader(LPVOID lpBaseAddress)
-{
-    DWORD OldProtect = 0;
-
-    MODULEINFO  modInfo;
-    SYSTEM_INFO systemInfo;
-    GetSystemInfo(&systemInfo);
-    VirtualProtect(lpBaseAddress, systemInfo.dwPageSize, PAGE_READWRITE, &OldProtect);
-    RtlSecureZeroMemory(lpBaseAddress, systemInfo.dwPageSize);
-}
+#include <winternl.h>
+#include "PEBHide.h"
 
 void EntryPoint(LPVOID lpThreadParameter)
 {
@@ -22,7 +13,8 @@ void EntryPoint(LPVOID lpThreadParameter)
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
 
-    EraseSelfPEHeader(lpThreadParameter);
+    PEBHide::EraseSelfPEHeader(lpThreadParameter);
+    PEBHide::UnlinkSelfLdrModule(lpThreadParameter);
 #endif
 
     // SharedProtocols::EnableProcessMitigations(true, true, true, true, true);

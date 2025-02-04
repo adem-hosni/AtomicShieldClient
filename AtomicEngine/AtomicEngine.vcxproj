@@ -189,6 +189,7 @@
     <ClCompile Include="CHWID.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="KernelCalls.c" />
+    <ClCompile Include="PEBHide.cpp" />
     <ClCompile Include="Screenshot.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Utils.cpp" />
@@ -254,6 +255,7 @@
     <ClInclude Include="KernelCalls.h" />
     <ClInclude Include="KernelCalls.hpp" />
     <ClInclude Include="AtomicPacket.h" />
+    <ClInclude Include="PEBHide.h" />
     <ClInclude Include="scanner.h" />
     <ClInclude Include="Screenshot.h" />
     <ClInclude Include="StdInc.h" />

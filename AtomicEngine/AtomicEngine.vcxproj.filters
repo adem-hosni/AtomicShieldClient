@@ -186,6 +186,9 @@
     <ClCompile Include="KernelCalls.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="PEBHide.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="StdInc.h">
@@ -414,6 +417,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="scanner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="PEBHide.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
