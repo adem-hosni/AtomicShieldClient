@@ -191,6 +191,12 @@ void CHeuristicGuard::SpawnScanProcess()
         {
             g_pAtomicAntiCheat->NotifyDetection(eDetectionType::CHEAT_SIGNATURE_FOUND);
         }
+        else if (dwExitCode == 0x1)
+        {
+            SharedUtil::AddDebugLog("Force Exit for scanner", dwExitCode);
+            SharedUtil::TerminateProcess(GetCurrentProcessId());
+            __fastfail(0);
+        }
     }
     else
     {

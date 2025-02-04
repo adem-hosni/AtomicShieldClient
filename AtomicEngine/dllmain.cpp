@@ -14,7 +14,7 @@ void EraseSelfPEHeader(LPVOID lpBaseAddress)
 
 void EntryPoint(LPVOID lpThreadParameter)
 {
-#ifndef _DEBUG
+#ifndef DEBUG
     //_beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
 
     AllocConsole();
@@ -22,7 +22,7 @@ void EntryPoint(LPVOID lpThreadParameter)
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
 
-    EraseSelfPEHeader(lpThreadParameter);
+    //EraseSelfPEHeader(lpThreadParameter);
 #endif
 
     // SharedProtocols::EnableProcessMitigations(true, true, true, true, true);

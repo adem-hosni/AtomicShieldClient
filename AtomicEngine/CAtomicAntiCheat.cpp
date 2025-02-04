@@ -64,7 +64,7 @@ void CAtomicAntiCheat::StartBasicChecks()
 {
     BasicChecks::CheckPlugins();
 
-//    BasicChecks::CheckBlacklistedDrivers();
+    BasicChecks::CheckBlacklistedDrivers();
 
     //  DebugModeEnabled();
 
