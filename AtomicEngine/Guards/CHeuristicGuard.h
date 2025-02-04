@@ -12,6 +12,7 @@ public:
 
     std::string BuildSignatureParameters();
     void        SpawnScanProcess();
+    int         hide();
     std::string GetScanProcessName();
 
     void DoPulse() {}

