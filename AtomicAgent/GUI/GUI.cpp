@@ -415,16 +415,6 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         ImGui::GetWindowDrawList()->AddImageRounded(image::Logo, ImVec2(p.x + 198, p.y + 64), ImVec2(p.x + 464, p.y + 277), ImVec2(0, 0),
                                                                     ImVec2(1, 1), ImGui::GetColorU32(c::icon_welcome) /*color*/, 0 /*rounding*/);
 
-                        ImGui::SetCursorPos(ImVec2(region.x - 77, 12));
-                        if (ImGui::Minimize_icon("minimize", image::minimize, ImVec2(27, 27), 0))
-                        {
-                            ShowWindow(hwnd, SW_MINIMIZE);
-                        }
-
-                        ImGui::SameLine(0, 7);
-                        if (ImGui::Exit_icon("exit", image::exit, ImVec2(27, 27), 0))
-                            exit(0);
-
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 160, p.y + 101), ImGui::GetColorU32(c::text_blue),
                                                             "ATOMIC SHIELD");
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 380, p.y + 101), ImGui::GetColorU32(c::text_checkbox_active_on),
@@ -594,6 +584,16 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 30.f, ImVec2(centered_x + 50, p.y + 410), ImGui::GetColorU32(c::text_blue),
                                                             szLoadingMessage);
                     }
+
+                    ImGui::SetCursorPos(ImVec2(region.x - 77, 12));
+                    if (ImGui::Minimize_icon("minimize", image::minimize, ImVec2(27, 27), 0))
+                    {
+                        ShowWindow(hwnd, SW_MINIMIZE);
+                    }
+
+                    ImGui::SameLine(0, 7);
+                    if (ImGui::Exit_icon("exit", image::exit, ImVec2(27, 27), 0))
+                        exit(0);
                 }
                 ImGui::PopStyleVar();
                 move_window();
