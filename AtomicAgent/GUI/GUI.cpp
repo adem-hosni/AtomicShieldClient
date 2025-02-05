@@ -220,7 +220,7 @@ bool GUI::Initialize()
     SetWindowLongA(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
     SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 255, LWA_ALPHA);
 
-    MARGINS margins = {-1};
+    MARGINS margins = {0, 0, 0, 0};
     DwmExtendFrameIntoClientArea(hwnd, &margins);
 
     POINT mouse;
@@ -296,13 +296,12 @@ bool GUI::Initialize()
     return true;
 }
 
-BOOL InjectDLL(HANDLE handleToProc,DWORD PID, const char* dll)
+BOOL InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
 {
     LPVOID LoadLibAddr;
     LPVOID baseAddr;
     HANDLE remThread;
     int    dllLength = strlen(dll) + 1;
-
 
     LoadLibAddr = (LPVOID)GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA");
 
@@ -331,20 +330,19 @@ BOOL InjectDLL(HANDLE handleToProc,DWORD PID, const char* dll)
     return 1;
 }
 
-
 void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription, std::string processName)
 {
     bool               show_demo_window = true;
     bool               show_another_window = false;
-    ImVec4             clear_color = ImVec4(0.f, 0.f, 0.f, 0.f);
+    ImVec4             clear_color = c::color_bg_1;
     static bool        bDownloading = false;
     static std::string strEngineBuffer;
     static bool        bInjected = false;
     static char        szLoadingMessage[144];
 
     static float anim_speed = ImGui::GetIO().DeltaTime * 12.f;
-     ImGui::GetIO().IniFilename = NULL;
-     ImGui::GetIO().LogFilename = NULL;
+    ImGui::GetIO().IniFilename = NULL;
+    ImGui::GetIO().LogFilename = NULL;
     bool done = false;
     while (!done)
     {
@@ -396,10 +394,10 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                                             20                                                     // rounding
                 );
 
-                //    blur::add_blur(ImGui::GetBackgroundDrawList(), p, ImVec2(p.x + region.x, p.y + region.y), 1.f);
+                blur::add_blur(ImGui::GetBackgroundDrawList(), p, ImVec2(p.x + region.x, p.y + region.y), 1.f);
                 ImVec4 color(13.0f / 255.0f, 13.0f / 255.0f, 13.0f / 255.0f, 1.0f);
 
-                draw->AddRectFilled(ImVec2(p.x, p.y), ImVec2(p.x + region.x, p.y + region.y), ImGui::GetColorU32(color), 19);
+                // draw->AddRectFilled(ImVec2(p.x, p.y), ImVec2(p.x + region.x, p.y + region.y), ImGui::GetColorU32(color), 19);
 
                 Trinage_background();
 
@@ -549,7 +547,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                     char szTempFilePath[MAX_PATH];
                                     GetTempPathA(MAX_PATH, szTempFilePath);
                                     sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
-                                    //printf("Generated DLL Path: %s\n", szTempFilePath);
+                                    // printf("Generated DLL Path: %s\n", szTempFilePath);
                                     FILE* file = fopen(szTempFilePath, "wb");
                                     if (file)
                                     {
@@ -587,7 +585,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         float  center_area_width = 320;
                         float  centered_x = center_area_x + (center_area_width - text_size.x) * 0.5f;
 
-                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 30.f, ImVec2(centered_x +50, p.y + 410), ImGui::GetColorU32(c::text_blue),
+                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 30.f, ImVec2(centered_x + 50, p.y + 410), ImGui::GetColorU32(c::text_blue),
                                                             szLoadingMessage);
 
                         /*page = 2;
