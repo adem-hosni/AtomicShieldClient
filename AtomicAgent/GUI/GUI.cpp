@@ -30,7 +30,6 @@
 #include "ImAnim/ImVec4Anim.h"
 #include "notification.h"
 #include <CAtomicAPI.h>
-#include <ManualMapInjector.hpp>
 
 // Forward declarations of helper functions
 bool           CreateDeviceD3D(HWND hWnd);
@@ -503,7 +502,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                         if (!strEngineBuffer.empty() && !bInjected)
                         {
-                            int iProcessID = SharedUtil::GetFivemProcessID();
+                            int iProcessID = SharedUtil::GetProcessID("notepad.exe");
 
                             if (iProcessID > 0)
                             {
