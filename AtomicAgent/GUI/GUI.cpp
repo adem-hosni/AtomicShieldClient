@@ -560,6 +560,9 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                         strcat(szLoadingMessage, skCrypt("Have fun!"));
+                                        
+                                        page = 2;
+                                        active_anim_1 = true;
                                     }
                                     else
                                     {
