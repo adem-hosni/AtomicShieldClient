@@ -436,23 +436,6 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         {
                             if (ImGui::ButtonLogins("Start Now", ImVec2(238, 40)))
                             {
-                                /*if (!StartupManager::IsAppInRegistry(processName))
-                                {
-                                    int msgResult = MessageBox(NULL, skCrypt("Do you want to add this application to startup?"), skCrypt("Startup Option"),
-                                                               MB_YESNO | MB_ICONQUESTION);
-                                    if (msgResult == IDYES)
-                                    {
-                                        if (StartupManager::AddAppToRegistry(processName))
-                                        {
-                                            MessageBox(NULL, skCrypt("Application added to startup."), skCrypt("Success"), MB_OK | MB_ICONINFORMATION);
-                                        }
-                                        else
-                                        {
-                                            MessageBox(NULL, skCrypt("Failed to add application to startup."), skCrypt("Error"), MB_OK | MB_ICONERROR);
-                                        }
-                                    }
-                                }*/
-
                                 if (!bDownloading)
                                 {
                                     memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
@@ -547,7 +530,6 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                     char szTempFilePath[MAX_PATH];
                                     GetTempPathA(MAX_PATH, szTempFilePath);
                                     sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
-                                    // printf("Generated DLL Path: %s\n", szTempFilePath);
                                     FILE* file = fopen(szTempFilePath, "wb");
                                     if (file)
                                     {
@@ -582,18 +564,8 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                 strcat(szLoadingMessage, skCrypt("Waiting for FiveM to launch"));
                             }
                         }
-
-                        ImVec2 text_size = ImGui::CalcTextSize(szLoadingMessage, nullptr, true, 0.0f);
-                        float  center_area_x = p.x + 100;
-                        float  center_area_width = 320;
-                        float  centered_x = center_area_x + (center_area_width - text_size.x) * 0.5f;
-
-                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 30.f, ImVec2(centered_x + 50, p.y + 410), ImGui::GetColorU32(c::text_blue),
-                                                            szLoadingMessage);
-
-                        /*page = 2;
-                        active_anim_1 = true;*/
                     }
+
                     if (active_tab == 2)
                     {
                         static ImVec2 product_offset_2(0.f, 550.f);
@@ -610,6 +582,17 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         ImGui::GetWindowDrawList()->AddImageRounded(image::Succes, ImVec2(p.x + 246, p.y + 165 + product_offset_2.y),
                                                                     ImVec2(p.x + 415, p.y + 334 + product_offset_2.y), ImVec2(0, 0), ImVec2(1, 1),
                                                                     ImGui::GetColorU32(c::text_blue) /*color*/, 0 /*rounding*/);
+
+                    }
+                    if (active_tab != 0)
+                    {
+                        ImVec2 text_size = ImGui::CalcTextSize(szLoadingMessage, nullptr, true, 0.0f);
+                        float  center_area_x = p.x + 100;
+                        float  center_area_width = 320;
+                        float  centered_x = center_area_x + (center_area_width - text_size.x) * 0.5f;
+
+                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 30.f, ImVec2(centered_x + 50, p.y + 410), ImGui::GetColorU32(c::text_blue),
+                                                            szLoadingMessage);
                     }
                 }
                 ImGui::PopStyleVar();
