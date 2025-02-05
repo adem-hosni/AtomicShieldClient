@@ -16,8 +16,7 @@ CModuleGuard::CModuleGuard()
         L"ros.dll",
         L"gfsdk_shadowlib.dll",
         L"SwiftShaderD3D9_64.dll",
-        L"FiveM_b3095_GTAProcess.exe",
-        L"FiveM_b2699_GTAProcess.exe"
+        L"_GTAProcess.exe",
     };
     OriginalBytes[50] = {0};
     lpAddr = nullptr;
@@ -67,7 +66,7 @@ NTSTATUS NTAPI _LdrLoadDll(PWCHAR PathToFile_OPTIONAL, ULONG Flags, PUNICODE_STR
 void CModuleGuard::Initialize()
 {
     lpAddr = (LPVOID)GetProcAddress(LoadLibrary("ntdll.dll"), "LdrLoadDll");
-  //  CAtomicHook::Create(lpAddr, &_LdrLoadDll);
+    //  CAtomicHook::Create(lpAddr, &_LdrLoadDll);
 }
 
 PLDR_DATA_TABLE_ENTRY GetNextNode(PCHAR node, int iOffset)
@@ -112,25 +111,23 @@ void CModuleGuard::DoPulse()
                             // Check if the module is in the whitelist
                             for (const wchar_t* allowedModule : m_vAllowedModules)
                             {
-                                if (_wcsicmp(wstrModuleName.c_str(), allowedModule) == 0)
+                                if (_wcsicmp(wstrModuleName.c_str(), allowedModule) == 0 || wstrModuleName.find(allowedModule) != std::wstring::npos)
                                 {
                                     isWhitelisted = true;
                                     break;
                                 }
                             }
 
-                           if (wstrModuleName.find(L"FiveM") != std::wstring::npos || wstrModulePath.find(L"FiveM") != std::wstring::npos)
+                            if (wstrModuleName.find(L"FiveM") != std::wstring::npos || wstrModulePath.find(L"FiveM") != std::wstring::npos)
                             {
                                 isWhitelisted = true;
                             }
-
 
                             // Skip logging or flagging if the module is whitelisted
                             if (isWhitelisted)
                             {
                                 continue;
                             }
-
 
                             // Perform further checks for unsigned or suspicious modules
                             if (!FileAuthentication::HasSignature(wstrModulePath.c_str()))
