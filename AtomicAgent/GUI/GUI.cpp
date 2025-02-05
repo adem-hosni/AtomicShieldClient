@@ -430,7 +430,6 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                 {
                                     memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                     strcat(szLoadingMessage, "Loading...");
-                                    ImGui::Notification({ImGuiToastType_Success, 4000, "Downloading..."});
 
                                     std::thread EngineDownloaderThread(
                                         [&]()
