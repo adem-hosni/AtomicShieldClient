@@ -154,7 +154,7 @@
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <AdditionalLibraryDirectories>$(DXSDK_DIR)/Lib/x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>d3d9.lib;Shared.lib;freetype/win64/freetype.lib;curl/libcurl.lib;Ws2_32.lib;Wldap32.lib;crypt32.lib;libssl.lib;libcrypto.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>d3d9.lib;Shared.lib;freetype/win64/freetype.lib;curl/libcurl.lib;Ws2_32.lib;Wldap32.lib;crypt32.lib;%(AdditionalDependencies)</AdditionalDependencies>
       <SubSystem>Windows</SubSystem>
       <UACExecutionLevel>RequireAdministrator</UACExecutionLevel>
       <UACUIAccess>false</UACUIAccess>
@@ -195,7 +195,7 @@
     <ClInclude Include="GUI\Customs.hpp" />
     <ClInclude Include="GUI\Elements.h" />
     <ClInclude Include="GUI\Variables.h" />
-    <ClInclude Include="ManualMapInjector.hpp" />
+    <ClInclude Include="resource.h" />
     <ClInclude Include="Resources\Font.h" />
     <ClInclude Include="GUI\Utils.h" />
     <ClInclude Include="Resources\Image.h" />
@@ -298,6 +298,12 @@
     <ProjectReference Include="..\Shared\Shared.vcxproj">
       <Project>{4e58b5b0-73c8-4a5d-b79b-9bfaa2371e3c}</Project>
     </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <ResourceCompile Include="Resources\Atomic Agent.rc" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Resources\icon.ico" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
