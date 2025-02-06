@@ -54,13 +54,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
         }
     }
     
-    isStartup = std::strstr(pCmdLine, "--startup");
-
-    if (isStartup)
-    {
-        StartupManager::StartupFunction(!bSuccess, strTitle, strMessage);
-        return 0;
-    }
+    
     if (GUI::Initialize())
     {
         GUI::RenderUI(!bSuccess, strTitle, strMessage, processName);
