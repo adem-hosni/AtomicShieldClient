@@ -17,7 +17,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     // SharedProtocols::EnableProcessMitigations();
 
     // Check the launcher process (for anti-debugging)
-    //SharedProtocols::CheckLauncherProcess();
+    SharedProtocols::CheckLauncherProcess();
 
     jsoncons::json Status = g_pAtomicAPI->GetStatus();
     std::string    processName = StartupManager::GetCurrentProcessName();
