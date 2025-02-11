@@ -502,7 +502,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                         if (!strEngineBuffer.empty() && !bInjected)
                         {
-                            int iProcessID = SharedUtil::GetProcessID("notepad.exe");
+                            int iProcessID = SharedUtil::GetFivemProcessID();
 
                             if (iProcessID > 0)
                             {

@@ -5,7 +5,7 @@
 
 void EntryPoint(LPVOID lpThreadParameter)
 {
-#ifndef _DEBUG
+#ifdef _DEBUG
     //_beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
 
     AllocConsole();
