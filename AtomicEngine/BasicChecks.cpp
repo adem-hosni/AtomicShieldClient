@@ -180,7 +180,7 @@ void BasicChecks::CheckBlacklistedDrivers()
         std::unordered_map<std::string, ArgType> params;
         for (auto& driver : vFoundBlacklistedDrivers)
         {
-            params.insert_or_assign("BlackListed Driver", driver);
+            params.insert_or_assign("driver_name", driver);
         }
 
         g_pAtomicAntiCheat->NotifyDetection(eDetectionType::BLACKLISTED_DRIVER_LOADED, params);
