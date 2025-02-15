@@ -20,7 +20,7 @@ bool CAtomicNetwork::Connect()
         return false;
 
     m_pWebSocket->setUrl(WEBSOCKET_BASE_URL "/c/atomicshieldagent/");
-
+    
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
 
     m_pWebSocket->setPingInterval(3);
@@ -66,9 +66,6 @@ void CAtomicNetwork::OnConnect()
         FreeModule(GetModuleHandle(NULL));
         return;
     }
-
-    if (!g_pAtomicAntiCheat->GetNetwork()->SyncMaliciousSignatures())
-        MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
 }
 
 void CAtomicNetwork::StaticPulse(void* pContext)
@@ -117,8 +114,10 @@ bool CAtomicNetwork::JoinNetwork()
     RequestData["engine_type"] = 2;            // FiveM
 
     SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData);
+
     g_pAtomicAntiCheat->StartPulse(); // TODO
     return true;
+
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
 
     m_bNetworkJoined = true; // Response["success"].as_bool();
@@ -127,6 +126,9 @@ bool CAtomicNetwork::JoinNetwork()
     {
         g_pHWID->StoreHWIDCaches(RequestHWID);
         g_pAtomicAntiCheat->StartPulse();
+        
+        if (!g_pAtomicAntiCheat->GetNetwork()->SyncMaliciousSignatures(Response["signatures"]))
+            MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
     }
     else
     {
@@ -136,12 +138,8 @@ bool CAtomicNetwork::JoinNetwork()
     return m_bNetworkJoined;
 }
 
-bool CAtomicNetwork::SyncMaliciousSignatures()
+bool CAtomicNetwork::SyncMaliciousSignatures(jsoncons::json& Signatures)
 {
-    SendPacket(SYNC_SIGNATURES);
-    jsoncons::json Response = WaitReponse(SYNC_SIGNATURES);
-    jsoncons::json Signatures = Response["signatures"];
-
     for (const auto& Item : Signatures.object_range())
     {
         const std::string&    SignatureTitle = Item.key();
@@ -201,20 +199,19 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         {
             if (Message->type == ix::WebSocketMessageType::Message)
             {
-                std::lock_guard<std::mutex> lock(m_mutex);
                 std::string                 message_buffer = Message->str;
                 std::string                 decoded_buffer = SharedUtil::Base64Decode(message_buffer);
                 std::string                 decrypted_buffer = g_pAtomicCore->Decrypt(decoded_buffer);
                 jsoncons::json              json = jsoncons::json::parse(decrypted_buffer);
                 HandleIncomingPacket(json);
                 m_UnhandledPackets.insert_or_assign((eAtomicPacket)json["type"].as<int>(), json);
-                m_condition.notify_all();
             }
             break;
         }
 
         case ix::WebSocketMessageType::Close:
         {
+            SharedUtil::AddDebugLog("WebSocket Closed: %s", Message->closeInfo.reason.c_str());
             Reconnect();
             break;
         }
@@ -247,9 +244,7 @@ void CAtomicNetwork::Reconnect()
     SharedUtil::AddDebugLog("Attempting to reconnect to the websocket...");
     while (m_pWebSocket->getReadyState() == ix::ReadyState::Closed || m_pWebSocket->getReadyState() == ix::ReadyState::Closing)
     {
-        //Connect();
-        auto func = std::bind(&CAtomicNetwork::Connect, this, std::placeholders::_1);
-        CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&func, 0, 0, 0);
+        Connect();
         Sleep(2 * 1000);
     }
     SharedUtil::AddDebugLog("Websocket connection established successfuly!");

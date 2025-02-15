@@ -24,7 +24,7 @@ public:
     void        DoPulse();
 
     bool JoinNetwork();
-    bool SyncMaliciousSignatures();
+    bool SyncMaliciousSignatures(jsoncons::json& Signatures);
     void HandleRequestScreenshot();
 
     void OnReceivePacket(const ix::WebSocketMessagePtr& Message);
