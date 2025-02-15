@@ -155,13 +155,16 @@ void CProcessGuard::DoPulse()
                     }
                 }
 
-                if (!bIsWhitelisted && !strProcessPath.empty())
+                if (!bIsWhitelisted && !strProcessPath.empty() &&
+                    (handle.GrantedAccess & PROCESS_ALL_ACCESS || handle.GrantedAccess & PROCESS_VM_WRITE || handle.GrantedAccess & PROCESS_VM_READ))
                 {
                     SharedUtil::AddDebugLog("The Process %s with pid %d is opening our process!", strProcessName.c_str(), handle.ProcessId);
-                    g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
+                    g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {
+                                                                                        {"process_name", strProcessName},
                                                                                         {"process_path", strProcessPath},
                                                                                         {"pid", handle.ProcessId},
-                                                                                        {"granted_access", handle.GrantedAccess}});
+                                                                                        {"granted_access", handle.GrantedAccess}
+                        });
                     bFoundHandle = TRUE;
                 }
             }

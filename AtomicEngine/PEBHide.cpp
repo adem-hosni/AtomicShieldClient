@@ -34,9 +34,6 @@ void PEBHide::UnlinkSelfLdrModule(LPVOID lpBaseAddress)
 
                     if (Node->DllBase == lpBaseAddress)
                     {
-                        SharedUtil::AddDebugLog("addr: 0x%p", (DWORD64)Node->BaseDllName.Buffer);
-                        SharedUtil::AddDebugLog("addr: 0x%p", (DWORD64)Node->FullDllName.Buffer);
-
                         memset(Node->BaseDllName.Buffer, 0, Node->BaseDllName.Length);
                         memset(Node->FullDllName.Buffer, 0, Node->FullDllName.Length);
 

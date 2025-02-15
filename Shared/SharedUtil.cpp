@@ -276,6 +276,36 @@ std::string SharedUtil::Base64Encode(std::string& data)
     return encoded;
 }
 
+std::wstring SharedUtil::Base64Encode(std::wstring& data)
+{
+    static const wchar_t base64Chars[] =
+        L"ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        L"abcdefghijklmnopqrstuvwxyz"
+        L"0123456789+/";
+
+    std::wstring encoded;
+    int          val = 0, valb = -6;
+    for (wchar_t c : data)
+    {
+        val = (val << 8) + c;
+        valb += 8;
+        while (valb >= 0)
+        {
+            encoded.push_back(base64Chars[(val >> valb) & 0x3F]);
+            valb -= 6;
+        }
+    }
+    if (valb > -6)
+    {
+        encoded.push_back(base64Chars[((val << 8) >> (valb + 8)) & 0x3F]);
+    }
+    while (encoded.size() % 4)
+    {
+        encoded.push_back(L'=');
+    }
+    return encoded;
+}
+
 std::string SharedUtil::Base64Decode(std::string& encoded_string)
 {
     static const std::string base64_chars =

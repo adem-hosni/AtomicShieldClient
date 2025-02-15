@@ -1,14 +1,11 @@
 #include <fstream>
 #include "StdInc.h"
 #include "KernelCalls.hpp"
-#include <fstream>
-#include <windows.h>
-#include <scanner.h>
+
 std::vector<std::wstring> m_vSignatures;
 
 CHeuristicGuard::CHeuristicGuard()
 {
-    m_strScanProcessName = "";
 }
 
 CHeuristicGuard::~CHeuristicGuard()
@@ -19,17 +16,16 @@ void CHeuristicGuard::Initialize()
 {
 }
 
-std::string CHeuristicGuard::BuildSignatureParameters()
+bool IsAddressInVector(const std::vector<std::wstring>& vec, const void* address)
 {
-    std::stringstream ss;
-    ss << (char)(m_vSignatures.size() + 1);
-
-    for (const std::wstring& param : m_vSignatures)
+    for (const auto& element : vec)
     {
-        ss << static_cast<char>(param.length() + 1);
-        ss << std::string(param.begin(), param.end());
+        if ((DWORD64)element.data() == (DWORD64)address)
+        {
+            return true;
+        }
     }
-    return ss.str();
+    return false;
 }
 
 void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstring>>& Signatures)
@@ -38,187 +34,112 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
     {
         for (auto& Signature : vector)
         {
+            wprintf(L"Add %s\n", Signature.c_str());
             m_vSignatures.push_back(Signature);
         }
     }
 
-    std::thread t(&CHeuristicGuard::SpawnScanProcess, this);
-    t.detach();
-    std::thread d(&CHeuristicGuard::hide, this);
-    d.detach();
-}
-std::vector<const wchar_t*> ProcessMgr = {L"ProcessHacker.exe", L"TaskMgr.exe", L"procexp.exe", L"procexp64.exe", L"procexp64a.exe"};
-
-
-void PatchMem(BYTE* lpAddress, BYTE* src, unsigned int sizeofinstruction, HANDLE hProcess)
-{
-    DWORD oldProtection;
-    VirtualProtectEx(hProcess, lpAddress, sizeofinstruction, PROCESS_VM_READ | PROCESS_VM_WRITE, &oldProtection);
-    WriteProcessMemory(hProcess, lpAddress, src, sizeofinstruction, 0);
-    VirtualProtectEx(hProcess, lpAddress, sizeofinstruction, oldProtection, &oldProtection);
-}
-std::string WStringToString(const std::wstring& wstr)
-{
-    int         sizeNeeded = WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, NULL, 0, NULL, NULL);
-    std::string str(sizeNeeded, 0);
-    WideCharToMultiByte(CP_ACP, 0, wstr.c_str(), -1, &str[0], sizeNeeded, NULL, NULL);
-    return str;
+    // SpawnScanProcess();
 }
 
-DWORD GetProcId(const char* procName)
+void CHeuristicGuard::DoPulse()
 {
-    DWORD  procId = 0;
-    HANDLE hSnap = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    int iCurrentSignature = 0;
 
-    if (hSnap != INVALID_HANDLE_VALUE)
+    while (true)
     {
-        PROCESSENTRY32W procEntry;            // Use PROCESSENTRY32W for Unicode support
-        procEntry.dwSize = sizeof(procEntry);
+        if (m_vSignatures.size() == 0)
+            continue;
 
-        if (Process32FirstW(hSnap, &procEntry))            // Use Process32FirstW
+        for (std::wstring memoryString : m_vSignatures)
         {
-            do
-            {
-                // Convert procName (char*) to wchar_t*
-                wchar_t wProcName[MAX_PATH];
-                MultiByteToWideChar(CP_ACP, 0, procName, -1, wProcName, MAX_PATH);
+            LARGE_INTEGER frequency, start, end;
+            QueryPerformanceFrequency(&frequency);
+            QueryPerformanceCounter(&start);
 
-                if (!_wcsicmp(procEntry.szExeFile, wProcName))            // Compare wide strings
+            // static std::wstring      memoryString = Utils::CaesarDecrypt(m_vSignatures.at(iCurrentSignature), 3);            // L"Dear ImGui Demo";
+            auto              c = Utils::CaesarDecrypt(memoryString, 3);
+            std::wstring_view wstr(c.begin(), c.end());
+
+            HANDLE hProcess = GetCurrentProcess();
+
+            NTSTATUS                      status;
+            KernelCalls_OBJECT_ATTRIBUTES objAttr{};
+            KernelCalls_CLIENT_ID         clientId{};
+            HANDLE                        processHandle = GetCurrentProcess();
+
+            RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
+            objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
+            RtlSecureZeroMemory(&clientId, sizeof(KernelCalls_CLIENT_ID));
+            clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(GetCurrentProcessId()));
+
+            SYSTEM_INFO sysInfo;
+            GetSystemInfo(&sysInfo);
+            MEMORY_BASIC_INFORMATION memoryInfo{};
+            bool                     found = false;
+
+            for (LPVOID addr = sysInfo.lpMinimumApplicationAddress; addr < sysInfo.lpMaximumApplicationAddress;
+                 addr = static_cast<LPBYTE>(memoryInfo.BaseAddress) + memoryInfo.RegionSize)
+            {
+                PVOID  baseAddress = addr;
+                SIZE_T regionSize = sizeof(memoryInfo);
+                SIZE_T returnLength;
+
+                status = SysNtQueryVirtualMemory(processHandle, baseAddress, MemoryBasicInformation, &memoryInfo, regionSize, &returnLength);
+                if (!NT_SUCCESS(status) || memoryInfo.State != MEM_COMMIT || memoryInfo.Protect & PAGE_NOACCESS)
+                    continue;
+
+                SIZE_T allocationSize = memoryInfo.RegionSize + wstr.size() * sizeof(wchar_t) - 1;            // Extra space for overlap
+                PVOID  buffer = nullptr;
+                status = SysNtAllocateVirtualMemory(hProcess, &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+                if (!NT_SUCCESS(status))
+                    continue;
+
+                SIZE_T bytesRead = 0;
+                status = SysNtReadVirtualMemory(processHandle, memoryInfo.BaseAddress, buffer, memoryInfo.RegionSize, &bytesRead);
+                if (NT_SUCCESS(status))
                 {
-                    procId = procEntry.th32ProcessID;
-                    break;
+                    const wchar_t* dataPtr = reinterpret_cast<const wchar_t*>(buffer);
+                    size_t         wordCount = bytesRead / sizeof(wchar_t);
+
+                    size_t foundPos = std::wstring_view(dataPtr, wordCount).find(wstr);
+
+                    if (foundPos != std::wstring_view::npos)
+                    {
+                        // found = true;
+                        LPVOID lpFlaggedAddress = static_cast<LPBYTE>(memoryInfo.BaseAddress) + foundPos * sizeof(wchar_t);
+                        if ((DWORD64)lpFlaggedAddress != (DWORD64)wstr.data() && !IsAddressInVector(m_vSignatures, lpFlaggedAddress) &&
+                            (DWORD64)lpFlaggedAddress != (DWORD64)c.data())
+                        {
+                            SharedUtil::AddDebugLog("Found %s at 0x%p | 0x%p", std::string(wstr.begin(), wstr.end()).c_str(), lpFlaggedAddress,
+                                                    (DWORD64)memoryString.data());
+                            auto buf = std::wstring(dataPtr);
+                            g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", std::string(wstr.begin(), wstr.end())},
+                                                                                        {"buffer", SharedUtil::Base64Encode(buf)},
+                                                                                        {"memory_address", (DWORD64)lpFlaggedAddress},
+                                                                                        {"region_size", memoryInfo.RegionSize},
+                                                                                        {"base_address", (DWORD64)memoryInfo.BaseAddress},
+                                                                                        {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
+                                                                                        {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
+                            buf.clear();
+                        }
+                        // break;
+                    }
                 }
-            } while (Process32NextW(hSnap, &procEntry));            // Use Process32NextW
-        }
-    }
 
-    CloseHandle(hSnap);
-    return procId;
-}
-int CHeuristicGuard::hide()
-{
-    for (int i = 0; i < ProcessMgr.size(); i++)
-    {
-        std::string procName = WStringToString(ProcessMgr[i]);           
-        int         procId = GetProcId(procName.c_str());                
-
-        if (procId)
-        {
-            HANDLE hProc = OpenProcess(PROCESS_ALL_ACCESS, FALSE, procId);
-            if (hProc && hProc != INVALID_HANDLE_VALUE)
-            {
-                uintptr_t ntdllBase = Utils::GetModuleBaseAddress(procId, "ntdll.dll");
-                uintptr_t myNtQueryInformationProcessRVA = (uintptr_t)GetProcAddress(GetModuleHandleA(("ntdll.dll")), (("NtQuerySystemInformation")));
-                uintptr_t NtQueryInformationProcessRVA =
-                    (myNtQueryInformationProcessRVA - Utils::GetModuleBaseAddress(GetProcessId(GetCurrentProcess()), "ntdll.dll"));
-                PatchMem((BYTE*)(ntdllBase + NtQueryInformationProcessRVA) + 0x3, (BYTE*)("\xB8\x35\x00\x00\x00"), 5, hProc);
+                SysNtFreeVirtualMemory(hProcess, &buffer, &allocationSize, MEM_RELEASE);
+                if (found)
+                    break;
+                iCurrentSignature++;
+                c.clear();
+                memoryString.clear();
             }
+
+            SysNtClose(processHandle);
+
+            QueryPerformanceCounter(&end);
+            float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+            SharedUtil::AddDebugLog("[+] Scan completed in %.5fs", fElapsedTime);
         }
     }
-    return 0;
-}
-
-
-void CHeuristicGuard::SpawnScanProcess()
-{
-    char szTempFilePath[MAX_PATH];
-    memset(szTempFilePath, 0, sizeof(szTempFilePath));
-    strcat(szTempFilePath, GetScanProcessName().c_str());
-
-    std::ofstream tempFile(szTempFilePath, std::ios::binary);
-    if (!tempFile.is_open())
-    {
-        SharedUtil::AddDebugLog("Failed to open temporary file for writing.");
-        return;
-    }
-    tempFile.write(reinterpret_cast<const char*>(scanner), sizeof(scanner));
-    tempFile.close();
-
-    char szCommandLine[512];
-    memset(szCommandLine, 0, sizeof(szCommandLine));
-    sprintf(szCommandLine, "\"%s\" --pid %d --sigs %s", szTempFilePath, GetCurrentProcessId(), BuildSignatureParameters().c_str());
-
-    SECURITY_ATTRIBUTES sa = {0};
-    sa.nLength = sizeof(SECURITY_ATTRIBUTES);
-    sa.bInheritHandle = TRUE;
-    sa.lpSecurityDescriptor = nullptr;
-
-    HANDLE hReadPipe, hWritePipe;
-    if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0))
-    {
-        SharedUtil::AddDebugLog("Failed to create pipe. Error: 0x%llx", GetLastError());
-    }
-
-    STARTUPINFOA        startupInfo = {0};
-    PROCESS_INFORMATION processInfo = {0};
-    startupInfo.cb = sizeof(STARTUPINFOA);
-    startupInfo.hStdOutput = hWritePipe;
-    startupInfo.hStdError = hWritePipe;
-    startupInfo.hStdInput = NULL;
-
-    if (!CreateProcess(nullptr,                     // Path to the executable
-                       szCommandLine,               // Command line arguments (nullptr if none)
-                       nullptr,                     // Process security attributes
-                       nullptr,                     // Thread security attributes
-                       FALSE,                       // Inherit handles
-                       CREATE_NO_WINDOW,            // Creation flags
-                       nullptr,                     // Use parent's environment block
-                       nullptr,                     // Use parent's starting directory
-                       &startupInfo,                // Pointer to STARTUPINFO structure
-                       &processInfo))
-    {
-        SharedUtil::AddDebugLog("Failed to create process. Error: 0x%llx", GetLastError());
-    }
-
-    CloseHandle(hWritePipe);
-
-    WaitForSingleObject(processInfo.hProcess, INFINITE);
-
-    char buffer[4096];
-    memset(buffer, 0, sizeof(buffer));
-    DWORD dwBytesRead;
-    while (ReadFile(hReadPipe, buffer, sizeof(buffer) - 1, &dwBytesRead, NULL) && dwBytesRead > 0)
-    {
-        buffer[dwBytesRead] = '\0';            // Null-terminate the buffer
-    }
-
-    DWORD dwExitCode = 0;
-    if (GetExitCodeProcess(processInfo.hProcess, &dwExitCode))
-    {
-        SharedUtil::AddDebugLog("Process finished with exit code: 0x%llx", dwExitCode);
-
-        if (dwExitCode == 0x1c8)
-        {
-            g_pAtomicAntiCheat->NotifyDetection(eDetectionType::CHEAT_SIGNATURE_FOUND);
-        }
-        else if (dwExitCode == 0x1)
-        {
-            SharedUtil::AddDebugLog("Force Exit for scanner", dwExitCode);
-            SharedUtil::TerminateProcess(GetCurrentProcessId());
-            __fastfail(0);
-        }
-    }
-    else
-    {
-        SharedUtil::AddDebugLog("Failed to get exit code. Error: 0x%llx", GetLastError());
-    }
-
-    CloseHandle(hReadPipe);
-    TerminateProcess(processInfo.hProcess, dwExitCode);
-    CloseHandle(processInfo.hProcess);
-    CloseHandle(processInfo.hThread);
-
-    DeleteFileA(szTempFilePath);
-}
-
-std::string CHeuristicGuard::GetScanProcessName()
-{
-    if (m_strScanProcessName.empty())
-    {
-        char szTempFilePath[MAX_PATH];
-        GetTempPathA(MAX_PATH, szTempFilePath);
-        sprintf(szTempFilePath, "%ss%d.tmp", szTempFilePath, SharedUtil::GenerateRandomNumber(32, 256));
-        m_strScanProcessName = szTempFilePath;
-    }
-    return m_strScanProcessName;
 }

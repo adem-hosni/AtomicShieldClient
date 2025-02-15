@@ -103,6 +103,10 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
             {
                 Report[key] = std::get<std::string>(value);
             }
+            else if (std::holds_alternative<std::wstring>(value))
+            {
+                Report[key] = std::get<std::wstring>(value);
+            }
             else if (std::holds_alternative<bool>(value))
             {
                 Report[key] = std::get<bool>(value);

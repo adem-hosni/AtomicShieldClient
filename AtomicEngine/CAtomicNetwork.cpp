@@ -5,10 +5,9 @@
 #include <condition_variable>
 #include <future>
 
-CAtomicNetwork::CAtomicNetwork() : m_bConnected(false)
+CAtomicNetwork::CAtomicNetwork() : m_bConnected(false), m_bNetworkJoined(false)
 {
     m_pWebSocket = new ix::WebSocket();
-    m_bNetworkJoined = false;
 }
 
 CAtomicNetwork::~CAtomicNetwork()
@@ -33,6 +32,10 @@ bool CAtomicNetwork::Connect()
     {
         while (!m_bNetworkJoined)
             Sleep(25);
+    }
+    else
+    {
+        SharedUtil::AddDebugLog("Couldn't connect to the websocket due to %s", result.errorStr.c_str());
     }
 
     return result.success;
@@ -114,9 +117,13 @@ bool CAtomicNetwork::JoinNetwork()
     RequestData["engine_type"] = 2;            // FiveM
 
     SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData);
+    g_pAtomicAntiCheat->StartPulse(); // TODO
+    return true;
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
 
-    if (Response["success"].as_bool())
+    m_bNetworkJoined = true; // Response["success"].as_bool();
+
+    if (m_bNetworkJoined)
     {
         g_pHWID->StoreHWIDCaches(RequestHWID);
         g_pAtomicAntiCheat->StartPulse();
@@ -126,8 +133,7 @@ bool CAtomicNetwork::JoinNetwork()
         MessageBox(0, Response["message"].as_string().c_str(), "ERROR", MB_ICONERROR);
     }
 
-    m_bNetworkJoined = Response["success"].as_bool();
-    return Response["success"].as_bool();
+    return m_bNetworkJoined;
 }
 
 bool CAtomicNetwork::SyncMaliciousSignatures()
@@ -214,6 +220,7 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         }
 
         case ix::WebSocketMessageType::Error:
+            SharedUtil::AddDebugLog("Error: %s", Message->errorInfo.reason.c_str());
             Reconnect();
             break;
     }
@@ -237,9 +244,13 @@ void CAtomicNetwork::Reconnect()
 {
     m_bNetworkJoined = false;
 
+    SharedUtil::AddDebugLog("Attempting to reconnect to the websocket...");
     while (m_pWebSocket->getReadyState() == ix::ReadyState::Closed || m_pWebSocket->getReadyState() == ix::ReadyState::Closing)
     {
-        Connect();
+        //Connect();
+        auto func = std::bind(&CAtomicNetwork::Connect, this, std::placeholders::_1);
+        CreateThread(0, 0, (LPTHREAD_START_ROUTINE)&func, 0, 0, 0);
         Sleep(2 * 1000);
     }
+    SharedUtil::AddDebugLog("Websocket connection established successfuly!");
 }

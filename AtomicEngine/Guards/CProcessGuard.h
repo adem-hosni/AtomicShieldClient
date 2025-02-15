@@ -44,7 +44,7 @@ namespace Handles
     std::vector<SYSTEM_HANDLE> DetectOpenHandlesToProcess();
     bool                       DoesProcessHaveOpenHandleTous(DWORD pid, std::vector<Handles::SYSTEM_HANDLE> handleList);
 
-    static const char* Whitelisted[] = {"conhost.exe", "scn.tmp", "FiveM.exe", "FiveM_b2699_DumpServer", "steam.exe"};
+    static const char* Whitelisted[] = {"conhost.exe", "scn.tmp", "FiveM.exe", "FiveM_b2699_DumpServer", "steam.exe", "WerFault.exe"};
 }
 
 

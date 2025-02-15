@@ -12,7 +12,7 @@ struct SMemoryDetectionReport
     DWORD   RegionSize;
 };
 
-using ArgType = std::variant<int, DWORD64, std::string, bool>;
+using ArgType = std::variant<int, DWORD64, std::string, std::wstring, bool>;
 
 enum eDetectionType
 {
