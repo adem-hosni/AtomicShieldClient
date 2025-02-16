@@ -1,4 +1,5 @@
 #include <fstream>
+#include <iostream>
 #include "StdInc.h"
 #include "KernelCalls.hpp"
 
@@ -57,8 +58,7 @@ void CHeuristicGuard::DoPulse()
             QueryPerformanceFrequency(&frequency);
             QueryPerformanceCounter(&start);
 
-            // static std::wstring      memoryString = Utils::CaesarDecrypt(m_vSignatures.at(iCurrentSignature), 3);            // L"Dear ImGui Demo";
-            auto              c = Utils::CaesarDecrypt(memoryString, 3);
+            std::wstring c = Utils::CaesarDecrypt(memoryString, 3);
             std::wstring_view wstr(c.begin(), c.end());
 
             HANDLE hProcess = GetCurrentProcess();
@@ -111,17 +111,17 @@ void CHeuristicGuard::DoPulse()
                         if ((DWORD64)lpFlaggedAddress != (DWORD64)wstr.data() && !IsAddressInVector(m_vSignatures, lpFlaggedAddress) &&
                             (DWORD64)lpFlaggedAddress != (DWORD64)c.data())
                         {
-                            SharedUtil::AddDebugLog("Found %s at 0x%p | 0x%p", std::string(wstr.begin(), wstr.end()).c_str(), lpFlaggedAddress,
-                                                    (DWORD64)memoryString.data());
-                            auto buf = std::wstring(dataPtr);
-                            g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", std::string(wstr.begin(), wstr.end())},
-                                                                                        {"buffer", SharedUtil::Base64Encode(buf)},
-                                                                                        {"memory_address", (DWORD64)lpFlaggedAddress},
-                                                                                        {"region_size", memoryInfo.RegionSize},
-                                                                                        {"base_address", (DWORD64)memoryInfo.BaseAddress},
-                                                                                        {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
-                                                                                        {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
-                            buf.clear();
+
+                            SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress,
+                                                    c.data());
+                            break;
+                            //g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", std::string(wstr.begin(), wstr.end())},
+                            //                                                            //{"buffer", SharedUtil::Base64Encode(buf)},
+                            //                                                            {"memory_address", (DWORD64)lpFlaggedAddress},
+                            //                                                            {"region_size", memoryInfo.RegionSize},
+                            //                                                            {"base_address", (DWORD64)memoryInfo.BaseAddress},
+                            //                                                            {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
+                            //                                                            {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
                         }
                         // break;
                     }
@@ -131,8 +131,7 @@ void CHeuristicGuard::DoPulse()
                 if (found)
                     break;
                 iCurrentSignature++;
-                c.clear();
-                memoryString.clear();
+                //memoryString.clear();
             }
 
             SysNtClose(processHandle);

@@ -115,12 +115,9 @@ bool CAtomicNetwork::JoinNetwork()
 
     SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData);
 
-    g_pAtomicAntiCheat->StartPulse(); // TODO
-    return true;
-
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
 
-    m_bNetworkJoined = true; // Response["success"].as_bool();
+    m_bNetworkJoined = Response["success"].as_bool();
 
     if (m_bNetworkJoined)
     {
