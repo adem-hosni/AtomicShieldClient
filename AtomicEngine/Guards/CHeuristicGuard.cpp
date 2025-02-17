@@ -51,6 +51,20 @@ void CHeuristicGuard::zebii()
         if (m_vSignatures.empty())
             continue;
 
+        HANDLE                        hProcess = GetCurrentProcess();
+        NTSTATUS                      status;
+        KernelCalls_OBJECT_ATTRIBUTES objAttr{};
+        KernelCalls_CLIENT_ID         clientId{};
+        HANDLE                        processHandle = GetCurrentProcess();
+
+        RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
+        objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
+        RtlSecureZeroMemory(&clientId, sizeof(KernelCalls_CLIENT_ID));
+        clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(GetCurrentProcessId()));
+
+        SYSTEM_INFO sysInfo;
+        GetSystemInfo(&sysInfo);
+
         for (std::wstring memoryString : m_vSignatures)
         {
             LARGE_INTEGER frequency, start, end;
@@ -61,19 +75,6 @@ void CHeuristicGuard::zebii()
             std::wstring_view wstr(c.begin(), c.end());
             wprintf(L"current sig %d %s\n", iCurrentSignature, c.c_str());
 
-            HANDLE                        hProcess = GetCurrentProcess();
-            NTSTATUS                      status;
-            KernelCalls_OBJECT_ATTRIBUTES objAttr{};
-            KernelCalls_CLIENT_ID         clientId{};
-            HANDLE                        processHandle = GetCurrentProcess();
-
-            RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
-            objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
-            RtlSecureZeroMemory(&clientId, sizeof(KernelCalls_CLIENT_ID));
-            clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(GetCurrentProcessId()));
-
-            SYSTEM_INFO sysInfo;
-            GetSystemInfo(&sysInfo);
             MEMORY_BASIC_INFORMATION memoryInfo{};
             bool                     found = false;
 
