@@ -34,3 +34,4 @@ Cache/
 *.exe
 *.out
 *.app
+AtomicEngine/Trace.logs
