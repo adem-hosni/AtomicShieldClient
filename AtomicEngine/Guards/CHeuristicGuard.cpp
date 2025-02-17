@@ -39,12 +39,12 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
             m_vSignatures.push_back(Signature);
         }
     }
-
-    // SpawnScanProcess();
+    zebii();
 }
 
-void CHeuristicGuard::DoPulse()
+void CHeuristicGuard::zebii()
 {
+
     int iCurrentSignature = 0;
 
     while (true)
@@ -87,8 +87,9 @@ void CHeuristicGuard::DoPulse()
 
                 status = SysNtQueryVirtualMemory(processHandle, baseAddress, MemoryBasicInformation, &memoryInfo, regionSize, &returnLength);
                 if (!NT_SUCCESS(status) || memoryInfo.State != MEM_COMMIT || memoryInfo.Protect & PAGE_NOACCESS)
-                    continue;
 
+                    continue;
+                
                 SIZE_T allocationSize = memoryInfo.RegionSize + wstr.size() * sizeof(wchar_t) - 1;            // Extra space for overlap
                 PVOID  buffer = nullptr;
                 status = SysNtAllocateVirtualMemory(hProcess, &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
