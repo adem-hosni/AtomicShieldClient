@@ -44,12 +44,11 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
 
 void CHeuristicGuard::zebii()
 {
-
     int iCurrentSignature = 0;
 
     while (true)
     {
-        if (m_vSignatures.size() == 0)
+        if (m_vSignatures.empty())
             continue;
 
         for (std::wstring memoryString : m_vSignatures)
@@ -58,11 +57,11 @@ void CHeuristicGuard::zebii()
             QueryPerformanceFrequency(&frequency);
             QueryPerformanceCounter(&start);
 
-            std::wstring c = Utils::CaesarDecrypt(memoryString, 3);
+            std::wstring      c = Utils::CaesarDecrypt(memoryString, 3);
             std::wstring_view wstr(c.begin(), c.end());
+            wprintf(L"current sig %d %s\n", iCurrentSignature, c.c_str());
 
-            HANDLE hProcess = GetCurrentProcess();
-
+            HANDLE                        hProcess = GetCurrentProcess();
             NTSTATUS                      status;
             KernelCalls_OBJECT_ATTRIBUTES objAttr{};
             KernelCalls_CLIENT_ID         clientId{};
@@ -87,10 +86,9 @@ void CHeuristicGuard::zebii()
 
                 status = SysNtQueryVirtualMemory(processHandle, baseAddress, MemoryBasicInformation, &memoryInfo, regionSize, &returnLength);
                 if (!NT_SUCCESS(status) || memoryInfo.State != MEM_COMMIT || memoryInfo.Protect & PAGE_NOACCESS)
-
                     continue;
-                
-                SIZE_T allocationSize = memoryInfo.RegionSize + wstr.size() * sizeof(wchar_t) - 1;            // Extra space for overlap
+
+                SIZE_T allocationSize = memoryInfo.RegionSize + wstr.size() * sizeof(wchar_t) - 1;
                 PVOID  buffer = nullptr;
                 status = SysNtAllocateVirtualMemory(hProcess, &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
                 if (!NT_SUCCESS(status))
@@ -107,32 +105,26 @@ void CHeuristicGuard::zebii()
 
                     if (foundPos != std::wstring_view::npos)
                     {
-                        // found = true;
                         LPVOID lpFlaggedAddress = static_cast<LPBYTE>(memoryInfo.BaseAddress) + foundPos * sizeof(wchar_t);
                         if ((DWORD64)lpFlaggedAddress != (DWORD64)wstr.data() && !IsAddressInVector(m_vSignatures, lpFlaggedAddress) &&
                             (DWORD64)lpFlaggedAddress != (DWORD64)c.data())
                         {
-
-                            SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress,
-                                                    c.data());
+                            SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress, c.data());
+                            g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", std::string(wstr.begin(), wstr.end())},
+                                                                                        //{"buffer", SharedUtil::Base64Encode(buf)},
+                                                                                        {"memory_address", (DWORD64)lpFlaggedAddress},
+                                                                                        {"region_size", memoryInfo.RegionSize},
+                                                                                        {"base_address", (DWORD64)memoryInfo.BaseAddress},
+                                                                                        {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
+                                                                                        {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
                             break;
-                            //g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", std::string(wstr.begin(), wstr.end())},
-                            //                                                            //{"buffer", SharedUtil::Base64Encode(buf)},
-                            //                                                            {"memory_address", (DWORD64)lpFlaggedAddress},
-                            //                                                            {"region_size", memoryInfo.RegionSize},
-                            //                                                            {"base_address", (DWORD64)memoryInfo.BaseAddress},
-                            //                                                            {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
-                            //                                                            {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
                         }
-                        // break;
                     }
                 }
 
                 SysNtFreeVirtualMemory(hProcess, &buffer, &allocationSize, MEM_RELEASE);
                 if (found)
                     break;
-                iCurrentSignature++;
-                //memoryString.clear();
             }
 
             SysNtClose(processHandle);
@@ -140,6 +132,8 @@ void CHeuristicGuard::zebii()
             QueryPerformanceCounter(&end);
             float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
             SharedUtil::AddDebugLog("[+] Scan completed in %.5fs", fElapsedTime);
+
+            iCurrentSignature++;          
         }
     }
 }
