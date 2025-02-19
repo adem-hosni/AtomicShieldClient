@@ -66,7 +66,7 @@ NTSTATUS NTAPI _LdrLoadDll(PWCHAR PathToFile_OPTIONAL, ULONG Flags, PUNICODE_STR
 void CModuleGuard::Initialize()
 {
     lpAddr = (LPVOID)GetProcAddress(LoadLibrary("ntdll.dll"), "LdrLoadDll");
-    //  CAtomicHook::Create(lpAddr, &_LdrLoadDll);
+     CAtomicHook::Create(lpAddr, &_LdrLoadDll);
 }
 
 PLDR_DATA_TABLE_ENTRY GetNextNode(PCHAR node, int iOffset)
@@ -109,27 +109,25 @@ void CModuleGuard::DoPulse()
                             bool         isWhitelisted = false;
 
                             // Check if the module is in the whitelist
-                            for (const wchar_t* allowedModule : m_vAllowedModules)
-                            {
-                                if (_wcsicmp(wstrModuleName.c_str(), allowedModule) == 0 || wstrModuleName.find(allowedModule) != std::wstring::npos)
-                                {
-                                    isWhitelisted = true;
-                                    break;
-                                }
-                            }
+                            //for (const wchar_t* allowedModule : m_vAllowedModules)
+                            //{
+                            //    if (_wcsicmp(wstrModuleName.c_str(), allowedModule) == 0 || wstrModuleName.find(allowedModule) != std::wstring::npos)
+                            //    {
+                            //        isWhitelisted = true;
+                            //        break;
+                            //    }
+                            //}
 
                             if (wstrModuleName.find(L"FiveM") != std::wstring::npos || wstrModulePath.find(L"FiveM") != std::wstring::npos)
                             {
                                 isWhitelisted = true;
                             }
 
-                            // Skip logging or flagging if the module is whitelisted
                             if (isWhitelisted)
                             {
                                 continue;
                             }
 
-                            // Perform further checks for unsigned or suspicious modules
                             if (!FileAuthentication::HasSignature(wstrModulePath.c_str()))
                             {
                                 static std::string strFivemPath = Utils::GetFivemPath();

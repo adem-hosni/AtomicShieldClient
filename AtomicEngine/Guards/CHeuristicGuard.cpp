@@ -35,7 +35,6 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
     {
         for (auto& Signature : vector)
         {
-            wprintf(L"Add %s\n", Signature.c_str());
             m_vSignatures.push_back(Signature);
         }
     }
@@ -118,6 +117,7 @@ void CHeuristicGuard::zebii()
                                                                                         {"base_address", (DWORD64)memoryInfo.BaseAddress},
                                                                                         {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
                                                                                         {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
+                            found = true;
                             break;
                         }
                     }

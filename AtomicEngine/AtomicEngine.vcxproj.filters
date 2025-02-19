@@ -422,6 +422,9 @@
     <ClInclude Include="PEBHide.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\..\Users\amenn\OneDrive\Desktop\WORK\benz\SpoofEntitlement\SpoofEntitlement\skCrypter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Library Include="Vendor\ixwebsocket\ixwebsocket.lib" />

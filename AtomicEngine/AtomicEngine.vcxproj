@@ -240,6 +240,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\..\Users\amenn\OneDrive\Desktop\WORK\benz\SpoofEntitlement\SpoofEntitlement\skCrypter.h" />
     <ClInclude Include="BasicChecks.h" />
     <ClInclude Include="CAtomicHook.h" />
     <ClInclude Include="CAtomicThread.h" />

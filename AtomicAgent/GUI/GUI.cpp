@@ -30,6 +30,7 @@
 #include "ImAnim/ImVec4Anim.h"
 #include "notification.h"
 #include <CAtomicAPI.h>
+#include <tlhelp32.h>
 
 // Forward declarations of helper functions
 bool           CreateDeviceD3D(HWND hWnd);
@@ -197,6 +198,35 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 float alpha = 0.6f;                    // Начальное значение альфа
 float animationSpeed = 4.f;            // Скорость анимации (чем меньше, тем медленнее)
 
+
+
+
+bool isFiveMReady()
+{
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (hSnapshot == INVALID_HANDLE_VALUE)
+    {
+        return false;
+    }
+
+    PROCESSENTRY32 pe32;
+    pe32.dwSize = sizeof(PROCESSENTRY32);
+
+    if (Process32First(hSnapshot, &pe32))
+    {
+        do
+        {
+            if (_stricmp(pe32.szExeFile, "FiveM_ChromeBrowser") == 0)
+            {
+                CloseHandle(hSnapshot);
+                return true;
+            }
+        } while (Process32Next(hSnapshot, &pe32));
+    }
+    CloseHandle(hSnapshot);
+    return false;
+}
+
 bool GUI::Initialize()
 {
     GUI::wc.cbSize = sizeof(WNDCLASSEXW);
@@ -328,6 +358,8 @@ BOOL InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
 
     return 1;
 }
+
+
 
 void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription, std::string processName)
 {
@@ -502,54 +534,53 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                         if (!strEngineBuffer.empty() && !bInjected)
                         {
-                            int iProcessID = SharedUtil::GetFivemProcessID();
-
-                            if (iProcessID > 0)
                             {
-                                HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
-                                if (hProcess)
+                                int iProcessID = SharedUtil::GetFivemProcessID();
+
+                                if (iProcessID > 0 && isFiveMReady())
                                 {
-                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                    strcat(szLoadingMessage, skCrypt("Please wait, we're getting everything ready for you!"));
-
-                                    /*bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()),
-                                                             strAgentPEBBuffer.size());*/
-
-                                    char szTempFilePath[MAX_PATH];
-                                    GetTempPathA(MAX_PATH, szTempFilePath);
-                                    sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
-                                    FILE* file = fopen(szTempFilePath, "wb");
-                                    if (file)
-                                    {
-                                        fwrite(strEngineBuffer.c_str(), sizeof(char), strEngineBuffer.size(), file);
-                                        fclose(file);
-                                    }
-
-                                    bInjected = InjectDLL(hProcess, iProcessID, szTempFilePath);
-                                    if (bInjected)
+                                    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
+                                    if (hProcess)
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, skCrypt("Have fun!"));
-                                        
-                                        page = 2;
-                                        active_anim_1 = true;
+                                        strcat(szLoadingMessage, skCrypt("Please wait, we're getting everything ready for you!"));
+
+                                        char szTempFilePath[MAX_PATH];
+                                        GetTempPathA(MAX_PATH, szTempFilePath);
+                                        sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
+                                        FILE* file = fopen(szTempFilePath, "wb");
+                                        if (file)
+                                        {
+                                            fwrite(strEngineBuffer.c_str(), sizeof(char), strEngineBuffer.size(), file);
+                                            fclose(file);
+                                        }
+
+                                        bInjected = InjectDLL(hProcess, iProcessID, szTempFilePath);
+                                        if (bInjected)
+                                        {
+                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                            strcat(szLoadingMessage, skCrypt("Have fun!"));
+
+                                            page = 2;
+                                            active_anim_1 = true;
+                                        }
+                                        else
+                                        {
+                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                            strcat(szLoadingMessage, skCrypt("An error occurred while loading the AntiCheat!"));
+                                        }
+                                        SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
                                     }
                                     else
                                     {
-                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, skCrypt("An error occurred while loading the AntiCheat!"));
+                                        SharedUtil::AddDebugLog(skCrypt("Failed to get process handle!\n"));
                                     }
-                                    SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
                                 }
                                 else
                                 {
-                                    SharedUtil::AddDebugLog(skCrypt("Failed to get process handle!\n"));
+                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                    strcat(szLoadingMessage, skCrypt("Waiting for FiveM to launch"));
                                 }
-                            }
-                            else
-                            {
-                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                strcat(szLoadingMessage, skCrypt("Waiting for FiveM to launch"));
                             }
                         }
                     }
