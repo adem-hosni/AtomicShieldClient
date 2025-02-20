@@ -17,6 +17,6 @@ namespace SharedUtil
     std::string  GetKnownDirectory(const KNOWNFOLDERID fid);
     bool         SetPrivilege(LPCTSTR lpszPrivilege);
     std::string  Base64Encode(std::string& data);
-    std::wstring Base64Encode(std::wstring& data);
+    std::wstring Base64Encode(std::wstring data);
     std::string  Base64Decode(std::string& data);
 }            // namespace SharedUtil
