@@ -8,14 +8,13 @@ public:
     CHeuristicGuard();
     ~CHeuristicGuard();
 
-    void Initialize() override;
+    void        Initialize() override;
     std::string GetScanProcessName() { return ""; }
 
     void        DoPulse() {}
-    void        zebii();
+    static void zebii();
     void        AddSignatures(std::map<std::string, std::vector<std::wstring>>& Signatures);
-    static void StaticPulse(void* pContext) { 
-        reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
+    static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
 
 private:
     std::string              m_strScanProcessName;
