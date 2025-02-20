@@ -130,6 +130,7 @@ std::string GetProcessPath(DWORD pid)
 
 void CProcessGuard::DoPulse()
 {
+    SharedUtil::AddDebugLog("ProcessGuard Pulse");
     while (true)
     {
         std::vector<Handles::_SYSTEM_HANDLE> handles = Handles::DetectOpenHandlesToProcess();
@@ -147,28 +148,24 @@ void CProcessGuard::DoPulse()
 
                 for (int i = 0; i < size; i++)
                 {
-                    if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) == 0
-                        || strProcessName.find("FiveM") != std::string::npos
-                        || strProcessPath == g_pAtomicAntiCheat->GetGuardManager()->GetHeuristicGuard()->GetScanProcessName())
+                    if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) == 0 || strProcessName.find("FiveM") != std::string::npos)
                     {
                         bIsWhitelisted = true;
                     }
                 }
 
                 if (!bIsWhitelisted && !strProcessPath.empty() &&
+                    FileAuthentication::HasSignature(std::wstring(strProcessPath.begin(), strProcessPath.end()).c_str()) &&
                     (handle.GrantedAccess & PROCESS_ALL_ACCESS || handle.GrantedAccess & PROCESS_VM_WRITE || handle.GrantedAccess & PROCESS_VM_READ))
                 {
                     SharedUtil::AddDebugLog("The Process %s with pid %d is opening our process!", strProcessName.c_str(), handle.ProcessId);
-                    g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {
-                                                                                        {"process_name", strProcessName},
+                    g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
                                                                                         {"process_path", strProcessPath},
                                                                                         {"pid", handle.ProcessId},
-                                                                                        {"granted_access", handle.GrantedAccess}
-                        });
+                                                                                        {"granted_access", handle.GrantedAccess}});
                     bFoundHandle = TRUE;
                 }
             }
-            Sleep(60);
         }
     }
 }
