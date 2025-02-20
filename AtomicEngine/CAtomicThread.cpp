@@ -26,6 +26,8 @@ CAtomicThread::~CAtomicThread()
 
 bool CAtomicThread::Create()
 {
+    _beginthread((_beginthread_proc_type)m_lpStartAddress, NULL, m_lpParameter);
+    return true;
     if (!m_NtCreateThreadEx || !m_NtSetInformationThread)
     {
         SharedUtil::AddDebugLog("Unable to create thread on 0x%x: m_NtCreateThreadEx got 0x%x m_NtSetInformationThread: 0x%x", (DWORD64)m_lpStartAddress,
