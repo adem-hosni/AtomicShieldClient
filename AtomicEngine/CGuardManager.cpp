@@ -21,9 +21,8 @@ void CGuardManager::InitializeGuards()
 
 void CGuardManager::StartPulse(CGuardManager* pGuardManager)
 {
-   //SharedUtil::AddDebugLog("calling heuristic guard pulse");
-    //CreateThread(0, 0, (LPTHREAD_START_ROUTINE)CHeuristicGuard::StaticPulse, m_pHeuristicGuard, 0, 0);
-   // CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard);
-  //  CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard);
-  //  CAtomicThread::Create(CModuleGuard::StaticPulse, m_pModuleGuard);
+    SharedUtil::AddDebugLog("Starting threads");
+    // CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard);
+    CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard);
+    CAtomicThread::Create(CModuleGuard::StaticPulse, m_pModuleGuard);
 }
