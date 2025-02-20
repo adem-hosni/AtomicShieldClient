@@ -35,11 +35,10 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
     {
         for (auto& Signature : vector)
         {
-            wprintf(L"Add %s\n", Signature.c_str());
             m_vSignatures.push_back(Signature);
         }
     }
-    zebii();
+    CAtomicThread::Create(&CHeuristicGuard::zebii, this);
 }
 
 void CHeuristicGuard::zebii()
@@ -73,7 +72,6 @@ void CHeuristicGuard::zebii()
 
             std::wstring      c = Utils::CaesarDecrypt(memoryString, 3);
             std::wstring_view wstr(c.begin(), c.end());
-            wprintf(L"current sig %d %s\n", iCurrentSignature, c.c_str());
 
             MEMORY_BASIC_INFORMATION memoryInfo{};
             bool                     found = false;
@@ -112,7 +110,7 @@ void CHeuristicGuard::zebii()
                         {
                             SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress, c.data());
                             g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", std::string(wstr.begin(), wstr.end())},
-                                                                                        //{"buffer", SharedUtil::Base64Encode(buf)},
+                                                                                        {"buffer", SharedUtil::Base64Encode(std::wstring(dataPtr + foundPos, 768))},
                                                                                         {"memory_address", (DWORD64)lpFlaggedAddress},
                                                                                         {"region_size", memoryInfo.RegionSize},
                                                                                         {"base_address", (DWORD64)memoryInfo.BaseAddress},
