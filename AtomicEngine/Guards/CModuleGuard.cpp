@@ -7,16 +7,8 @@
 CModuleGuard::CModuleGuard()
 {
     m_vAllowedModules = {
-        L"icuuc.dll",
-        L"icui18n.dll",
-        L"chrome_elf.dll",
-        L"libEGL.dll",
-        L"libGLESv2.dll",
-        L"libcef.dll",
-        L"ros.dll",
-        L"gfsdk_shadowlib.dll",
-        L"SwiftShaderD3D9_64.dll",
-        L"_GTAProcess.exe",
+        L"icuuc.dll", L"icui18n.dll",         L"chrome_elf.dll",         L"libEGL.dll",      L"libGLESv2.dll", L"libcef.dll",
+        L"ros.dll",   L"gfsdk_shadowlib.dll", L"SwiftShaderD3D9_64.dll", L"_GTAProcess.exe",
     };
     OriginalBytes[50] = {0};
     lpAddr = nullptr;
@@ -65,8 +57,8 @@ NTSTATUS NTAPI _LdrLoadDll(PWCHAR PathToFile_OPTIONAL, ULONG Flags, PUNICODE_STR
 
 void CModuleGuard::Initialize()
 {
-    lpAddr = (LPVOID)GetProcAddress(LoadLibrary("ntdll.dll"), "LdrLoadDll");
-     CAtomicHook::Create(lpAddr, &_LdrLoadDll);
+    /*lpAddr = (LPVOID)GetProcAddress(LoadLibrary("ntdll.dll"), "LdrLoadDll");
+    CAtomicHook::Create(lpAddr, &_LdrLoadDll);*/
 }
 
 PLDR_DATA_TABLE_ENTRY GetNextNode(PCHAR node, int iOffset)
