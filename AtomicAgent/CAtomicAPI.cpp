@@ -14,8 +14,8 @@ CAtomicAPI::~CAtomicAPI()
 
 jsoncons::json CAtomicAPI::GetStatus()
 {
-    auto sk_title = skCrypt("Connection Error");
-    auto sk_message = skCrypt("Failed to connect to AtomicShield Server");
+    auto        sk_title = skCrypt("Connection Error");
+    auto        sk_message = skCrypt("Failed to connect to AtomicShield Server");
     std::string end = API_BASE_URL + std::string(skCrypt("/anticheat/status/agent").decrypt());
     std::string buffer = PostRequest(end.c_str(), jsoncons::json());
     if (buffer.empty())
@@ -56,12 +56,12 @@ bool CAtomicAPI::IsValidVersion(const char* szVersion)
     return JsonResponse["success"].as<bool>();
 }
 
-void CAtomicAPI::DownloadEngine(std::string* buffer)
+void CAtomicAPI::DownloadEngine(std::string* buffer, SUserData* pUserData)
 {
-    *buffer = PostRequest(API_BASE_URL "/resources/scan/fivem");
+    *buffer = PostRequest(API_BASE_URL "/resources/scan/fivem", jsoncons::json(), pUserData);
 }
 
-std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, bool bEncryptRequestBody, bool bDecryptRespnseBody)
+std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, SUserData* pUserData, bool bEncryptRequestBody, bool bDecryptRespnseBody)
 {
     CURL*       curl;
     CURLcode    response_code;
@@ -82,6 +82,10 @@ std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, bool
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_buffer);
+
+        curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
+        curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, ProgressCallback);
+        curl_easy_setopt(curl, CURLOPT_XFERINFODATA, pUserData);
 
         response_code = curl_easy_perform(curl);
         if (response_code != CURLE_OK)
@@ -105,4 +109,14 @@ size_t CAtomicAPI::WriteCallback(void* contents, size_t size, size_t nmemb, std:
     size_t total_size = size * nmemb;
     response->append((char*)contents, total_size);
     return total_size;
+}
+
+int CAtomicAPI::ProgressCallback(void* clientp, curl_off_t dltotal, curl_off_t dlnow, curl_off_t ultotal, curl_off_t ulnow)
+{
+    if (dltotal > 0 && clientp != nullptr)
+    {
+        float fProgress = (float)dlnow / (float)dltotal * 100.0;
+        reinterpret_cast<SUserData*>(clientp)->fProgress = fProgress;
+    }
+    return 0;
 }

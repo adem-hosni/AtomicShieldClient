@@ -198,9 +198,6 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 float alpha = 0.6f;                    // Начальное значение альфа
 float animationSpeed = 4.f;            // Скорость анимации (чем меньше, тем медленнее)
 
-
-
-
 bool isFiveMReady()
 {
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
@@ -359,17 +356,18 @@ BOOL InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
     return 1;
 }
 
-
-
 void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription, std::string processName)
 {
     bool               show_demo_window = true;
     bool               show_another_window = false;
     ImVec4             clear_color = c::color_bg_1;
-    static bool        bDownloading = false;
+    static bool        bDownloadStarted = false;
+    static bool        bDownloadFinish = false;
+    static float       fProgress = 0.f;
     static std::string strEngineBuffer;
     static bool        bInjected = false;
     static char        szLoadingMessage[144];
+    static SUserData   DownloadData{};
 
     static float anim_speed = ImGui::GetIO().DeltaTime * 12.f;
     ImGui::GetIO().IniFilename = NULL;
@@ -457,16 +455,14 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         {
                             if (ImGui::ButtonLogins("Start Now", ImVec2(238, 40)))
                             {
-                                if (!bDownloading)
+                                if (!bDownloadFinish)
                                 {
-                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                    strcat(szLoadingMessage, "Loading...");
-
                                     std::thread EngineDownloaderThread(
                                         [&]()
                                         {
-                                            g_pAtomicAPI->DownloadEngine(&strEngineBuffer);
-                                            bDownloading = true;
+                                            bDownloadStarted = true;
+                                            g_pAtomicAPI->DownloadEngine(&strEngineBuffer, &DownloadData);
+                                            bDownloadFinish = true;
                                         });
                                     EngineDownloaderThread.detach();
                                 }
@@ -601,8 +597,15 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         ImGui::GetWindowDrawList()->AddImageRounded(image::Succes, ImVec2(p.x + 246, p.y + 165 + product_offset_2.y),
                                                                     ImVec2(p.x + 415, p.y + 334 + product_offset_2.y), ImVec2(0, 0), ImVec2(1, 1),
                                                                     ImGui::GetColorU32(c::text_blue) /*color*/, 0 /*rounding*/);
-
                     }
+
+                    // Check if the download is started and it's not finished yet
+                    if (bDownloadStarted && !bDownloadFinish)
+                    {
+                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                        sprintf(szLoadingMessage, "Loading %d %...", (int)DownloadData.fProgress);
+                    }
+
                     if (active_tab != 0)
                     {
                         ImVec2 text_size = ImGui::CalcTextSize(szLoadingMessage, nullptr, true, 0.0f);
@@ -702,7 +705,6 @@ void ResetDevice()
     HRESULT hr = g_pd3dDevice->Reset(&g_d3dpp);
     if (hr != D3DERR_INVALIDCALL)
         ImGui_ImplDX9_CreateDeviceObjects();
-    
 }
 
 extern IMGUI_IMPL_API LRESULT ImGui_ImplWin32_WndProcHandler(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam);
