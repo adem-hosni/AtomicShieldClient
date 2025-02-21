@@ -72,11 +72,11 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build</OutDir>
-    <IntDir>$(SolutionDir)Cache</IntDir>
+    <IntDir>$(SolutionDir)Cache\$(ProjectName)\$(Configuration)</IntDir>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
     <OutDir>$(SolutionDir)Build</OutDir>
-    <IntDir>$(SolutionDir)Cache</IntDir>
+    <IntDir>$(SolutionDir)Cache\$(ProjectName)\$(Configuration)</IntDir>
     <IncludePath>$(ProjectDir)Vendor;$(IncludePath)</IncludePath>
     <ExternalIncludePath>$(ProjectDir)Vendor;$(ExternalIncludePath)</ExternalIncludePath>
   </PropertyGroup>

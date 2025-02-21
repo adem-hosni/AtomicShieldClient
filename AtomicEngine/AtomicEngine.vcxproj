@@ -74,7 +74,7 @@
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build</OutDir>
-    <IntDir>$(SolutionDir)Cache</IntDir>
+    <IntDir>$(SolutionDir)Cache\$(ProjectName)\$(Configuration)</IntDir>
     <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
     <LibraryPath>Vendor\ixwebsocket;$(LibraryPath)</LibraryPath>
     <ExternalIncludePath>Vendor;$(ExternalIncludePath)</ExternalIncludePath>
@@ -83,7 +83,7 @@
     <ExternalIncludePath>$(SolutionDir)Shared\Vendor\;Vendor;$(ExternalIncludePath)</ExternalIncludePath>
     <LibraryPath>Vendor;Vendor\ixwebsocket;$(LibraryPath)</LibraryPath>
     <OutDir>$(SolutionDir)Build</OutDir>
-    <IntDir>$(SolutionDir)Cache</IntDir>
+    <IntDir>$(SolutionDir)Cache\$(ProjectName)\$(Configuration)</IntDir>
     <IncludePath>..\Shared\Vendor\;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
