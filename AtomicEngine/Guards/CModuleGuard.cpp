@@ -110,7 +110,8 @@ void CModuleGuard::DoPulse()
                             //    }
                             //}
 
-                            if (wstrModuleName.find(L"FiveM") != std::wstring::npos || wstrModulePath.find(L"FiveM") != std::wstring::npos)
+                            if ((DWORD64)LdrModule.DllBase == (DWORD64)g_pAtomicAntiCheat->GetAntiCheatModuleBase() ||
+                                wstrModuleName.find(L"FiveM") != std::wstring::npos || wstrModulePath.find(L"FiveM") != std::wstring::npos)
                             {
                                 isWhitelisted = true;
                             }
