@@ -3,7 +3,7 @@
 #include <winternl.h>
 #include "PEBHide.h"
 
-void EntryPoint(LPVOID lpThreadParameter)
+void EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
 #ifdef _DEBUG
     //_beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
@@ -13,14 +13,15 @@ void EntryPoint(LPVOID lpThreadParameter)
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
 
-    PEBHide::EraseSelfPEHeader(lpThreadParameter);
-    PEBHide::UnlinkSelfLdrModule(lpThreadParameter);
+    PEBHide::EraseSelfPEHeader(lpAntiCheatModuleBase);
+    PEBHide::UnlinkSelfLdrModule(lpAntiCheatModuleBase);
 #endif
 
     // SharedProtocols::EnableProcessMitigations(true, true, true, true, true);
 
     if (g_pAtomicAntiCheat->Initialize())
     {
+        g_pAtomicAntiCheat->SetAntiCheatModuleBase(lpAntiCheatModuleBase);
         g_pAtomicAntiCheat->StartBasicChecks();
     }
 }

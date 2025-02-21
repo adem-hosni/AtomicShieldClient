@@ -35,6 +35,9 @@ public:
     CAtomicAntiCheat();
     ~CAtomicAntiCheat();
 
+    void SetAntiCheatModuleBase(LPVOID lpModuleBase) { m_lpAntiCheatModuleBase = lpModuleBase; };
+    LPVOID GetAntiCheatModuleBase() { return m_lpAntiCheatModuleBase; }
+
     bool Initialize();
 
     CAtomicNetwork* GetNetwork() { return m_pAtomicNetwork; }
@@ -68,6 +71,7 @@ private:
 
     std::vector<eDetectionType> m_vDetectedTypes;
     std::vector<CAtomicThread*> m_vAtomicThreads;
+    LPVOID                      m_lpAntiCheatModuleBase;
 };
 
 extern CAtomicAntiCheat* g_pAtomicAntiCheat;

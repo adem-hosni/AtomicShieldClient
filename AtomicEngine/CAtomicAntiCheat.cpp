@@ -10,6 +10,7 @@ CAtomicAntiCheat::CAtomicAntiCheat()
     m_pGuardManager = new CGuardManager();
     m_Timing = {};
     m_vDetectedTypes = {};
+    m_lpAntiCheatModuleBase = nullptr;
 }
 
 CAtomicAntiCheat::~CAtomicAntiCheat()
