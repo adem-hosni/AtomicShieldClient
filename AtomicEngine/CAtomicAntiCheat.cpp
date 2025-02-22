@@ -76,7 +76,6 @@ void CAtomicAntiCheat::StartBasicChecks()
 
 void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs)
 {
-    // Check if the detection type already detected
     if (std::find(m_vDetectedTypes.begin(), m_vDetectedTypes.end(), DetectionType) != m_vDetectedTypes.end())
         return;
 
