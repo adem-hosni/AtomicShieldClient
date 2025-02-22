@@ -1,4 +1,4 @@
-ï»¿#define IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DEFINE_MATH_OPERATORS
 #include "imgui.h"
 #include "imgui_impl_dx9.h"
 #include "imgui_internal.h"
@@ -195,8 +195,8 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 
     ImGui::GetWindowDrawList()->PathStroke(color, false, thickness);
 }
-float alpha = 0.6f;                    // ÃÃ Ã·Ã Ã«Ã¼Ã­Ã®Ã¥ Ã§Ã­Ã Ã·Ã¥Ã­Ã¨Ã¥ Ã Ã«Ã¼Ã´Ã 
-float animationSpeed = 4.f;            // Ã‘ÃªÃ®Ã°Ã®Ã±Ã²Ã¼ Ã Ã­Ã¨Ã¬Ã Ã¶Ã¨Ã¨ (Ã·Ã¥Ã¬ Ã¬Ã¥Ã­Ã¼Ã¸Ã¥, Ã²Ã¥Ã¬ Ã¬Ã¥Ã¤Ã«Ã¥Ã­Ã­Ã¥Ã¥)
+float alpha = 0.6f;                    // Íà÷àëüíîå çíà÷åíèå àëüôà
+float animationSpeed = 4.f;            // Ñêîðîñòü àíèìàöèè (÷åì ìåíüøå, òåì ìåäëåííåå)
 
 bool isFiveMReady()
 {
@@ -322,88 +322,40 @@ bool GUI::Initialize()
     return true;
 }
 
-void ErrorHandling(const char* FunctionName, const char* Message = "")
+BOOL InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
 {
-    if (strcmp(Message, "") == 0)
-    {
-        char  err[256];
-        DWORD code = GetLastError();
-        FormatMessage(FORMAT_MESSAGE_FROM_SYSTEM, nullptr, code, MAKELANGID(LANG_NEUTRAL, SUBLANG_DEFAULT), err, 255, nullptr);
-        char out[256];
-        sprintf(out, "%s: %s", FunctionName, err);
-        MessageBox(nullptr, out, "LoadLibraryOne", MB_OK | MB_ICONSTOP);
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-        exit(code);
-    }
-    else
-    {
-        char out[256];
-        sprintf(out, "%s: %s", FunctionName, Message);
-        MessageBox(nullptr, out, "LoadLibraryOne", MB_OK | MB_ICONSTOP);
-        std::this_thread::sleep_for(std::chrono::milliseconds(3000));
-        exit(-1);
-    }
+    LPVOID LoadLibAddr;
+    LPVOID baseAddr;
+    HANDLE remThread;
+    int    dllLength = strlen(dll) + 1;
+
+    LoadLibAddr = (LPVOID)GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA");
+
+    if (!LoadLibAddr)
+        return -1;
+
+    baseAddr = VirtualAllocEx(handleToProc, NULL, dllLength, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+
+    if (!baseAddr)
+        return -1;
+
+    if (!WriteProcessMemory(handleToProc, baseAddr, dll, dllLength, NULL))
+        return -1;
+
+    remThread = CreateRemoteThread(handleToProc, NULL, NULL, (LPTHREAD_START_ROUTINE)LoadLibAddr, baseAddr, 0, NULL);
+
+    if (!remThread)
+        return -1;
+
+    WaitForSingleObject(remThread, INFINITE);
+    VirtualFreeEx(handleToProc, baseAddr, dllLength, MEM_RELEASE);
+
+    CloseHandle(remThread);
+    CloseHandle(handleToProc);
+
+    return 1;
 }
 
-
-BOOL InjectDLL(DWORD processID, const char* dllPath)
-{
-
-    HANDLE Process = OpenProcess(PROCESS_ALL_ACCESS, FALSE, processID);
-    if (!Process)
-    {
-        SharedUtil::AddDebugLog("OpenProcess failed: %d", GetLastError());
-        return FALSE;
-    }
-
-    LPVOID Memory = VirtualAllocEx(Process, nullptr, MAX_PATH, MEM_RESERVE | MEM_COMMIT, PAGE_READWRITE);
-    if (!Memory)
-    {
-        SharedUtil::AddDebugLog("VirtualAllocEx failed: %d", GetLastError());
-        return FALSE;
-    }
-    SharedUtil::AddDebugLog("Allocated memory at: 0x%p", Memory);
-
-    if (!WriteProcessMemory(Process, Memory, dllPath, strlen(dllPath) + 1, nullptr))
-    {
-        SharedUtil::AddDebugLog("WriteProcessMemory failed: %d", GetLastError());
-        VirtualFreeEx(Process, Memory, 0, MEM_RELEASE);
-        CloseHandle(Process);
-        return FALSE;
-    }
-
-    LPVOID loadLibraryAddr = (LPVOID)GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA");
-    if (!loadLibraryAddr)
-    {
-        SharedUtil::AddDebugLog("GetProcAddress for LoadLibraryA failed: %d", GetLastError());
-        VirtualFreeEx(Process, Memory, 0, MEM_RELEASE);
-        CloseHandle(Process);
-        return FALSE;
-    }
-
-    HANDLE hThread = CreateRemoteThread(Process, nullptr, 0, (LPTHREAD_START_ROUTINE)loadLibraryAddr, Memory, 0, nullptr);
-    if (!hThread)
-    {
-        SharedUtil::AddDebugLog("CreateRemoteThread failed: %d", GetLastError());
-        return FALSE;
-    }
-
-    DWORD waitResult = WaitForSingleObject(hThread, INFINITE);
-    if (waitResult == WAIT_FAILED)
-    {
-        SharedUtil::AddDebugLog("WaitForSingleObject failed: %d", GetLastError());
-    }
-
-    DWORD exitCode = 0;
-    GetExitCodeThread(hThread, &exitCode);
-    SharedUtil::AddDebugLog("Remote thread exit code: %d", exitCode);
-
-    CloseHandle(hThread);
-    VirtualFreeEx(Process, Memory, 0, MEM_RELEASE);
-    CloseHandle(Process);
-
-    return exitCode != 0;
-}
 void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription, std::string processName)
 {
     bool               show_demo_window = true;
@@ -416,8 +368,6 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
     static bool        bInjected = false;
     static char        szLoadingMessage[144];
     static SUserData   DownloadData{};
-    std::mutex         injectionMutex;
-    static bool        bInjectionAttempted = false;            // Flag to track if injection has been attempted
 
     static float anim_speed = ImGui::GetIO().DeltaTime * 12.f;
     ImGui::GetIO().IniFilename = NULL;
@@ -578,47 +528,56 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                         ImGui::SetCursorPos(ImVec2(region) / 2 - ImVec2(80, 80 + product_offset_1.y));
                         Spinner("NULL", 80.f, 5.f, ImGui::GetColorU32(c::text_blue));
 
-                        if (!strEngineBuffer.empty() && !bInjected && !bInjectionAttempted)
+                        if (!strEngineBuffer.empty() && !bInjected)
                         {
-                            bInjectionAttempted = true;            // Set the flag to indicate that injection is being attempted
-                            std::thread injectionThread(
-                                [&]()
+                            {
+                                int iProcessID = SharedUtil::GetFivemProcessID();
+
+                                if (iProcessID > 0 && isFiveMReady())
                                 {
-                                    std::lock_guard<std::mutex> lock(injectionMutex);
-                                    if (!bInjected)
+                                    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
+                                    if (hProcess)
                                     {
-                                        int iProcessID = SharedUtil::GetFivemProcessID();
-                                        if (iProcessID > 0 && isFiveMReady())
+                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                        strcat(szLoadingMessage, skCrypt("Please wait, we're getting everything ready for you!"));
+
+                                        char szTempFilePath[MAX_PATH];
+                                        GetTempPathA(MAX_PATH, szTempFilePath);
+                                        sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
+                                        FILE* file = fopen(szTempFilePath, "wb");
+                                        if (file)
                                         {
-                                            char szTempFilePath[MAX_PATH];
-                                            GetTempPathA(MAX_PATH, szTempFilePath);
-                                            sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
-
-                                            FILE* file = fopen(szTempFilePath, "wb");
-                                            if (file)
-                                            {
-                                                fwrite(strEngineBuffer.c_str(), sizeof(char), strEngineBuffer.size(), file);
-                                                fclose(file);
-                                            }
-
-                                            if (InjectDLL(iProcessID, szTempFilePath))
-                                            {
-                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                                strcat(szLoadingMessage, skCrypt("Have fun!"));
-                                                page = 2;
-                                                active_anim_1 = true;
-                                                bInjected = true;
-                                            }
-                                            else
-                                            {
-                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                                strcat(szLoadingMessage, skCrypt("An error occurred while loading the AntiCheat!"));
-                                            }
-                                            SharedUtil::AddDebugLog("Result from DLL injection: %d (0x%x)", bInjected, GetLastError());
+                                            fwrite(strEngineBuffer.c_str(), sizeof(char), strEngineBuffer.size(), file);
+                                            fclose(file);
                                         }
+
+                                        bInjected = InjectDLL(hProcess, iProcessID, szTempFilePath);
+                                        if (bInjected)
+                                        {
+                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                            strcat(szLoadingMessage, skCrypt("Have fun!"));
+
+                                            page = 2;
+                                            active_anim_1 = true;
+                                        }
+                                        else
+                                        {
+                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                            strcat(szLoadingMessage, skCrypt("An error occurred while loading the AntiCheat!"));
+                                        }
+                                        SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
                                     }
-                                });
-                            injectionThread.detach();
+                                    else
+                                    {
+                                        SharedUtil::AddDebugLog(skCrypt("Failed to get process handle!\n"));
+                                    }
+                                }
+                                else
+                                {
+                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                    strcat(szLoadingMessage, skCrypt("Waiting for FiveM to launch"));
+                                }
+                            }
                         }
                     }
 
@@ -640,10 +599,11 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                                                     ImGui::GetColorU32(c::text_blue) /*color*/, 0 /*rounding*/);
                     }
 
+                    // Check if the download is started and it's not finished yet
                     if (bDownloadStarted && !bDownloadFinish)
                     {
                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                        sprintf(szLoadingMessage, "Loading %d %%...", (int)DownloadData.fProgress);
+                        sprintf(szLoadingMessage, "Loading %d %...", (int)DownloadData.fProgress);
                     }
 
                     if (active_tab != 0)
@@ -697,6 +657,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
 }
+
 void GUI::Destroy()
 {
     CleanupDeviceD3D();

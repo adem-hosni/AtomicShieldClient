@@ -16,13 +16,13 @@ CGuardManager::~CGuardManager()
 void CGuardManager::InitializeGuards()
 {
     m_pModuleGuard->Initialize();
-   // m_pHeuristicGuard->Initialize();
+    m_pHeuristicGuard->Initialize();
 }
 
 void CGuardManager::StartPulse(CGuardManager* pGuardManager)
 {
     SharedUtil::AddDebugLog("Starting threads");
-  //  CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard);
+    // CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard);
     CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard);
     CAtomicThread::Create(CModuleGuard::StaticPulse, m_pModuleGuard);
 }

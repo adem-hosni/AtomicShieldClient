@@ -6,18 +6,18 @@
 //int main(int argc, char* argv[])
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 {
-//#ifdef _DEBUG
+#ifdef _DEBUG
     AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
-//#endif
+#endif
 
     // Enable microsoft process mitigations (Avoid unsigned code execution, ...)
     // SharedProtocols::EnableProcessMitigations();
 
     // Check the launcher process (for anti-debugging)
-    //SharedProtocols::CheckLauncherProcess();
+    SharedProtocols::CheckLauncherProcess();
 
     jsoncons::json Status = g_pAtomicAPI->GetStatus();
     std::string    processName = StartupManager::GetCurrentProcessName();
