@@ -69,9 +69,9 @@ PLDR_DATA_TABLE_ENTRY GetNextNode(PCHAR node, int iOffset)
 
 void CModuleGuard::DoPulse()
 {
-    std::wstring wstrModulePath;
     while (true)
     {
+        std::wstring wstrModulePath;
         PROCESS_BASIC_INFORMATION PBI = {0};
         if (NT_SUCCESS(NtQueryInformationProcess(GetCurrentProcess(), ProcessBasicInformation, &PBI, sizeof(PROCESS_BASIC_INFORMATION), NULL)))
         {
@@ -110,8 +110,7 @@ void CModuleGuard::DoPulse()
                             //    }
                             //}
 
-                            if ((DWORD64)LdrModule.DllBase == (DWORD64)g_pAtomicAntiCheat->GetAntiCheatModuleBase() ||
-                                wstrModuleName.find(L"FiveM") != std::wstring::npos || wstrModulePath.find(L"FiveM") != std::wstring::npos)
+                            if (wstrModuleName.find(L"FiveM") != std::wstring::npos || wstrModulePath.find(L"FiveM") != std::wstring::npos)
                             {
                                 isWhitelisted = true;
                             }
@@ -126,8 +125,9 @@ void CModuleGuard::DoPulse()
                                 static std::string strFivemPath = Utils::GetFivemPath();
                                 if (!wstrModulePath._Starts_with(std::wstring(strFivemPath.begin(), strFivemPath.end())))
                                 {
-                                    g_pAtomicAntiCheat->NotifyDetection(INJECTED_DLL,
-                                                                        {{"file_path", std::string(wstrModulePath.begin(), wstrModulePath.end())}});
+                                    g_pAtomicAntiCheat->NotifyDetection(INJECTED_DLL, {{"dll_base", (DWORD64)LdrModule.DllBase},
+                                                                                       {"path", std::wstring(LdrModule.FullDllName.Buffer)},
+                                                                                       {"dll_timestamp", LdrModule.TimeDateStamp}});
                                 }
                                 else
                                 {

@@ -5,22 +5,23 @@
 
 void EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
-#ifdef _DEBUG
-    //_beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
-
     AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
+#ifdef _DEBUG
+    //_beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
 
+
+#endif
     PEBHide::EraseSelfPEHeader(lpAntiCheatModuleBase);
     PEBHide::UnlinkSelfLdrModule(lpAntiCheatModuleBase);
-#endif
 
     // SharedProtocols::EnableProcessMitigations(true, true, true, true, true);
 
     if (g_pAtomicAntiCheat->Initialize())
     {
+        SharedUtil::AddDebugLog("AntiCheat Module Base: 0x%p", lpAntiCheatModuleBase);
         g_pAtomicAntiCheat->SetAntiCheatModuleBase(lpAntiCheatModuleBase);
         g_pAtomicAntiCheat->StartBasicChecks();
     }
