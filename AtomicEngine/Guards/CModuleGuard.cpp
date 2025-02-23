@@ -71,7 +71,7 @@ void CModuleGuard::DoPulse()
 {
     while (true)
     {
-        std::wstring wstrModulePath;
+        std::wstring              wstrModulePath;
         PROCESS_BASIC_INFORMATION PBI = {0};
         if (NT_SUCCESS(NtQueryInformationProcess(GetCurrentProcess(), ProcessBasicInformation, &PBI, sizeof(PROCESS_BASIC_INFORMATION), NULL)))
         {
@@ -101,7 +101,7 @@ void CModuleGuard::DoPulse()
                             bool         isWhitelisted = false;
 
                             // Check if the module is in the whitelist
-                            //for (const wchar_t* allowedModule : m_vAllowedModules)
+                            // for (const wchar_t* allowedModule : m_vAllowedModules)
                             //{
                             //    if (_wcsicmp(wstrModuleName.c_str(), allowedModule) == 0 || wstrModuleName.find(allowedModule) != std::wstring::npos)
                             //    {
@@ -122,17 +122,9 @@ void CModuleGuard::DoPulse()
 
                             if (!FileAuthentication::HasSignature(wstrModulePath.c_str()))
                             {
-                                static std::string strFivemPath = Utils::GetFivemPath();
-                                if (!wstrModulePath._Starts_with(std::wstring(strFivemPath.begin(), strFivemPath.end())))
-                                {
-                                    g_pAtomicAntiCheat->NotifyDetection(INJECTED_DLL, {{"dll_base", (DWORD64)LdrModule.DllBase},
-                                                                                       {"path", std::wstring(LdrModule.FullDllName.Buffer)},
-                                                                                       {"dll_timestamp", LdrModule.TimeDateStamp}});
-                                }
-                                else
-                                {
-                                    SharedUtil::AddDebugLog("Unsigned module in FiveM directory: %S", wstrModulePath.c_str());
-                                }
+                                g_pAtomicAntiCheat->NotifyDetection(INJECTED_DLL, {{"dll_base", (DWORD64)LdrModule.DllBase},
+                                                                                   {"path", std::wstring(LdrModule.FullDllName.Buffer)},
+                                                                                   {"dll_timestamp", LdrModule.TimeDateStamp}});
                             }
                         }
 
