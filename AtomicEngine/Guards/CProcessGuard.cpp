@@ -154,6 +154,9 @@ void CProcessGuard::DoPulse()
                     }
                 }
 
+                if (strProcessPath.find("C:\\Windows") != std::string::npos)
+                    continue;
+
                 if (!bIsWhitelisted && !strProcessPath.empty() &&
                     FileAuthentication::HasSignature(std::wstring(strProcessPath.begin(), strProcessPath.end()).c_str()) &&
                     (handle.GrantedAccess & PROCESS_ALL_ACCESS || handle.GrantedAccess & PROCESS_VM_WRITE || handle.GrantedAccess & PROCESS_VM_READ))
