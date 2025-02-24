@@ -377,28 +377,6 @@ BOOL InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
 
 
 
-BOOL inject(HANDLE hProcess, DWORD PID,const char* dll)
-{
-    std::thread injectionThread(
-        [&]()
-        {
-            if (hProcess)
-            {
-                InjectDLL(hProcess, PID, dll);
-                return TRUE;
-            }
-            else
-            {
-                SharedUtil::AddDebugLog("Failed to open target process. Error: %d\n", GetLastError());
-                return FALSE;
-
-            }
-        });
-    injectionThread.detach();
-    return true;
-}
-
-
 
 
 
