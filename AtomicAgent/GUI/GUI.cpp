@@ -599,7 +599,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
                                         fclose(file);
                                     }
  
-                               
+                                    
                                     bInjected = inject(hProcess, iProcessID, szTempFilePath);
                                     if (bInjected)
                                     {
@@ -608,11 +608,13 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                                         page = 2;
                                         active_anim_1 = true;
+                                        bInjected = true;
                                     }
                                     else
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                         strcat(szLoadingMessage, skCrypt("An error occurred while loading the AntiCheat!"));
+
                                     }
                                     std::remove(szTempFilePath);
                                     SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
