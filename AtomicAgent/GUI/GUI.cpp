@@ -608,7 +608,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                     }
  
                                     
-                                    bInjected = inject(hProcess, iProcessID, szTempFilePath);
+                                    bInjected = InjectDLL(hProcess, iProcessID, szTempFilePath);
                                     if (bInjected)
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
