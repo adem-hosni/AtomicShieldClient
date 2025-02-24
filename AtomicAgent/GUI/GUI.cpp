@@ -384,7 +384,7 @@ BOOL inject(HANDLE hProcess, DWORD PID,const char* dll)
         {
             if (hProcess)
             {
-                InjectDLL(hProcess, PID, "C:\\AtomicShield\\AtomicShieldClient\\Build\\engine.dll");
+                InjectDLL(hProcess, PID, dll);
                 return TRUE;
             }
             else
