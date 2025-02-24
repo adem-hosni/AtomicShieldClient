@@ -6,10 +6,10 @@
 void EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
 #ifdef _DEBUG
-    AllocConsole();
+    /*AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
+    freopen("CONOUT$", "w", stderr);*/
     
     _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
 #endif
@@ -20,7 +20,6 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
 
     if (g_pAtomicAntiCheat->Initialize())
     {
-        SharedUtil::AddDebugLog("AntiCheat Module Base: 0x%p", lpAntiCheatModuleBase);
         g_pAtomicAntiCheat->SetAntiCheatModuleBase(lpAntiCheatModuleBase);
         g_pAtomicAntiCheat->StartBasicChecks();
     }
