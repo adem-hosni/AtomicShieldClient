@@ -14,8 +14,8 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
 
 
 #endif
-    PEBHide::EraseSelfPEHeader(lpAntiCheatModuleBase);
-    PEBHide::UnlinkSelfLdrModule(lpAntiCheatModuleBase);
+    //PEBHide::EraseSelfPEHeader(lpAntiCheatModuleBase);
+    //PEBHide::UnlinkSelfLdrModule(lpAntiCheatModuleBase);
 
     // SharedProtocols::EnableProcessMitigations(true, true, true, true, true);
 

@@ -322,6 +322,7 @@ bool GUI::Initialize()
     return true;
 }
 
+
 BOOL InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
 {
     LPVOID LoadLibAddr;
@@ -332,20 +333,34 @@ BOOL InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
     LoadLibAddr = (LPVOID)GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA");
 
     if (!LoadLibAddr)
-        return -1;
+    {
+        SharedUtil::AddDebugLog("Failed to get address of LoadLibraryA. Error: %d\n", GetLastError());
+        return FALSE;
+    }
 
     baseAddr = VirtualAllocEx(handleToProc, NULL, dllLength, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
 
     if (!baseAddr)
-        return -1;
+    {
+        SharedUtil::AddDebugLog("Failed to allocate memory in target process. Error: %d\n", GetLastError());
+        return FALSE;
+    }
 
     if (!WriteProcessMemory(handleToProc, baseAddr, dll, dllLength, NULL))
-        return -1;
+    {
+        SharedUtil::AddDebugLog("Failed to write DLL path to target process. Error: %d\n", GetLastError());
+        VirtualFreeEx(handleToProc, baseAddr, dllLength, MEM_RELEASE);
+        return FALSE;
+    }
 
     remThread = CreateRemoteThread(handleToProc, NULL, NULL, (LPTHREAD_START_ROUTINE)LoadLibAddr, baseAddr, 0, NULL);
 
     if (!remThread)
-        return -1;
+    {
+        SharedUtil::AddDebugLog("Failed to create remote thread in target process. Error: %d\n", GetLastError());
+        VirtualFreeEx(handleToProc, baseAddr, dllLength, MEM_RELEASE);
+        return FALSE;
+    }
 
     WaitForSingleObject(remThread, INFINITE);
     VirtualFreeEx(handleToProc, baseAddr, dllLength, MEM_RELEASE);
@@ -353,8 +368,42 @@ BOOL InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
     CloseHandle(remThread);
     CloseHandle(handleToProc);
 
-    return 1;
+    return TRUE;
 }
+
+
+
+
+
+
+
+BOOL inject(HANDLE hProcess, DWORD PID,const char* dll)
+{
+    std::thread injectionThread(
+        [&]()
+        {
+            if (hProcess)
+            {
+                InjectDLL(hProcess, PID, "C:\\AtomicShield\\AtomicShieldClient\\Build\\engine.dll");
+                return TRUE;
+            }
+            else
+            {
+                SharedUtil::AddDebugLog("Failed to open target process. Error: %d\n", GetLastError());
+                return FALSE;
+
+            }
+        });
+    injectionThread.detach();
+}
+
+
+
+
+
+
+
+
 
 void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription, std::string processName)
 {
@@ -530,53 +579,53 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
 
                         if (!strEngineBuffer.empty() && !bInjected)
                         {
-                            {
-                                int iProcessID = SharedUtil::GetFivemProcessID();
+                            int iProcessID = SharedUtil::GetFivemProcessID();
 
-                                if (iProcessID > 0 && isFiveMReady())
+                            if (iProcessID > 0 && isFiveMReady())
+                            {
+                                HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
+                                if (hProcess)
                                 {
-                                    HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
-                                    if (hProcess)
+                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                    strcat(szLoadingMessage, skCrypt("Please wait, we're getting everything ready for you!"));
+
+                                    char szTempFilePath[MAX_PATH];
+                                    GetTempPathA(MAX_PATH, szTempFilePath);
+                                    sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
+                                    FILE* file = fopen(szTempFilePath, "wb");
+                                    if (file)
+                                    {
+                                        fwrite(strEngineBuffer.c_str(), sizeof(char), strEngineBuffer.size(), file);
+                                        fclose(file);
+                                    }
+ 
+                               
+                                    bInjected = inject(hProcess, iProcessID, szTempFilePath);
+                                    if (bInjected)
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, skCrypt("Please wait, we're getting everything ready for you!"));
+                                        strcat(szLoadingMessage, skCrypt("Have fun!"));
 
-                                        char szTempFilePath[MAX_PATH];
-                                        GetTempPathA(MAX_PATH, szTempFilePath);
-                                        sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
-                                        FILE* file = fopen(szTempFilePath, "wb");
-                                        if (file)
-                                        {
-                                            fwrite(strEngineBuffer.c_str(), sizeof(char), strEngineBuffer.size(), file);
-                                            fclose(file);
-                                        }
-
-                                        bInjected = InjectDLL(hProcess, iProcessID, szTempFilePath);
-                                        if (bInjected)
-                                        {
-                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                            strcat(szLoadingMessage, skCrypt("Have fun!"));
-
-                                            page = 2;
-                                            active_anim_1 = true;
-                                        }
-                                        else
-                                        {
-                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                            strcat(szLoadingMessage, skCrypt("An error occurred while loading the AntiCheat!"));
-                                        }
-                                        SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
+                                        page = 2;
+                                        active_anim_1 = true;
                                     }
                                     else
                                     {
-                                        SharedUtil::AddDebugLog(skCrypt("Failed to get process handle!\n"));
+                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                        strcat(szLoadingMessage, skCrypt("An error occurred while loading the AntiCheat!"));
                                     }
+                                    std::remove(szTempFilePath);
+                                    SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
                                 }
                                 else
                                 {
-                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                    strcat(szLoadingMessage, skCrypt("Waiting for FiveM to launch"));
+                                    SharedUtil::AddDebugLog(skCrypt("Failed to get process handle!\n"));
                                 }
+                            }
+                            else
+                            {
+                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                strcat(szLoadingMessage, skCrypt("Waiting for FiveM to launch"));
                             }
                         }
                     }
@@ -657,6 +706,7 @@ void GUI::RenderUI(bool bNoErrors, std::string strErrorTitle, std::string strErr
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
 }
+
 
 void GUI::Destroy()
 {

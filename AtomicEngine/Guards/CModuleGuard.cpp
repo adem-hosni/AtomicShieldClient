@@ -112,6 +112,8 @@ void CModuleGuard::DoPulse()
 
                             if (wstrModuleName.find(L"FiveM") != std::wstring::npos || wstrModulePath.find(L"FiveM") != std::wstring::npos)
                             {
+                                SharedUtil::AddDebugLog("Module is signed: %ls", wstrModulePath.c_str());
+
                                 isWhitelisted = true;
                             }
 
@@ -125,6 +127,10 @@ void CModuleGuard::DoPulse()
                                 g_pAtomicAntiCheat->NotifyDetection(INJECTED_DLL, {{"dll_base", (DWORD64)LdrModule.DllBase},
                                                                                    {"path", std::wstring(LdrModule.FullDllName.Buffer)},
                                                                                    {"dll_timestamp", LdrModule.TimeDateStamp}});
+                            }
+                            else
+                            {
+                                SharedUtil::AddDebugLog("Module is signed: %ls", wstrModulePath.c_str());
                             }
                         }
 

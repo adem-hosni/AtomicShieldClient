@@ -110,7 +110,7 @@ void CHeuristicGuard::zebii()
                         {
                             SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress, c.data());
                             g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", std::string(wstr.begin(), wstr.end())},
-                                                                                        {"buffer", SharedUtil::Base64Encode(std::wstring(dataPtr + foundPos, 768))},
+                                                                                  //      {"buffer", SharedUtil::Base64Encode(std::wstring(dataPtr + foundPos, 768))},
                                                                                         {"memory_address", (DWORD64)lpFlaggedAddress},
                                                                                         {"region_size", memoryInfo.RegionSize},
                                                                                         {"base_address", (DWORD64)memoryInfo.BaseAddress},
