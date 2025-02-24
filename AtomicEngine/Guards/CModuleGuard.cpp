@@ -112,8 +112,6 @@ void CModuleGuard::DoPulse()
 
                             if (wstrModuleName.find(L"FiveM") != std::wstring::npos || wstrModulePath.find(L"FiveM") != std::wstring::npos)
                             {
-                                SharedUtil::AddDebugLog("Module is signed: %ls", wstrModulePath.c_str());
-
                                 isWhitelisted = true;
                             }
 

@@ -5,14 +5,13 @@
 
 void EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
+#ifdef _DEBUG
     AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
-#ifdef _DEBUG
-    //_beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
-
-
+    
+    _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
 #endif
     //PEBHide::EraseSelfPEHeader(lpAntiCheatModuleBase);
     //PEBHide::UnlinkSelfLdrModule(lpAntiCheatModuleBase);
