@@ -49,7 +49,7 @@ public:
         bool favorite_childs = false;
         std::map<ImGuiID, bool> child_states;
 
-        std::string cheat_name = ".gg/streamproof";
+        std::string cheat_name = ".gg/atomic-shield";
         std::string cheat_year = "Make closet cheating great again";
     } gui;
 
