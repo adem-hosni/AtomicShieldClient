@@ -25,6 +25,7 @@ bool CAtomicNetwork::Connect()
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
 
     m_pWebSocket->setPingInterval(3);
+    m_pWebSocket->enablePong();
 
     ix::WebSocketInitResult result = m_pWebSocket->connect(32);
     m_pWebSocket->start();
@@ -191,8 +192,9 @@ void CAtomicNetwork::PingPulse(LPVOID lpContext)
         if (pAtomicNetwork->GetWebSocket()->getReadyState() == ix::ReadyState::Open)
         {
             pAtomicNetwork->GetWebSocket()->ping("ping");
+            pAtomicNetwork->GetWebSocket()->ping("");
         }
-        std::this_thread::sleep_for(std::chrono::milliseconds(5000));
+        std::this_thread::sleep_for(std::chrono::milliseconds(4000));
     }
 }
 
