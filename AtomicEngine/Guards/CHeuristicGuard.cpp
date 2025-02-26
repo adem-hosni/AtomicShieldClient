@@ -64,14 +64,15 @@ void CHeuristicGuard::zebii()
         SYSTEM_INFO sysInfo;
         GetSystemInfo(&sysInfo);
 
-        for (std::wstring memoryString : m_vSignatures)
+        //for (std::wstring memoryString : m_vSignatures)
+        std::string memoryString = "lpjxl_lpso_zlq32";
         {
             LARGE_INTEGER frequency, start, end;
             QueryPerformanceFrequency(&frequency);
             QueryPerformanceCounter(&start);
 
-            std::wstring      c = Utils::CaesarDecrypt(memoryString, 3);
-            std::wstring_view wstr(c.begin(), c.end());
+            std::string      c = Utils::CaesarDecrypt(memoryString, 3);
+            std::string_view wstr(c.begin(), c.end());
 
             MEMORY_BASIC_INFORMATION memoryInfo{};
             bool                     found = false;
@@ -84,10 +85,10 @@ void CHeuristicGuard::zebii()
                 SIZE_T returnLength;
 
                 status = SysNtQueryVirtualMemory(processHandle, baseAddress, MemoryBasicInformation, &memoryInfo, regionSize, &returnLength);
-                if (!NT_SUCCESS(status) || memoryInfo.State != MEM_COMMIT || memoryInfo.Protect & PAGE_NOACCESS)
+                if (!NT_SUCCESS(status) || /*!(memoryInfo.State | MEM_PRIVATE) ||*/ memoryInfo.Protect & PAGE_READWRITE)
                     continue;
 
-                SIZE_T allocationSize = memoryInfo.RegionSize + wstr.size() * sizeof(wchar_t) - 1;
+                SIZE_T allocationSize = memoryInfo.RegionSize + wstr.size() * sizeof(char) - 1;
                 PVOID  buffer = nullptr;
                 status = SysNtAllocateVirtualMemory(hProcess, &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
                 if (!NT_SUCCESS(status))
@@ -97,18 +98,26 @@ void CHeuristicGuard::zebii()
                 status = SysNtReadVirtualMemory(processHandle, memoryInfo.BaseAddress, buffer, memoryInfo.RegionSize, &bytesRead);
                 if (NT_SUCCESS(status))
                 {
-                    const wchar_t* dataPtr = reinterpret_cast<const wchar_t*>(buffer);
-                    size_t         wordCount = bytesRead / sizeof(wchar_t);
-
-                    size_t foundPos = std::wstring_view(dataPtr, wordCount).find(wstr);
+                    const char* dataPtr = reinterpret_cast<const char*>(buffer);
+                    size_t         wordCount = bytesRead / sizeof(char);
+                     
+                    size_t foundPos = std::string_view(dataPtr, wordCount).find(wstr);
 
                     if (foundPos != std::wstring_view::npos)
                     {
-                        LPVOID lpFlaggedAddress = static_cast<LPBYTE>(memoryInfo.BaseAddress) + foundPos * sizeof(wchar_t);
+                        LPVOID lpFlaggedAddress = static_cast<LPBYTE>(memoryInfo.BaseAddress) + foundPos * sizeof(char);
                         if ((DWORD64)lpFlaggedAddress != (DWORD64)wstr.data() && !IsAddressInVector(m_vSignatures, lpFlaggedAddress) &&
                             (DWORD64)lpFlaggedAddress != (DWORD64)c.data())
                         {
+
+
                             SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress, c.data());
+                            SharedUtil::AddDebugLog("Region %d", memoryInfo.Type);
+                            SharedUtil::AddDebugLog("State %d", memoryInfo.State);
+                            SharedUtil::AddDebugLog("State %d", memoryInfo.Protect);
+                            SharedUtil::AddDebugLog("String %c%c%c%c%c", (char)((DWORD64)lpFlaggedAddress + 1), (char)((DWORD64)lpFlaggedAddress + 2),
+                                                    (char)((DWORD64)lpFlaggedAddress + 3), (char)((DWORD64)lpFlaggedAddress + 4), (char)((DWORD64)lpFlaggedAddress + 5));
+                            
                             g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", std::string(wstr.begin(), wstr.end())},
                                                                                   //      {"buffer", SharedUtil::Base64Encode(std::wstring(dataPtr + foundPos, 768))},
                                                                                         {"memory_address", (DWORD64)lpFlaggedAddress},
@@ -116,8 +125,6 @@ void CHeuristicGuard::zebii()
                                                                                         {"base_address", (DWORD64)memoryInfo.BaseAddress},
                                                                                         {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
                                                                                         {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
-                            found = true;
-                            break;
                         }
                     }
                 }
