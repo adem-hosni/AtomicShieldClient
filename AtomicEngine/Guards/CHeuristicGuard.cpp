@@ -109,20 +109,16 @@ void CHeuristicGuard::zebii()
                         if ((DWORD64)lpFlaggedAddress != (DWORD64)wstr.data() && !IsAddressInVector(m_vSignatures, lpFlaggedAddress) &&
                             (DWORD64)lpFlaggedAddress != (DWORD64)c.data())
                         {
-
-
                             SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress, c.data());
-                            SharedUtil::AddDebugLog("Region %d", memoryInfo.Type);
-                            SharedUtil::AddDebugLog("State %d", memoryInfo.State);
-                            SharedUtil::AddDebugLog("State %d", memoryInfo.Protect);
-                            SharedUtil::AddDebugLog("String %c%c%c%c%c", (char)((DWORD64)lpFlaggedAddress + 1), (char)((DWORD64)lpFlaggedAddress + 2),
-                                                    (char)((DWORD64)lpFlaggedAddress + 3), (char)((DWORD64)lpFlaggedAddress + 4), (char)((DWORD64)lpFlaggedAddress + 5));
                             
                             g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", std::string(wstr.begin(), wstr.end())},
                                                                                   //      {"buffer", SharedUtil::Base64Encode(std::wstring(dataPtr + foundPos, 768))},
                                                                                         {"memory_address", (DWORD64)lpFlaggedAddress},
                                                                                         {"region_size", memoryInfo.RegionSize},
                                                                                         {"base_address", (DWORD64)memoryInfo.BaseAddress},
+                                                                                        {"region_type", (DWORD64)memoryInfo.Type},
+                                                                                        {"region_state", (DWORD64)memoryInfo.State},
+                                                                                        {"region_protect", (DWORD64)memoryInfo.Protect},
                                                                                         {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
                                                                                         {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
                         }
