@@ -182,6 +182,7 @@ namespace ix
         if (_thread.joinable()) return; // we've already been started
 
         _thread = std::thread(&WebSocket::run, this);
+        _thread.detach();
     }
 
     void WebSocket::stop(uint16_t code, const std::string& reason)
