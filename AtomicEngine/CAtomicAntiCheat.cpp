@@ -11,6 +11,7 @@ CAtomicAntiCheat::CAtomicAntiCheat()
     m_Timing = {};
     m_vDetectedTypes = {};
     m_lpAntiCheatModuleBase = nullptr;
+    m_bRunScanners = false;
 }
 
 CAtomicAntiCheat::~CAtomicAntiCheat()

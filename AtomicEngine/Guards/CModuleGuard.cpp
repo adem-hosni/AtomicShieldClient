@@ -71,6 +71,9 @@ void CModuleGuard::DoPulse()
 {
     while (true)
     {
+        while (!g_pAtomicAntiCheat->RunScanners())
+            ;
+
         std::wstring              wstrModulePath;
         PROCESS_BASIC_INFORMATION PBI = {0};
         if (NT_SUCCESS(NtQueryInformationProcess(GetCurrentProcess(), ProcessBasicInformation, &PBI, sizeof(PROCESS_BASIC_INFORMATION), NULL)))

@@ -47,6 +47,9 @@ void CHeuristicGuard::zebii()
 
     while (true)
     {
+        while (!g_pAtomicAntiCheat->RunScanners())
+            ;
+
         if (m_vSignatures.empty())
             continue;
 

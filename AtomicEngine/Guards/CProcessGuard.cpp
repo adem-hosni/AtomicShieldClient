@@ -130,9 +130,11 @@ std::string GetProcessPath(DWORD pid)
 
 void CProcessGuard::DoPulse()
 {
-    SharedUtil::AddDebugLog("ProcessGuard Pulse");
     while (true)
     {
+        while (!g_pAtomicAntiCheat->RunScanners())
+            ;
+
         std::vector<Handles::_SYSTEM_HANDLE> handles = Handles::DetectOpenHandlesToProcess();
         bool                                 bFoundHandle = false;
 

@@ -51,6 +51,9 @@ public:
 
     void StartBasicChecks();
 
+    bool RunScanners() { return m_bRunScanners; }
+    void RunScanners(bool bRun) { m_bRunScanners = bRun; }
+
     void NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs = {});
 
     HANDLE GetProcessHandle() { return m_hProcess; }
@@ -72,6 +75,7 @@ private:
     std::vector<eDetectionType> m_vDetectedTypes;
     std::vector<CAtomicThread*> m_vAtomicThreads;
     LPVOID                      m_lpAntiCheatModuleBase;
+    bool                        m_bRunScanners;
 };
 
 extern CAtomicAntiCheat* g_pAtomicAntiCheat;

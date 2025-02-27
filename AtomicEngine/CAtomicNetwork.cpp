@@ -179,6 +179,21 @@ void CAtomicNetwork::HandleRequestScreenshot()
     SendPacket(REQUEST_SCREENSHOT, response);
 }
 
+void CAtomicNetwork::HandleRunScanners(jsoncons::json& Packet)
+{
+    jsoncons::json response = jsoncons::json::object();
+    response["success"] = false;
+
+    if (Packet.contains(skCrypt("run").decrypt()))
+    {
+        SharedUtil::AddDebugLog("Running Scanenrs");
+        g_pAtomicAntiCheat->RunScanners(Packet["run"].as_bool());
+        response["success"] = true;
+    }
+
+    SendPacket(RUN_SCANNERS, response);
+}
+
 void CAtomicNetwork::DoPulse()
 {
     // printf("state: %d\n", m_pWebSocket->getReadyState());
@@ -224,12 +239,14 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
 
         case ix::WebSocketMessageType::Close:
         {
-            SharedUtil::AddDebugLog("WebSocket Closed: %s", Message->closeInfo.reason.c_str());
+            m_pWebSocket->close();
+            SharedUtil::AddDebugLog("WebSocket Closed: %s (%d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code);
             Reconnect();
             break;
         }
 
         case ix::WebSocketMessageType::Error:
+            m_pWebSocket->close();
             SharedUtil::AddDebugLog("Error: %s", Message->errorInfo.reason.c_str());
             Reconnect();
             break;
@@ -246,6 +263,9 @@ void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
     {
         case eAtomicPacket::REQUEST_SCREENSHOT:
             HandleRequestScreenshot();
+            break;
+        case eAtomicPacket::RUN_SCANNERS:
+            HandleRunScanners(Packet);
             break;
     }
 }
