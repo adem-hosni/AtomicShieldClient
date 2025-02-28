@@ -66,13 +66,13 @@ void CAtomicAntiCheat::StartBasicChecks()
 {
     BasicChecks::CheckPlugins();
 
-    BasicChecks::CheckBlacklistedDrivers();
-
     //  DebugModeEnabled();
 
     BasicChecks::SecureBootEnabled();
 
     BasicChecks::TestsigningEnabled();
+
+    CAtomicThread::Create(&BasicChecks::CheckBlacklistedDrivers);
 }
 
 void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs)

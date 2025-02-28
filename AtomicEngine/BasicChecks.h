@@ -8,4 +8,4 @@ namespace BasicChecks
     void SecureBootEnabled();
     void TestsigningEnabled();
     void CheckBlacklistedDrivers();
-};
+};            // namespace BasicChecks

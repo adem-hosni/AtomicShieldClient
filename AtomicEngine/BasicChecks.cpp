@@ -172,18 +172,25 @@ void BasicChecks::CheckBlacklistedDrivers()
                                                     std::string(skCrypt("zam64.sys")),
                                                     std::string(skCrypt("DBK64.sys"))};
 
-    std::vector<std::string> vDriverPaths;
-    std::vector<std::string> vFoundBlacklistedDrivers;
-
-    if (GetLoadedDrivers(vDriverPaths, vFoundBlacklistedDrivers, vBlacklistedDrivers))
+    std::vector<std::string> vReportedDrivers;
+    while (true)
     {
-        std::unordered_map<std::string, ArgType> params;
-        for (auto& driver : vFoundBlacklistedDrivers)
-        {
-            params.insert_or_assign("driver_name", driver);
-        }
+        std::vector<std::string> vDriverPaths;
+        std::vector<std::string> vFoundBlacklistedDrivers;
 
-        g_pAtomicAntiCheat->NotifyDetection(eDetectionType::BLACKLISTED_DRIVER_LOADED, params);
+        if (GetLoadedDrivers(vDriverPaths, vFoundBlacklistedDrivers, vBlacklistedDrivers))
+        {
+            std::unordered_map<std::string, ArgType> params;
+            for (auto& driver : vFoundBlacklistedDrivers)
+            {
+                if (std::find(vReportedDrivers.begin(), vReportedDrivers.end(), driver) == vReportedDrivers.end())
+                {
+                    vReportedDrivers.push_back(driver);
+                    g_pAtomicAntiCheat->NotifyDetection(eDetectionType::BLACKLISTED_DRIVER_LOADED, {{"driver", driver}});
+                }
+            }
+        }
+        Sleep(2000);
     }
 }
 
