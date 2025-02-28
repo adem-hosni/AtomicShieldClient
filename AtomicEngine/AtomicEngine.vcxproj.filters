@@ -416,9 +416,6 @@
     <ClInclude Include="Vendor\Detours\detours.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="scanner.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PEBHide.h">
       <Filter>Header Files</Filter>
     </ClInclude>

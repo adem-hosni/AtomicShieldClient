@@ -257,7 +257,6 @@
     <ClInclude Include="KernelCalls.hpp" />
     <ClInclude Include="AtomicPacket.h" />
     <ClInclude Include="PEBHide.h" />
-    <ClInclude Include="scanner.h" />
     <ClInclude Include="Screenshot.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="STiming.h" />
