@@ -483,6 +483,24 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                         {
                             if (ImGui::ButtonLogins("Start Now", ImVec2(238, 40)))
                             {
+
+                                if (!StartupManager::IsAppInRegistry(processName))
+                                {
+                                    int msgResult =
+                                        MessageBox(NULL, "Do you want to add this application to startup?", "Startup Option", MB_YESNO | MB_ICONQUESTION);
+                                    if (msgResult == IDYES)
+                                    {
+                                        if (StartupManager::AddAppToRegistry(processName))
+                                        {
+                                            MessageBox(NULL, "Application added to startup.", "Success", MB_OK | MB_ICONINFORMATION);
+                                        }
+                                        else
+                                        {
+                                            MessageBox(NULL, "Failed to add application to startup.", "Error", MB_OK | MB_ICONERROR);
+                                        }
+                                    }
+                                }
+
                                 if (!bDownloadFinish)
                                 {
                                     std::thread EngineDownloaderThread(
