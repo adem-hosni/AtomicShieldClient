@@ -161,7 +161,9 @@ void CProcessGuard::DoPulse()
 
                 if (!bIsWhitelisted && !strProcessPath.empty() &&
                     FileAuthentication::HasSignature(std::wstring(strProcessPath.begin(), strProcessPath.end()).c_str()) &&
-                    (handle.GrantedAccess & PROCESS_ALL_ACCESS || handle.GrantedAccess & PROCESS_VM_WRITE || handle.GrantedAccess & PROCESS_VM_READ))
+                    (handle.GrantedAccess & PROCESS_ALL_ACCESS || handle.GrantedAccess & PROCESS_VM_WRITE || handle.GrantedAccess & PROCESS_VM_READ ||
+                     handle.GrantedAccess & PROCESS_SUSPEND_RESUME || handle.GrantedAccess & PROCESS_SET_INFORMATION ||
+                     handle.GrantedAccess & PROCESS_VM_OPERATION || handle.GrantedAccess & PROCESS_DUP_HANDLE))
                 {
                     SharedUtil::AddDebugLog("The Process %s with pid %d is opening our process!", strProcessName.c_str(), handle.ProcessId);
                     g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
