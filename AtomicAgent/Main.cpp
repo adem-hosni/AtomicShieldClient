@@ -63,12 +63,19 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     std::string    processName = StartupManager::GetCurrentProcessName();
     bool           isStartup = false;
     bool           bInitialized = false;
+    std::string    cmdLine = pCmdLine;    
 
+    
     SAPIChecksResult result;
     _beginthread((_beginthread_proc_type)ApiChecks, NULL, &result);
-    
-    
-    if (GUI::Initialize())
+
+
+
+    if (cmdLine.find("--startup") != std::string::npos)
+    { 
+       StartupManager::StartupFunction();       
+    }
+    else if (GUI::Initialize())
     {
         GUI::RenderUI(&bInitialized, result.bSuccess, result.strTitle, result.strMessage, processName);
     }

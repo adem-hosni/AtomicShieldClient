@@ -134,4 +134,6 @@ namespace GUI
     bool Initialize();
     void RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTitle, std::string& strErrorDescription, std::string processName);
     void Destroy();
+    bool InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll);
+    bool isFiveMReady();
 }            // namespace GUI

@@ -61,7 +61,7 @@ void SharedProtocols::CheckLauncherProcess()
     std::string strLauncherName = SharedUtil::GetParentProcessName();
     strLauncherName = strLauncherName.substr(strLauncherName.length() - 12, strLauncherName.length());
 #ifndef _DEBUG
-    if (strLauncherName != "explorer.exe")
+    if (strLauncherName != "explorer.exe" || strLauncherName != "cmd.exe")
         __fastfail(0);
 #endif
 }

@@ -1,6 +1,7 @@
 #include <iostream>
 #include "StdInc.h">
 #include <shlwapi.h>
+#include <GUI/GUI.h>
 #pragma comment(lib, "shlwapi.lib")
 
 bool StartupManager::IsAppInRegistry(std::string& appName)
@@ -62,64 +63,79 @@ std::string StartupManager::GetCurrentProcessName()
     return fileName;
 }
 
-void StartupManager::StartupFunction(bool bNoErrors, std::string strErrorTitle, std::string strErrorDescription)
+void StartupManager::StartupFunction()
 {
     static bool        bDownloading = false;
-    static std::string strAgentPEBBuffer;
+    static std::string strEngineBuffer;
     static bool        bInjected = false;
     static char        szLoadingMessage[144];
-    // if (!bNoErrors)
-    //{
-    //     MessageBoxA(NULL, "Running in startup mode", NULL, NULL);
-    //     std::thread AgentPEBDownloader(
-    //         [&]()
-    //         {
-    //             g_pAtomicAPI->DownloadEngine(&strAgentPEBBuffer);
-    //             bDownloading = false;
-    //         });
+    static SUserData   DownloadData{};
 
-    //    AgentPEBDownloader.detach();
-    //    bDownloading = true;
 
-    //    while (bDownloading || strAgentPEBBuffer.empty())
-    //    {
-    //        std::this_thread::sleep_for(std::chrono::milliseconds(100));
-    //    }
 
-    //    if (!strAgentPEBBuffer.empty() && !bInjected)
-    //    {
-    //        int iProcessID = SharedUtil::GetProcessID("Notepad.exe");
-    //        SharedUtil::AddDebugLog("Process ID retrieved: %d", iProcessID);
+    //MessageBoxA(NULL, "Running in startup mode", "Startup", MB_OK);
 
-    //        if (iProcessID > 0)
-    //        {
-    //            HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
-    //            if (hProcess)
-    //            {
-    //                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-    //                strcat(szLoadingMessage, "Please wait, we're getting everything ready for you!");
-    //                bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strAgentPEBBuffer.c_str()), strAgentPEBBuffer.size());
-    //                if (bInjected)
-    //                    __fastfail(0);
-    //                SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
-    //                bInjected = true;
-    //            }
-    //            else
-    //            {
-    //                SharedUtil::AddDebugLog("Failed to get process handle!\n");
-    //            }
-    //        }
-    //        else
-    //        {
-    //            SharedUtil::AddDebugLog("waiting");
-    //            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-    //            strcat(szLoadingMessage, "Waiting for FiveM to launch");
-    //        }
-    //    }
-    // }
-    // else
-    //{
-    //    MessageBoxA(NULL, strErrorDescription.c_str(), strErrorTitle.c_str(), MB_OK | MB_ICONINFORMATION);
+    std::thread AgentPEBDownloader(
+        [&]()
+        {
+            g_pAtomicAPI->DownloadEngine(&strEngineBuffer, &DownloadData);
+            bDownloading = false;
+        });
 
-    //}
+    AgentPEBDownloader.detach();
+    bDownloading = true;
+
+    while (bDownloading || strEngineBuffer.empty())
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));
+    }
+
+    while (!bInjected)            
+    {
+        int iProcessID = SharedUtil::GetFivemProcessID();
+
+        if (iProcessID > 0 && GUI::isFiveMReady())
+        {
+            HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
+            if (hProcess)
+            {
+                char szTempFilePath[MAX_PATH];
+                GetTempPathA(MAX_PATH, szTempFilePath);
+                sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
+
+                FILE* file = fopen(szTempFilePath, "wb");
+                if (file)
+                {
+                    fwrite(strEngineBuffer.c_str(), sizeof(char), strEngineBuffer.size(), file);
+                    fclose(file);
+                }
+
+                bInjected = GUI::InjectDLL(hProcess, iProcessID, szTempFilePath);
+                if (bInjected)
+                {
+
+                    MessageBoxA(NULL, "Have fun!", "Atomic Shield", MB_OK);
+                    std::remove(szTempFilePath);
+                    page = 2;
+                    active_anim_1 = true;
+                }
+                else
+                {
+                    MessageBoxA(NULL, "An error occurred while loading!", "Failed", MB_ICONERROR);
+                }
+                std::remove(szTempFilePath);
+                CloseHandle(hProcess);
+            }
+            else
+            {
+                SharedUtil::AddDebugLog("Failed to get process handle!\n");
+            }
+        }
+        else
+        {
+            SharedUtil::AddDebugLog("Waiting for FiveM to launch...");
+            std::this_thread::sleep_for(std::chrono::seconds(10));            
+        }
+    }
+    
 }

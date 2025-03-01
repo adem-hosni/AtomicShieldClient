@@ -198,7 +198,7 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 float alpha = 0.6f;                    // Начальное значение альфа
 float animationSpeed = 4.f;            // Скорость анимации (чем меньше, тем медленнее)
 
-bool isFiveMReady()
+bool GUI::isFiveMReady()
 {
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (hSnapshot == INVALID_HANDLE_VALUE)
@@ -323,7 +323,7 @@ bool GUI::Initialize()
 }
 
 
-BOOL InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
+bool GUI::InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
 {
     LPVOID LoadLibAddr;
     LPVOID baseAddr;
