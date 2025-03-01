@@ -24,8 +24,9 @@ bool CAtomicNetwork::Connect()
     
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
 
-    m_pWebSocket->setPingInterval(3);
+    m_pWebSocket->setPingInterval(10);
     m_pWebSocket->enablePong();
+    m_pWebSocket->enablePerMessageDeflate();
 
     ix::WebSocketInitResult result = m_pWebSocket->connect(32);
     m_pWebSocket->start();
@@ -56,7 +57,7 @@ void CAtomicNetwork::SendPacket(eAtomicPacket PacketID, jsoncons::json Data)
     for (const auto& Iter : Data.object_range())
         PacketJson[Iter.key()] = Iter.value();
 
-    // Send the packet to eagle master server
+    // Send the packet to master server
     std::string buffer = g_pAtomicCore->Encrypt(PacketJson.to_string());
     m_pWebSocket->send(SharedUtil::Base64Encode(buffer));
 }
@@ -241,7 +242,10 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         {
             m_pWebSocket->close();
             SharedUtil::AddDebugLog("WebSocket Closed: %s (%d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code);
-            Reconnect();
+
+            // Check if the network didn't closed by the server
+            if (Message->closeInfo.code != 1000)
+                Reconnect();
             break;
         }
 
