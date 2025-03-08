@@ -658,7 +658,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                     if (bDownloadStarted && !bDownloadFinish)
                     {
                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                        sprintf(szLoadingMessage, "Loading %d %...", (int)DownloadData.fProgress);
+                        sprintf(szLoadingMessage, "Loading %d%%", (int)DownloadData.fProgress, "");
                     }
 
                     if (active_tab != 0)
