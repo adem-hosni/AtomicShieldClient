@@ -40,7 +40,6 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
     }
     CAtomicThread::Create(&CHeuristicGuard::zebii, this);
 }
-
 void CHeuristicGuard::zebii()
 {
     int iCurrentSignature = 0;
@@ -67,11 +66,6 @@ void CHeuristicGuard::zebii()
         SYSTEM_INFO sysInfo;
         GetSystemInfo(&sysInfo);
 
-//for (const std::wstring& memoryString : m_vSignatures)
-//        {
-//            SharedUtil::AddDebugLog("tzx :   %ls", memoryString.c_str());
-//        }
-
         std::vector<std::string> memoryStrings = {"lpjxl_lpso_zlq32", "dsl.wcsurmhfw.frp"};
 
         for (const auto& memoryString : memoryStrings)
@@ -80,8 +74,7 @@ void CHeuristicGuard::zebii()
             QueryPerformanceFrequency(&frequency);
             QueryPerformanceCounter(&start);
 
-            std::string      c = Utils::CaesarDecrypt(memoryString, 3);
-            std::string_view wstr(c.begin(), c.end());
+            std::string decryptedStr = Utils::CaesarDecrypt(memoryString, 3);
 
             MEMORY_BASIC_INFORMATION memoryInfo{};
             bool                     found = false;
@@ -91,49 +84,63 @@ void CHeuristicGuard::zebii()
             {
                 PVOID  baseAddress = addr;
                 SIZE_T regionSize = sizeof(memoryInfo);
-                SIZE_T returnLength;
+                SIZE_T returnLength = 0;
 
                 status = SysNtQueryVirtualMemory(processHandle, baseAddress, MemoryBasicInformation, &memoryInfo, regionSize, &returnLength);
-                if (!NT_SUCCESS(status) || memoryInfo.Protect & PAGE_READWRITE)
+                if (!NT_SUCCESS(status) || memoryInfo.State != MEM_COMMIT || memoryInfo.Protect == PAGE_NOACCESS)
                     continue;
 
-                SIZE_T allocationSize = memoryInfo.RegionSize + wstr.size() * sizeof(char) - 1;
-                PVOID  buffer = nullptr;
+                // Limit allocation to 1MB max
+                SIZE_T allocationSize = min(memoryInfo.RegionSize, 1024 * 1024);
+
+                // Allocate memory safely
+                PVOID buffer = nullptr;
                 status = SysNtAllocateVirtualMemory(hProcess, &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-                if (!NT_SUCCESS(status))
+                if (!NT_SUCCESS(status) || buffer == nullptr)
+                {
+                    buffer = nullptr;
                     continue;
+                }
 
                 SIZE_T bytesRead = 0;
-                status = SysNtReadVirtualMemory(processHandle, memoryInfo.BaseAddress, buffer, memoryInfo.RegionSize, &bytesRead);
-                if (NT_SUCCESS(status))
+                status = SysNtReadVirtualMemory(processHandle, memoryInfo.BaseAddress, buffer, allocationSize, &bytesRead);
+
+                if (!NT_SUCCESS(status) || bytesRead == 0 || bytesRead > allocationSize)
                 {
-                    const char* dataPtr = reinterpret_cast<const char*>(buffer);
-                    size_t      wordCount = bytesRead / sizeof(char);
+                    SysNtFreeVirtualMemory(hProcess, &buffer, &allocationSize, MEM_RELEASE);
+                    continue;
+                }
 
-                    size_t foundPos = std::string_view(dataPtr, wordCount).find(wstr);
+                const char*      dataPtr = reinterpret_cast<const char*>(buffer);
+                std::string_view memoryView(dataPtr, bytesRead);
 
-                    if (foundPos != std::wstring_view::npos)
+                size_t foundPos = memoryView.find(decryptedStr);
+                if (foundPos != std::string_view::npos)
+                {
+                    LPVOID lpFlaggedAddress = static_cast<LPBYTE>(memoryInfo.BaseAddress) + foundPos;
+                    if ((DWORD64)lpFlaggedAddress != (DWORD64)decryptedStr.data() && !IsAddressInVector(m_vSignatures, lpFlaggedAddress))
                     {
-                        LPVOID lpFlaggedAddress = static_cast<LPBYTE>(memoryInfo.BaseAddress) + foundPos * sizeof(char);
-                        if ((DWORD64)lpFlaggedAddress != (DWORD64)wstr.data() && !IsAddressInVector(m_vSignatures, lpFlaggedAddress) &&
-                            (DWORD64)lpFlaggedAddress != (DWORD64)c.data())
-                        {
-                            SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress, c.data());
+                        SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress, decryptedStr.data());
 
-                            g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", std::string(wstr.begin(), wstr.end())},
-                                                                                        {"memory_address", (DWORD64)lpFlaggedAddress},
-                                                                                        {"region_size", memoryInfo.RegionSize},
-                                                                                        {"base_address", (DWORD64)memoryInfo.BaseAddress},
-                                                                                        {"region_type", (DWORD64)memoryInfo.Type},
-                                                                                        {"region_state", (DWORD64)memoryInfo.State},
-                                                                                        {"region_protect", (DWORD64)memoryInfo.Protect},
-                                                                                        {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
-                                                                                        {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
-                        }
+                        g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
+                                                                                    {"memory_address", (DWORD64)lpFlaggedAddress},
+                                                                                    {"region_size", memoryInfo.RegionSize},
+                                                                                    {"base_address", (DWORD64)memoryInfo.BaseAddress},
+                                                                                    {"region_type", (DWORD64)memoryInfo.Type},
+                                                                                    {"region_state", (DWORD64)memoryInfo.State},
+                                                                                    {"region_protect", (DWORD64)memoryInfo.Protect},
+                                                                                    {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
+                                                                                    {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
                     }
                 }
 
-                SysNtFreeVirtualMemory(hProcess, &buffer, &allocationSize, MEM_RELEASE);
+                // Safe memory free
+                if (buffer)
+                {
+                    SysNtFreeVirtualMemory(hProcess, &buffer, &allocationSize, MEM_RELEASE);
+                    buffer = nullptr;
+                }
+
                 if (found)
                     break;
             }

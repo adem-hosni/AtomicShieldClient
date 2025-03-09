@@ -6,10 +6,10 @@
 void EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
 #ifdef _DEBUG
-    //AllocConsole();
-    //freopen("CONIN$", "r", stdin);
-    //freopen("CONOUT$", "w", stdout);
-    //freopen("CONOUT$", "w", stderr);
+    AllocConsole();
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
     
    // _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
 #endif
