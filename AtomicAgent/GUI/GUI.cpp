@@ -551,7 +551,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
 
                             if (ImGui::Cirlce_icon("youtube", image::youtube, ImVec2(31, 31), 0))
                             {
-                                OpenURL("");
+                                OpenURL("https://www.youtube.com/@AtomicShield-h7z");
                             }
                         }
                         ImGui::EndGroup();
@@ -693,7 +693,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
         D3DCOLOR clear_col_dx = D3DCOLOR_RGBA((int)(clear_color.x * clear_color.w * 255.0f), (int)(clear_color.y * clear_color.w * 255.0f),
                                               (int)(clear_color.z * clear_color.w * 255.0f), (int)(clear_color.w * 255.0f));
         g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, clear_col_dx, 1.0f, 0);
-        if (g_pd3dDevice->BeginScene() >= 0)
+        /*if (g_pd3dDevice->BeginScene() >= 0)*/
         {
             ImGui::RenderNotifications();
             ImGui::Render();
