@@ -4,7 +4,7 @@
 #include "imgui_internal.h"
 #include "ImGuiSettings.h"
 
-static void CustomStyleColor()            // Отрисовка цветов
+static void CustomStyleColor()            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 {
     ImGuiStyle&   s = ImGui::GetStyle();
     ImGuiContext& g = *GImGui;

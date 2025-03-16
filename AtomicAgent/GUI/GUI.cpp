@@ -195,8 +195,8 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 
     ImGui::GetWindowDrawList()->PathStroke(color, false, thickness);
 }
-float alpha = 0.6f;                    // Начальное значение альфа
-float animationSpeed = 4.f;            // Скорость анимации (чем меньше, тем медленнее)
+float alpha = 0.6f;                    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+float animationSpeed = 4.f;            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 
 bool GUI::isFiveMReady()
 {
@@ -322,6 +322,12 @@ bool GUI::Initialize()
     return true;
 }
 
+const char* fake_data = "This is a test string that will never be used but makes entropy lower.";
+int         fake_function()
+{
+    return 42;
+}
+
 
 bool GUI::InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
 {
@@ -334,7 +340,7 @@ bool GUI::InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
 
     if (!LoadLibAddr)
     {
-        SharedUtil::AddDebugLog("Failed to get address of LoadLibraryA. Error: %d\n", GetLastError());
+      SharedUtil::AddDebugLog("Failed to get address of LoadLibraryA. Error: %d\n", GetLastError());
         return FALSE;
     }
 

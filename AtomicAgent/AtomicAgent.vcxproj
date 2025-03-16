@@ -311,6 +311,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <ResourceCompile Include="resource.rc" />
     <ResourceCompile Include="Resources\Atomic Agent.rc" />
   </ItemGroup>
   <ItemGroup>

@@ -195,6 +195,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Atomic Agent.rc" />
+    <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\icon.ico" />
