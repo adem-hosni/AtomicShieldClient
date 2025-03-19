@@ -10,11 +10,11 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
-    
-   // _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
+
+    // _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
 #endif
-    //PEBHide::EraseSelfPEHeader(lpAntiCheatModuleBase);
-    //PEBHide::UnlinkSelfLdrModule(lpAntiCheatModuleBase);
+    // PEBHide::EraseSelfPEHeader(lpAntiCheatModuleBase);
+    // PEBHide::UnlinkSelfLdrModule(lpAntiCheatModuleBase);
 
     // SharedProtocols::EnableProcessMitigations(true, true, true, true, true);
 
@@ -23,8 +23,11 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
         g_pAtomicAntiCheat->SetAntiCheatModuleBase(lpAntiCheatModuleBase);
         g_pAtomicAntiCheat->StartBasicChecks();
     }
+    else
+    {
+        MessageBoxA(NULL, "Failed to initialize Atomic Anti-Cheat", "Atomic Anti-Cheat", MB_ICONERROR);
+    }
 }
-
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
     switch (ul_reason_for_call)
