@@ -23,10 +23,6 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
         g_pAtomicAntiCheat->SetAntiCheatModuleBase(lpAntiCheatModuleBase);
         g_pAtomicAntiCheat->StartBasicChecks();
     }
-    else
-    {
-        MessageBoxA(NULL, "Failed to initialize Atomic Anti-Cheat", "Atomic Anti-Cheat", MB_ICONERROR);
-    }
 }
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)
 {
