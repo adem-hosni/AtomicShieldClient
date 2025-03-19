@@ -6,11 +6,6 @@
 void EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
 #ifdef _DEBUG
-    AllocConsole();
-    freopen("CONIN$", "r", stdin);
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-    
    // _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
 #endif
     //PEBHide::EraseSelfPEHeader(lpAntiCheatModuleBase);
@@ -18,6 +13,11 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
 
     // SharedProtocols::EnableProcessMitigations(true, true, true, true, true);
 
+    AllocConsole();
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);
+    
     if (g_pAtomicAntiCheat->Initialize())
     {
         g_pAtomicAntiCheat->SetAntiCheatModuleBase(lpAntiCheatModuleBase);
@@ -31,6 +31,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
         case DLL_PROCESS_ATTACH:
         {
+           // MessageBox(NULL, "Test", "dqsqsd", NULL);
             _beginthread((_beginthread_proc_type)EntryPoint, NULL, hModule);
         }
         case DLL_THREAD_ATTACH:

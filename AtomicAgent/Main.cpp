@@ -48,11 +48,11 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 
 {
 #ifdef _DEBUG
+#endif
     AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
     freopen("CONOUT$", "w", stderr);
-#endif
 
     // Enable microsoft process mitigations (Avoid unsigned code execution, ...)
     // SharedProtocols::EnableProcessMitigations();
