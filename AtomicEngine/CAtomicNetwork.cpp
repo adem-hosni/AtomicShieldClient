@@ -24,7 +24,7 @@ bool CAtomicNetwork::Connect()
     
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
 
-    m_pWebSocket->setPingInterval(10);
+    m_pWebSocket->setPingInterval(15);
     m_pWebSocket->enablePong();
     m_pWebSocket->enablePerMessageDeflate();
 
