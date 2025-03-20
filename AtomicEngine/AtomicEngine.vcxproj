@@ -21,8 +21,8 @@
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{9C3446C8-B8EF-444C-A278-36354B3317C6}</ProjectGuid>
-    <RootNamespace>EagleAgentPEB</RootNamespace>
+    <ProjectGuid>{b67f3917-9318-4477-bd6e-a966459659f0}</ProjectGuid>
+    <RootNamespace>NewEngine</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
     <ProjectName>Atomic Engine</ProjectName>
   </PropertyGroup>
@@ -50,7 +50,7 @@
     <ConfigurationType>DynamicLibrary</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
     <PlatformToolset>v143</PlatformToolset>
-    <WholeProgramOptimization>false</WholeProgramOptimization>
+    <WholeProgramOptimization>true</WholeProgramOptimization>
     <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
@@ -72,29 +72,30 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)Build</OutDir>
+    <IntDir>$(OutDir)$(Platform)</IntDir>
+    <TargetName>Atomic Engine</TargetName>
+    <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);$(ProjectDir);$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir)Vendor</IncludePath>
+    <LibraryPath>$(ProjectDir)Vendor;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>$(SolutionDir)Shared;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Vendor</ExternalIncludePath>
+  </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build</OutDir>
-    <IntDir>$(SolutionDir)Cache\$(ProjectName)\$(Configuration)</IntDir>
-    <PostBuildEventUseInBuild>true</PostBuildEventUseInBuild>
-    <LibraryPath>Vendor\ixwebsocket;$(LibraryPath)</LibraryPath>
-    <ExternalIncludePath>Vendor;$(ExternalIncludePath)</ExternalIncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <ExternalIncludePath>$(SolutionDir)Shared\Vendor\;Vendor;$(ExternalIncludePath)</ExternalIncludePath>
-    <LibraryPath>Vendor;Vendor\ixwebsocket;$(LibraryPath)</LibraryPath>
-    <OutDir>$(SolutionDir)Build</OutDir>
-    <IntDir>$(SolutionDir)Cache\$(ProjectName)\$(Configuration)</IntDir>
-    <IncludePath>..\Shared\Vendor\;$(IncludePath)</IncludePath>
+    <IntDir>$(OutDir)$(Platform)</IntDir>
+    <TargetName>Atomic Engine</TargetName>
+    <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);$(ProjectDir);$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir)Vendor</IncludePath>
+    <LibraryPath>$(ProjectDir)Vendor;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>$(SolutionDir)Shared;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Vendor</ExternalIncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;_DEBUG;EAGLEAGENTPEB_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;_DEBUG;NEWENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -108,11 +109,10 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>WIN32;NDEBUG;EAGLEAGENTPEB_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;NEWENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>Use</PrecompiledHeader>
       <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <MultiProcessorCompilation>true</MultiProcessorCompilation>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -126,72 +126,56 @@
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>_DEBUG;EAGLEAGENTPEB_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_DEBUG;NEWENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
+      <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp23</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
-      <AdditionalIncludeDirectories>..\Shared;Vendor;..\Shared\Vendor\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
-      <LanguageStandard_C>stdclatest</LanguageStandard_C>
-      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
-      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>../Build/Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <LinkTimeCodeGeneration>UseLinkTimeCodeGeneration</LinkTimeCodeGeneration>
+      <AdditionalDependencies>$(OutputPath)Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
-      <WarningLevel>TurnOffAllWarnings</WarningLevel>
+      <WarningLevel>Level3</WarningLevel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;EAGLEAGENTPEB_EXPORTS;_WINDOWS;_USRDLL;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;NEWENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
-      <PrecompiledHeaderFile>pch.h</PrecompiledHeaderFile>
-      <LanguageStandard>stdcpplatest</LanguageStandard>
+      <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
+      <LanguageStandard>stdcpp23</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <AdditionalIncludeDirectories>..\Shared;Vendor;..\Shared\Vendor\;$(ProjectDir);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <LanguageStandard_C>stdclatest</LanguageStandard_C>
-      <BasicRuntimeChecks>EnableFastChecks</BasicRuntimeChecks>
-      <Optimization>Disabled</Optimization>
     </ClCompile>
     <Link>
-      <SubSystem>Console</SubSystem>
+      <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <GenerateDebugInformation>false</GenerateDebugInformation>
+      <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>../Build/Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <EntryPointSymbol>
-      </EntryPointSymbol>
+      <AdditionalDependencies>$(OutputPath)Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>
-      </Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BasicChecks.cpp" />
-    <ClCompile Include="CAtomicHook.cpp" />
-    <ClCompile Include="CAtomicThread.cpp" />
-    <ClCompile Include="FileAuthentication.cpp" />
-    <ClCompile Include="CGuardManager.cpp" />
-    <ClCompile Include="Guards\CModuleGuard.cpp" />
-    <ClCompile Include="Guards\CProcessGuard.cpp" />
-    <ClCompile Include="Guards\CHeuristicGuard.cpp" />
-    <ClCompile Include="Guards\CGuardBase.cpp" />
     <ClCompile Include="CAtomicAntiCheat.cpp" />
+    <ClCompile Include="CAtomicHook.cpp" />
     <ClCompile Include="CAtomicNetwork.cpp" />
+    <ClCompile Include="CAtomicThread.cpp" />
+    <ClCompile Include="CGuardManager.cpp" />
     <ClCompile Include="CHWID.cpp" />
     <ClCompile Include="dllmain.cpp" />
+    <ClCompile Include="FileAuthentication.cpp" />
+    <ClCompile Include="Guards\CGuardBase.cpp" />
+    <ClCompile Include="Guards\CHeuristicGuard.cpp" />
+    <ClCompile Include="Guards\CModuleGuard.cpp" />
+    <ClCompile Include="Guards\CProcessGuard.cpp" />
     <ClCompile Include="KernelCalls.c" />
     <ClCompile Include="PEBHide.cpp" />
     <ClCompile Include="Screenshot.cpp" />
@@ -239,29 +223,24 @@
     <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Shared\Shared.vcxproj">
-      <Project>{4e58b5b0-73c8-4a5d-b79b-9bfaa2371e3c}</Project>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="..\..\..\Users\amenn\OneDrive\Desktop\WORK\benz\SpoofEntitlement\SpoofEntitlement\skCrypter.h" />
+    <ClInclude Include="AtomicPacket.h" />
     <ClInclude Include="BasicChecks.h" />
+    <ClInclude Include="CAtomicAntiCheat.h" />
     <ClInclude Include="CAtomicHook.h" />
+    <ClInclude Include="CAtomicNetwork.h" />
     <ClInclude Include="CAtomicThread.h" />
-    <ClInclude Include="FileAuthentication.h" />
     <ClInclude Include="CGuardManager.h" />
+    <ClInclude Include="CHWID.h" />
+    <ClInclude Include="FileAuthentication.h" />
+    <ClInclude Include="Guards\CGuardBase.h" />
+    <ClInclude Include="Guards\CHeuristicGuard.h" />
     <ClInclude Include="Guards\CModuleGuard.h" />
     <ClInclude Include="Guards\CProcessGuard.h" />
-    <ClInclude Include="Guards\CHeuristicGuard.h" />
-    <ClInclude Include="Guards\CGuardBase.h" />
-    <ClInclude Include="CAtomicAntiCheat.h" />
-    <ClInclude Include="CAtomicNetwork.h" />
-    <ClInclude Include="CHWID.h" />
     <ClInclude Include="KernelCalls.h" />
     <ClInclude Include="KernelCalls.hpp" />
-    <ClInclude Include="AtomicPacket.h" />
     <ClInclude Include="PEBHide.h" />
     <ClInclude Include="Screenshot.h" />
+    <ClInclude Include="skCrypter.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="STiming.h" />
     <ClInclude Include="Utils.h" />
@@ -323,12 +302,10 @@
     <ClInclude Include="Vendor\LiteRegedit\LiteRegedit.h" />
   </ItemGroup>
   <ItemGroup>
-    <Library Include="Vendor\ixwebsocket\ixwebsocket.lib" />
-  </ItemGroup>
-  <ItemGroup>
     <MASM Include="KernelCalls.x64.asm">
       <FileType>Document</FileType>
     </MASM>
+    <None Include="Trace.logs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

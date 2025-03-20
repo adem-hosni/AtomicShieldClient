@@ -18,28 +18,16 @@
     <ClCompile Include="dllmain.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="StdInc.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CAtomicNetwork.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CHWID.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CAtomicAntiCheat.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Guards\CGuardBase.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CGuardManager.cpp">
+    <ClCompile Include="Guards\CHeuristicGuard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utils.cpp">
+    <ClCompile Include="Guards\CModuleGuard.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Guards\CProcessGuard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Vendor\ixwebsocket\IXBench.cpp">
@@ -159,28 +147,31 @@
     <ClCompile Include="Vendor\ixwebsocket\IXWebSocketTransport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Guards\CHeuristicGuard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Guards\CModuleGuard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CAtomicThread.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="FileAuthentication.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Guards\CProcessGuard.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="CAtomicHook.cpp">
+    <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="BasicChecks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Screenshot.cpp">
+    <ClCompile Include="CAtomicAntiCheat.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CAtomicHook.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CAtomicNetwork.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CAtomicThread.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CGuardManager.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CHWID.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="FileAuthentication.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="KernelCalls.c">
@@ -189,12 +180,33 @@
     <ClCompile Include="PEBHide.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Screenshot.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="StdInc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="StdInc.h">
+    <ClInclude Include="Guards\CGuardBase.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CAtomicNetwork.h">
+    <ClInclude Include="Guards\CHeuristicGuard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Guards\CModuleGuard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Guards\CProcessGuard.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vendor\CRC32\CRC32.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vendor\Detours\detours.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vendor\ixwebsocket\IXBase64.h">
@@ -356,52 +368,34 @@
     <ClInclude Include="Vendor\ixwebsocket\IXWebSocketVersion.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CHWID.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Vendor\LiteRegedit\LiteRegedit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CAtomicAntiCheat.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="STiming.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Guards\CGuardBase.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CGuardManager.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\CRC32\CRC32.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Guards\CHeuristicGuard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Guards\CModuleGuard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CAtomicThread.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FileAuthentication.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Guards\CProcessGuard.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CAtomicHook.h">
+    <ClInclude Include="AtomicPacket.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="BasicChecks.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Screenshot.h">
+    <ClInclude Include="CAtomicAntiCheat.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAtomicHook.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAtomicNetwork.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAtomicThread.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CGuardManager.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CHWID.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FileAuthentication.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="KernelCalls.h">
@@ -410,21 +404,27 @@
     <ClInclude Include="KernelCalls.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="AtomicPacket.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\Detours\detours.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="PEBHide.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\..\Users\amenn\OneDrive\Desktop\WORK\benz\SpoofEntitlement\SpoofEntitlement\skCrypter.h">
+    <ClInclude Include="Screenshot.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="skCrypter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="StdInc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="STiming.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <Library Include="Vendor\ixwebsocket\ixwebsocket.lib" />
+    <None Include="Trace.logs" />
   </ItemGroup>
   <ItemGroup>
     <MASM Include="KernelCalls.x64.asm">

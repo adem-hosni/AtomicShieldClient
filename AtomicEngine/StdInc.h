@@ -17,7 +17,6 @@
 
 #include <Windows.h>
 #include <winternl.h>
-#include <vector>
 #include <Psapi.h>
 #include <iostream>
 
