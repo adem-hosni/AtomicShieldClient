@@ -72,7 +72,9 @@ void CModuleGuard::DoPulse()
     while (true)
     {
         while (!g_pAtomicAntiCheat->RunScanners())
-            ;
+        {
+            Sleep(50);
+        }
 
         std::wstring              wstrModulePath;
         PROCESS_BASIC_INFORMATION PBI = {0};

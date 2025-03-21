@@ -133,7 +133,9 @@ void CProcessGuard::DoPulse()
     while (true)
     {
         while (!g_pAtomicAntiCheat->RunScanners())
-            ;
+        {
+            Sleep(50);
+        }
 
         std::vector<Handles::_SYSTEM_HANDLE> handles = Handles::DetectOpenHandlesToProcess();
         bool                                 bFoundHandle = false;
