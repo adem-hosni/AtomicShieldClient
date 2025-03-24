@@ -13,11 +13,11 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
 
     // SharedProtocols::EnableProcessMitigations(true, true, true, true, true);
 
-    AllocConsole();
-    freopen("CONIN$", "r", stdin);
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
-    
+    //AllocConsole();
+    //freopen("CONIN$", "r", stdin);
+    //freopen("CONOUT$", "w", stdout);
+    //freopen("CONOUT$", "w", stderr);
+    //
     if (g_pAtomicAntiCheat->Initialize())
     {
         g_pAtomicAntiCheat->SetAntiCheatModuleBase(lpAntiCheatModuleBase);
