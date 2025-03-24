@@ -7,6 +7,13 @@
 void BasicChecks::CheckPlugins()
 {
     std::string basePath = SharedUtil::GetKnownDirectory(FOLDERID_LocalAppData) + "\\FiveM\\FiveM.app\\plugins";
+
+    if (!std::filesystem::exists(basePath))
+    {
+        SharedUtil::AddDebugLog("Plugins directory does not exist: ", basePath);
+        return;
+    }
+
     for (const auto& entry : std::filesystem::directory_iterator(basePath))
     {
         if (entry.is_regular_file() && entry.path().extension() == ".dll")

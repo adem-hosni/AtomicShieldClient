@@ -1,0 +1,83 @@
+c:\atomicshield\atomicshieldclient\buildx64\catomicanticheat.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixselectinterrupt.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixsocketapplessl.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixsocketfactory.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixwebsockethttpheaders.obj
+c:\atomicshield\atomicshieldclient\buildx64\catomicthread.obj
+c:\atomicshield\atomicshieldclient\buildx64\utils.obj
+c:\atomicshield\atomicshieldclient\buildx64\catomicnetwork.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixuuid.obj
+c:\atomicshield\atomicshieldclient\buildx64\cmoduleguard.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixexponentialbackoff.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixhttpserver.obj
+c:\atomicshield\atomicshieldclient\buildx64\catomichook.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixconnectionstate.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixsocket.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixwebsocketpermessagedeflatecodec.obj
+c:\atomicshield\atomicshieldclient\buildx64\cheuristicguard.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixhttp.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixsockettlsoptions.obj
+c:\atomicshield\atomicshieldclient\buildx64\fileauthentication.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixbench.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixstrcasecompare.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixwebsockettransport.obj
+c:\atomicshield\atomicshieldclient\buildx64\chwid.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixselectinterruptpipe.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixsetthreadname.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixurlparser.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixwebsocketpermessagedeflateoptions.obj
+c:\atomicshield\atomicshieldclient\buildx64\pebhide.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixgetfreeport.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixsocketmbedtls.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixsocketopenssl.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixsocketserver.obj
+c:\atomicshield\atomicshieldclient\buildx64\stdinc.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixdnslookup.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixwebsocketpermessagedeflate.obj
+c:\atomicshield\atomicshieldclient\buildx64\cguardmanager.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixcancellationrequest.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixudpsocket.obj
+c:\atomicshield\atomicshieldclient\buildx64\cprocessguard.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixgzipcodec.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixuseragent.obj
+c:\atomicshield\atomicshieldclient\buildx64\literegedit.obj
+c:\atomicshield\atomicshieldclient\buildx64\dllmain.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixselectinterruptevent.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixwebsockethandshake.obj
+c:\atomicshield\atomicshieldclient\buildx64\basicchecks.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixnetsystem.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixsocketconnect.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixwebsocketproxyserver.obj
+c:\atomicshield\atomicshieldclient\buildx64\screenshot.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixhttpclient.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixwebsocketcloseconstants.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixwebsocketserver.obj
+c:\atomicshield\atomicshieldclient\buildx64\cguardbase.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixselectinterruptfactory.obj
+c:\atomicshield\atomicshieldclient\buildx64\ixwebsocket.obj
+c:\atomicshield\atomicshieldclient\buildx64\vc143.pdb
+c:\atomicshield\atomicshieldclient\buildx64\vc143.idb
+c:\atomicshield\atomicshieldclient\buildx64\kernelcalls.obj
+c:\atomicshield\atomicshieldclient\buildx64\kernelcalls.x64.obj
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.ilk
+c:\atomicshield\atomicshieldclient\build\atomic engine.pdb
+c:\atomicshield\atomicshieldclient\buildx64\atomicengine.vcxproj.filelistabsolute.txt
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\cl.command.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\cl.items.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\cl.read.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\cl.write.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.18552-cvtres.read.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.18552-cvtres.write.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.18552-rc.read.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.18552-rc.write.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.18552.read.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.18552.read.2.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.18552.read.3.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.18552.read.4.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.18552.write.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.command.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.read.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.secondary.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\link.write.1.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\masm.read.1u.tlog
+c:\atomicshield\atomicshieldclient\buildx64\atomic engine.tlog\masm.write.1u.tlog

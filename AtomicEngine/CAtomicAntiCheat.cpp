@@ -66,8 +66,6 @@ void CAtomicAntiCheat::StartBasicChecks()
 {
     BasicChecks::CheckPlugins();
 
-    //  DebugModeEnabled();
-
     BasicChecks::SecureBootEnabled();
 
     BasicChecks::TestsigningEnabled();
