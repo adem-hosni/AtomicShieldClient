@@ -42,6 +42,16 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
 }
 void CHeuristicGuard::DoPulse()
 {
+    KernelCalls_OBJECT_ATTRIBUTES objAttr{};
+    KernelCalls_CLIENT_ID         clientId{};
+
+    RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
+    objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
+    RtlSecureZeroMemory(&clientId, sizeof(KernelCalls_CLIENT_ID));
+
+    SYSTEM_INFO sysInfo;
+    GetSystemInfo(&sysInfo);
+
     std::vector<std::string> memoryStrings = {"lpjxl_lpso_zlq32", "dsl.wcsurmhfw.frp"};
     while (true)
     {
@@ -49,22 +59,19 @@ void CHeuristicGuard::DoPulse()
         {
             Sleep(50);
         }
-        SharedUtil::AddDebugLog("scanning...");
+        clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(g_pAtomicAntiCheat->GetProcessID()));
         
+        LARGE_INTEGER frequency2, start2, end2;
+        QueryPerformanceFrequency(&frequency2);
+        QueryPerformanceCounter(&start2);
         HANDLE                        processHandle;
         NTSTATUS                      status;
-        KernelCalls_OBJECT_ATTRIBUTES objAttr{};
-        KernelCalls_CLIENT_ID         clientId{};
-
-        RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
-        objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
-        RtlSecureZeroMemory(&clientId, sizeof(KernelCalls_CLIENT_ID));
-        clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(g_pAtomicAntiCheat->GetProcessID()));
-
-        SYSTEM_INFO sysInfo;
-        GetSystemInfo(&sysInfo);
+        
         status = SysNtOpenProcess(&processHandle, (0x0400) | (0x0010), &objAttr, &clientId);
-
+        
+        QueryPerformanceCounter(&end2);
+        float fElapsedTime2 = static_cast<float>(end2.QuadPart - start2.QuadPart) / frequency2.QuadPart;
+        SharedUtil::AddDebugLog("[+] Handle %.5fs", fElapsedTime2);
 
         for (const auto& memoryString : memoryStrings)
         {
