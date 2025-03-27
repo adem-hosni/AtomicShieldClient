@@ -52,7 +52,11 @@ void CHeuristicGuard::DoPulse()
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
 
-    std::vector<std::string> memoryStrings = {"lpjxl_lpso_zlq32", "dsl.wcsurmhfw.frp"};
+    std::vector<std::string> vMemoryStrings = {"lpjxl_lpso_zlq32", "dsl.wcsurmhfw.frp"};
+
+    HANDLE                        processHandle;
+    NTSTATUS                      status;
+
     while (true)
     {
         while (!g_pAtomicAntiCheat->RunScanners() || g_pAtomicAntiCheat->GetProcessID() == NULL)
@@ -61,19 +65,10 @@ void CHeuristicGuard::DoPulse()
         }
         clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(g_pAtomicAntiCheat->GetProcessID()));
         
-        LARGE_INTEGER frequency2, start2, end2;
-        QueryPerformanceFrequency(&frequency2);
-        QueryPerformanceCounter(&start2);
-        HANDLE                        processHandle;
-        NTSTATUS                      status;
         
         status = SysNtOpenProcess(&processHandle, (0x0400) | (0x0010), &objAttr, &clientId);
         
-        QueryPerformanceCounter(&end2);
-        float fElapsedTime2 = static_cast<float>(end2.QuadPart - start2.QuadPart) / frequency2.QuadPart;
-        SharedUtil::AddDebugLog("[+] Handle %.5fs", fElapsedTime2);
-
-        for (const auto& memoryString : memoryStrings)
+        for (const auto& memoryString : vMemoryStrings)
         {
             LARGE_INTEGER frequency, start, end;
             QueryPerformanceFrequency(&frequency);
@@ -146,8 +141,6 @@ void CHeuristicGuard::DoPulse()
                     buffer = nullptr;
                 }
 
-                if (found)
-                    break;
             }
 
 
