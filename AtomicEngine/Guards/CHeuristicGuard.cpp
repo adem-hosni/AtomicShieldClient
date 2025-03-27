@@ -38,9 +38,9 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
             m_vSignatures.push_back(Signature);
         }
     }
-    CAtomicThread::Create(&CHeuristicGuard::zebii, this);
+    //CAtomicThread::Create(&CHeuristicGuard::zebii, this);
 }
-void CHeuristicGuard::zebii()
+void CHeuristicGuard::DoPulse()
 {
     int iCurrentSignature = 0;
 
@@ -50,8 +50,8 @@ void CHeuristicGuard::zebii()
         {
             Sleep(50);
         }
-
-        HANDLE                        hProcess = g_pAtomicAntiCheat->GetProcessHandle();
+        DWORD                         pid = SharedUtil::GetFivemProcessID();
+        HANDLE                        hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
         NTSTATUS                      status;
         KernelCalls_OBJECT_ATTRIBUTES objAttr{};
         KernelCalls_CLIENT_ID         clientId{};
@@ -59,7 +59,7 @@ void CHeuristicGuard::zebii()
         RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
         objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
         RtlSecureZeroMemory(&clientId, sizeof(KernelCalls_CLIENT_ID));
-        clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(GetCurrentProcessId()));
+        clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(pid));
 
         SYSTEM_INFO sysInfo;
         GetSystemInfo(&sysInfo);

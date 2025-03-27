@@ -48,7 +48,9 @@ void CAtomicAntiCheat::DoPulse()
                 m_pAtomicNetwork->Disconnect("FiveM Closed");
 
             // Turns our scanenrs off
-            RunScanners(false);
+            SharedUtil::AddDebugLog("scanners turned off!");
+
+             RunScanners(false);
 
             Sleep(350);
             continue;
@@ -65,6 +67,7 @@ void CAtomicAntiCheat::DoPulse()
                 Sleep(2000);
                 continue;
             }
+
             SharedUtil::AddDebugLog("Network State: %d", m_pAtomicNetwork->GetReadyState());
         }
 
@@ -72,6 +75,8 @@ void CAtomicAntiCheat::DoPulse()
             m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_iTargetProcessID);
 
         m_pAtomicNetwork->DoPulse();
+        Sleep(4500);
+
     }
 }
 

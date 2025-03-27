@@ -20,7 +20,7 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
     
     if (g_pAtomicAntiCheat->Initialize())
     {
-        g_pAtomicAntiCheat->SetAntiCheatModuleBase(lpAntiCheatModuleBase);
+   //     g_pAtomicAntiCheat->SetAntiCheatModuleBase(lpAntiCheatModuleBase);
         g_pAtomicAntiCheat->StartBasicChecks();
     }
     _beginthread((_beginthread_proc_type)CAtomicAntiCheat::StaticPulse, NULL, g_pAtomicAntiCheat);

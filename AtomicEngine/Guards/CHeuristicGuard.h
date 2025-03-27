@@ -11,7 +11,7 @@ public:
     void        Initialize() override;
     std::string GetScanProcessName() { return ""; }
 
-    void        DoPulse() {}
+    void        DoPulse();
     static void zebii();
     void        AddSignatures(std::map<std::string, std::vector<std::wstring>>& Signatures);
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }

@@ -22,5 +22,7 @@ void CGuardManager::StartPulse(CGuardManager* pGuardManager)
 {
     SharedUtil::AddDebugLog("Starting threads");
      CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard);
+    CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard);
+
    // CAtomicThread::Create(CModuleGuard::StaticPulse, m_pModuleGuard);
 }

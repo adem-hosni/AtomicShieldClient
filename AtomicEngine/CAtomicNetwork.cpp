@@ -191,7 +191,6 @@ void CAtomicNetwork::HandleRunScanners(jsoncons::json& Packet)
         g_pAtomicAntiCheat->RunScanners(Packet["run"].as_bool());
         response["success"] = true;
     }
-
     SendPacket(RUN_SCANNERS, response);
 }
 
@@ -247,7 +246,7 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
             // then reconnect
             if (Message->closeInfo.code != 1000 && g_pAtomicAntiCheat->GetProcessID() != NULL)
             {
-                Reconnect();
+            //    Reconnect();
             }
             break;
         }
