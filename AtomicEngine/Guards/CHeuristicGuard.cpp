@@ -51,9 +51,6 @@ void CHeuristicGuard::zebii()
             Sleep(50);
         }
 
-        if (m_vSignatures.empty())
-            continue;
-
         HANDLE                        hProcess = g_pAtomicAntiCheat->GetProcessHandle();
         NTSTATUS                      status;
         KernelCalls_OBJECT_ATTRIBUTES objAttr{};
