@@ -25,8 +25,6 @@ public:
 
     ix::WebSocket* GetWebSocket() { return m_pWebSocket; }
 
-    static void PingPulse(LPVOID lpContext);
-
     bool JoinNetwork();
     bool SyncMaliciousSignatures(jsoncons::json& Signatures);
     void HandleRequestScreenshot();

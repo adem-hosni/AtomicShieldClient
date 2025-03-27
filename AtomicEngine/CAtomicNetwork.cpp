@@ -8,7 +8,6 @@
 CAtomicNetwork::CAtomicNetwork() : m_bConnected(false), m_bNetworkJoined(false)
 {
     m_pWebSocket = new ix::WebSocket();
-    CAtomicThread::Create(&CAtomicNetwork::PingPulse, this);
 }
 
 CAtomicNetwork::~CAtomicNetwork()
@@ -26,7 +25,6 @@ bool CAtomicNetwork::Connect()
 
     m_pWebSocket->setPingInterval(15);
     m_pWebSocket->enablePong();
-    m_pWebSocket->enablePerMessageDeflate();
 
     ix::WebSocketInitResult result = m_pWebSocket->connect(32);
     m_pWebSocket->start();
@@ -196,20 +194,6 @@ void CAtomicNetwork::HandleRunScanners(jsoncons::json& Packet)
 void CAtomicNetwork::DoPulse()
 {
     // printf("state: %d\n", m_pWebSocket->getReadyState());
-}
-
-void CAtomicNetwork::PingPulse(LPVOID lpContext)
-{
-    CAtomicNetwork* pAtomicNetwork = reinterpret_cast<CAtomicNetwork*>(lpContext);
-    while (true)
-    {
-        if (pAtomicNetwork->GetWebSocket()->getReadyState() == ix::ReadyState::Open)
-        {
-            pAtomicNetwork->GetWebSocket()->ping("ping");
-            pAtomicNetwork->GetWebSocket()->ping("");
-        }
-        std::this_thread::sleep_for(std::chrono::milliseconds(4000));
-    }
 }
 
 void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
