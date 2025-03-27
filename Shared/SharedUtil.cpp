@@ -79,8 +79,7 @@ int SharedUtil::GetFivemProcessID()
     {
         static std::string baseName = "FiveM";
         static std::string suffix = "_GTAProcess.exe";
-        return strProcessName.size() > baseName.size() + suffix.size() && strProcessName.substr(0, baseName.size()) == baseName &&
-               strProcessName.substr(strProcessName.size() - suffix.size()) == suffix;
+        return strProcessName.starts_with(baseName) && strProcessName.ends_with(suffix);
     };
 
     do
