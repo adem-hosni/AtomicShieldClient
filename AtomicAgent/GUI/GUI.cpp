@@ -496,7 +496,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
 
                             if (ImGui::Cirlce_icon("youtube", image::youtube, ImVec2(31, 31), 0))
                             {
-                                OpenURL(skCrypt("https://www.youtube.com/@AtomicShield-h7z"));
+                                OpenURL(skCrypt("https://www.youtube.com/@atomic-shield"));
                             }
                         }
                         ImGui::EndGroup();
