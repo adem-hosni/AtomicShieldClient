@@ -38,7 +38,7 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
             m_vSignatures.push_back(Signature);
         }
     }
-    //CAtomicThread::Create(&CHeuristicGuard::zebii, this);
+   // CAtomicThread::Create(&CHeuristicGuard::zebii, this);
 }
 void CHeuristicGuard::DoPulse()
 {
@@ -48,10 +48,13 @@ void CHeuristicGuard::DoPulse()
     {
         while (!g_pAtomicAntiCheat->RunScanners())
         {
+            SharedUtil::AddDebugLog("waiting...");
+
             Sleep(50);
         }
-        DWORD                         pid = SharedUtil::GetFivemProcessID();
-        HANDLE                        hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+        SharedUtil::AddDebugLog("scanning...");
+        
+        HANDLE                        processHandle;
         NTSTATUS                      status;
         KernelCalls_OBJECT_ATTRIBUTES objAttr{};
         KernelCalls_CLIENT_ID         clientId{};
@@ -59,10 +62,11 @@ void CHeuristicGuard::DoPulse()
         RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
         objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
         RtlSecureZeroMemory(&clientId, sizeof(KernelCalls_CLIENT_ID));
-        clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(pid));
+        clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(SharedUtil::GetFivemProcessID()));
 
         SYSTEM_INFO sysInfo;
         GetSystemInfo(&sysInfo);
+        status = SysNtOpenProcess(&processHandle, (0x0400) | (0x0010), &objAttr, &clientId);
 
         std::vector<std::string> memoryStrings = {"lpjxl_lpso_zlq32", "dsl.wcsurmhfw.frp"};
 
@@ -84,7 +88,7 @@ void CHeuristicGuard::DoPulse()
                 SIZE_T regionSize = sizeof(memoryInfo);
                 SIZE_T returnLength = 0;
 
-                status = SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &memoryInfo, regionSize, &returnLength);
+                status = SysNtQueryVirtualMemory(processHandle, baseAddress, MemoryBasicInformation, &memoryInfo, regionSize, &returnLength);
                 if (!NT_SUCCESS(status) || memoryInfo.State != MEM_COMMIT || memoryInfo.Protect == PAGE_NOACCESS)
                     continue;
 
@@ -93,7 +97,7 @@ void CHeuristicGuard::DoPulse()
 
                 // Allocate memory safely
                 PVOID buffer = nullptr;
-                status = SysNtAllocateVirtualMemory(hProcess, &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+                status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
                 if (!NT_SUCCESS(status) || buffer == nullptr)
                 {
                     buffer = nullptr;
@@ -101,11 +105,11 @@ void CHeuristicGuard::DoPulse()
                 }
 
                 SIZE_T bytesRead = 0;
-                status = SysNtReadVirtualMemory(hProcess, memoryInfo.BaseAddress, buffer, allocationSize, &bytesRead);
+                status = SysNtReadVirtualMemory(processHandle, memoryInfo.BaseAddress, buffer, allocationSize, &bytesRead);
 
                 if (!NT_SUCCESS(status) || bytesRead == 0 || bytesRead > allocationSize)
                 {
-                    SysNtFreeVirtualMemory(hProcess, &buffer, &allocationSize, MEM_RELEASE);
+                    SysNtFreeVirtualMemory(processHandle, &buffer, &allocationSize, MEM_RELEASE);
                     continue;
                 }
 
@@ -135,7 +139,7 @@ void CHeuristicGuard::DoPulse()
                 // Safe memory free
                 if (buffer)
                 {
-                    SysNtFreeVirtualMemory(hProcess, &buffer, &allocationSize, MEM_RELEASE);
+                    SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
                     buffer = nullptr;
                 }
 
@@ -143,7 +147,7 @@ void CHeuristicGuard::DoPulse()
                     break;
             }
 
-            SysNtClose(hProcess);
+            SysNtClose(processHandle);
 
             QueryPerformanceCounter(&end);
             float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;

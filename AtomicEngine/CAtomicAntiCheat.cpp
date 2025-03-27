@@ -43,11 +43,9 @@ void CAtomicAntiCheat::DoPulse()
         m_iTargetProcessID = SharedUtil::GetFivemProcessID();
         if (m_iTargetProcessID == NULL)
         {
-            // Disconnect from master server
             if (m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Open || m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Connecting)
                 m_pAtomicNetwork->Disconnect("FiveM Closed");
 
-            // Turns our scanenrs off
             SharedUtil::AddDebugLog("scanners turned off!");
 
              RunScanners(false);
@@ -56,7 +54,6 @@ void CAtomicAntiCheat::DoPulse()
             continue;
         }
 
-        // Fivem is opened, so connect to the server
         if (m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Open && m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Connecting)
         {
             SharedUtil::AddDebugLog("Target Process ID: %d", m_iTargetProcessID);
@@ -74,8 +71,9 @@ void CAtomicAntiCheat::DoPulse()
         if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
             m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_iTargetProcessID);
 
+
         m_pAtomicNetwork->DoPulse();
-        Sleep(4500);
+        std::this_thread::sleep_for(std::chrono::milliseconds(4500));
 
     }
 }

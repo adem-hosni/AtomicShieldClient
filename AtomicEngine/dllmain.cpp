@@ -3,6 +3,46 @@
 #include <winternl.h>
 #include "PEBHide.h"
 
+BOOL AdjustTokenPrivilege(const HANDLE hproc)
+{
+    HANDLE htoken;
+    DWORD  dw_t;
+
+    if (OpenProcessToken(hproc, (((0x00020000L)) | (0x0008)) | (0x0008) | (0x0020), &htoken))
+    {
+        DWORD                   dw_s = sizeof(TOKEN_PRIVILEGES) + sizeof(LUID_AND_ATTRIBUTES) * 100;
+        std::unique_ptr<BYTE[]> memory = std::make_unique<BYTE[]>(dw_s);
+
+        if (memory)
+        {
+            TOKEN_PRIVILEGES* priv = reinterpret_cast<TOKEN_PRIVILEGES*>(memory.get());
+            if (GetTokenInformation(htoken, TokenPrivileges, priv, dw_s, &dw_t))
+            {
+                if (priv->PrivilegeCount > 0)
+                {
+                    for (DWORD i = 0; i < priv->PrivilegeCount; i++)
+                    {
+                        priv->Privileges[i].Attributes = 0x00000002L;
+                    }
+
+                    if (AdjustTokenPrivileges(htoken, 0, priv, dw_s, 0, 0))
+                    {
+                        CloseHandle(htoken);
+                        return 1;
+                    }
+                }
+            }
+        }
+        CloseHandle(htoken);
+    }
+
+    return 0;
+}
+
+inline void adjustTokenPrivilege()
+{
+    AdjustTokenPrivilege(GetCurrentProcess());
+}
 void EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
 #ifdef _DEBUG
@@ -20,6 +60,8 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
     
     if (g_pAtomicAntiCheat->Initialize())
     {
+        adjustTokenPrivilege();
+
    //     g_pAtomicAntiCheat->SetAntiCheatModuleBase(lpAntiCheatModuleBase);
         g_pAtomicAntiCheat->StartBasicChecks();
     }
