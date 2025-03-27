@@ -26,12 +26,6 @@ bool CAtomicAntiCheat::Initialize()
     m_iTargetProcessID = NULL;
     m_HWIDCache = g_pHWID->LoadHWIDCaches();
 
-    if (!m_pAtomicNetwork->Connect())
-    {
-        MessageBox(0, "Failed to connect to the server", "Error", 0);
-        return false;
-    }
-
     m_pGuardManager->InitializeGuards();
     return true;
 }
@@ -49,8 +43,29 @@ void CAtomicAntiCheat::DoPulse()
         m_iTargetProcessID = SharedUtil::GetFivemProcessID();
         if (m_iTargetProcessID == NULL)
         {
+            // Disconnect from master server
+            if (m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Open || m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Connecting)
+                m_pAtomicNetwork->Disconnect("FiveM Closed");
+
+            // Turns our scanenrs off
+            RunScanners(false);
+
             Sleep(350);
             continue;
+        }
+
+        // Fivem is opened, so connect to the server
+        if (m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Open && m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Connecting)
+        {
+            SharedUtil::AddDebugLog("Target Process ID: %d", m_iTargetProcessID);
+            if (!m_pAtomicNetwork->Connect())
+            {
+                SharedUtil::AddDebugLog("Failed to connect to server!");
+
+                Sleep(2000);
+                continue;
+            }
+            SharedUtil::AddDebugLog("Network State: %d", m_pAtomicNetwork->GetReadyState());
         }
 
         if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
@@ -69,6 +84,8 @@ void CAtomicAntiCheat::StartPulse()
 void CAtomicAntiCheat::StartBasicChecks()
 {
     BasicChecks::CheckPlugins();
+
+    //  DebugModeEnabled();
 
     BasicChecks::SecureBootEnabled();
 
@@ -132,7 +149,7 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
 
     m_pAtomicNetwork->SendPacket(eAtomicPacket::CHEAT_DETECTION, RequestData);
 }
-    
+
 bool CAtomicAntiCheat::IsAtomicThread(HANDLE hThread)
 {
     return std::any_of(m_vAtomicThreads.begin(), m_vAtomicThreads.end(), [hThread](CAtomicThread* pThread) { return pThread->GetHandle() == hThread; });
