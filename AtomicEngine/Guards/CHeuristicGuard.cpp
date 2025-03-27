@@ -42,14 +42,11 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
 }
 void CHeuristicGuard::DoPulse()
 {
-    int iCurrentSignature = 0;
-
+    std::vector<std::string> memoryStrings = {"lpjxl_lpso_zlq32", "dsl.wcsurmhfw.frp"};
     while (true)
     {
-        while (!g_pAtomicAntiCheat->RunScanners())
+        while (!g_pAtomicAntiCheat->RunScanners() || g_pAtomicAntiCheat->GetProcessID() == NULL)
         {
-            SharedUtil::AddDebugLog("waiting...");
-
             Sleep(50);
         }
         SharedUtil::AddDebugLog("scanning...");
@@ -62,13 +59,12 @@ void CHeuristicGuard::DoPulse()
         RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
         objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
         RtlSecureZeroMemory(&clientId, sizeof(KernelCalls_CLIENT_ID));
-        clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(SharedUtil::GetFivemProcessID()));
+        clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(g_pAtomicAntiCheat->GetProcessID()));
 
         SYSTEM_INFO sysInfo;
         GetSystemInfo(&sysInfo);
         status = SysNtOpenProcess(&processHandle, (0x0400) | (0x0010), &objAttr, &clientId);
 
-        std::vector<std::string> memoryStrings = {"lpjxl_lpso_zlq32", "dsl.wcsurmhfw.frp"};
 
         for (const auto& memoryString : memoryStrings)
         {
@@ -147,13 +143,12 @@ void CHeuristicGuard::DoPulse()
                     break;
             }
 
-            SysNtClose(processHandle);
 
             QueryPerformanceCounter(&end);
             float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
             SharedUtil::AddDebugLog("[+] Scan for '%s' completed in %.5fs", memoryString.c_str(), fElapsedTime);
 
-            iCurrentSignature++;
         }
+        SysNtClose(processHandle);
     }
 }
