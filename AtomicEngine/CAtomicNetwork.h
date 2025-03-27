@@ -38,6 +38,9 @@ public:
 
     std::map<std::string, std::vector<std::wstring>> GetSignatures() { return m_Signatures; }
 
+    ix::ReadyState GetReadyState() { return m_pWebSocket->getReadyState(); }
+    void Disconnect(std::string strReason);
+
 private:
     void Reconnect();
 
