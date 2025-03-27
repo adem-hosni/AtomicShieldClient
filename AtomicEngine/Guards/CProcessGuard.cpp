@@ -46,7 +46,7 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::GetHandles()
 
 std::vector<Handles::SYSTEM_HANDLE> Handles::DetectOpenHandlesToProcess()
 {
-    DWORD                               currentProcessId = GetCurrentProcessId();
+    DWORD                               currentProcessId = g_pAtomicAntiCheat->GetProcessID();
     auto                                handles = GetHandles();
     std::vector<Handles::SYSTEM_HANDLE> handlesTous;
 
@@ -65,7 +65,8 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::DetectOpenHandlesToProcess()
             {
                 HANDLE duplicatedHandle = INVALID_HANDLE_VALUE;
 
-                if (DuplicateHandle(processHandle, (HANDLE)handle.Handle, GetCurrentProcess(), &duplicatedHandle, 0, FALSE, DUPLICATE_SAME_ACCESS))
+                if (DuplicateHandle(processHandle, (HANDLE)handle.Handle, g_pAtomicAntiCheat->GetProcessHandle(), &duplicatedHandle, 0, FALSE,
+                                    DUPLICATE_SAME_ACCESS))
                 {
                     if (GetProcessId(duplicatedHandle) == currentProcessId)
                     {
@@ -162,7 +163,7 @@ void CProcessGuard::DoPulse()
                     continue;
 
                 if (!bIsWhitelisted && !strProcessPath.empty() &&
-                    //FileAuthentication::HasSignature(std::wstring(strProcessPath.begin(), strProcessPath.end()).c_str()) &&
+                    // FileAuthentication::HasSignature(std::wstring(strProcessPath.begin(), strProcessPath.end()).c_str()) &&
                     (handle.GrantedAccess & PROCESS_ALL_ACCESS || handle.GrantedAccess & PROCESS_VM_WRITE || handle.GrantedAccess & PROCESS_VM_READ ||
                      handle.GrantedAccess & PROCESS_SUSPEND_RESUME || handle.GrantedAccess & PROCESS_SET_INFORMATION ||
                      handle.GrantedAccess & PROCESS_VM_OPERATION || handle.GrantedAccess & PROCESS_DUP_HANDLE))

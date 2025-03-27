@@ -22,8 +22,8 @@ CAtomicAntiCheat::~CAtomicAntiCheat()
 
 bool CAtomicAntiCheat::Initialize()
 {
-    m_hProcess = GetCurrentProcess();
-    m_iTargetProcessID = GetCurrentProcessId();
+    m_hProcess = NULL;
+    m_iTargetProcessID = NULL;
     m_HWIDCache = g_pHWID->LoadHWIDCaches();
 
     if (!m_pAtomicNetwork->Connect())
@@ -46,13 +46,17 @@ void CAtomicAntiCheat::DoPulse()
 {
     while (true)
     {
-        m_pAtomicNetwork->DoPulse();
+        m_iTargetProcessID = SharedUtil::GetFivemProcessID();
+        if (m_iTargetProcessID == NULL)
+        {
+            Sleep(350);
+            continue;
+        }
 
-        long long llCurrentTime = time(NULL);
-        STiming&  Timing = g_pAtomicAntiCheat->GetTiming();
-
-        if (!m_hProcess)
+        if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
             m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_iTargetProcessID);
+
+        m_pAtomicNetwork->DoPulse();
     }
 }
 
@@ -119,7 +123,7 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
     char        szError[256];
     memset(szError, 0, sizeof(szError));
     Screenshot::CreateScreenshot(&strScreenshotBuffer, szError);
-        
+
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["detection_type"] = (int)DetectionType;
     RequestData["report"] = Report;
@@ -128,7 +132,7 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
 
     m_pAtomicNetwork->SendPacket(eAtomicPacket::CHEAT_DETECTION, RequestData);
 }
-
+    
 bool CAtomicAntiCheat::IsAtomicThread(HANDLE hThread)
 {
     return std::any_of(m_vAtomicThreads.begin(), m_vAtomicThreads.end(), [hThread](CAtomicThread* pThread) { return pThread->GetHandle() == hThread; });

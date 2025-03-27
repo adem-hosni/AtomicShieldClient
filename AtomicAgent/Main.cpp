@@ -49,10 +49,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 {
 #ifdef _DEBUG
 #endif
-    AllocConsole();
-    freopen("CONIN$", "r", stdin);
-    freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
+    //AllocConsole();
+    //freopen("CONIN$", "r", stdin);
+    //freopen("CONOUT$", "w", stdout);
+    //freopen("CONOUT$", "w", stderr);
 
     // Enable microsoft process mitigations (Avoid unsigned code execution, ...)
     // SharedProtocols::EnableProcessMitigations();
@@ -71,7 +71,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 
 
 
-    if (cmdLine.find("--startup") != std::string::npos)
+    if (cmdLine.find(skCrypt("--startup")) != std::string::npos)
     { 
        StartupManager::StartupFunction();       
     }

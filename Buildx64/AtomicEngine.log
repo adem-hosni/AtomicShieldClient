@@ -1,4 +1,10 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(516,5): warning MSB8004: Intermediate Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Intermediate Directory.
 C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(517,5): warning MSB8004: Output Directory does not end with a trailing slash.  This build instance will add the slash as it is required to allow proper evaluation of the Output Directory.
-  CHeuristicGuard.cpp
+  CAtomicAntiCheat.cpp
+  dllmain.cpp
+C:\AtomicShield\AtomicShieldClient\AtomicEngine\CAtomicAntiCheat.cpp(105,33): warning C4477: 'sprintf' : format string '%p' requires an argument of type 'void *', but variadic argument 1 has type 'const _First'
+C:\AtomicShield\AtomicShieldClient\AtomicEngine\CAtomicAntiCheat.cpp(105,33): warning C4477:         with
+C:\AtomicShield\AtomicShieldClient\AtomicEngine\CAtomicAntiCheat.cpp(105,33): warning C4477:         [
+C:\AtomicShield\AtomicShieldClient\AtomicEngine\CAtomicAntiCheat.cpp(105,33): warning C4477:             _First=DWORD64
+C:\AtomicShield\AtomicShieldClient\AtomicEngine\CAtomicAntiCheat.cpp(105,33): warning C4477:         ]
   AtomicEngine.vcxproj -> C:\AtomicShield\AtomicShieldClient\Build\Atomic Engine.dll

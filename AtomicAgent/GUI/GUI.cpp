@@ -31,7 +31,6 @@
 #include "notification.h"
 #include <CAtomicAPI.h>
 #include <tlhelp32.h>
-
 // Forward declarations of helper functions
 bool           CreateDeviceD3D(HWND hWnd);
 void           CleanupDeviceD3D();
@@ -198,31 +197,6 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 float alpha = 0.6f;                    // ��������� �������� �����
 float animationSpeed = 4.f;            // �������� �������� (��� ������, ��� ���������)
 
-bool GUI::isFiveMReady()
-{
-    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
-    if (hSnapshot == INVALID_HANDLE_VALUE)
-    {
-        return false;
-    }
-
-    PROCESSENTRY32 pe32;
-    pe32.dwSize = sizeof(PROCESSENTRY32);
-
-    if (Process32First(hSnapshot, &pe32))
-    {
-        do
-        {
-            if (_stricmp(pe32.szExeFile, "FiveM_ChromeBrowser") == 0)
-            {
-                CloseHandle(hSnapshot);
-                return true;
-            }
-        } while (Process32Next(hSnapshot, &pe32));
-    }
-    CloseHandle(hSnapshot);
-    return false;
-}
 
 bool GUI::Initialize()
 {
@@ -329,53 +303,6 @@ int         fake_function()
 }
 
 
-bool GUI::InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll)
-{
-    LPVOID LoadLibAddr;
-    LPVOID baseAddr;
-    HANDLE remThread;
-    int    dllLength = strlen(dll) + 1;
-
-    LoadLibAddr = (LPVOID)GetProcAddress(GetModuleHandleA("kernel32.dll"), "LoadLibraryA");
-
-    if (!LoadLibAddr)
-    {
-      SharedUtil::AddDebugLog("Failed to get address of LoadLibraryA. Error: %d\n", GetLastError());
-        return FALSE;
-    }
-
-    baseAddr = VirtualAllocEx(handleToProc, NULL, dllLength, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
-
-    if (!baseAddr)
-    {
-        SharedUtil::AddDebugLog("Failed to allocate memory in target process. Error: %d\n", GetLastError());
-        return FALSE;
-    }
-
-    if (!WriteProcessMemory(handleToProc, baseAddr, dll, dllLength, NULL))
-    {
-        SharedUtil::AddDebugLog("Failed to write DLL path to target process. Error: %d\n", GetLastError());
-        VirtualFreeEx(handleToProc, baseAddr, dllLength, MEM_RELEASE);
-        return FALSE;
-    }
-
-    remThread = CreateRemoteThread(handleToProc, NULL, NULL, (LPTHREAD_START_ROUTINE)LoadLibAddr, baseAddr, 0, NULL);
-
-    if (!remThread)
-    {
-        SharedUtil::AddDebugLog("Failed to create remote thread in target process. Error: %d\n", GetLastError());
-        VirtualFreeEx(handleToProc, baseAddr, dllLength, MEM_RELEASE);
-        return FALSE;
-    }
-
-    WaitForSingleObject(remThread, INFINITE);
-    VirtualFreeEx(handleToProc, baseAddr, dllLength, MEM_RELEASE);
-
-    CloseHandle(remThread);
-    CloseHandle(handleToProc);
-
-    return TRUE;
-}
 
 
 
@@ -493,16 +420,28 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                 if (!StartupManager::IsAppInRegistry(processName))
                                 {
                                     int msgResult =
-                                        MessageBox(NULL, "Do you want to add this application to startup?", "Startup Option", MB_YESNO | MB_ICONQUESTION);
+                                        MessageBox(NULL,
+                                                   skCrypt("Would you like Atomic Shield to start automatically when you turn on your PC?\n\n"
+                                                           "✅ This ensures full protection without needing to open the anticheat manually every time.\n"
+                                                           "❌ You can disable this later by removing it from the startup folder."),
+                                                   skCrypt("Startup Option"), MB_YESNO | MB_ICONQUESTION);
+
+
                                     if (msgResult == IDYES)
                                     {
                                         if (StartupManager::AddAppToRegistry(processName))
                                         {
-                                            MessageBox(NULL, "Application added to startup.", "Success", MB_OK | MB_ICONINFORMATION);
+                                            MessageBox(NULL,
+                                                       skCrypt("Atomic Shield has been successfully added to startup.\n\n"
+                                                               "It will now launch automatically when you start your PC."),
+                                                       skCrypt("Startup Enabled"), MB_OK | MB_ICONINFORMATION);
                                         }
                                         else
                                         {
-                                            MessageBox(NULL, "Failed to add application to startup.", "Error", MB_OK | MB_ICONERROR);
+                                            MessageBox(NULL,
+                                                       skCrypt("Failed to add Atomic Shield to startup.\n\n"
+                                                               "Please try again or add it manually."),
+                                                       skCrypt("Startup Error"), MB_OK | MB_ICONERROR);
                                         }
                                     }
                                 }
@@ -550,14 +489,14 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                         {
                             if (ImGui::Cirlce_icon("discord", image::discord, ImVec2(31, 31), 0))
                             {
-                                OpenURL("https://discord.gg/YFCRffsZKK");
+                                OpenURL(skCrypt("https://discord.gg/YFCRffsZKK"));
                             }
 
                             ImGui::SameLine(0, 26);
 
                             if (ImGui::Cirlce_icon("youtube", image::youtube, ImVec2(31, 31), 0))
                             {
-                                OpenURL("https://www.youtube.com/@AtomicShield-h7z");
+                                OpenURL(skCrypt("https://www.youtube.com/@AtomicShield-h7z"));
                             }
                         }
                         ImGui::EndGroup();
@@ -589,45 +528,19 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
 
                         if (!strEngineBuffer.empty() && !bInjected)
                         {
-                            int iProcessID = SharedUtil::GetFivemProcessID();
+                            int iProcessID = SharedUtil::GetProcessID(skCrypt("explorer.exe"));
 
-                            if (iProcessID > 0 && isFiveMReady())
+                            if (iProcessID > 0)
                             {
                                 HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
                                 if (hProcess)
                                 {
-                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                    strcat(szLoadingMessage, skCrypt("Please wait, we're getting everything ready for you!"));
+                                    bool bResult = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
+                                    if (bResult)
+                                        __fastfail(0);
+                                   // printf("Result from dll injection: %d\n", bResult);
+                                    bInjected = true;
 
-                                    char szTempFilePath[MAX_PATH];
-                                    GetTempPathA(MAX_PATH, szTempFilePath);
-                                    sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
-                                    FILE* file = fopen(szTempFilePath, "wb");
-                                    if (file)
-                                    {
-                                        fwrite(strEngineBuffer.c_str(), sizeof(char), strEngineBuffer.size(), file);
-                                        fclose(file);
-                                    }
- 
-                                    
-                                    bInjected = InjectDLL(hProcess, iProcessID, szTempFilePath);
-                                    if (bInjected)
-                                    {
-                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, skCrypt("Have fun!"));
-
-                                        page = 2;
-                                        active_anim_1 = true;
-                                        bInjected = true;
-                                    }
-                                    else
-                                    {
-                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, skCrypt("An error occurred while loading the AntiCheat!"));
-
-                                    }
-                                    std::remove(szTempFilePath);
-                                    SharedUtil::AddDebugLog("Result from dll injection: %d (0x%x)", bInjected, GetLastError());
                                 }
                                 else
                                 {
@@ -637,8 +550,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                             else
                             {
                                 memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                strcat(szLoadingMessage, skCrypt("Waiting for FiveM to launch"));
+                                strcat(szLoadingMessage, skCrypt("Failed to load anticheat"));
                             }
+
                         }
                     }
 

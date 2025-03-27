@@ -32,7 +32,6 @@ bool StartupManager::AddAppToRegistry(std::string& appName)
     char szPath[MAX_PATH];
     if (GetModuleFileName(NULL, szPath, MAX_PATH) == 0)
     {
-        std::wcerr << L"Error retrieving executable path" << std::endl;
         return false;
     }
 
@@ -56,7 +55,7 @@ std::string StartupManager::GetCurrentProcessName()
     char szPath[MAX_PATH];
     if (GetModuleFileName(NULL, szPath, MAX_PATH) == 0)
     {
-        SharedUtil::AddDebugLog("Error retrieving executable path");
+        SharedUtil::AddDebugLog(skCrypt("[AtomicShield] Error retrieving executable path"));
         return "";
     }
     std::string fileName = PathFindFileName(szPath);
@@ -71,9 +70,6 @@ void StartupManager::StartupFunction()
     static char        szLoadingMessage[144];
     static SUserData   DownloadData{};
 
-
-
-    //MessageBoxA(NULL, "Running in startup mode", "Startup", MB_OK);
 
     std::thread AgentPEBDownloader(
         [&]()
@@ -92,48 +88,33 @@ void StartupManager::StartupFunction()
 
     while (!bInjected)            
     {
-        int iProcessID = SharedUtil::GetFivemProcessID();
+        int iProcessID = SharedUtil::GetProcessID("explorer.exe");
 
-        if (iProcessID > 0 && GUI::isFiveMReady())
+        if (iProcessID > 0)
         {
             HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
             if (hProcess)
             {
-                char szTempFilePath[MAX_PATH];
-                GetTempPathA(MAX_PATH, szTempFilePath);
-                sprintf(szTempFilePath, "%s%s.dll", szTempFilePath, SharedUtil::GenerateRandomString(32).c_str());
-
-                FILE* file = fopen(szTempFilePath, "wb");
-                if (file)
+          
+                bool bResult = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
+                if (bResult)
                 {
-                    fwrite(strEngineBuffer.c_str(), sizeof(char), strEngineBuffer.size(), file);
-                    fclose(file);
-                }
-
-                bInjected = GUI::InjectDLL(hProcess, iProcessID, szTempFilePath);
-                if (bInjected)
-                {
-
-                    MessageBoxA(NULL, "Have fun!", "Atomic Shield", MB_OK);
-                    std::remove(szTempFilePath);
-                    page = 2;
-                    active_anim_1 = true;
+                    MessageBoxA(NULL, skCrypt("[AtomicShield] Have fun!"), skCrypt("Success"), MB_OK);
+                    __fastfail(0);
+                    bInjected = true;
                 }
                 else
                 {
-                    MessageBoxA(NULL, "An error occurred while loading!", "Failed", MB_ICONERROR);
+                    MessageBoxA(NULL, skCrypt("[AtomicShield] An error occurred while loading!"), skCrypt("Failed"), MB_ICONERROR);
                 }
-                std::remove(szTempFilePath);
-                CloseHandle(hProcess);
             }
             else
             {
-                SharedUtil::AddDebugLog("Failed to get process handle!\n");
+                SharedUtil::AddDebugLog(skCrypt("[AtomicShield] Failed to get process handle!\n"));
             }
         }
         else
         {
-            SharedUtil::AddDebugLog("Waiting for FiveM to launch...");
             std::this_thread::sleep_for(std::chrono::seconds(10));            
         }
     }

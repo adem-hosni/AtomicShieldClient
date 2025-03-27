@@ -54,11 +54,10 @@ void CHeuristicGuard::zebii()
         if (m_vSignatures.empty())
             continue;
 
-        HANDLE                        hProcess = GetCurrentProcess();
+        HANDLE                        hProcess = g_pAtomicAntiCheat->GetProcessHandle();
         NTSTATUS                      status;
         KernelCalls_OBJECT_ATTRIBUTES objAttr{};
         KernelCalls_CLIENT_ID         clientId{};
-        HANDLE                        processHandle = GetCurrentProcess();
 
         RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
         objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
@@ -88,7 +87,7 @@ void CHeuristicGuard::zebii()
                 SIZE_T regionSize = sizeof(memoryInfo);
                 SIZE_T returnLength = 0;
 
-                status = SysNtQueryVirtualMemory(processHandle, baseAddress, MemoryBasicInformation, &memoryInfo, regionSize, &returnLength);
+                status = SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &memoryInfo, regionSize, &returnLength);
                 if (!NT_SUCCESS(status) || memoryInfo.State != MEM_COMMIT || memoryInfo.Protect == PAGE_NOACCESS)
                     continue;
 
@@ -105,7 +104,7 @@ void CHeuristicGuard::zebii()
                 }
 
                 SIZE_T bytesRead = 0;
-                status = SysNtReadVirtualMemory(processHandle, memoryInfo.BaseAddress, buffer, allocationSize, &bytesRead);
+                status = SysNtReadVirtualMemory(hProcess, memoryInfo.BaseAddress, buffer, allocationSize, &bytesRead);
 
                 if (!NT_SUCCESS(status) || bytesRead == 0 || bytesRead > allocationSize)
                 {
@@ -122,7 +121,7 @@ void CHeuristicGuard::zebii()
                     LPVOID lpFlaggedAddress = static_cast<LPBYTE>(memoryInfo.BaseAddress) + foundPos;
                     if ((DWORD64)lpFlaggedAddress != (DWORD64)decryptedStr.data() && !IsAddressInVector(m_vSignatures, lpFlaggedAddress))
                     {
-                    //    SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress, decryptedStr.data());
+                        SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress, decryptedStr.data());
 
                         g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
                                                                                     {"memory_address", (DWORD64)lpFlaggedAddress},
@@ -147,11 +146,11 @@ void CHeuristicGuard::zebii()
                     break;
             }
 
-            SysNtClose(processHandle);
+            SysNtClose(hProcess);
 
             QueryPerformanceCounter(&end);
             float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
-          //  SharedUtil::AddDebugLog("[+] Scan for '%s' completed in %.5fs", memoryString.c_str(), fElapsedTime);
+            SharedUtil::AddDebugLog("[+] Scan for '%s' completed in %.5fs", memoryString.c_str(), fElapsedTime);
 
             iCurrentSignature++;
         }

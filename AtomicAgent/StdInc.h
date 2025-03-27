@@ -14,3 +14,4 @@
 
 
 #include "skCrypter.h"
+#include "ManualMapInjector.h"

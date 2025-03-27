@@ -188,6 +188,7 @@
     <ClCompile Include="ImAnim\Utils.cpp" />
     <ClCompile Include="Main.cpp" />
     <ClCompile Include="GUI\GUI.cpp" />
+    <ClCompile Include="ManualMapInjector.cpp" />
     <ClCompile Include="StartupManager.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Vendor\ImGui\backends\imgui_impl_dx9.cpp" />
@@ -206,6 +207,7 @@
     <ClInclude Include="GUI\Customs.hpp" />
     <ClInclude Include="GUI\Elements.h" />
     <ClInclude Include="GUI\Variables.h" />
+    <ClInclude Include="ManualMapInjector.h" />
     <ClInclude Include="resource.h" />
     <ClInclude Include="Resources\Font.h" />
     <ClInclude Include="GUI\Utils.h" />

@@ -85,6 +85,9 @@
     <ClCompile Include="StartupManager.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="ManualMapInjector.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\blur.hpp" />
@@ -192,6 +195,7 @@
     <ClInclude Include="StartupManager.h" />
     <ClInclude Include="skCrypter.h" />
     <ClInclude Include="resource.h" />
+    <ClInclude Include="ManualMapInjector.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Atomic Agent.rc" />
