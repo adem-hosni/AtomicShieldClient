@@ -70,9 +70,6 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData, char* szError)
     static std::recursive_mutex            mutex;
     std::unique_lock<std::recursive_mutex> mutex_lock(mutex);
 
-    /// Temp File
-    auto pTempFile = "nm1";
-
     /// GDI+ Init
     ULONG_PTR           gdiplusToken;
     GdiplusStartupInput gdiplusStartupInput;
@@ -139,7 +136,7 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData, char* szError)
         return false;
     }
 
-    std::string  szTmpFileName = pTempFile;
+    auto         szTmpFileName = (std::filesystem::temp_directory_path() / SharedUtil::GenerateRandomString(8)).string();
     std::wstring wszName(szTmpFileName.begin(), szTmpFileName.end());
     if (!Screenshot::BitmapToJpg(wszName, hBitmap, iWidth, iHeight, 85))
     {

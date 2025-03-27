@@ -19,6 +19,7 @@
 #include <winternl.h>
 #include <Psapi.h>
 #include <iostream>
+#include <filesystem>
 
 #include "CAtomicHook.h"
 #include "FileAuthentication.h"
