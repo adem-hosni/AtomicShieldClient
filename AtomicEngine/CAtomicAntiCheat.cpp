@@ -22,15 +22,9 @@ CAtomicAntiCheat::~CAtomicAntiCheat()
 
 bool CAtomicAntiCheat::Initialize()
 {
-    m_hProcess = GetCurrentProcess();
-    m_iTargetProcessID = GetCurrentProcessId();
+    m_hProcess = NULL;
+    m_iTargetProcessID = NULL;
     m_HWIDCache = g_pHWID->LoadHWIDCaches();
-
-    if (!m_pAtomicNetwork->Connect())
-    {
-        MessageBox(0, "Failed to connect to the server", "Error", 0);
-        return false;
-    }
 
     m_pGuardManager->InitializeGuards();
     return true;
@@ -46,13 +40,38 @@ void CAtomicAntiCheat::DoPulse()
 {
     while (true)
     {
-        m_pAtomicNetwork->DoPulse();
+        m_iTargetProcessID = SharedUtil::GetFivemProcessID();
+        if (m_iTargetProcessID == NULL)
+        {
+            // Disconnect from master server
+            if (m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Open || m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Connecting)
+                m_pAtomicNetwork->Disconnect("FiveM Closed");
 
-        long long llCurrentTime = time(NULL);
-        STiming&  Timing = g_pAtomicAntiCheat->GetTiming();
+            // Turns our scanenrs off
+            RunScanners(false);
 
-        if (!m_hProcess)
+            Sleep(350);
+            continue;
+        }
+
+        // Fivem is opened, so connect to the server
+        if (m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Open && m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Connecting)
+        {
+            SharedUtil::AddDebugLog("Target Process ID: %d", m_iTargetProcessID);
+            if (!m_pAtomicNetwork->Connect())
+            {
+                SharedUtil::AddDebugLog("Failed to connect to server!");
+
+                Sleep(2000);
+                continue;
+            }
+            SharedUtil::AddDebugLog("Network State: %d", m_pAtomicNetwork->GetReadyState());
+        }
+
+        if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
             m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_iTargetProcessID);
+
+        m_pAtomicNetwork->DoPulse();
     }
 }
 
@@ -65,6 +84,8 @@ void CAtomicAntiCheat::StartPulse()
 void CAtomicAntiCheat::StartBasicChecks()
 {
     BasicChecks::CheckPlugins();
+
+    //  DebugModeEnabled();
 
     BasicChecks::SecureBootEnabled();
 
@@ -119,7 +140,7 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
     char        szError[256];
     memset(szError, 0, sizeof(szError));
     Screenshot::CreateScreenshot(&strScreenshotBuffer, szError);
-        
+
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["detection_type"] = (int)DetectionType;
     RequestData["report"] = Report;

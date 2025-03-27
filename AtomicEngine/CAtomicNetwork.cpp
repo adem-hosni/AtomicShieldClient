@@ -243,9 +243,12 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
             m_pWebSocket->close();
             SharedUtil::AddDebugLog("WebSocket Closed: %s (%d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code);
 
-            // Check if the network didn't closed by the server
-            if (Message->closeInfo.code != 1000)
+            // Check if the network didn't closed by the server and fivem is running
+            // then reconnect
+            if (Message->closeInfo.code != 1000 && g_pAtomicAntiCheat->GetProcessID() != NULL)
+            {
                 Reconnect();
+            }
             break;
         }
 
@@ -285,4 +288,9 @@ void CAtomicNetwork::Reconnect()
         Sleep(2 * 1000);
     }
     SharedUtil::AddDebugLog("Websocket connection established successfuly!");
+}
+
+void CAtomicNetwork::Disconnect(std::string strReason)
+{
+    m_pWebSocket->close(ix::WebSocketCloseConstants::kNormalClosureCode, strReason);
 }
