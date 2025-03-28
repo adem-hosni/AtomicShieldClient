@@ -50,6 +50,8 @@ void CHeuristicGuard::DoPulse()
         clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(g_pAtomicAntiCheat->GetProcessID()));
 
         status = SysNtOpenProcess(&processHandle, (0x0400) | (0x0010), &objAttr, &clientId);
+        if (!NT_SUCCESS(status))
+            continue;
 
         for (const auto& decryptedStr : m_vSignatures)
         {
