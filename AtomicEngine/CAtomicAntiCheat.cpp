@@ -27,7 +27,6 @@ void CAtomicAntiCheat::SEHTranslator(unsigned int code, EXCEPTION_POINTERS* pExc
         "\tRAX : 0x%p \tRCX: 0x%p \tRIP: 0x%p",
         code, pException->ExceptionRecord->ExceptionAddress, pException->ExceptionRecord->ExceptionCode, pException->ContextRecord->Rax,
         pException->ContextRecord->Rcx, pException->ContextRecord->Rip);
-    
 }
 
 LONG CAtomicAntiCheat::SEHTranslator(EXCEPTION_POINTERS* pException)
@@ -37,7 +36,7 @@ LONG CAtomicAntiCheat::SEHTranslator(EXCEPTION_POINTERS* pException)
         "\tRAX : 0x%p \tRCX: 0x%p \tRIP: 0x%p",
         pException->ExceptionRecord->ExceptionAddress, pException->ExceptionRecord->ExceptionCode, pException->ContextRecord->Rax,
         pException->ContextRecord->Rcx, pException->ContextRecord->Rip);
-    
+
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
@@ -66,40 +65,69 @@ void CAtomicAntiCheat::DoPulse()
         m_iTargetProcessID = SharedUtil::GetFivemProcessID();
         if (m_iTargetProcessID == NULL)
         {
-            if (m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Open || m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Connecting)
-                m_pAtomicNetwork->Disconnect("FiveM Closed");
-
-            SharedUtil::AddDebugLog("scanners turned off!");
-
+            SharedUtil::AddDebugLog("FiveM closed - stopping scanners!");
             RunScanners(false);
 
-            Sleep(350);
+            if (m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Open || m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Connecting)
+            {
+                m_pAtomicNetwork->Disconnect("FiveM Closed");
+            }
+
+            if (m_hProcess != NULL && m_hProcess != INVALID_HANDLE_VALUE)
+            {
+                CloseHandle(m_hProcess);
+                m_hProcess = NULL;
+            }
+
+            std::this_thread::sleep_for(std::chrono::milliseconds(350));
             continue;
         }
 
-        if (m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Open && m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Connecting)
+        if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
+        {
+            m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_iTargetProcessID);
+            if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
+            {
+                SharedUtil::AddDebugLog("Failed to open FiveM process!");
+                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+                continue;
+            }
+        }
+
+        if (!Utils::isFiveMReady())
+        {
+            SharedUtil::AddDebugLog("FiveM is not ready, waiting...");
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            continue;
+        }
+
+        if (m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Closed || m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Closing)
         {
             SharedUtil::AddDebugLog("Target Process ID: %d", m_iTargetProcessID);
             if (!m_pAtomicNetwork->Connect())
             {
                 SharedUtil::AddDebugLog("Failed to connect to server!");
-
-                Sleep(2000);
+                std::this_thread::sleep_for(std::chrono::milliseconds(2000));
                 continue;
             }
 
-            SharedUtil::AddDebugLog("Network State: %d", m_pAtomicNetwork->GetReadyState());
-            RunScanners(true);
+            SharedUtil::AddDebugLog("Connected - Network State: %d", m_pAtomicNetwork->GetReadyState());
 
+            RunScanners(true);
         }
 
-        if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
-            m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_iTargetProcessID);
-
         m_pAtomicNetwork->DoPulse();
+
+        if (m_iTargetProcessID == NULL)
+        {
+            SharedUtil::AddDebugLog("FiveM process exited unexpectedly!");
+            continue;
+        }
+
         std::this_thread::sleep_for(std::chrono::milliseconds(4500));
     }
 }
+
 
 void CAtomicAntiCheat::StartPulse()
 {

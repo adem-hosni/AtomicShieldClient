@@ -15,6 +15,32 @@ std::wstring Utils::ParseModuleNameFromPath(std::wstring wstrPath)
     return wstrPath.substr(wstrPath.find_last_of(L"/\\") + 1);
 }
 
+bool Utils::isFiveMReady()
+{
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+    if (hSnapshot == INVALID_HANDLE_VALUE)
+    {
+        return false;
+    }
+
+    PROCESSENTRY32 pe32;
+    pe32.dwSize = sizeof(PROCESSENTRY32);
+
+    if (Process32First(hSnapshot, &pe32))
+    {
+        do
+        {
+            if (_stricmp(pe32.szExeFile, "FiveM_ChromeBrowser") == 0)
+            {
+                CloseHandle(hSnapshot);
+                return true;
+            }
+        } while (Process32Next(hSnapshot, &pe32));
+    }
+    CloseHandle(hSnapshot);
+    return false;
+}
+
 long Utils::GetFileSize(FILE* File)
 {
     if (File == nullptr)

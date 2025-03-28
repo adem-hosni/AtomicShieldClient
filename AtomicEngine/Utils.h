@@ -10,6 +10,7 @@ namespace Utils
 
     std::string               ParseModuleNameFromPath(std::string strPath);
     std::wstring              ParseModuleNameFromPath(std::wstring wstrPath);
+    bool                      isFiveMReady();
     long                      GetFileSize(FILE* File);
     DWORD                     GenerateCRC32(const std::string& filePath, DWORD* FileSize);
     DWORD                     GenerateCRC32(const std::wstring& filePath, DWORD* FileSize);

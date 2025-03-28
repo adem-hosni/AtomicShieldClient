@@ -276,5 +276,9 @@ void CAtomicNetwork::Reconnect()
 
 void CAtomicNetwork::Disconnect(std::string strReason)
 {
-    m_pWebSocket->close(ix::WebSocketCloseConstants::kNormalClosureCode, strReason);
+    if (m_pWebSocket->getReadyState() != ix::ReadyState::Closed)
+    {
+        m_pWebSocket->close(ix::WebSocketCloseConstants::kNormalClosureCode, strReason);
+        SharedUtil::AddDebugLog("WebSocket closed with reason: %s", strReason.c_str());
+    }
 }
