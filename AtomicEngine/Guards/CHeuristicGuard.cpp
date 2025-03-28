@@ -21,7 +21,7 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::strin
     {
         for (auto& Signature : vector)
         {
-            m_vSignatures.push_back(Signature);
+            m_vSignatures.push_back(Utils::CaesarDecrypt(Signature, 3));
         }
     }
 }
@@ -51,13 +51,11 @@ void CHeuristicGuard::DoPulse()
 
         status = SysNtOpenProcess(&processHandle, (0x0400) | (0x0010), &objAttr, &clientId);
 
-        for (const auto& memoryString : m_vSignatures)
+        for (const auto& decryptedStr : m_vSignatures)
         {
             LARGE_INTEGER frequency, start, end;
             QueryPerformanceFrequency(&frequency);
             QueryPerformanceCounter(&start);
-
-            std::string decryptedStr = Utils::CaesarDecrypt(memoryString, 3);
 
             MEMORY_BASIC_INFORMATION memoryInfo{};
             bool                     found = false;
