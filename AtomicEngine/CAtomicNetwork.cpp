@@ -145,10 +145,10 @@ bool CAtomicNetwork::SyncMaliciousSignatures(jsoncons::json& Signatures)
 
         if (SignaturesList.is_array())
         {
-            std::vector<std::wstring> vSignatures = {};
+            std::vector<std::string> vSignatures = {};
             for (const auto& element : SignaturesList.array_range())
             {
-                vSignatures.push_back(element.as<std::wstring>());
+                vSignatures.push_back(element.as<std::string>());
             }
             m_Signatures[SignatureTitle] = vSignatures;
             vSignatures.clear();
@@ -229,7 +229,7 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
             // then reconnect
             if (Message->closeInfo.code != 1000 && g_pAtomicAntiCheat->GetProcessID() != NULL)
             {
-                Reconnect();
+                //Reconnect();
             }
             break;
         }
@@ -237,7 +237,7 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         case ix::WebSocketMessageType::Error:
             m_pWebSocket->close();
             SharedUtil::AddDebugLog("Error: %s", Message->errorInfo.reason.c_str());
-            Reconnect();
+            //Reconnect();
             break;
     }
 }
