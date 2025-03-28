@@ -13,10 +13,10 @@ public:
 
     void        DoPulse();
     static void zebii();
-    void        AddSignatures(std::map<std::string, std::vector<std::wstring>>& Signatures);
+    void        AddSignatures(std::map<std::string, std::vector<std::string>>& Signatures);
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
 
 private:
     std::string              m_strScanProcessName;
-    std::vector<std::string> m_Signatures;
+    std::vector<std::string> m_vSignatures;
 };

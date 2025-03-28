@@ -20,8 +20,31 @@ CAtomicAntiCheat::~CAtomicAntiCheat()
         delete m_pAtomicNetwork;
 }
 
+void CAtomicAntiCheat::SEHTranslator(unsigned int code, EXCEPTION_POINTERS* pException)
+{
+    SharedUtil::AddDebugLog(
+        "SEH Exception Caught: %d! Address: 0x%p | Code: %d\n"
+        "\tRAX : 0x%p \tRCX: 0x%p \tRIP: 0x%p",
+        code, pException->ExceptionRecord->ExceptionAddress, pException->ExceptionRecord->ExceptionCode, pException->ContextRecord->Rax,
+        pException->ContextRecord->Rcx, pException->ContextRecord->Rip);
+    
+}
+
+LONG CAtomicAntiCheat::SEHTranslator(EXCEPTION_POINTERS* pException)
+{
+    SharedUtil::AddDebugLog(
+        "SEH Exception Caught! Address: 0x%p | Code: %d\n"
+        "\tRAX : 0x%p \tRCX: 0x%p \tRIP: 0x%p",
+        pException->ExceptionRecord->ExceptionAddress, pException->ExceptionRecord->ExceptionCode, pException->ContextRecord->Rax,
+        pException->ContextRecord->Rcx, pException->ContextRecord->Rip);
+    
+    return EXCEPTION_EXECUTE_HANDLER;
+}
+
 bool CAtomicAntiCheat::Initialize()
 {
+    _set_se_translator(SEHTranslator);
+
     m_hProcess = NULL;
     m_iTargetProcessID = NULL;
     m_HWIDCache = g_pHWID->LoadHWIDCaches();
@@ -48,7 +71,7 @@ void CAtomicAntiCheat::DoPulse()
 
             SharedUtil::AddDebugLog("scanners turned off!");
 
-             RunScanners(false);
+            RunScanners(false);
 
             Sleep(350);
             continue;
@@ -71,10 +94,8 @@ void CAtomicAntiCheat::DoPulse()
         if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
             m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_iTargetProcessID);
 
-
         m_pAtomicNetwork->DoPulse();
         std::this_thread::sleep_for(std::chrono::milliseconds(4500));
-
     }
 }
 

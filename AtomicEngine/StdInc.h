@@ -4,6 +4,7 @@
 #include <unordered_set>
 #include <variant>
 #include <vector>
+#include <eh.h>
 // Third Parties
 // Jsoncons
 #include "jsoncons/json.hpp"

@@ -45,6 +45,9 @@ public:
     CGuardManager*  GetGuardManager() { return m_pGuardManager; }
     jsoncons::json  GetCurrentHWIDCache() { return m_HWIDCache; }
 
+    static void __stdcall SEHTranslator(unsigned int code, EXCEPTION_POINTERS* pException);
+    static LONG __stdcall SEHTranslator(EXCEPTION_POINTERS* pExp);
+
     static void StaticPulse(void* pContext);
     void        DoPulse();
     void        StartPulse();

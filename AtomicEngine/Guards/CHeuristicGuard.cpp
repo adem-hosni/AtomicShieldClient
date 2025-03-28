@@ -3,8 +3,6 @@
 #include "StdInc.h"
 #include "KernelCalls.hpp"
 
-std::vector<std::wstring> m_vSignatures;
-
 CHeuristicGuard::CHeuristicGuard()
 {
 }
@@ -17,19 +15,7 @@ void CHeuristicGuard::Initialize()
 {
 }
 
-bool IsAddressInVector(const std::vector<std::wstring>& vec, const void* address)
-{
-    for (const auto& element : vec)
-    {
-        if ((DWORD64)element.data() == (DWORD64)address)
-        {
-            return true;
-        }
-    }
-    return false;
-}
-
-void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstring>>& Signatures)
+void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::string>>& Signatures)
 {
     for (auto& [name, vector] : Signatures)
     {
@@ -38,7 +24,6 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::wstri
             m_vSignatures.push_back(Signature);
         }
     }
-   // CAtomicThread::Create(&CHeuristicGuard::zebii, this);
 }
 void CHeuristicGuard::DoPulse()
 {
@@ -52,10 +37,9 @@ void CHeuristicGuard::DoPulse()
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
 
-    std::vector<std::string> vMemoryStrings = {"lpjxl_lpso_zlq32", "dsl.wcsurmhfw.frp"};
 
-    HANDLE                        processHandle;
-    NTSTATUS                      status;
+    HANDLE   processHandle;
+    NTSTATUS status;
 
     while (true)
     {
@@ -64,11 +48,10 @@ void CHeuristicGuard::DoPulse()
             Sleep(50);
         }
         clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(g_pAtomicAntiCheat->GetProcessID()));
-        
-        
+
         status = SysNtOpenProcess(&processHandle, (0x0400) | (0x0010), &objAttr, &clientId);
-        
-        for (const auto& memoryString : vMemoryStrings)
+
+        for (const auto& memoryString : m_vSignatures)
         {
             LARGE_INTEGER frequency, start, end;
             QueryPerformanceFrequency(&frequency);
@@ -118,20 +101,17 @@ void CHeuristicGuard::DoPulse()
                 if (foundPos != std::string_view::npos)
                 {
                     LPVOID lpFlaggedAddress = static_cast<LPBYTE>(memoryInfo.BaseAddress) + foundPos;
-                    if ((DWORD64)lpFlaggedAddress != (DWORD64)decryptedStr.data() && !IsAddressInVector(m_vSignatures, lpFlaggedAddress))
-                    {
-                        SharedUtil::AddDebugLog("Found at 0x%p | 0x%p", lpFlaggedAddress, decryptedStr.data());
+                    SharedUtil::AddDebugLog("Found at 0x%p", lpFlaggedAddress);
 
-                        g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
-                                                                                    {"memory_address", (DWORD64)lpFlaggedAddress},
-                                                                                    {"region_size", memoryInfo.RegionSize},
-                                                                                    {"base_address", (DWORD64)memoryInfo.BaseAddress},
-                                                                                    {"region_type", (DWORD64)memoryInfo.Type},
-                                                                                    {"region_state", (DWORD64)memoryInfo.State},
-                                                                                    {"region_protect", (DWORD64)memoryInfo.Protect},
-                                                                                    {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
-                                                                                    {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
-                    }
+                    g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
+                                                                                {"memory_address", (DWORD64)lpFlaggedAddress},
+                                                                                {"region_size", memoryInfo.RegionSize},
+                                                                                {"base_address", (DWORD64)memoryInfo.BaseAddress},
+                                                                                {"region_type", (DWORD64)memoryInfo.Type},
+                                                                                {"region_state", (DWORD64)memoryInfo.State},
+                                                                                {"region_protect", (DWORD64)memoryInfo.Protect},
+                                                                                {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
+                                                                                {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
                 }
 
                 // Safe memory free
@@ -140,14 +120,11 @@ void CHeuristicGuard::DoPulse()
                     SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
                     buffer = nullptr;
                 }
-
             }
-
 
             QueryPerformanceCounter(&end);
             float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
             SharedUtil::AddDebugLog("[+] Scan for '%s' completed in %.5fs", memoryString.c_str(), fElapsedTime);
-
         }
         SysNtClose(processHandle);
     }
