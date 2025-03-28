@@ -89,6 +89,8 @@ void CAtomicAntiCheat::DoPulse()
             }
 
             SharedUtil::AddDebugLog("Network State: %d", m_pAtomicNetwork->GetReadyState());
+            RunScanners(true);
+
         }
 
         if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)

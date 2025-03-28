@@ -180,15 +180,17 @@ void CAtomicNetwork::HandleRequestScreenshot()
 
 void CAtomicNetwork::HandleRunScanners(jsoncons::json& Packet)
 {
-    jsoncons::json response = jsoncons::json::object();
-    response["success"] = false;
+    //g_pAtomicAntiCheat->RunScanners(true);
+    //SharedUtil::AddDebugLog("Packet: %s", Packet.as_string().c_str());
+    //jsoncons::json response = jsoncons::json::object();
+    //response["success"] = false;
 
-    if (Packet.contains(skCrypt("run").decrypt()))
-    {
-        g_pAtomicAntiCheat->RunScanners(Packet["run"].as_bool());
-        response["success"] = true;
-    }
-    SendPacket(RUN_SCANNERS, response);
+    //if (Packet.contains(skCrypt("run").decrypt()))
+    //{
+    //    g_pAtomicAntiCheat->RunScanners(Packet["run"].as_bool());
+    //    response["success"] = true;
+    //}
+    //SendPacket(RUN_SCANNERS, response);
 }
 
 void CAtomicNetwork::DoPulse()
@@ -253,9 +255,9 @@ void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
         case eAtomicPacket::REQUEST_SCREENSHOT:
             HandleRequestScreenshot();
             break;
-        case eAtomicPacket::RUN_SCANNERS:
-            HandleRunScanners(Packet);
-            break;
+        //case eAtomicPacket::RUN_SCANNERS:
+        //    HandleRunScanners(Packet);
+        //    break;
     }
 }
 
