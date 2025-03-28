@@ -131,7 +131,9 @@ void CAtomicAntiCheat::DoPulse()
 
 void CAtomicAntiCheat::StartPulse()
 {
-    _beginthread((_beginthread_proc_type)CAtomicNetwork::StaticPulse, NULL, m_pAtomicNetwork);
+    if (m_pGuardManager->IsPulseStarted())
+        return;
+
     m_pGuardManager->StartPulse(m_pGuardManager);
 }
 
