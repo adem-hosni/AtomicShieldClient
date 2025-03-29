@@ -109,6 +109,7 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::DetectOpenHandlesToFiveM()
     return handlesToFiveM;
 }
 
+
 void CProcessGuard::DoPulse()
 {
     while (true)
@@ -125,16 +126,24 @@ void CProcessGuard::DoPulse()
             std::string strProcessPath = GetProcessPath(handle.ProcessId);
             std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
 
-            int  size = sizeof(Handles::Whitelisted) / sizeof(UINT64);
             bool bIsWhitelisted = false;
 
-            for (int i = 0; i < size; i++)
+            for (int i = 0; i < std::size(Handles::Whitelisted); i++)
             {
-                if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) == 0 || strProcessName.find("FiveM") != std::string::npos)
+                if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) == 0)
                 {
                     bIsWhitelisted = true;
+                    break;
                 }
             }
+
+            if (strProcessName.find("FiveM") != std::string::npos)
+            {
+                bIsWhitelisted = true;
+            }
+
+            if (bIsWhitelisted)
+                continue;
 
             if (strProcessPath.find("C:\\Windows") != std::string::npos)
                 continue;
