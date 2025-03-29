@@ -31,7 +31,7 @@ namespace Handles
         USHORT      Handle;
         PVOID       Object;
         ACCESS_MASK GrantedAccess;
-        BOOL        ReferencingOurProcess;            // my own addition to the structure, we fill this member in ::DetectOpenHandlesToProcess
+        BOOL        RefrencingFivem;            // my own addition to the structure, we fill this member in ::DetectOpenHandlesToProcess
     } SYSTEM_HANDLE, *PSYSTEM_HANDLE;
 
     typedef struct _SYSTEM_HANDLE_INFORMATION
@@ -41,7 +41,7 @@ namespace Handles
     } SYSTEM_HANDLE_INFORMATION, *PSYSTEM_HANDLE_INFORMATION;
 
     std::vector<SYSTEM_HANDLE> GetHandles();
-    std::vector<SYSTEM_HANDLE> DetectOpenHandlesToProcess();
+    std::vector<SYSTEM_HANDLE> DetectOpenHandlesToFiveM();
     bool                       DoesProcessHaveOpenHandleTous(DWORD pid, std::vector<Handles::SYSTEM_HANDLE> handleList);
 
     static const char* Whitelisted[] = {

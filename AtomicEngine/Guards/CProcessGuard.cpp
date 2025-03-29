@@ -9,6 +9,31 @@ CProcessGuard::~CProcessGuard()
 {
 }
 
+std::string GetProcessPath(DWORD pid)
+{
+    std::string strProcessPath;
+    HANDLE      hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
+    if (hProcess)
+    {
+        char szProcessPath[MAX_PATH];
+        if (GetModuleFileNameEx(hProcess, nullptr, szProcessPath, MAX_PATH))
+        {
+            strProcessPath = szProcessPath;
+        }
+        else
+        {
+            SharedUtil::AddDebugLog("GetModuleBaseName failed with error %d @Process::GetProcessName", GetLastError());
+        }
+    }
+    else
+    {
+        SharedUtil::AddDebugLog("OpenProcess failed with error %d @  Process::GetProcessName", GetLastError());
+    }
+    CloseHandle(hProcess);
+
+    return strProcessPath;
+}
+
 std::vector<Handles::SYSTEM_HANDLE> Handles::GetHandles()
 {
     ULONG    bufferSize = 0x10000;
@@ -44,137 +69,85 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::GetHandles()
     return handles;
 }
 
-std::vector<Handles::SYSTEM_HANDLE> Handles::DetectOpenHandlesToProcess()
+std::vector<Handles::SYSTEM_HANDLE> Handles::DetectOpenHandlesToFiveM()
 {
-    DWORD                               currentProcessId = g_pAtomicAntiCheat->GetProcessID();
+    DWORD                               targetProcessId = g_pAtomicAntiCheat->GetProcessID();
     auto                                handles = GetHandles();
-    std::vector<Handles::SYSTEM_HANDLE> handlesTous;
+    std::vector<Handles::SYSTEM_HANDLE> handlesToFiveM;
 
     for (auto& handle : handles)
     {
-        if (handle.ProcessId != currentProcessId)
+        if (handle.ProcessId == 0 || handle.ProcessId == 4 || handle.ProcessId == GetCurrentProcessId())
         {
-            if (handle.ProcessId == 0 || handle.ProcessId == 4)
+            continue;
+        }
+
+        HANDLE processHandle = OpenProcess(PROCESS_DUP_HANDLE, FALSE, handle.ProcessId);
+        if (processHandle)
+        {
+            HANDLE duplicatedHandle = INVALID_HANDLE_VALUE;
+
+            if (DuplicateHandle(processHandle, (HANDLE)handle.Handle, GetCurrentProcess(), &duplicatedHandle, 0, FALSE, DUPLICATE_SAME_ACCESS))
             {
-                continue;
-            }
-
-            HANDLE processHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, handle.ProcessId);
-
-            if (processHandle)
-            {
-                HANDLE duplicatedHandle = INVALID_HANDLE_VALUE;
-
-                if (DuplicateHandle(processHandle, (HANDLE)handle.Handle, g_pAtomicAntiCheat->GetProcessHandle(), &duplicatedHandle, 0, FALSE,
-                                    DUPLICATE_SAME_ACCESS))
+                if (GetProcessId(duplicatedHandle) == targetProcessId)
                 {
-                    if (GetProcessId(duplicatedHandle) == currentProcessId)
-                    {
-                        handle.ReferencingOurProcess = true;
-                        handlesTous.push_back(handle);
-                    }
-                    else
-                    {
-                        handle.ReferencingOurProcess = false;
-                    }
-
-                    if (duplicatedHandle != INVALID_HANDLE_VALUE)
-                        CloseHandle(duplicatedHandle);
+                    handle.RefrencingFivem = true;
+                    handlesToFiveM.push_back(handle);
+                }
+                else
+                {
+                    handle.RefrencingFivem = false;
                 }
 
-                CloseHandle(processHandle);
+                if (duplicatedHandle != INVALID_HANDLE_VALUE)
+                    CloseHandle(duplicatedHandle);
             }
+
+            CloseHandle(processHandle);
         }
     }
-    return handlesTous;
-}
-
-bool Handles::DoesProcessHaveOpenHandleTous(DWORD pid, std::vector<Handles::SYSTEM_HANDLE> handles)
-{
-    if (pid == 0 || pid == 4)            // system idle process + system pids
-        return false;
-
-    for (const auto& handle : handles)
-    {
-        if (handle.ProcessId == pid && handle.ReferencingOurProcess)
-        {
-            return true;
-        }
-    }
-
-    return false;
-}
-
-std::string GetProcessPath(DWORD pid)
-{
-    std::string strProcessPath;
-    HANDLE      hProcess = OpenProcess(PROCESS_QUERY_INFORMATION | PROCESS_VM_READ, FALSE, pid);
-    if (hProcess)
-    {
-        char szProcessPath[MAX_PATH];
-        if (GetModuleFileNameEx(hProcess, nullptr, szProcessPath, MAX_PATH))
-        {
-            strProcessPath = szProcessPath;
-        }
-        else
-        {
-            SharedUtil::AddDebugLog("GetModuleBaseName failed with error %d @Process::GetProcessName", GetLastError());
-        }
-    }
-    else
-    {
-        SharedUtil::AddDebugLog("OpenProcess failed with error %d @  Process::GetProcessName", GetLastError());
-    }
-
-    return strProcessPath;
+    return handlesToFiveM;
 }
 
 void CProcessGuard::DoPulse()
 {
     while (true)
     {
-        while (!g_pAtomicAntiCheat->RunScanners())
+        while (!g_pAtomicAntiCheat->RunScanners() || g_pAtomicAntiCheat->GetProcessID() == NULL)
         {
             Sleep(50);
         }
 
-        std::vector<Handles::_SYSTEM_HANDLE> handles = Handles::DetectOpenHandlesToProcess();
-        bool                                 bFoundHandle = false;
+        std::vector<Handles::SYSTEM_HANDLE> handles = Handles::DetectOpenHandlesToFiveM();
 
         for (auto& handle : handles)
         {
-            if (Handles::DoesProcessHaveOpenHandleTous(handle.ProcessId, handles))
+            std::string strProcessPath = GetProcessPath(handle.ProcessId);
+            std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
+
+            int  size = sizeof(Handles::Whitelisted) / sizeof(UINT64);
+            bool bIsWhitelisted = false;
+
+            for (int i = 0; i < size; i++)
             {
-                std::string strProcessPath = GetProcessPath(handle.ProcessId);
-                int         size = sizeof(Handles::Whitelisted) / sizeof(UINT64);
-
-                bool        bIsWhitelisted = false;
-                std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
-
-                for (int i = 0; i < size; i++)
+                if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) == 0 || strProcessName.find("FiveM") != std::string::npos)
                 {
-                    if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) == 0 || strProcessName.find("FiveM") != std::string::npos)
-                    {
-                        bIsWhitelisted = true;
-                    }
+                    bIsWhitelisted = true;
                 }
+            }
 
-                if (strProcessPath.find("C:\\Windows") != std::string::npos)
-                    continue;
+            if (strProcessPath.find("C:\\Windows") != std::string::npos)
+                continue;
 
-                if (!bIsWhitelisted && !strProcessPath.empty() &&
-                    // FileAuthentication::HasSignature(std::wstring(strProcessPath.begin(), strProcessPath.end()).c_str()) &&
-                    (handle.GrantedAccess & PROCESS_ALL_ACCESS || handle.GrantedAccess & PROCESS_VM_WRITE || handle.GrantedAccess & PROCESS_VM_READ ||
-                     handle.GrantedAccess & PROCESS_SUSPEND_RESUME || handle.GrantedAccess & PROCESS_SET_INFORMATION ||
-                     handle.GrantedAccess & PROCESS_VM_OPERATION || handle.GrantedAccess & PROCESS_DUP_HANDLE))
-                {
-                    SharedUtil::AddDebugLog("The Process %s with pid %d is opening our process!", strProcessName.c_str(), handle.ProcessId);
-                    g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
-                                                                                        {"process_path", strProcessPath},
-                                                                                        {"pid", handle.ProcessId},
-                                                                                        {"granted_access", handle.GrantedAccess}});
-                    bFoundHandle = TRUE;
-                }
+            if (!strProcessPath.empty() &&
+                (handle.GrantedAccess & PROCESS_ALL_ACCESS || handle.GrantedAccess & PROCESS_VM_WRITE || handle.GrantedAccess & PROCESS_VM_READ ||
+                 handle.GrantedAccess & PROCESS_SUSPEND_RESUME || handle.GrantedAccess & PROCESS_SET_INFORMATION ||
+                 handle.GrantedAccess & PROCESS_VM_OPERATION || handle.GrantedAccess & PROCESS_DUP_HANDLE))
+            {
+                SharedUtil::AddDebugLog("The Process %s with pid %d is opening FiveM.exe!", strProcessName.c_str(), handle.ProcessId);
+                g_pAtomicAntiCheat->NotifyDetection(
+                    MALICIOUS_PROCESS_HANDLE_OPEN,
+                    {{"process_name", strProcessName}, {"process_path", strProcessPath}, {"pid", handle.ProcessId}, {"granted_access", handle.GrantedAccess}});
             }
         }
     }
