@@ -79,7 +79,7 @@ void CAtomicAntiCheat::DoPulse()
                 m_hProcess = NULL;
             }
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(350));
+            std::this_thread::sleep_for(std::chrono::seconds(5));
             continue;
         }
 
@@ -89,7 +89,8 @@ void CAtomicAntiCheat::DoPulse()
             if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
             {
                 SharedUtil::AddDebugLog("Failed to open FiveM process!");
-                std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+                std::this_thread::sleep_for(std::chrono::seconds(5));
                 continue;
             }
         }
@@ -97,7 +98,8 @@ void CAtomicAntiCheat::DoPulse()
         if (false && !Utils::isFiveMReady())
         {
             SharedUtil::AddDebugLog("FiveM is not ready, waiting...");
-            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+
+            std::this_thread::sleep_for(std::chrono::seconds(5));
             continue;
         }
 
@@ -107,7 +109,8 @@ void CAtomicAntiCheat::DoPulse()
             if (!m_pAtomicNetwork->Connect())
             {
                 SharedUtil::AddDebugLog("Failed to connect to server!");
-                std::this_thread::sleep_for(std::chrono::milliseconds(2000));
+
+                std::this_thread::sleep_for(std::chrono::seconds(5));
                 continue;
             }
             RunScanners(true);
@@ -118,12 +121,12 @@ void CAtomicAntiCheat::DoPulse()
         if (m_iTargetProcessID == NULL)
         {
             SharedUtil::AddDebugLog("FiveM process exited unexpectedly!");
-            continue;
         }
 
-        std::this_thread::sleep_for(std::chrono::milliseconds(4500));
+        std::this_thread::sleep_for(std::chrono::seconds(5));
     }
 }
+
 
 
 void CAtomicAntiCheat::StartPulse()
