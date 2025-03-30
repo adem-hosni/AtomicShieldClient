@@ -157,6 +157,8 @@ void CProcessGuard::DoPulse()
                 g_pAtomicAntiCheat->NotifyDetection(
                     MALICIOUS_PROCESS_HANDLE_OPEN,
                     {{"process_name", strProcessName}, {"process_path", strProcessPath}, {"pid", handle.ProcessId}, {"granted_access", handle.GrantedAccess}});
+                    g_pAtomicAntiCheat->RunScanners(false);
+
             }
         }
     }

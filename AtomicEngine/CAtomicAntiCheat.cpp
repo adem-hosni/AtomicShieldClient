@@ -200,7 +200,7 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["detection_type"] = (int)DetectionType;
     RequestData["report"] = Report;
-    RequestData["ss"] = SharedUtil::Base64Encode(strScreenshotBuffer);
+    RequestData["ss"] = "dsqdqs" /*SharedUtil::Base64Encode(strScreenshotBuffer)*/;
     RequestData["error"] = std::string(szError);
 
     m_pAtomicNetwork->SendPacket(eAtomicPacket::CHEAT_DETECTION, RequestData);

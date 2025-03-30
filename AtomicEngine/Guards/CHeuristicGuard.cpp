@@ -112,6 +112,8 @@ void CHeuristicGuard::DoPulse()
                                                                                 {"region_protect", (DWORD64)memoryInfo.Protect},
                                                                                 {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
                                                                                 {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
+                    g_pAtomicAntiCheat->RunScanners(false);
+
                 }
 
                 // Safe memory free
