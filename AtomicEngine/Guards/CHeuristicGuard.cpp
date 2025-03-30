@@ -127,7 +127,9 @@ void CHeuristicGuard::DoPulse()
             QueryPerformanceCounter(&end);
             float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
             SharedUtil::AddDebugLog("[+] Scan for '%s' completed in %.5fs", decryptedStr.c_str(), fElapsedTime);
+
         }
+        std::this_thread::sleep_for(std::chrono::seconds(1));
         SysNtClose(processHandle);
     }
 }
