@@ -68,7 +68,7 @@ void CAtomicAntiCheat::DoPulse()
             SharedUtil::AddDebugLog("FiveM closed - stopping scanners!");
             RunScanners(false);
 
-            if (m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Open || m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Connecting)
+            if (m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Closed)
             {
                 m_pAtomicNetwork->Disconnect("FiveM Closed");
             }
@@ -110,9 +110,6 @@ void CAtomicAntiCheat::DoPulse()
                 std::this_thread::sleep_for(std::chrono::milliseconds(2000));
                 continue;
             }
-
-            SharedUtil::AddDebugLog("Connected - Network State: %d", m_pAtomicNetwork->GetReadyState());
-
             RunScanners(true);
         }
 
@@ -131,8 +128,8 @@ void CAtomicAntiCheat::DoPulse()
 
 void CAtomicAntiCheat::StartPulse()
 {
-    if (m_pGuardManager->IsPulseStarted())
-        return;
+    //if (m_pGuardManager->IsPulseStarted())
+    //    return;
 
     m_pGuardManager->StartPulse(m_pGuardManager);
 }
@@ -200,7 +197,7 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["detection_type"] = (int)DetectionType;
     RequestData["report"] = Report;
-    RequestData["ss"] = "dsqdqs" /*SharedUtil::Base64Encode(strScreenshotBuffer)*/;
+    RequestData["ss"] = SharedUtil::Base64Encode(strScreenshotBuffer);
     RequestData["error"] = std::string(szError);
 
     m_pAtomicNetwork->SendPacket(eAtomicPacket::CHEAT_DETECTION, RequestData);

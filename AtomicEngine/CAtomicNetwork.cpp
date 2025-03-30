@@ -16,8 +16,7 @@ CAtomicNetwork::~CAtomicNetwork()
 
 bool CAtomicNetwork::Connect()
 {
-    if (!ix::initNetSystem())
-        return false;
+    ix::initNetSystem();
 
     m_pWebSocket->setUrl(WEBSOCKET_BASE_URL "/c/atomicshieldagent/");
     
@@ -25,6 +24,7 @@ bool CAtomicNetwork::Connect()
 
     m_pWebSocket->setPingInterval(15);
     m_pWebSocket->enablePong();
+    m_pWebSocket->disableAutomaticReconnection();
 
     ix::WebSocketInitResult result = m_pWebSocket->connect(32);
     m_pWebSocket->start();
@@ -79,7 +79,7 @@ jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
 {
     while (m_UnhandledPackets.find(PacketID) == m_UnhandledPackets.end())
     {
-        Sleep(10);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
     jsoncons::json Response = m_UnhandledPackets[PacketID];
 
@@ -278,7 +278,10 @@ void CAtomicNetwork::Disconnect(std::string strReason)
 {
     if (m_pWebSocket->getReadyState() != ix::ReadyState::Closed)
     {
-        m_pWebSocket->close(ix::WebSocketCloseConstants::kNormalClosureCode, strReason);
-        SharedUtil::AddDebugLog("WebSocket closed with reason: %s", strReason.c_str());
+        m_pWebSocket->stop(ix::WebSocketCloseConstants::kNormalClosureCode, strReason);
+        /*if (m_pWebSocket->isOnMessageCallbackRegistered())
+            m_pWebSocket->setOnMessageCallback(ix::OnMessageCallback());*/
+        m_bNetworkJoined = false;
+        m_UnhandledPackets.clear();
     }
 }
