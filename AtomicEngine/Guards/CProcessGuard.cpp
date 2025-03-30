@@ -112,9 +112,9 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::DetectOpenHandlesToFiveM()
 
 void CProcessGuard::DoPulse()
 {
-    while (true)
+    while (g_pAtomicAntiCheat->RunScanners())
     {
-        while (!g_pAtomicAntiCheat->RunScanners() || g_pAtomicAntiCheat->GetProcessID() == NULL)
+        while (g_pAtomicAntiCheat->GetProcessID() == NULL)
         {
             Sleep(50);
         }

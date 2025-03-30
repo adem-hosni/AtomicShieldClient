@@ -11,7 +11,7 @@ CAtomicAntiCheat::CAtomicAntiCheat()
     m_Timing = {};
     m_vDetectedTypes = {};
     m_lpAntiCheatModuleBase = nullptr;
-    m_bRunScanners = false;
+    m_bRunScanners = true;
 }
 
 CAtomicAntiCheat::~CAtomicAntiCheat()
@@ -94,7 +94,7 @@ void CAtomicAntiCheat::DoPulse()
             }
         }
 
-        if (!Utils::isFiveMReady())
+        if (false && !Utils::isFiveMReady())
         {
             SharedUtil::AddDebugLog("FiveM is not ready, waiting...");
             std::this_thread::sleep_for(std::chrono::milliseconds(1000));
