@@ -116,7 +116,8 @@ void CProcessGuard::DoPulse()
     {
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
         {
-            Sleep(50);
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
         }
 
         std::vector<Handles::SYSTEM_HANDLE> handles = Handles::DetectOpenHandlesToFiveM();

@@ -22,7 +22,7 @@ bool CAtomicNetwork::Connect()
     
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
 
-    m_pWebSocket->setPingInterval(15);
+    m_pWebSocket->setPingInterval(20);
     m_pWebSocket->enablePong();
     m_pWebSocket->disableAutomaticReconnection();
 
@@ -32,7 +32,7 @@ bool CAtomicNetwork::Connect()
     if (result.success)
     {
         while (!m_bNetworkJoined)
-            Sleep(25);
+            std::this_thread::sleep_for(std::chrono::seconds(2));
     }
     else
     {
@@ -269,7 +269,8 @@ void CAtomicNetwork::Reconnect()
     while (m_pWebSocket->getReadyState() == ix::ReadyState::Closed || m_pWebSocket->getReadyState() == ix::ReadyState::Closing)
     {
         Connect();
-        Sleep(2 * 1000);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+
     }
     SharedUtil::AddDebugLog("Websocket connection established successfuly!");
 }

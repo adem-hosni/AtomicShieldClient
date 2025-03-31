@@ -197,7 +197,8 @@ void BasicChecks::CheckBlacklistedDrivers()
                 }
             }
         }
-        Sleep(2000);
+        std::this_thread::sleep_for(std::chrono::seconds(2));
+
     }
 }
 

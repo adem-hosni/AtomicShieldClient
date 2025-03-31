@@ -166,7 +166,8 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
             ILog("WARNING: Exception support failed!");
         }
 
-        Sleep(10);
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
     }
 
     BYTE* emptyBuffer = (BYTE*)malloc(4096);

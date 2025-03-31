@@ -46,7 +46,7 @@ void CHeuristicGuard::DoPulse()
     {
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
         {
-            Sleep(50);
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
         clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(g_pAtomicAntiCheat->GetProcessID()));
 

@@ -73,7 +73,8 @@ void CModuleGuard::DoPulse()
     {
         while (!g_pAtomicAntiCheat->RunScanners())
         {
-            Sleep(50);
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
         }
 
         std::wstring              wstrModulePath;
