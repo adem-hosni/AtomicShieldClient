@@ -178,7 +178,6 @@
     <ClCompile Include="Guards\CModuleGuard.cpp" />
     <ClCompile Include="Guards\CProcessGuard.cpp" />
     <ClCompile Include="KernelCalls.c" />
-    <ClCompile Include="PEBHide.cpp" />
     <ClCompile Include="Screenshot.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Utils.cpp" />
@@ -239,11 +238,9 @@
     <ClInclude Include="Guards\CProcessGuard.h" />
     <ClInclude Include="KernelCalls.h" />
     <ClInclude Include="KernelCalls.hpp" />
-    <ClInclude Include="PEBHide.h" />
     <ClInclude Include="Screenshot.h" />
     <ClInclude Include="skCrypter.h" />
     <ClInclude Include="StdInc.h" />
-    <ClInclude Include="STiming.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Vendor\CRC32\CRC32.h" />
     <ClInclude Include="Vendor\Detours\detours.h" />
