@@ -8,7 +8,6 @@ CAtomicAntiCheat::CAtomicAntiCheat()
     m_iTargetProcessID = 0;
     m_pAtomicNetwork = new CAtomicNetwork();
     m_pGuardManager = new CGuardManager();
-    m_Timing = {};
     m_vDetectedTypes = {};
     m_lpAntiCheatModuleBase = nullptr;
     m_bRunScanners = true;
@@ -95,7 +94,7 @@ void CAtomicAntiCheat::DoPulse()
             }
         }
 
-        if (!Utils::isFiveMReady())
+        if (false && !Utils::isFiveMReady())
         {
             SharedUtil::AddDebugLog("FiveM is not ready, waiting...");
 

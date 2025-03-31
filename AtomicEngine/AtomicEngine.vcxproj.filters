@@ -177,9 +177,6 @@
     <ClCompile Include="KernelCalls.c">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="PEBHide.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="Screenshot.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -404,9 +401,6 @@
     <ClInclude Include="KernelCalls.hpp">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="PEBHide.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Screenshot.h">
       <Filter>Header Files</Filter>
     </ClInclude>
@@ -414,9 +408,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="StdInc.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="STiming.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Utils.h">

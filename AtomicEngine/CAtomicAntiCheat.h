@@ -1,7 +1,6 @@
 #pragma once
 #include "StdInc.h"
 #include "CAtomicNetwork.h"
-#include "STiming.h"
 #include "CGuardManager.h"
 
 struct SMemoryDetectionReport
@@ -41,7 +40,6 @@ public:
     bool Initialize();
 
     CAtomicNetwork* GetNetwork() { return m_pAtomicNetwork; }
-    STiming&        GetTiming() { return m_Timing; }
     CGuardManager*  GetGuardManager() { return m_pGuardManager; }
     jsoncons::json  GetCurrentHWIDCache() { return m_HWIDCache; }
 
@@ -68,7 +66,6 @@ public:
 private:
     int     m_iTargetProcessID;
     HANDLE  m_hProcess;
-    STiming m_Timing;
 
     jsoncons::json m_HWIDCache;
 
