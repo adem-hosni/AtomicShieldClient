@@ -1,7 +1,6 @@
 #include "StdInc.h"
 #include "SharedChecks.h"
 #include <winternl.h>
-#include "PEBHide.h"
 
 BOOL AdjustTokenPrivilege(const HANDLE hproc)
 {

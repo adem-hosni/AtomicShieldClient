@@ -3,7 +3,7 @@
 CGuardManager::CGuardManager()
 {
     m_pHeuristicGuard = new CHeuristicGuard();
-    m_pModuleGuard = new CModuleGuard();
+    //m_pModuleGuard = new CModuleGuard();
     m_pProcessGuard = new CProcessGuard();
     m_bPulseStarted = false;
 
