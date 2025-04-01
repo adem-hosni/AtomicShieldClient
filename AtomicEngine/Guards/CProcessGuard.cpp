@@ -162,7 +162,8 @@ void CProcessGuard::DoPulse()
 
             }
         }
-
+        
+        std::this_thread::sleep_for(std::chrono::seconds(4));
     }
 
     _endthreadex(0);
