@@ -10,7 +10,7 @@ static void CustomStyleColor()            // ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï
     ImGuiContext& g = *GImGui;
 
     s.Colors[ImGuiCol_Border] = ImColor(0, 0, 0, 0);
-    s.Colors[ImGuiCol_PopupBg] = ImColor(5, 5, 5, 255);
+    s.Colors[ImGuiCol_PopupBg] = ImColor(5, 5, 5, 200);
     s.Colors[ImGuiCol_PopupBg_1] = ImColor(7, 8, 18, 0);
     s.ChildRounding = 20.f;
     s.WindowRounding = 20.f;

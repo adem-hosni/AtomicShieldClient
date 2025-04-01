@@ -50,6 +50,23 @@ bool StartupManager::AddAppToRegistry(std::string& appName)
     return false;
 }
 
+bool StartupManager::RemoveAppFromRegistry(std::string& appName)
+{
+    HKEY hKey;
+
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) == ERROR_SUCCESS)
+    {
+        // Try to delete the value
+        LONG result = RegDeleteValue(hKey, appName.c_str());
+        RegCloseKey(hKey);
+
+        // Return true if deleted successfully or if the value didn't exist
+        return (result == ERROR_SUCCESS || result == ERROR_FILE_NOT_FOUND);
+    }
+
+    return false;
+}
+
 std::string StartupManager::GetCurrentProcessName()
 {
     char szPath[MAX_PATH];

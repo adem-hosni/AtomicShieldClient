@@ -503,7 +503,7 @@ namespace ImGui
     IMGUI_API bool          InvisibleButton(const char* str_id, const ImVec2& size, ImGuiButtonFlags flags = 0); // flexible button behavior without the visuals, frequently useful to build custom behaviors using the public api (along with IsItemActive, IsItemHovered, etc.)
     IMGUI_API bool          ArrowButton(const char* str_id, ImGuiDir dir);                  // square button with an arrow shape
     IMGUI_API bool          Checkbox(const char* label, bool* v);
-    IMGUI_API bool          Custom_Checkbox(const char* label, const char* label_1, const char* text, const char* texts, ImTextureID image, bool* v, const ImVec2& size_arg = ImVec2(0, 0));
+    IMGUI_API bool          Custom_Checkbox(const char* text, const char* label, bool* v, const ImVec2& size_arg = ImVec2(0, 0));
     IMGUI_API bool          Cirlce_icon(const char* label, ImTextureID image, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
     IMGUI_API bool          ButtonLogins(const char* label, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
 	IMGUI_API bool          Exit_icon(const char* label, ImTextureID image, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);

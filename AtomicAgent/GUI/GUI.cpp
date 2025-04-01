@@ -197,7 +197,6 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 float alpha = 0.6f;                    // ��������� �������� �����
 float animationSpeed = 4.f;            // �������� �������� (��� ������, ��� ���������)
 
-
 bool GUI::Initialize()
 {
     GUI::wc.cbSize = sizeof(WNDCLASSEXW);
@@ -293,6 +292,9 @@ bool GUI::Initialize()
     if (image::youtube == nullptr)
         D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, youtube_icon, sizeof(youtube_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
                                             D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::youtube);
+
+    // CustomStyleColor();
+
     return true;
 }
 
@@ -301,21 +303,6 @@ int         fake_function()
 {
     return 42;
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTitle, std::string& strErrorDescription, std::string processName)
 {
@@ -329,6 +316,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
     static bool        bInjected = false;
     static char        szLoadingMessage[144];
     static SUserData   DownloadData{};
+    static bool        bEnableStartup = StartupManager::IsAppInRegistry(processName);
 
     static float anim_speed = ImGui::GetIO().DeltaTime * 12.f;
     ImGui::GetIO().IniFilename = NULL;
@@ -410,43 +398,22 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 380, p.y + 101), ImGui::GetColorU32(c::text_checkbox_active_on),
                                                             "Agent");
 
-                        ImGui::SetCursorPos(ImVec2(212, 314));
-
                         if (bNoErrors)
                         {
+                            ImGui::SetCursorPos(ImVec2(185, 285));
+                            if (Custom_Checkbox("lbl", "Enable Startup Mode", &bEnableStartup, ImVec2(270, -1)))
+                            {
+                                if (bEnableStartup)
+                                    StartupManager::AddAppToRegistry(processName);
+                                else
+                                    StartupManager::RemoveAppFromRegistry(processName);
+                            }
+
+                            ImGui::SetCursorPos(ImVec2(212, 314));
+
                             if (ImGui::ButtonLogins("Start Now", ImVec2(238, 40)))
                             {
-
-                                if (!StartupManager::IsAppInRegistry(processName))
-                                {
-                                    int msgResult =
-                                        MessageBox(NULL,
-                                                   skCrypt("Would you like Atomic Shield to start automatically when you turn on your PC?\n\n"
-                                                           "✅ This ensures full protection without needing to open the anticheat manually every time.\n"
-                                                           "❌ You can disable this later by removing it from the startup folder."),
-                                                   skCrypt("Startup Option"), MB_YESNO | MB_ICONQUESTION);
-
-
-                                    if (msgResult == IDYES)
-                                    {
-                                        if (StartupManager::AddAppToRegistry(processName))
-                                        {
-                                            MessageBox(NULL,
-                                                       skCrypt("Atomic Shield has been successfully added to startup.\n\n"
-                                                               "It will now launch automatically when you start your PC."),
-                                                       skCrypt("Startup Enabled"), MB_OK | MB_ICONINFORMATION);
-                                        }
-                                        else
-                                        {
-                                            MessageBox(NULL,
-                                                       skCrypt("Failed to add Atomic Shield to startup.\n\n"
-                                                               "Please try again or add it manually."),
-                                                       skCrypt("Startup Error"), MB_OK | MB_ICONERROR);
-                                        }
-                                    }
-                                }
-
-                                if (!bDownloadFinish)
+                                if (!bDownloadFinish && !bDownloadStarted)
                                 {
                                     std::thread EngineDownloaderThread(
                                         [&]()
@@ -538,9 +505,8 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                     bool bResult = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
                                     if (bResult)
                                         __fastfail(0);
-                                   // printf("Result from dll injection: %d\n", bResult);
+                                    // printf("Result from dll injection: %d\n", bResult);
                                     bInjected = true;
-
                                 }
                                 else
                                 {
@@ -552,7 +518,6 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                 memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                 strcat(szLoadingMessage, skCrypt("Failed to load anticheat"));
                             }
-
                         }
                     }
 
@@ -632,7 +597,6 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
     ImGui_ImplWin32_Shutdown();
     ImGui::DestroyContext();
 }
-
 
 void GUI::Destroy()
 {
