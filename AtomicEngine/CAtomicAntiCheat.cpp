@@ -61,11 +61,14 @@ void CAtomicAntiCheat::DoPulse()
 {
     while (true)
     {
+            RunScanners(true);
         m_iTargetProcessID = SharedUtil::GetFivemProcessID();
         if (m_iTargetProcessID == NULL)
         {
             SharedUtil::AddDebugLog("FiveM closed - stopping scanners!");
-            RunScanners(false);
+
+            if (m_pGuardManager->IsPulseStarted())
+                m_pGuardManager->StopPulse();
 
             if (m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Closed)
             {
@@ -115,6 +118,9 @@ void CAtomicAntiCheat::DoPulse()
             RunScanners(true);
         }
 
+        if (m_pAtomicNetwork->IsJoinedNetwork() && !m_pGuardManager->IsPulseStarted())
+            m_pGuardManager->StartPulse();
+
         m_pAtomicNetwork->DoPulse();
 
         if (m_iTargetProcessID == NULL)
@@ -133,7 +139,7 @@ void CAtomicAntiCheat::StartPulse()
     //if (m_pGuardManager->IsPulseStarted())
     //    return;
 
-    m_pGuardManager->StartPulse(m_pGuardManager);
+    m_pGuardManager->StartPulse();
 }
 
 void CAtomicAntiCheat::StartBasicChecks()

@@ -26,7 +26,8 @@ CAtomicThread::~CAtomicThread()
 
 bool CAtomicThread::Create()
 {
-    _beginthread((_beginthread_proc_type)m_lpStartAddress, NULL, m_lpParameter);
+    m_hThread = reinterpret_cast<HANDLE>(_beginthread((_beginthread_proc_type)m_lpStartAddress, NULL, m_lpParameter));
+
     return true;
     if (!m_NtCreateThreadEx || !m_NtSetInformationThread)
     {

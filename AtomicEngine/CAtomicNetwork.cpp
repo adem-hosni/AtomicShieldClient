@@ -16,6 +16,7 @@ CAtomicNetwork::~CAtomicNetwork()
 
 bool CAtomicNetwork::Connect()
 {
+    m_bNetworkJoined = false;
     ix::initNetSystem();
 
     m_pWebSocket->setUrl(WEBSOCKET_BASE_URL "/c/atomicshieldagent/");
@@ -123,7 +124,6 @@ bool CAtomicNetwork::JoinNetwork()
     if (m_bNetworkJoined)
     {
         g_pHWID->StoreHWIDCaches(RequestHWID);
-        g_pAtomicAntiCheat->StartPulse();
         
         if (!g_pAtomicAntiCheat->GetNetwork()->SyncMaliciousSignatures(Response["signatures"]))
             MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
@@ -224,6 +224,7 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
 
         case ix::WebSocketMessageType::Close:
         {
+            m_bNetworkJoined = false;
             m_pWebSocket->close();
             SharedUtil::AddDebugLog("WebSocket Closed: %s (%d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code);
 

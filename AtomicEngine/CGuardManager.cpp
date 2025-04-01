@@ -7,7 +7,7 @@ CGuardManager::CGuardManager()
     m_pProcessGuard = new CProcessGuard();
     m_bPulseStarted = false;
 
-    m_threads.clear();            // Ensure no memory leaks
+    m_vThreads.clear();            // Ensure no memory leaks
 }
 
 CGuardManager::~CGuardManager()
@@ -19,12 +19,22 @@ void CGuardManager::InitializeGuards()
     m_pHeuristicGuard->Initialize();
 }
 
-void CGuardManager::StartPulse(CGuardManager* pGuardManager)
+void CGuardManager::StartPulse()
 {
     SharedUtil::AddDebugLog("Starting threads");
     m_bPulseStarted = true;
-    CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard);
-    CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard);
+    m_vThreads.push_back(CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard));
+    m_vThreads.push_back(CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard));
+}
 
-    // CAtomicThread::Create(CModuleGuard::StaticPulse, m_pModuleGuard);
+void CGuardManager::StopPulse()
+{
+    SharedUtil::AddDebugLog("Stopping threads");
+    m_bPulseStarted = false;
+
+    for (const auto& thread : m_vThreads)
+    {
+        thread->Terminate();
+    }
+    
 }
