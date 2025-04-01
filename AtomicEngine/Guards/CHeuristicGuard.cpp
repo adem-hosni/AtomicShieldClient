@@ -137,4 +137,6 @@ void CHeuristicGuard::DoPulse()
         }
         SysNtClose(processHandle);
     }
+
+    _endthreadex(0);
 }

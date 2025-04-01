@@ -164,4 +164,6 @@ void CProcessGuard::DoPulse()
         }
 
     }
+
+    _endthreadex(0);
 }
