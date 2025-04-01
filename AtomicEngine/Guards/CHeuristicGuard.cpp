@@ -74,8 +74,7 @@ void CHeuristicGuard::DoPulse()
                 if (!NT_SUCCESS(status) || memoryInfo.State != MEM_COMMIT || memoryInfo.Protect == PAGE_NOACCESS)
                     continue;
 
-                // Limit allocation to 1MB max
-                SIZE_T allocationSize = min(memoryInfo.RegionSize, 1024 * 1024);
+                SIZE_T allocationSize = memoryInfo.RegionSize;
 
                 // Allocate memory safely
                 PVOID buffer = nullptr;
