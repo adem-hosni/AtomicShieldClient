@@ -511,10 +511,19 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                 HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
                                 if (hProcess)
                                 {
-                                    bool bResult = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
+                                    bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
+                                    if (bInjected)
+                                    {
+                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                        strcat(szLoadingMessage, skCrypt("Have Fun"));
+                                    }
+                                    else
+                                    {
+                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                        strcat(szLoadingMessage, skCrypt("Failed to load anticheat"));
+                                    }
                                     
                                     // printf("Result from dll injection: %d\n", bResult);
-                                    bInjected = true;
                                 }
                                 else
                                 {
