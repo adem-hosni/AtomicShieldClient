@@ -409,6 +409,15 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                     StartupManager::RemoveAppFromRegistry(processName);
                             }
 
+                            if (ImGui::IsItemHovered())
+                            {
+                                ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 10));
+                                ImGui::BeginTooltip();
+                                ImGui::Text("Runs automatically on pc startup\nNo need to open the agent each time");
+                                ImGui::EndTooltip();
+                                ImGui::PopStyleVar();
+                            }
+
                             ImGui::SetCursorPos(ImVec2(212, 314));
 
                             if (ImGui::ButtonLogins("Start Now", ImVec2(238, 40)))
@@ -503,8 +512,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                 if (hProcess)
                                 {
                                     bool bResult = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
-                                    if (bResult)
-                                        __fastfail(0);
+                                    
                                     // printf("Result from dll injection: %d\n", bResult);
                                     bInjected = true;
                                 }
