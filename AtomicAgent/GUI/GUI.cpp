@@ -1,9 +1,13 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
+#define IMGUI_DISABLE_DEBUG_TOOLS
+#define IM_ASSERT(_EXPR) ((void)0)
+
 #include "imgui.h"
 #include "imgui_impl_dx9.h"
 #include "imgui_internal.h"
 #include "imgui_impl_win32.h"
 
+#define IM_ASSERT(_EXPR) ((void)0)
 #include "ImGuiSettings.h"
 
 #include <d3d9.h>
@@ -515,12 +519,12 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                     if (bInjected)
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, skCrypt("Have Fun"));
+                                        strcat(szLoadingMessage, skCrypt("Have Fun!"));
                                     }
                                     else
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, skCrypt("Failed to load anticheat"));
+                                        sprintf(szLoadingMessage, skCrypt("Failed to load anticheat (0x%X)"), GetLastError());
                                     }
                                     
                                     // printf("Result from dll injection: %d\n", bResult);
@@ -533,7 +537,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                             else
                             {
                                 memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                strcat(szLoadingMessage, skCrypt("Failed to load anticheat"));
+                                strcat(szLoadingMessage, skCrypt("Waiting windows services..."));
                             }
                         }
                     }
