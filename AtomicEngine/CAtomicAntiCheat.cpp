@@ -70,7 +70,7 @@ void CAtomicAntiCheat::DoPulse()
             if (m_pGuardManager->IsPulseStarted())
                 m_pGuardManager->StopPulse();
 
-            if (m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Closed)
+            if (m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Closed && m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Closing)
             {
                 m_pAtomicNetwork->Disconnect("FiveM Closed");
             }
