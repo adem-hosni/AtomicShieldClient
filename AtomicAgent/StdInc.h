@@ -4,6 +4,7 @@
 #include <curl/curl.h>
 #include <Common.h>
 
+#include "skCrypter.h"
 #include <XorStr.h>
 #include "SharedUtil.h"
 #include <StartUpManager.h>
@@ -12,6 +13,5 @@
 #include "CAtomicAPI.h"
 #include "CAtomicCore.h"
 
-#include "RuntimeImportResolver.h"
-#include "skCrypter.h"
 #include "ManualMapInjector.h"
+#include "RuntimeImportResolver.h"

@@ -44,14 +44,17 @@ namespace RuntimeImportResolver
 
     static void ResolveCurrentImports()
     {
-        RuntimeImportResolver::VirtualAllocEx = (f_VirtualAllocEx)ResolveFunction("kernel32.dll", "VirtualAllocEx");
-        RuntimeImportResolver::VirtualFreeEx = (f_VirtualFreeEx)ResolveFunction("kernel32.dll", "VirtualFreeEx");
-        RuntimeImportResolver::VirtualProtectEx = (f_VirtualProtectEx)ResolveFunction("kernel32.dll", "VirtualProtectEx");
-        RuntimeImportResolver::VirtualQueryEx = (f_VirtualQueryEx)ResolveFunction("kernel32.dll", "VirtualQueryEx");
-        RuntimeImportResolver::CreateRemoteThread = (f_CreateRemoteThread)ResolveFunction("kernel32.dll", "CreateRemoteThread");
-        RuntimeImportResolver::WriteProcessMemory = (f_WriteProcessMemory)ResolveFunction("kernel32.dll", "WriteProcessMemory");
-        RuntimeImportResolver::ReadProcessMemory = (f_ReadProcessMemory)ResolveFunction("kernel32.dll", "ReadProcessMemory");
-        RuntimeImportResolver::RtlAddFunctionTable = (f_RtlAddFunctionTable)ResolveFunction("ntdll.dll", "RtlAddFunctionTable");
+        RuntimeImportResolver::VirtualAllocEx = (f_VirtualAllocEx)ResolveFunction(skCrypt("kernel32.dll").decrypt(), skCrypt("VirtualAllocEx").decrypt());
+        RuntimeImportResolver::VirtualFreeEx = (f_VirtualFreeEx)ResolveFunction(skCrypt("kernel32.dll").decrypt(), skCrypt("VirtualFreeEx").decrypt());
+        RuntimeImportResolver::VirtualProtectEx = (f_VirtualProtectEx)ResolveFunction(skCrypt("kernel32.dll").decrypt(), skCrypt("VirtualProtectEx").decrypt());
+        RuntimeImportResolver::VirtualQueryEx = (f_VirtualQueryEx)ResolveFunction(skCrypt("kernel32.dll").decrypt(), skCrypt("VirtualQueryEx").decrypt());
+        RuntimeImportResolver::CreateRemoteThread =
+            (f_CreateRemoteThread)ResolveFunction(skCrypt("kernel32.dll").decrypt(), skCrypt("CreateRemoteThread").decrypt());
+        RuntimeImportResolver::WriteProcessMemory =
+            (f_WriteProcessMemory)ResolveFunction(skCrypt("kernel32.dll").decrypt(), skCrypt("WriteProcessMemory").decrypt());
+        RuntimeImportResolver::ReadProcessMemory =
+            (f_ReadProcessMemory)ResolveFunction(skCrypt("kernel32.dll").decrypt(), skCrypt("ReadProcessMemory").decrypt());
+        RuntimeImportResolver::RtlAddFunctionTable = (f_RtlAddFunctionTable)ResolveFunction(skCrypt("ntdll.dll"), skCrypt("RtlAddFunctionTable").decrypt());
     }
 
 }            // namespace RuntimeImportResolver
