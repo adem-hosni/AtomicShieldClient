@@ -3,7 +3,6 @@
 #include "SharedChecks.h"
 #include "SharedProtocols.h"
 
-
 void ApiChecks(LPVOID lpThreadParameter)
 {
     SAPIChecksResult* result = reinterpret_cast<SAPIChecksResult*>(lpThreadParameter);
@@ -42,38 +41,35 @@ void ApiChecks(LPVOID lpThreadParameter)
     result->bInitialized = true;
 }
 
-
-//int main(int argc, char* argv[])
+// int main(int argc, char* argv[])
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
-
 {
 #ifdef _DEBUG
 #endif
-    //AllocConsole();
-    //freopen("CONIN$", "r", stdin);
-    //freopen("CONOUT$", "w", stdout);
-    //freopen("CONOUT$", "w", stderr);
+    // AllocConsole();
+    // freopen("CONIN$", "r", stdin);
+    // freopen("CONOUT$", "w", stdout);
+    // freopen("CONOUT$", "w", stderr);
 
     // Enable microsoft process mitigations (Avoid unsigned code execution, ...)
     // SharedProtocols::EnableProcessMitigations();
 
     // Check the launcher process (for anti-debugging)
-  //  SharedProtocols::CheckLauncherProcess();
+    //  SharedProtocols::CheckLauncherProcess();
 
-    std::string    processName = StartupManager::GetCurrentProcessName();
-    bool           isStartup = false;
-    bool           bInitialized = false;
-    std::string    cmdLine = pCmdLine;    
+    RuntimeImportResolver::ResolveCurrentImports();
 
-    
+    std::string processName = StartupManager::GetCurrentProcessName();
+    bool        isStartup = false;
+    bool        bInitialized = false;
+    std::string cmdLine = pCmdLine;
+
     SAPIChecksResult result;
     _beginthread((_beginthread_proc_type)ApiChecks, NULL, &result);
 
-
-
     if (cmdLine.find(skCrypt("--startup")) != std::string::npos)
-    { 
-       StartupManager::StartupFunction();       
+    {
+        StartupManager::StartupFunction();
     }
     else if (GUI::Initialize())
     {
