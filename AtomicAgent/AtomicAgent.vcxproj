@@ -226,6 +226,7 @@
     <ClInclude Include="Main.h" />
     <ClInclude Include="GUI\GUI.h" />
     <ClInclude Include="GUI\Notification.h" />
+    <ClInclude Include="RuntimeImportResolver.h" />
     <ClInclude Include="skCrypter.h" />
     <ClInclude Include="StartupManager.h" />
     <ClInclude Include="StdInc.h" />

@@ -1,5 +1,5 @@
 #include "ManualMapInjector.h"
-
+#include "RuntimeImportResolver.h"
 
 #pragma runtime_checks("", off)
 #pragma optimize("", off)
@@ -25,11 +25,10 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
     if (pOldFileHeader->Machine != CURRENT_ARCH)
     {
         ILog("Invalid platform");
-        printf("machine: 0x%X", pOldFileHeader->Machine);
         return false;
     }
 
-    pTargetBase = reinterpret_cast<BYTE*>(VirtualAllocEx(hProc, nullptr, pOldOptHeader->SizeOfImage, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
+    pTargetBase = reinterpret_cast<BYTE*>(RuntimeImportResolver::VirtualAllocEx(hProc, nullptr, pOldOptHeader->SizeOfImage, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
     if (!pTargetBase)
     {
         ILog("Target process memory allocation failed (ex) 0x%X", GetLastError());
@@ -39,13 +38,13 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
     }
 
     DWORD oldp = 0;
-    VirtualProtectEx(hProc, pTargetBase, pOldOptHeader->SizeOfImage, PAGE_EXECUTE_READWRITE, &oldp);
+    RuntimeImportResolver::VirtualProtectEx(hProc, pTargetBase, pOldOptHeader->SizeOfImage, PAGE_EXECUTE_READWRITE, &oldp);
 
     MANUAL_MAPPING_DATA data{0};
     data.pLoadLibraryA = LoadLibraryA;
     data.pGetProcAddress = GetProcAddress;
 #ifdef _WIN64
-    data.pRtlAddFunctionTable = (f_RtlAddFunctionTable)RtlAddFunctionTable;
+    data.pRtlAddFunctionTable = (f_RtlAddFunctionTable)RuntimeImportResolver::RtlAddFunctionTable;
 #else
     SEHExceptionSupport = false;
 #endif
@@ -55,10 +54,10 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
     data.SEHSupport = SEHExceptionSupport;
 
     // File header
-    if (!WriteProcessMemory(hProc, pTargetBase, pSrcData, 0x1000, nullptr))
+    if (!RuntimeImportResolver::WriteProcessMemory(hProc, pTargetBase, pSrcData, 0x1000, nullptr))
     {            // only first 0x1000 bytes for the header
         ILog("Can't write file header 0x%X", GetLastError());
-        VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
         return false;
     }
 
@@ -67,49 +66,49 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
     {
         if (pSectionHeader->SizeOfRawData)
         {
-            if (!WriteProcessMemory(hProc, pTargetBase + pSectionHeader->VirtualAddress, pSrcData + pSectionHeader->PointerToRawData,
+            if (!RuntimeImportResolver::WriteProcessMemory(hProc, pTargetBase + pSectionHeader->VirtualAddress, pSrcData + pSectionHeader->PointerToRawData,
                                     pSectionHeader->SizeOfRawData, nullptr))
             {
                 ILog("Can't map sections: 0x%x", GetLastError());
-                VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
+                RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
                 return false;
             }
         }
     }
 
     // Mapping params
-    BYTE* MappingDataAlloc = reinterpret_cast<BYTE*>(VirtualAllocEx(hProc, nullptr, sizeof(MANUAL_MAPPING_DATA), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
+    BYTE* MappingDataAlloc = reinterpret_cast<BYTE*>(RuntimeImportResolver::VirtualAllocEx(hProc, nullptr, sizeof(MANUAL_MAPPING_DATA), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
     if (!MappingDataAlloc)
     {
         ILog("Target process mapping allocation failed (ex) 0x%X", GetLastError());
-        VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
         return false;
     }
 
-    if (!WriteProcessMemory(hProc, MappingDataAlloc, &data, sizeof(MANUAL_MAPPING_DATA), nullptr))
+    if (!RuntimeImportResolver::WriteProcessMemory(hProc, MappingDataAlloc, &data, sizeof(MANUAL_MAPPING_DATA), nullptr))
     {
         ILog("Can't write mapping 0x%X", GetLastError());
-        VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
-        VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
         return false;
     }
 
     // Shell code
-    void* pShellcode = VirtualAllocEx(hProc, nullptr, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
+    void* pShellcode = RuntimeImportResolver::VirtualAllocEx(hProc, nullptr, 0x1000, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
     if (!pShellcode)
     {
         ILog("Memory shellcode allocation failed (ex) 0x%X", GetLastError());
-        VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
-        VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
         return false;
     }
 
-    if (!WriteProcessMemory(hProc, pShellcode, Shellcode, 0x1000, nullptr))
+    if (!RuntimeImportResolver::WriteProcessMemory(hProc, pShellcode, Shellcode, 0x1000, nullptr))
     {
         ILog("Can't write shellcode 0x%X", GetLastError());
-        VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
-        VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
-        VirtualFreeEx(hProc, pShellcode, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, pShellcode, 0, MEM_RELEASE);
         return false;
     }
 
@@ -125,13 +124,13 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
     system("pause");
 #endif
 
-    HANDLE hThread = CreateRemoteThread(hProc, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(pShellcode), MappingDataAlloc, 0, nullptr);
+    HANDLE hThread = RuntimeImportResolver::CreateRemoteThread(hProc, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(pShellcode), MappingDataAlloc, 0, nullptr);
     if (!hThread)
     {
         ILog("Thread creation failed 0x%X", GetLastError());
-        VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
-        VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
-        VirtualFreeEx(hProc, pShellcode, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, pShellcode, 0, MEM_RELEASE);
         return false;
     }
     CloseHandle(hThread);
@@ -150,15 +149,15 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
         }
 
         MANUAL_MAPPING_DATA data_checked{0};
-        ReadProcessMemory(hProc, MappingDataAlloc, &data_checked, sizeof(data_checked), nullptr);
+        RuntimeImportResolver::ReadProcessMemory(hProc, MappingDataAlloc, &data_checked, sizeof(data_checked), nullptr);
         hCheck = data_checked.hMod;
 
         if (hCheck == (HINSTANCE)0x404040)
         {
             ILog("Wrong mapping ptr");
-            VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
-            VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
-            VirtualFreeEx(hProc, pShellcode, 0, MEM_RELEASE);
+            RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
+            RuntimeImportResolver::VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
+            RuntimeImportResolver::VirtualFreeEx(hProc, pShellcode, 0, MEM_RELEASE);
             return false;
         }
         else if (hCheck == (HINSTANCE)0x505050)
@@ -181,7 +180,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
     // CLEAR PE HEAD
     if (ClearHeader)
     {
-        if (!WriteProcessMemory(hProc, pTargetBase, emptyBuffer, 0x1000, nullptr))
+        if (!RuntimeImportResolver::WriteProcessMemory(hProc, pTargetBase, emptyBuffer, 0x1000, nullptr))
         {
             ILog("WARNING!: Can't clear HEADER");
         }
@@ -199,7 +198,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
                     strcmp((char*)pSectionHeader->Name, XorStr(".rsrc").c_str()) == 0 || strcmp((char*)pSectionHeader->Name, XorStr(".reloc").c_str()) == 0)
                 {
                     ILog("Processing %s removal", pSectionHeader->Name);
-                    if (!WriteProcessMemory(hProc, pTargetBase + pSectionHeader->VirtualAddress, emptyBuffer, pSectionHeader->Misc.VirtualSize, nullptr))
+                    if (!RuntimeImportResolver::WriteProcessMemory(hProc, pTargetBase + pSectionHeader->VirtualAddress, emptyBuffer, pSectionHeader->Misc.VirtualSize, nullptr))
                     {
                         ILog("Can't clear section %s: 0x%x", pSectionHeader->Name, GetLastError());
                     }
@@ -226,7 +225,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
                 {
                     newP = PAGE_EXECUTE_READ;
                 }
-                if (VirtualProtectEx(hProc, pTargetBase + pSectionHeader->VirtualAddress, pSectionHeader->Misc.VirtualSize, newP, &old))
+                if (RuntimeImportResolver::VirtualProtectEx(hProc, pTargetBase + pSectionHeader->VirtualAddress, pSectionHeader->Misc.VirtualSize, newP, &old))
                 {
                     ILog("section %s set as %lX", (char*)pSectionHeader->Name, newP);
                 }
@@ -237,18 +236,18 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
             }
         }
         DWORD old = 0;
-        VirtualProtectEx(hProc, pTargetBase, IMAGE_FIRST_SECTION(pOldNtHeader)->VirtualAddress, PAGE_READONLY, &old);
+        RuntimeImportResolver::VirtualProtectEx(hProc, pTargetBase, IMAGE_FIRST_SECTION(pOldNtHeader)->VirtualAddress, PAGE_READONLY, &old);
     }
 
-    if (!WriteProcessMemory(hProc, pShellcode, emptyBuffer, 0x1000, nullptr))
+    if (!RuntimeImportResolver::WriteProcessMemory(hProc, pShellcode, emptyBuffer, 0x1000, nullptr))
     {
         ILog("WARNING: Can't clear shellcode");
     }
-    if (!VirtualFreeEx(hProc, pShellcode, 0, MEM_RELEASE))
+    if (!RuntimeImportResolver::VirtualFreeEx(hProc, pShellcode, 0, MEM_RELEASE))
     {
         ILog("WARNING: can't release shell code memory");
     }
-    if (!VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE))
+    if (!RuntimeImportResolver::VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE))
     {
         ILog("WARNING: can't release mapping data memory");
     }
