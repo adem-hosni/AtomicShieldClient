@@ -12,6 +12,6 @@
 #include "CAtomicAPI.h"
 #include "CAtomicCore.h"
 
-
+#include "RuntimeImportResolver.h"
 #include "skCrypter.h"
 #include "ManualMapInjector.h"
