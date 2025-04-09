@@ -50,8 +50,8 @@ static const char* Whitelisted[] = {
     "FiveM.exe", 
     "FiveM_b2699_DumpServer",
     "steam.exe", 
-    "WerFault.exe"
-};
+    "WerFault.exe", 
+    "Lunar Client.exe"};
 }
 
 
