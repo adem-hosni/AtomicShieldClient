@@ -128,7 +128,7 @@ void CHeuristicGuard::DoPulse()
             float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
             int sleepTime = std::max<int>(1, static_cast<int>((fElapsedTime * 1000) / 4));
-            SharedUtil::AddDebugLog("[+] Scan for '%s' completed in %.5fs, sleeping for %d ms", decryptedStr.c_str(), fElapsedTime, sleepTime);
+            SharedUtil::AddDebugLog("[+] Scan completed in %.5fs, sleeping for %d ms", fElapsedTime, sleepTime);
 
             std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
 
