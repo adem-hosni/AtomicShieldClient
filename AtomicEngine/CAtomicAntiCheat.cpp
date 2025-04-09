@@ -70,6 +70,9 @@ void CAtomicAntiCheat::DoPulse()
             if (m_pGuardManager->IsPulseStarted())
                 m_pGuardManager->StopPulse();
 
+            // Clear the detected threats for the next scan session
+            m_vDetectedTypes.clear();
+
             if (m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Closed && m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Closing)
             {
                 m_pAtomicNetwork->Disconnect("FiveM Closed");
