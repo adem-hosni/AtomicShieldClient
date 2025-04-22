@@ -5,7 +5,6 @@
 
 void ApiChecks(LPVOID lpThreadParameter)
 {
-    return;
     SAPIChecksResult* result = reinterpret_cast<SAPIChecksResult*>(lpThreadParameter);
     result->Status = g_pAtomicAPI->GetStatus();
     result->strTitle = skCrypt("ERROR").decrypt();
