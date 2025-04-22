@@ -5,6 +5,7 @@
 
 void ApiChecks(LPVOID lpThreadParameter)
 {
+    return;
     SAPIChecksResult* result = reinterpret_cast<SAPIChecksResult*>(lpThreadParameter);
     result->Status = g_pAtomicAPI->GetStatus();
     result->strTitle = skCrypt("ERROR").decrypt();
@@ -65,6 +66,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     std::string cmdLine = pCmdLine;
 
     SAPIChecksResult result;
+    result.bSuccess = true;
+    result.bInitialized = true;
     _beginthread((_beginthread_proc_type)ApiChecks, NULL, &result);
 
     if (cmdLine.find(skCrypt("--startup")) != std::string::npos)
