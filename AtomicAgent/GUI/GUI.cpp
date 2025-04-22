@@ -508,6 +508,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
 
                         if (!strEngineBuffer.empty() && !bInjected)
                         {
+                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                            strcpy(szLoadingMessage, "Loading AntiCheat...");
+
                             int iProcessID = SharedUtil::GetProcessID(skCrypt("explorer.exe"));
 
                             if (iProcessID > 0)
