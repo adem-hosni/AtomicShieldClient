@@ -157,10 +157,12 @@
     <ClInclude Include="CAtomicCore.h" />
     <ClInclude Include="Helpers\AES.h" />
     <ClInclude Include="Common.h" />
+    <ClInclude Include="RuntimeImportResolver.h" />
     <ClInclude Include="SecurityChecks.h" />
     <ClInclude Include="SharedChecks.h" />
     <ClInclude Include="SharedProtocols.h" />
     <ClInclude Include="SharedUtil.h" />
+    <ClInclude Include="skCrypter.h" />
     <ClInclude Include="Vendor\crypto\aes_platform.h" />
     <ClInclude Include="Vendor\crypto\aria.h" />
     <ClInclude Include="Vendor\crypto\asn1.h" />
