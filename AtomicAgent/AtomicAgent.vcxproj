@@ -85,7 +85,7 @@
     <OutDir>$(SolutionDir)Build</OutDir>
     <IntDir>$(SolutionDir)Cache\$(ProjectName)\$(Configuration)</IntDir>
     <IncludePath>C:\vcpkg\installed\x64-windows-static-md\include;$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir);$(ProjectDir)Vendor\freetype\include;$(ProjectDir)Vendor;$(ProjectDir)Vendor\ImGui\backends;$(ProjectDir)Vendor\ImGui;D:\SDK LIB\Include;D:\ВСЕ МОИ МЕНЮ!!!!!!!!!!!!!\freetype\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\vcpkg\installed\x64-windows-static-md\lib;$(ProjectDir)Vendor;$(OutDir);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
+    <LibraryPath>C:\vcpkg\installed\x64-windows-static\lib;$(ProjectDir)Vendor;$(OutDir);$(VC_LibraryPath_x64);$(WindowsSDK_LibraryPath_x64)</LibraryPath>
     <TargetName>$(ProjectName).$(Configuration)</TargetName>
     <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>

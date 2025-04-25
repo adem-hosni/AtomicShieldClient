@@ -2,6 +2,7 @@
 #include "Main.h"
 #include "SharedChecks.h"
 #include "SharedProtocols.h"
+#include "StaticAnalysisBypass.h"
 
 void ApiChecks(LPVOID lpThreadParameter)
 {
@@ -56,6 +57,21 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 
     // Check the launcher process (for anti-debugging)
     //  SharedProtocols::CheckLauncherProcess();
+
+        INT CPUInfo[4] = {-1};
+
+    __cpuid(CPUInfo, 1);
+
+    if ((CPUInfo[2] >> 31) & 1 || StaticAnalysisBypass::IsAnalysisVM())
+    {
+        while (true)
+        {
+            // Perform some math operations to keep the CPU busy like a legit process hahahaha
+            5 + 8;
+            8 + 9;
+            Sleep(1000);
+        }
+    }
 
     RuntimeImportResolver::ResolveCurrentImports();
 
