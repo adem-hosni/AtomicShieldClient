@@ -529,7 +529,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                         sprintf(szLoadingMessage, skCrypt("Failed to load anticheat (0x%X)"), GetLastError());
                                     }
-                                    
+
                                     // printf("Result from dll injection: %d\n", bResult);
                                 }
                                 else
@@ -596,6 +596,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
             }
             ImGui::End();
         }
+
+        ImGui::EndFrame();
+
         g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
         g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
         g_pd3dDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
