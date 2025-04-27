@@ -531,7 +531,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                         sprintf(szLoadingMessage, skCrypt("Failed to load anticheat (0x%X - 0x%X)"), iInjectionResult, GetLastError());
                                     }
-
+                                    CloseHandle(hProcess);
                                     // printf("Result from dll injection: %d\n", bResult);
                                 }
                                 else
