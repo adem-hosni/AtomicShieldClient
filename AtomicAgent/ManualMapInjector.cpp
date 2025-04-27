@@ -3,7 +3,7 @@
 #pragma runtime_checks("", off)
 #pragma optimize("", off)
 
-bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader, bool ClearNonNeededSections, bool AdjustProtections,
+int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader, bool ClearNonNeededSections, bool AdjustProtections,
                   bool SEHExceptionSupport, DWORD fdwReason, LPVOID lpReserved)
 {
     IMAGE_NT_HEADERS*      pOldNtHeader = nullptr;
@@ -14,7 +14,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
     if (reinterpret_cast<IMAGE_DOS_HEADER*>(pSrcData)->e_magic != 0x5A4D)
     {            //"MZ"
         ILog("Invalid file");
-        return false;
+        return 1;
     }
 
     pOldNtHeader = reinterpret_cast<IMAGE_NT_HEADERS*>(pSrcData + reinterpret_cast<IMAGE_DOS_HEADER*>(pSrcData)->e_lfanew);
@@ -24,7 +24,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
     if (pOldFileHeader->Machine != CURRENT_ARCH)
     {
         ILog("Invalid platform");
-        return false;
+        return 2;
     }
 
     pTargetBase = reinterpret_cast<BYTE*>(RuntimeImportResolver::VirtualAllocEx(hProc, nullptr, pOldOptHeader->SizeOfImage, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
@@ -33,7 +33,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
         ILog("Target process memory allocation failed (ex) 0x%X", GetLastError());
         char szErrorMsg[64];
         ILog(szErrorMsg);
-        return false;
+        return 3;
     }
 
     DWORD oldp = 0;
@@ -57,7 +57,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
     {            // only first 0x1000 bytes for the header
         ILog("Can't write file header 0x%X", GetLastError());
         RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
-        return false;
+        return 4;
     }
 
     IMAGE_SECTION_HEADER* pSectionHeader = IMAGE_FIRST_SECTION(pOldNtHeader);
@@ -70,7 +70,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
             {
                 ILog("Can't map sections: 0x%x", GetLastError());
                 RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
-                return false;
+                return 5;
             }
         }
     }
@@ -81,7 +81,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
     {
         ILog("Target process mapping allocation failed (ex) 0x%X", GetLastError());
         RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
-        return false;
+        return 6;
     }
 
     if (!RuntimeImportResolver::WriteProcessMemory(hProc, MappingDataAlloc, &data, sizeof(MANUAL_MAPPING_DATA), nullptr))
@@ -89,7 +89,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
         ILog("Can't write mapping 0x%X", GetLastError());
         RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
         RuntimeImportResolver::VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
-        return false;
+        return 7;
     }
 
     // Shell code
@@ -99,7 +99,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
         ILog("Memory shellcode allocation failed (ex) 0x%X", GetLastError());
         RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
         RuntimeImportResolver::VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
-        return false;
+        return 8;
     }
 
     if (!RuntimeImportResolver::WriteProcessMemory(hProc, pShellcode, Shellcode, 0x1000, nullptr))
@@ -108,7 +108,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
         RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
         RuntimeImportResolver::VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
         RuntimeImportResolver::VirtualFreeEx(hProc, pShellcode, 0, MEM_RELEASE);
-        return false;
+        return 9;
     }
 
     ILog("Mapped DLL at %p", pTargetBase);
@@ -130,7 +130,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
         RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
         RuntimeImportResolver::VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
         RuntimeImportResolver::VirtualFreeEx(hProc, pShellcode, 0, MEM_RELEASE);
-        return false;
+        return 10;
     }
     CloseHandle(hThread);
 
@@ -144,7 +144,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
         if (exitcode != STILL_ACTIVE)
         {
             ILog("Process crashed, exit code: %d (0x%x)", exitcode, GetLastError());
-            return false;
+            return 11;
         }
 
         MANUAL_MAPPING_DATA data_checked{0};
@@ -157,7 +157,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
             RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
             RuntimeImportResolver::VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
             RuntimeImportResolver::VirtualFreeEx(hProc, pShellcode, 0, MEM_RELEASE);
-            return false;
+            return 12;
         }
         else if (hCheck == (HINSTANCE)0x505050)
         {
@@ -172,7 +172,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
     if (emptyBuffer == nullptr)
     {
         ILog("Unable to allocate memory");
-        return false;
+        return 13;
     }
     memset(emptyBuffer, 0, sizeof(emptyBuffer));
 
@@ -251,7 +251,7 @@ bool ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeade
         ILog("WARNING: can't release mapping data memory");
     }
 
-    return true;
+    return 0;
 }
 
 void __stdcall Shellcode(MANUAL_MAPPING_DATA* pData)

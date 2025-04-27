@@ -518,8 +518,10 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                 HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
                                 if (hProcess)
                                 {
-                                    bInjected = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
-                                    if (bInjected)
+                                    bInjected = true;
+                                    int iInjectionResult =
+                                        ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
+                                    if (iInjectionResult == 0)
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                         strcat(szLoadingMessage, skCrypt("Have Fun!"));
@@ -527,7 +529,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                     else
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        sprintf(szLoadingMessage, skCrypt("Failed to load anticheat (0x%X)"), GetLastError());
+                                        sprintf(szLoadingMessage, skCrypt("Failed to load anticheat (0x%X - 0x%X)"), iInjectionResult, GetLastError());
                                     }
 
                                     // printf("Result from dll injection: %d\n", bResult);
