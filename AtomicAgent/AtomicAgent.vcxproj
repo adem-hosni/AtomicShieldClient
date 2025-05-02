@@ -190,6 +190,7 @@
     <ClCompile Include="GUI\GUI.cpp" />
     <ClCompile Include="ManualMapInjector.cpp" />
     <ClCompile Include="StartupManager.cpp" />
+    <ClCompile Include="StaticAnalysisBypass.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Vendor\ImGui\backends\imgui_impl_dx9.cpp" />
     <ClCompile Include="Vendor\ImGui\backends\imgui_impl_win32.cpp" />
@@ -226,9 +227,8 @@
     <ClInclude Include="Main.h" />
     <ClInclude Include="GUI\GUI.h" />
     <ClInclude Include="GUI\Notification.h" />
-    <ClInclude Include="RuntimeImportResolver.h" />
-    <ClInclude Include="skCrypter.h" />
     <ClInclude Include="StartupManager.h" />
+    <ClInclude Include="StaticAnalysisBypass.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="Vendor\curl\curl.h" />
     <ClInclude Include="Vendor\curl\curlver.h" />
