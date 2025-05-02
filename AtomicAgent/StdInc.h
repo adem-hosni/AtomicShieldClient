@@ -8,6 +8,9 @@
 #include <XorStr.h>
 #include "SharedUtil.h"
 #include <StartUpManager.h>
+#include <regex>
+#include <iptypes.h>
+#include <iphlpapi.h>
 #include "GUI/GUI.h"
 
 #include "CAtomicAPI.h"
