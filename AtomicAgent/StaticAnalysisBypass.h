@@ -203,7 +203,7 @@ namespace StaticAnalysisBypass
                                                "test",
                                                "RGzcBUyrznReg"};
 
-    std::string executeCommand(const char* cmd);
+    std::string executeCommand(std::string command);
     std::string GetMACAddress();
     std::string GetHWID();
     std::string GetGPUInfo();
