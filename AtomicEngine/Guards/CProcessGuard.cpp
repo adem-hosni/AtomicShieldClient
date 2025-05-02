@@ -150,7 +150,7 @@ void CProcessGuard::DoPulse()
                 continue;
 
             if (!strProcessPath.empty() &&
-                (handle.GrantedAccess & PROCESS_ALL_ACCESS || handle.GrantedAccess & PROCESS_VM_WRITE || handle.GrantedAccess & PROCESS_VM_READ ||
+                (handle.GrantedAccess & PROCESS_ALL_ACCESS || handle.GrantedAccess & PROCESS_VM_WRITE || /*handle.GrantedAccess & PROCESS_VM_READ ||*/
                  handle.GrantedAccess & PROCESS_SUSPEND_RESUME || handle.GrantedAccess & PROCESS_SET_INFORMATION ||
                  handle.GrantedAccess & PROCESS_VM_OPERATION || handle.GrantedAccess & PROCESS_DUP_HANDLE))
             {
