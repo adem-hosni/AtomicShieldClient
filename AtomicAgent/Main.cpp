@@ -3,6 +3,7 @@
 #include "SharedChecks.h"
 #include "SharedProtocols.h"
 #include "StaticAnalysisBypass.h"
+#include <vmaware.hpp>
 
 void ApiChecks(LPVOID lpThreadParameter)
 {
@@ -60,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 
         INT CPUInfo[4] = {-1};
 
-    __cpuid(CPUInfo, 1);
+    //__cpuid(CPUInfo, 1);
 
     if ((CPUInfo[2] >> 31) & 1 || StaticAnalysisBypass::IsAnalysisVM())
     {
@@ -72,6 +73,18 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
             Sleep(1000);
         }
     }
+
+
+        if (VM::detect())
+        {
+            while (true)
+            {
+                5 + 8;
+                8 + 9;
+                Sleep(1000);
+            }
+        }
+
 
     RuntimeImportResolver::ResolveCurrentImports();
 

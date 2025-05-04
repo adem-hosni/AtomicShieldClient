@@ -199,6 +199,7 @@
     <ClInclude Include="resource.h" />
     <ClInclude Include="ManualMapInjector.h" />
     <ClInclude Include="StaticAnalysisBypass.h" />
+    <ClInclude Include="vmaware.hpp" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Atomic Agent.rc" />
