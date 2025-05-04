@@ -9,6 +9,7 @@
 #include "SharedUtil.h"
 #include <StartUpManager.h>
 #include <regex>
+#include <urlmon.h>
 #include <iptypes.h>
 #include <iphlpapi.h>
 #include "GUI/GUI.h"

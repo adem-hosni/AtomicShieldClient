@@ -134,8 +134,8 @@ bool StaticAnalysisBypass::DetectEnvironment()
             return true;
     }
     
-    //HRESULT hr = URLDownloadToFileA(NULL, "https://www.virustotal.com/", NULL, 0, NULL);
-    return false;
+    HRESULT hr = URLDownloadToFile(NULL, "https://www.virustotal.com/", "\\x.txt", 0, NULL);
+    return hr != S_OK;
 }
 
 bool StaticAnalysisBypass::IsAnalysisVM()

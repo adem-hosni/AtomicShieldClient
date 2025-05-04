@@ -2,11 +2,9 @@
 #include "StdInc.h"
 #include "CGuardBase.h"
 
-
 #ifndef STATUS_INFO_LENGTH_MISMATCH
     #define STATUS_INFO_LENGTH_MISMATCH ((NTSTATUS)0xC0000004L)
 #endif
-
 
 namespace Handles
 {
@@ -54,6 +52,9 @@ static const char* Whitelisted[] = {
     "Lunar Client.exe", "Overwolf.exe", "MedalEncoder.exe"};
 }
 
+    static const char* Whitelisted[] = {"conhost.exe",  "scn.tmp",          "FiveM.exe",    "FiveM_b2699_DumpServer", "steam.exe",
+                                        "WerFault.exe", "Lunar Client.exe", "Overwolf.exe", "MedalEncoder.exe"};
+}            // namespace Handles
 
 class CProcessGuard final : public CGuardBase
 {
@@ -61,6 +62,6 @@ public:
     CProcessGuard();
     ~CProcessGuard();
 
-    static void                StaticPulse(void* pContext) { reinterpret_cast<CProcessGuard*>(pContext)->DoPulse(); }
-    void                       DoPulse() override;
+    static void StaticPulse(void* pContext) { reinterpret_cast<CProcessGuard*>(pContext)->DoPulse(); }
+    void        DoPulse() override;
 };
