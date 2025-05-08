@@ -100,7 +100,7 @@ void CAtomicAntiCheat::DoPulse()
             }
         }
 
-        if (!Utils::isFiveMReady())
+        if (false && !Utils::isFiveMReady())
         {
             SharedUtil::AddDebugLog("FiveM is not ready, waiting...");
 
