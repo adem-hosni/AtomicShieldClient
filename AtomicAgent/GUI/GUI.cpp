@@ -521,10 +521,10 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                     bInjected = true;
                                     int iInjectionResult =
                                         ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
-                                    if (iInjectionResult == 0)
+                                    if (iInjectionResult == 0 || GetLastError() != ERROR_SUCCESS)
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, skCrypt("Have Fun!"));
+                                        strcat(szLoadingMessage, skCrypt("Have Fun! (You can close now)"));
                                     }
                                     else
                                     {
