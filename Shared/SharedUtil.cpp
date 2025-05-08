@@ -77,7 +77,25 @@ int SharedUtil::GetFivemProcessID()
 
     auto IsFivemProcess = [](const std::string& strProcessName) -> bool
     {
-        return strProcessName.ends_with("_GTAProcess.exe") || strProcessName.ends_with("_GameProcess.exe");
+        // List of base names
+        static std::vector<std::string> baseNames = {"FiveM", "NVN"};
+
+        static std::vector<std::string> suffixes = {"_GTAProcess.exe", "_GameProcess.exe"};
+
+        for (const auto& base : baseNames)
+        {
+            if (strProcessName.starts_with(base))
+            {
+                for (const auto& suffix : suffixes)
+                {
+                    if (strProcessName.ends_with(suffix))
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
     };
 
     do
@@ -191,14 +209,13 @@ void SharedUtil::AddDebugLog(const char* szLog, ...)
         vfprintf(hFile, szTimestamp, args);
         va_end(args);
         fclose(hFile);
-
     }
 }
 
 std::string SharedUtil::GetKnownDirectory(const KNOWNFOLDERID fid)
 {
-    PWSTR   path = nullptr;
-    char szProgramDataDir[MAX_PATH];
+    PWSTR path = nullptr;
+    char  szProgramDataDir[MAX_PATH];
     memset(szProgramDataDir, 0, sizeof(szProgramDataDir));
 
     HRESULT result = SHGetKnownFolderPath(fid, 0, NULL, &path);
@@ -311,7 +328,6 @@ std::string SharedUtil::Base64Decode(std::string& encoded_string)
         "0123456789+/";
 
     auto is_base64 = [](unsigned char c) { return (isalnum(c) || (c == '+') || (c == '/')); };
-
 
     size_t        in_len = encoded_string.size();
     size_t        i = 0;
