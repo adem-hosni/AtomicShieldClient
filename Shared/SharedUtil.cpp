@@ -77,9 +77,7 @@ int SharedUtil::GetFivemProcessID()
 
     auto IsFivemProcess = [](const std::string& strProcessName) -> bool
     {
-        static std::string baseName = "FiveM";
-        static std::string suffix = "_GTAProcess.exe";
-        return strProcessName.starts_with(baseName) && strProcessName.ends_with(suffix);
+        return strProcessName.ends_with("_GTAProcess.exe") || strProcessName.ends_with("_GameProcess.exe");
     };
 
     do
