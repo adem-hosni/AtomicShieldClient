@@ -14,6 +14,8 @@ public:
     void StartPulse();
     void StopPulse();
 
+    void ClearDetections();
+
     CProcessGuard*   GetProcessGuard() { return m_pProcessGuard; }
     CHeuristicGuard* GetHeuristicGuard() { return m_pHeuristicGuard; }
     // CModuleGuard*    GetModuleGuard() { return m_pModuleGuard; }

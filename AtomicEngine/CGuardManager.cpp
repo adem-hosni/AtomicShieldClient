@@ -38,3 +38,8 @@ void CGuardManager::StopPulse()
     }
     
 }
+
+void CGuardManager::ClearDetections()
+{
+    m_pProcessGuard->ClearDetections();
+}
