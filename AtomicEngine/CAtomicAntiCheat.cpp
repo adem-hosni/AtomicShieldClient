@@ -61,7 +61,7 @@ void CAtomicAntiCheat::DoPulse()
 {
     while (true)
     {
-            RunScanners(true);
+        RunScanners(true);
         m_iTargetProcessID = SharedUtil::GetFivemProcessID();
         if (m_iTargetProcessID == NULL)
         {
@@ -72,6 +72,7 @@ void CAtomicAntiCheat::DoPulse()
 
             // Clear the detected threats for the next scan session
             m_vDetectedTypes.clear();
+            m_pGuardManager->ClearDetections();
 
             if (m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Closed && m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Closing)
             {
@@ -90,7 +91,7 @@ void CAtomicAntiCheat::DoPulse()
 
         if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
         {
-            m_hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, m_iTargetProcessID);
+            m_hProcess = OpenProcess(PROCESS_VM_READ, FALSE, m_iTargetProcessID);
             if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
             {
                 SharedUtil::AddDebugLog("Failed to open FiveM process!");

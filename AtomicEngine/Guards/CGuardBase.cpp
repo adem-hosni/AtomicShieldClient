@@ -14,3 +14,7 @@ void CGuardBase::StaticPulse(void* pContext)
 void CGuardBase::DoPulse()
 {
 }
+
+void CGuardBase::ClearDetections()
+{
+}
