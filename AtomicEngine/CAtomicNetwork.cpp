@@ -24,7 +24,7 @@ bool CAtomicNetwork::Connect()
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
 
     m_pWebSocket->setPingInterval(20);
-    m_pWebSocket->enablePong();
+    //m_pWebSocket->enablePong();
     m_pWebSocket->disableAutomaticReconnection();
 
     ix::WebSocketInitResult result = m_pWebSocket->connect(32);
@@ -43,7 +43,7 @@ bool CAtomicNetwork::Connect()
     return result.success;
 }
 
-void CAtomicNetwork::SendPacket(eAtomicPacket PacketID, jsoncons::json Data)
+void CAtomicNetwork::SendPacket(eAtomicPacket PacketID, jsoncons::json Data, bool bHighPriority)
 {
     // Allocate new json object
     jsoncons::json PacketJson = jsoncons::json::object();
@@ -58,7 +58,13 @@ void CAtomicNetwork::SendPacket(eAtomicPacket PacketID, jsoncons::json Data)
 
     // Send the packet to master server
     std::string buffer = g_pAtomicCore->Encrypt(PacketJson.to_string());
-    m_pWebSocket->send(SharedUtil::Base64Encode(buffer));
+
+    if (bHighPriority)
+    {
+        m_pWebSocket->send(SharedUtil::Base64Encode(buffer));
+        return;
+    }
+    m_vPendingPackets.push(SharedUtil::Base64Encode(buffer));
 }
 
 void CAtomicNetwork::OnConnect()
@@ -67,7 +73,7 @@ void CAtomicNetwork::OnConnect()
     {
         FreeModule(GetModuleHandle(NULL));
         return;
-    }   
+    }
 }
 
 void CAtomicNetwork::StaticPulse(void* pContext)
@@ -78,11 +84,12 @@ void CAtomicNetwork::StaticPulse(void* pContext)
 
 jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
 {
-    while (m_UnhandledPackets.find(PacketID) == m_UnhandledPackets.end())
+    while (m_PendingResponses.find(PacketID) == m_PendingResponses.end())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    jsoncons::json Response = m_UnhandledPackets[PacketID];
+    
+    jsoncons::json Response = m_PendingResponses[PacketID];
 
     // Check if the unix timestamp received is tampered
     if (time(NULL) - Response["ut"].as<DWORD>() >= 20)
@@ -93,7 +100,7 @@ jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
         return j;
     }
 
-    m_UnhandledPackets.erase(PacketID);
+    m_PendingResponses.erase(PacketID);
     return Response;
 }
 
@@ -115,7 +122,7 @@ bool CAtomicNetwork::JoinNetwork()
     RequestData["cache"] = g_pAtomicAntiCheat->GetCurrentHWIDCache();
     RequestData["engine_type"] = 2;            // FiveM
 
-    SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData);
+    SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData, true);
 
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
 
@@ -124,7 +131,7 @@ bool CAtomicNetwork::JoinNetwork()
     if (m_bNetworkJoined)
     {
         g_pHWID->StoreHWIDCaches(RequestHWID);
-        
+
         if (!g_pAtomicAntiCheat->GetNetwork()->SyncMaliciousSignatures(Response["signatures"]))
             MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
     }
@@ -180,22 +187,20 @@ void CAtomicNetwork::HandleRequestScreenshot()
 
 void CAtomicNetwork::HandleRunScanners(jsoncons::json& Packet)
 {
-    //g_pAtomicAntiCheat->RunScanners(true);
-    //SharedUtil::AddDebugLog("Packet: %s", Packet.as_string().c_str());
-    //jsoncons::json response = jsoncons::json::object();
-    //response["success"] = false;
 
-    //if (Packet.contains(skCrypt("run").decrypt()))
-    //{
-    //    g_pAtomicAntiCheat->RunScanners(Packet["run"].as_bool());
-    //    response["success"] = true;
-    //}
-    //SendPacket(RUN_SCANNERS, response);
 }
 
 void CAtomicNetwork::DoPulse()
 {
-    // printf("state: %d\n", m_pWebSocket->getReadyState());
+    if (!m_vPendingPackets.empty())
+    {
+        if (m_pWebSocket->getReadyState() == ix::ReadyState::Open)
+        {
+            std::string strPacketBuffer = m_vPendingPackets.front();
+            m_pWebSocket->send(strPacketBuffer.c_str());
+            m_vPendingPackets.pop();
+        }
+    }
 }
 
 void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
@@ -204,7 +209,8 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
     {
         case ix::WebSocketMessageType::Open:
         {
-            _beginthread((_beginthread_proc_type)&CAtomicNetwork::OnConnect, NULL, this);
+            std::thread t(&CAtomicNetwork::OnConnect);
+            t.detach();
             break;
         }
 
@@ -212,12 +218,11 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         {
             if (Message->type == ix::WebSocketMessageType::Message)
             {
-                std::string                 message_buffer = Message->str;
-                std::string                 decoded_buffer = SharedUtil::Base64Decode(message_buffer);
-                std::string                 decrypted_buffer = g_pAtomicCore->Decrypt(decoded_buffer);
-                jsoncons::json              json = jsoncons::json::parse(decrypted_buffer);
+                std::string    message_buffer = Message->str;
+                std::string    decrypted_buffer = g_pAtomicCore->Decrypt(SharedUtil::Base64Decode(message_buffer));
+                jsoncons::json json = jsoncons::json::parse(decrypted_buffer);
                 HandleIncomingPacket(json);
-                m_UnhandledPackets.insert_or_assign((eAtomicPacket)json["type"].as<int>(), json);
+                m_PendingResponses.insert_or_assign((eAtomicPacket)json["type"].as<int>(), json);
             }
             break;
         }
@@ -225,22 +230,15 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         case ix::WebSocketMessageType::Close:
         {
             m_bNetworkJoined = false;
-            m_pWebSocket->close();
             SharedUtil::AddDebugLog("WebSocket Closed: %s (%d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code);
-
-            // Check if the network didn't closed by the server and fivem is running
-            // then reconnect
-            if (Message->closeInfo.code != 1000 && g_pAtomicAntiCheat->GetProcessID() != NULL)
-            {
-                //Reconnect();
-            }
             break;
         }
 
         case ix::WebSocketMessageType::Error:
             m_pWebSocket->close();
+            m_bNetworkJoined = false;
             SharedUtil::AddDebugLog("Error: %s", Message->errorInfo.reason.c_str());
-            //Reconnect();
+            // Reconnect();
             break;
     }
 }
@@ -256,24 +254,10 @@ void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
         case eAtomicPacket::REQUEST_SCREENSHOT:
             HandleRequestScreenshot();
             break;
-        //case eAtomicPacket::RUN_SCANNERS:
-        //    HandleRunScanners(Packet);
-        //    break;
+            // case eAtomicPacket::RUN_SCANNERS:
+            //     HandleRunScanners(Packet);
+            //     break;
     }
-}
-
-void CAtomicNetwork::Reconnect()
-{
-    m_bNetworkJoined = false;
-
-    SharedUtil::AddDebugLog("Attempting to reconnect to the websocket...");
-    while (m_pWebSocket->getReadyState() == ix::ReadyState::Closed || m_pWebSocket->getReadyState() == ix::ReadyState::Closing)
-    {
-        Connect();
-        std::this_thread::sleep_for(std::chrono::seconds(2));
-
-    }
-    SharedUtil::AddDebugLog("Websocket connection established successfuly!");
 }
 
 void CAtomicNetwork::Disconnect(std::string strReason)
@@ -281,9 +265,8 @@ void CAtomicNetwork::Disconnect(std::string strReason)
     if (m_pWebSocket->getReadyState() != ix::ReadyState::Closed)
     {
         m_pWebSocket->stop(ix::WebSocketCloseConstants::kNormalClosureCode, strReason);
-        /*if (m_pWebSocket->isOnMessageCallbackRegistered())
-            m_pWebSocket->setOnMessageCallback(ix::OnMessageCallback());*/
         m_bNetworkJoined = false;
-        m_UnhandledPackets.clear();
+        m_PendingResponses.clear();
+        SharedUtil::AddDebugLog("Disconnect - %s", strReason.c_str());
     }
 }

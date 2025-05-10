@@ -59,10 +59,20 @@ void CAtomicAntiCheat::StaticPulse(void* pContext)
 
 void CAtomicAntiCheat::DoPulse()
 {
+    time_t tStart = time(NULL);
+
     while (true)
     {
         RunScanners(true);
+
+        // Check if the FiveM process is running every 5 seconds without block the pulse thread
         m_iTargetProcessID = SharedUtil::GetFivemProcessID();
+        if (time(NULL) - tStart > 4)
+        {
+            tStart = time(NULL);
+            m_iTargetProcessID = SharedUtil::GetFivemProcessID();
+        }
+
         if (m_iTargetProcessID == NULL)
         {
             SharedUtil::AddDebugLog("FiveM closed - stopping scanners!");
@@ -109,7 +119,8 @@ void CAtomicAntiCheat::DoPulse()
             continue;
         }
 
-        if (m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Closed || m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Closing)
+
+        if (m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Closed)
         {
             SharedUtil::AddDebugLog("Target Process ID: %d", m_iTargetProcessID);
             if (!m_pAtomicNetwork->Connect())
@@ -131,17 +142,13 @@ void CAtomicAntiCheat::DoPulse()
         {
             SharedUtil::AddDebugLog("FiveM process exited unexpectedly!");
         }
-
-        std::this_thread::sleep_for(std::chrono::seconds(5));
     }
 }
 
-
-
 void CAtomicAntiCheat::StartPulse()
 {
-    //if (m_pGuardManager->IsPulseStarted())
-    //    return;
+    // if (m_pGuardManager->IsPulseStarted())
+    //     return;
 
     m_pGuardManager->StartPulse();
 }

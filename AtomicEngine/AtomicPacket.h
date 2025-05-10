@@ -9,4 +9,5 @@ enum eAtomicPacket
     CHEAT_DETECTION = 7,
     REQUEST_SCREENSHOT,
     RUN_SCANNERS,
+    NETWORK_UP,
 };
