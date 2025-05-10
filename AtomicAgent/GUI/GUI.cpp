@@ -589,13 +589,14 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
 
                     if (active_tab != 0)
                     {
-                        ImVec2 text_size = ImGui::CalcTextSize(szLoadingMessage, nullptr, true, 0.0f);
-                        float  center_area_x = p.x + 100;
-                        float  center_area_width = 320;
-                        float  centered_x = center_area_x + (center_area_width - text_size.x) * 0.5f;
+                        ImGuiIO&    io = ImGui::GetIO();
+                        ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 30.f, ImVec2(centered_x + 50, p.y + 410), ImGui::GetColorU32(c::text_blue),
-                                                            szLoadingMessage);
+                        ImVec2 text_size = Tektur_Medium->CalcTextSizeA(30.f, FLT_MAX, 0.0f, szLoadingMessage);
+                        ImVec2 window_pos = ImGui::GetWindowPos();
+                        ImVec2 window_size = ImGui::GetWindowSize();
+                        ImVec2 center_pos = window_pos + ImVec2((window_size.x - text_size.x) * 0.5f, p.y + 410.0f);
+                        draw_list->AddText(Tektur_Medium, 30.f, center_pos, ImGui::GetColorU32(c::text_blue), szLoadingMessage);
                     }
 
                     ImGui::SetCursorPos(ImVec2(region.x - 77, 12));
