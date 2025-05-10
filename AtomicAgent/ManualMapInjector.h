@@ -6,6 +6,10 @@
 #include <stdio.h>
 #include <string>
 #include <StdInc.h>
+
+
+bool CheckIfLoaded();
+
 using f_LoadLibraryA = HINSTANCE(WINAPI*)(const char* lpLibFilename);
 using f_GetProcAddress = FARPROC(WINAPI*)(HMODULE hModule, LPCSTR lpProcName);
 using f_DLL_ENTRY_POINT = BOOL(WINAPI*)(void* hDll, DWORD dwReason, void* pReserved);

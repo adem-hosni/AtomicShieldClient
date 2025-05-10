@@ -3,7 +3,6 @@
 #pragma runtime_checks("", off)
 #pragma optimize("", off)
 
-
 bool CheckIfLoaded()
 {
     HKEY  hKey;
@@ -16,40 +15,20 @@ bool CheckIfLoaded()
         if (RegQueryValueEx(hKey, "AtomicShield", 0, &dwType, (LPBYTE)&dwValue, &dwSize) == ERROR_SUCCESS)
         {
             RegCloseKey(hKey);
-            return dwValue == 1;          
+            return dwValue == 1;
         }
         RegCloseKey(hKey);
     }
-    return false;         
-}
-void SetRegistryValue(int value)
-{
-    HKEY hKey;
-
-    if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) == ERROR_SUCCESS)
-    {
-        RegSetValueEx(hKey, "AtomicShield", 0, REG_DWORD, (const BYTE*)&value, sizeof(value));
-        RegCloseKey(hKey);
-    }
-    else
-    {
-        ILog ("Failed to create or open registry key.");
-    }
+    return false;
 }
 
-int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader, bool ClearNonNeededSections, bool AdjustProtections,
-                  bool SEHExceptionSupport, DWORD fdwReason, LPVOID lpReserved)
+int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader, bool ClearNonNeededSections, bool AdjustProtections, bool SEHExceptionSupport,
+                 DWORD fdwReason, LPVOID lpReserved)
 {
     IMAGE_NT_HEADERS*      pOldNtHeader = nullptr;
     IMAGE_OPTIONAL_HEADER* pOldOptHeader = nullptr;
     IMAGE_FILE_HEADER*     pOldFileHeader = nullptr;
     BYTE*                  pTargetBase = nullptr;
-
-     if (CheckIfLoaded())
-      {
-         ILog ("AtomicShield is already active (value = 1), returning.");
-        return 3;            // 999 custom code
-      }
 
     if (reinterpret_cast<IMAGE_DOS_HEADER*>(pSrcData)->e_magic != 0x5A4D)
     {            //"MZ"
@@ -67,7 +46,8 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
         return 2;
     }
 
-    pTargetBase = reinterpret_cast<BYTE*>(RuntimeImportResolver::VirtualAllocEx(hProc, nullptr, pOldOptHeader->SizeOfImage, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
+    pTargetBase =
+        reinterpret_cast<BYTE*>(RuntimeImportResolver::VirtualAllocEx(hProc, nullptr, pOldOptHeader->SizeOfImage, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
     if (!pTargetBase)
     {
         ILog("Target process memory allocation failed (ex) 0x%X", GetLastError());
@@ -75,7 +55,6 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
         ILog(szErrorMsg);
         return 3;
     }
-
 
     DWORD oldp = 0;
     RuntimeImportResolver::VirtualProtectEx(hProc, pTargetBase, pOldOptHeader->SizeOfImage, PAGE_EXECUTE_READWRITE, &oldp);
@@ -107,7 +86,7 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
         if (pSectionHeader->SizeOfRawData)
         {
             if (!RuntimeImportResolver::WriteProcessMemory(hProc, pTargetBase + pSectionHeader->VirtualAddress, pSrcData + pSectionHeader->PointerToRawData,
-                                    pSectionHeader->SizeOfRawData, nullptr))
+                                                           pSectionHeader->SizeOfRawData, nullptr))
             {
                 ILog("Can't map sections: 0x%x", GetLastError());
                 RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
@@ -117,7 +96,8 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
     }
 
     // Mapping params
-    BYTE* MappingDataAlloc = reinterpret_cast<BYTE*>(RuntimeImportResolver::VirtualAllocEx(hProc, nullptr, sizeof(MANUAL_MAPPING_DATA), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
+    BYTE* MappingDataAlloc =
+        reinterpret_cast<BYTE*>(RuntimeImportResolver::VirtualAllocEx(hProc, nullptr, sizeof(MANUAL_MAPPING_DATA), MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE));
     if (!MappingDataAlloc)
     {
         ILog("Target process mapping allocation failed (ex) 0x%X", GetLastError());
@@ -152,8 +132,6 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
         return 9;
     }
 
-
-    SetRegistryValue(1);
     ILog("Mapped DLL at %p", pTargetBase);
     ILog("Mapping info at %p", MappingDataAlloc);
     ILog("Shell code at %p", pShellcode);
@@ -166,7 +144,8 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
     system("pause");
 #endif
 
-    HANDLE hThread = RuntimeImportResolver::CreateRemoteThread(hProc, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(pShellcode), MappingDataAlloc, 0, nullptr);
+    HANDLE hThread =
+        RuntimeImportResolver::CreateRemoteThread(hProc, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(pShellcode), MappingDataAlloc, 0, nullptr);
     if (!hThread)
     {
         ILog("Thread creation failed 0x%X", GetLastError());
@@ -208,7 +187,6 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
         }
 
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
-
     }
 
     BYTE* emptyBuffer = (BYTE*)malloc(4096);
@@ -240,7 +218,8 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
                     strcmp((char*)pSectionHeader->Name, XorStr(".rsrc").c_str()) == 0 || strcmp((char*)pSectionHeader->Name, XorStr(".reloc").c_str()) == 0)
                 {
                     ILog("Processing %s removal", pSectionHeader->Name);
-                    if (!RuntimeImportResolver::WriteProcessMemory(hProc, pTargetBase + pSectionHeader->VirtualAddress, emptyBuffer, pSectionHeader->Misc.VirtualSize, nullptr))
+                    if (!RuntimeImportResolver::WriteProcessMemory(hProc, pTargetBase + pSectionHeader->VirtualAddress, emptyBuffer,
+                                                                   pSectionHeader->Misc.VirtualSize, nullptr))
                     {
                         ILog("Can't clear section %s: 0x%x", pSectionHeader->Name, GetLastError());
                     }
@@ -299,7 +278,6 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
 
 void __stdcall Shellcode(MANUAL_MAPPING_DATA* pData)
 {
-
     if (!pData)
     {
         pData->hMod = (HINSTANCE)0x404040;

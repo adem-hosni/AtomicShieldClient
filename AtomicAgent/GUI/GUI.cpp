@@ -521,15 +521,24 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                     bInjected = true;
                                     int iInjectionResult =
                                         ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
-                                    if (iInjectionResult == 3)
+                                    if (iInjectionResult == 0 || GetLastError() != ERROR_SUCCESS)
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, skCrypt("Already Loaded! "));
-                                    }
-                                    else if (iInjectionResult == 0 || GetLastError() != ERROR_SUCCESS)
-                                    {
-                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, skCrypt("Have Fun! (You can close now)"));
+                                        strcat(szLoadingMessage, skCrypt("Please hold while we verify that everything is ready"));
+
+                                        // Injection Succeded
+                                        _beginthread(
+                                            [](void*)
+                                            {
+                                                while (!CheckIfLoaded())
+                                                    Sleep(90);
+
+                                                SharedUtil::SetRegistryIntValue("AtomicShield", 0);
+
+                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                strcat(szLoadingMessage, skCrypt("Have Fun! (You can close now)"));
+                                            },
+                                            0, nullptr);
                                     }
                                     else
                                     {

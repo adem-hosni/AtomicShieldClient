@@ -56,6 +56,8 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
     //freopen("CONIN$", "r", stdin);
     //freopen("CONOUT$", "w", stdout);
     //freopen("CONOUT$", "w", stderr);
+
+    SharedUtil::SetRegistryIntValue("AtomicShield", 1);
     
     if (g_pAtomicAntiCheat->Initialize())
     {

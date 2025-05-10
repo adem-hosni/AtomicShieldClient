@@ -383,3 +383,18 @@ std::string SharedUtil::Base64Decode(std::string& encoded_string)
 
     return decoded_string;
 }
+
+void SharedUtil::SetRegistryIntValue(const char* szKey, int iValue)
+{
+    HKEY hKey;
+
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) == ERROR_SUCCESS)
+    {
+        RegSetValueEx(hKey, szKey, 0, REG_DWORD, (const BYTE*)&iValue, sizeof(iValue));
+        RegCloseKey(hKey);
+    }
+    else
+    {
+        AddDebugLog("Failed to create or open registry key.");
+    }
+}
