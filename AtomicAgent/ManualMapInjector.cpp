@@ -3,6 +3,40 @@
 #pragma runtime_checks("", off)
 #pragma optimize("", off)
 
+
+bool CheckIfLoaded()
+{
+    HKEY  hKey;
+    DWORD dwType = 0;
+    DWORD dwSize = sizeof(DWORD);
+    DWORD dwValue = 0;
+
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    {
+        if (RegQueryValueEx(hKey, "AtomicShield", 0, &dwType, (LPBYTE)&dwValue, &dwSize) == ERROR_SUCCESS)
+        {
+            RegCloseKey(hKey);
+            return dwValue == 1;          
+        }
+        RegCloseKey(hKey);
+    }
+    return false;         
+}
+void SetRegistryValue(int value)
+{
+    HKEY hKey;
+
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) == ERROR_SUCCESS)
+    {
+        RegSetValueEx(hKey, "AtomicShield", 0, REG_DWORD, (const BYTE*)&value, sizeof(value));
+        RegCloseKey(hKey);
+    }
+    else
+    {
+        ILog ("Failed to create or open registry key.");
+    }
+}
+
 int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader, bool ClearNonNeededSections, bool AdjustProtections,
                   bool SEHExceptionSupport, DWORD fdwReason, LPVOID lpReserved)
 {
@@ -10,6 +44,12 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
     IMAGE_OPTIONAL_HEADER* pOldOptHeader = nullptr;
     IMAGE_FILE_HEADER*     pOldFileHeader = nullptr;
     BYTE*                  pTargetBase = nullptr;
+
+     if (CheckIfLoaded())
+      {
+         ILog ("AtomicShield is already active (value = 1), returning.");
+        return 3;            // 999 custom code
+      }
 
     if (reinterpret_cast<IMAGE_DOS_HEADER*>(pSrcData)->e_magic != 0x5A4D)
     {            //"MZ"
@@ -35,6 +75,7 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
         ILog(szErrorMsg);
         return 3;
     }
+
 
     DWORD oldp = 0;
     RuntimeImportResolver::VirtualProtectEx(hProc, pTargetBase, pOldOptHeader->SizeOfImage, PAGE_EXECUTE_READWRITE, &oldp);
@@ -111,6 +152,8 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
         return 9;
     }
 
+
+    SetRegistryValue(1);
     ILog("Mapped DLL at %p", pTargetBase);
     ILog("Mapping info at %p", MappingDataAlloc);
     ILog("Shell code at %p", pShellcode);
@@ -256,6 +299,7 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
 
 void __stdcall Shellcode(MANUAL_MAPPING_DATA* pData)
 {
+
     if (!pData)
     {
         pData->hMod = (HINSTANCE)0x404040;
