@@ -530,15 +530,31 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                         _beginthread(
                                             [](void*)
                                             {
+                                                time_t injected_time = time(NULL);
+                                                bool   bFailure = false;
                                                 while (!CheckIfLoaded())
+                                                {
+                                                    // Wait 5 seconds if the 0 value didnt changed to 1, so the injection faileds
+                                                    bFailure = time(NULL) - injected_time > 5;
+                                                    if (bFailure)
+                                                        break;
+
                                                     Sleep(90);
+                                                }
 
-                                                SharedUtil::SetRegistryIntValue("AtomicShield", 0);
-
-                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                                strcat(szLoadingMessage, skCrypt("Have Fun! (You can close now)"));
-                                                page = 2;
-                                                active_anim_1 = true;
+                                                if (bFailure)
+                                                {
+                                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                    strcat(szLoadingMessage, skCrypt("Startup routine missing or blocked"));
+                                                }
+                                                else
+                                                {
+                                                    SharedUtil::SetRegistryIntValue("AtomicShield", 0);
+                                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                    strcat(szLoadingMessage, skCrypt("Have Fun! (You can close now)"));
+                                                    page = 2;
+                                                    active_anim_1 = true;
+                                                }
                                             },
                                             0, nullptr);
                                     }
