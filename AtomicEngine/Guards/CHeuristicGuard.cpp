@@ -26,6 +26,8 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::strin
         }
     }
 }
+
+#pragma optimize("", off)
 void CHeuristicGuard::DoPulse()
 {
     KernelCalls_OBJECT_ATTRIBUTES objAttr{};
@@ -139,3 +141,4 @@ void CHeuristicGuard::DoPulse()
 
     _endthreadex(0);
 }
+#pragma optimize("", on)
