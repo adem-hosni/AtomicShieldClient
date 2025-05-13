@@ -99,23 +99,26 @@ void CHeuristicGuard::DoPulse()
                 const char*      dataPtr = reinterpret_cast<const char*>(buffer);
                 std::string_view memoryView(dataPtr, bytesRead);
 
-                size_t foundPos = memoryView.find(decryptedStr);
-                if (foundPos != std::string_view::npos)
+                 if (!decryptedStr.empty() && decryptedStr.find_first_not_of(" \t\n\r\0") != std::string::npos)
                 {
-                    LPVOID lpFlaggedAddress = static_cast<LPBYTE>(memoryInfo.BaseAddress) + foundPos;
-                    SharedUtil::AddDebugLog("Found at 0x%p", lpFlaggedAddress);
+                    size_t foundPos = memoryView.find(decryptedStr);
+                    if (foundPos != std::string_view::npos)
+                    {
+                        LPVOID lpFlaggedAddress = static_cast<LPBYTE>(memoryInfo.BaseAddress) + foundPos;
+                        SharedUtil::AddDebugLog("Found at 0x%p", lpFlaggedAddress);
 
-                    g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
-                                                                                {"memory_address", (DWORD64)lpFlaggedAddress},
-                                                                                {"region_size", memoryInfo.RegionSize},
-                                                                                {"base_address", (DWORD64)memoryInfo.BaseAddress},
-                                                                                {"region_type", (DWORD64)memoryInfo.Type},
-                                                                                {"region_state", (DWORD64)memoryInfo.State},
-                                                                                {"region_protect", (DWORD64)memoryInfo.Protect},
-                                                                                {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
-                                                                                {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
-                    g_pAtomicAntiCheat->RunScanners(false);
+                        g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
+                                                                                    {"memory_address", (DWORD64)lpFlaggedAddress},
+                                                                                    {"region_size", memoryInfo.RegionSize},
+                                                                                    {"base_address", (DWORD64)memoryInfo.BaseAddress},
+                                                                                    {"region_type", (DWORD64)memoryInfo.Type},
+                                                                                    {"region_state", (DWORD64)memoryInfo.State},
+                                                                                    {"region_protect", (DWORD64)memoryInfo.Protect},
+                                                                                    {"allocation_protect", (DWORD64)memoryInfo.AllocationProtect},
+                                                                                    {"allocation_address", (DWORD64)memoryInfo.AllocationBase}});
 
+                        g_pAtomicAntiCheat->RunScanners(false);
+                    }
                 }
 
                 // Safe memory free
