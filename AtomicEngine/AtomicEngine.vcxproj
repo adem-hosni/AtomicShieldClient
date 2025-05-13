@@ -87,6 +87,7 @@
     <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);$(ProjectDir);$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir)Vendor</IncludePath>
     <LibraryPath>$(ProjectDir)Vendor;$(LibraryPath)</LibraryPath>
     <ExternalIncludePath>$(SolutionDir)Shared;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Vendor</ExternalIncludePath>
+    <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -153,7 +154,7 @@
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
