@@ -1,5 +1,49 @@
 #include "StdInc.h"
 
+
+
+bool FileAuthentication::IsFileSigned(const std::string& filePath)
+{
+    int          size_needed = MultiByteToWideChar(CP_UTF8, 0, filePath.c_str(), -1, NULL, 0);
+    std::wstring wFilePath(size_needed, 0);
+    MultiByteToWideChar(CP_UTF8, 0, filePath.c_str(), -1, &wFilePath[0], size_needed);
+
+    LONG               status;
+    WINTRUST_FILE_INFO fileInfo = {0};
+    WINTRUST_DATA      winTrustData = {0};
+
+    fileInfo.cbStruct = sizeof(WINTRUST_FILE_INFO);
+    fileInfo.pcwszFilePath = wFilePath.c_str();
+    fileInfo.hFile = NULL;
+    fileInfo.pgKnownSubject = NULL;
+
+    winTrustData.cbStruct = sizeof(WINTRUST_DATA);
+    winTrustData.pPolicyCallbackData = NULL;
+    winTrustData.pSIPClientData = NULL;
+    winTrustData.dwUIChoice = WTD_UI_NONE;
+    winTrustData.fdwRevocationChecks = WTD_REVOKE_NONE;
+    winTrustData.dwUnionChoice = WTD_CHOICE_FILE;
+    winTrustData.dwStateAction = WTD_STATEACTION_IGNORE;
+    winTrustData.hWVTStateData = NULL;
+    winTrustData.pFile = &fileInfo;
+    winTrustData.dwProvFlags = WTD_SAFER_FLAG;
+
+    GUID policyGUID = WINTRUST_ACTION_GENERIC_VERIFY_V2;
+
+    status = WinVerifyTrust(NULL, &policyGUID, &winTrustData);
+
+    return status == ERROR_SUCCESS;
+}
+
+
+
+
+
+
+
+
+
+
 bool FileAuthentication::VerifyEmbeddedSignature(LPCWSTR filePath)
 {
     WINTRUST_FILE_INFO fileData;

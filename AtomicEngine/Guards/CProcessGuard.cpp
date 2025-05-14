@@ -148,6 +148,9 @@ void CProcessGuard::DoPulse()
             if (strProcessPath.find("C:\\Windows") != std::string::npos)
                 continue;
 
+            if (!strProcessPath.empty() && FileAuthentication::IsFileSigned(strProcessPath))
+                continue;
+
             if (!strProcessPath.empty() &&
                 (handle.GrantedAccess & PROCESS_ALL_ACCESS || handle.GrantedAccess & PROCESS_VM_WRITE ||         /*handle.GrantedAccess & PROCESS_VM_READ ||*/
                  handle.GrantedAccess & PROCESS_SUSPEND_RESUME || handle.GrantedAccess & PROCESS_SET_INFORMATION /*||
