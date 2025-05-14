@@ -185,6 +185,11 @@ void CAtomicNetwork::HandleRequestScreenshot()
     SendPacket(REQUEST_SCREENSHOT, response);
 }
 
+void CAtomicNetwork::HandleEngineShutdown()
+{
+    g_pAtomicAntiCheat->Shutdown();
+}
+
 void CAtomicNetwork::HandleRunScanners(jsoncons::json& Packet)
 {
 
@@ -253,6 +258,9 @@ void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
     {
         case eAtomicPacket::REQUEST_SCREENSHOT:
             HandleRequestScreenshot();
+            break;
+        case eAtomicPacket::ENGINE_SHUTDOWN:
+            HandleEngineShutdown();
             break;
             // case eAtomicPacket::RUN_SCANNERS:
             //     HandleRunScanners(Packet);

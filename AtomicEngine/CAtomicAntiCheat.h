@@ -57,6 +57,8 @@ public:
 
     void NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs = {});
 
+    void Shutdown();
+
     HANDLE GetProcessHandle() { return m_hProcess; }
     int    GetProcessID() { return m_iTargetProcessID; }
 
@@ -64,6 +66,7 @@ public:
     std::vector<CAtomicThread*>& GetAtomicThreads() { return m_vAtomicThreads; }
 
 private:
+    bool    m_bAlive;
     int     m_iTargetProcessID;
     HANDLE  m_hProcess;
 

@@ -11,6 +11,7 @@ CAtomicAntiCheat::CAtomicAntiCheat()
     m_vDetectedTypes = {};
     m_lpAntiCheatModuleBase = nullptr;
     m_bRunScanners = true;
+    m_bAlive = true;
 }
 
 CAtomicAntiCheat::~CAtomicAntiCheat()
@@ -61,7 +62,7 @@ void CAtomicAntiCheat::DoPulse()
 {
     time_t tStart = time(NULL);
 
-    while (true)
+    while (m_bAlive)
     {
         RunScanners(true);
 
@@ -220,6 +221,24 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
     RequestData["error"] = std::string(szError);
 
     m_pAtomicNetwork->SendPacket(eAtomicPacket::CHEAT_DETECTION, RequestData);
+}
+
+void CAtomicAntiCheat::Shutdown()
+{
+    SharedUtil::AddDebugLog("Shutting down Atomic AntiCheat...");
+    
+    RunScanners(false);
+    if (m_hProcess != NULL && m_hProcess != INVALID_HANDLE_VALUE)
+    {
+        CloseHandle(m_hProcess);
+        m_hProcess = NULL;
+    }
+
+    m_pGuardManager->StopPulse();
+    m_pAtomicNetwork->Disconnect("AntiCheat Shutdown");
+    m_bAlive = false;
+
+    // TODO: Unload engine from memory
 }
 
 bool CAtomicAntiCheat::IsAtomicThread(HANDLE hThread)

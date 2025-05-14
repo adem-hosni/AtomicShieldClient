@@ -29,6 +29,7 @@ public:
     bool JoinNetwork();
     bool SyncMaliciousSignatures(jsoncons::json& Signatures);
     void HandleRequestScreenshot();
+    void HandleEngineShutdown();
     void HandleRunScanners(jsoncons::json& Packet);
 
     void OnReceivePacket(const ix::WebSocketMessagePtr& Message);
