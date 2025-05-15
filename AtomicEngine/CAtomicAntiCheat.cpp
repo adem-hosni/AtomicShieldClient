@@ -105,7 +105,7 @@ void CAtomicAntiCheat::DoPulse()
             m_hProcess = OpenProcess(PROCESS_VM_READ, FALSE, m_iTargetProcessID);
             if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
             {
-                SharedUtil::AddDebugLog("Failed to open FiveM process!");
+                SharedUtil::AddDebugLog("Failed to attach to fivem process!");
 
                 std::this_thread::sleep_for(std::chrono::seconds(5));
                 continue;
