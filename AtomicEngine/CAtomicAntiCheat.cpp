@@ -169,13 +169,6 @@ void CAtomicAntiCheat::StartBasicChecks()
 
 void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs)
 {
-    // Check if the detection type already detected
-    if (std::find(m_vDetectedTypes.begin(), m_vDetectedTypes.end(), DetectionType) != m_vDetectedTypes.end())
-        return;
-
-    // Add it to the detected types
-    m_vDetectedTypes.push_back(DetectionType);
-
     jsoncons::json Report = jsoncons::json::object();
 
     auto AddToReport = [&Report](std::unordered_map<std::string, ArgType> ReportKwargs)
