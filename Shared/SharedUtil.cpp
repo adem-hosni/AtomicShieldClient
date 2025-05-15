@@ -179,12 +179,19 @@ const char* SharedUtil::GetParentProcessName()
 
 void SharedUtil::AddDebugLog(const char* szLog, ...)
 {
-    std::string log_name = "Trace.logs";
-    char*       szLogDirectory = (char*)(GetKnownDirectory(FOLDERID_LocalAppData) + "\\AtomicShield").c_str();
-    char        szNewFile[600];
+    char localAppDataPath[MAX_PATH];
+    if (FAILED(SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath)))
+        return;
 
+    char szLogDirectory[MAX_PATH];
+    memset(szLogDirectory, 0, MAX_PATH);
+    sprintf(szLogDirectory, "%s\\AtomicShield", localAppDataPath);
+
+    CreateDirectory(szLogDirectory, NULL);
+
+    char szNewFile[600];
     memset(szNewFile, 0, sizeof(szNewFile));
-    sprintf(szNewFile, "%s\\%s", szLogDirectory, log_name.c_str());
+    sprintf(szNewFile, "%s\\Trace.logs", szLogDirectory);
     static bool bOnce = false;
     if (!bOnce)
     {
@@ -197,7 +204,7 @@ void SharedUtil::AddDebugLog(const char* szLog, ...)
         bOnce = true;
     }
     FILE* hFile = fopen(szNewFile, "a+");
-    
+
     if (hFile)
     {
         time_t t = std::time(0);
