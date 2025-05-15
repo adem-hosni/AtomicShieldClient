@@ -140,6 +140,7 @@ bool CAtomicNetwork::JoinNetwork()
         MessageBox(0, Response["message"].as_string().c_str(), "ERROR", MB_ICONERROR);
     }
 
+    SharedUtil::AddDebugLog("Network Join - %s", Response["message"].as_string().c_str());
     return m_bNetworkJoined;
 }
 
