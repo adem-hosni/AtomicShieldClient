@@ -158,10 +158,11 @@ void CProcessGuard::DoPulse()
                  || handle.GrantedAccess & PROCESS_DUP_HANDLE))
             {
                 SharedUtil::AddDebugLog("The Process %s with pid %d is opening FiveM.exe!", strProcessName.c_str(), handle.ProcessId);
+
                 if (std::find(m_vDetectedProcesses.begin(), m_vDetectedProcesses.end(), strProcessPath) == m_vDetectedProcesses.end())
                 {
                     SharedUtil::AddDebugLog("Reporting...");
-                    m_vDetectedProcesses.push_back(strProcessName);
+                    m_vDetectedProcesses.push_back(strProcessPath);
 
                     // Notify the server about the detection
                     g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
