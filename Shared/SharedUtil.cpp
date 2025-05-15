@@ -180,22 +180,24 @@ const char* SharedUtil::GetParentProcessName()
 void SharedUtil::AddDebugLog(const char* szLog, ...)
 {
     std::string log_name = "Trace.logs";
-    char*       szLogDirectory = (char*)"C:\\AtomicShield\\AtomicShieldClient\\AtomicEngine";
-    char        szNewDirectory[600];
-    memset(szNewDirectory, 0, sizeof(szNewDirectory));
-    sprintf(szNewDirectory, "%s\\%s", szLogDirectory, log_name.c_str());
+    char*       szLogDirectory = (char*)(GetKnownDirectory(FOLDERID_LocalAppData) + "\\AtomicShield").c_str();
+    char        szNewFile[600];
+
+    memset(szNewFile, 0, sizeof(szNewFile));
+    sprintf(szNewFile, "%s\\%s", szLogDirectory, log_name.c_str());
     static bool bOnce = false;
     if (!bOnce)
     {
-        FILE* hFile = fopen(szNewDirectory, "rb");
+        FILE* hFile = fopen(szNewFile, "rb");
         if (hFile)
         {
             fclose(hFile);
-            DeleteFileA(szNewDirectory);
+            DeleteFileA(szNewFile);
         }
         bOnce = true;
     }
-    FILE* hFile = fopen(szNewDirectory, "a+");
+    FILE* hFile = fopen(szNewFile, "a+");
+    
     if (hFile)
     {
         time_t t = std::time(0);
@@ -209,6 +211,10 @@ void SharedUtil::AddDebugLog(const char* szLog, ...)
         vfprintf(hFile, szTimestamp, args);
         va_end(args);
         fclose(hFile);
+    }
+    else
+    {
+        printf("Failed to open file %s\n", szNewFile);
     }
 }
 
