@@ -46,7 +46,7 @@ bool CAtomicAntiCheat::Initialize()
 
     m_hProcess = NULL;
     m_iTargetProcessID = NULL;
-    m_HWIDCache = g_pHWID->LoadHWIDCaches();
+ //   m_HWIDCache = g_pHWID->LoadHWIDCaches();
 
     m_pGuardManager->InitializeGuards();
     return true;
