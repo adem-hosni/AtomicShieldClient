@@ -30,6 +30,7 @@ public:
     bool SyncMaliciousSignatures(jsoncons::json& Signatures);
     void HandleRequestScreenshot();
     void HandleEngineShutdown();
+    void HandleUploadDebugLogs();
     void HandleRunScanners(jsoncons::json& Packet);
 
     void OnReceivePacket(const ix::WebSocketMessagePtr& Message);

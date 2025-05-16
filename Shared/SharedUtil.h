@@ -14,6 +14,7 @@ namespace SharedUtil
     const char*  GetParentProcessName();
     bool         IsRunningAsAdministator();
     void         AddDebugLog(const char* szLog, ...);
+    bool         GetDebugLogs(std::string& szLog);
     std::string  GetKnownDirectory(const KNOWNFOLDERID fid);
     bool         SetPrivilege(LPCTSTR lpszPrivilege);
     std::string  Base64Encode(std::string& data);

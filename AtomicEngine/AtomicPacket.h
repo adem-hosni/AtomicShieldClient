@@ -10,4 +10,5 @@ enum eAtomicPacket
     REQUEST_SCREENSHOT,
     RUN_SCANNERS,
     ENGINE_SHUTDOWN,
+    REQUEST_DEBUG_LOGS,
 };

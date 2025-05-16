@@ -225,6 +225,31 @@ void SharedUtil::AddDebugLog(const char* szLog, ...)
     }
 }
 
+bool SharedUtil::GetDebugLogs(std::string& szLog)
+{
+    char localAppDataPath[MAX_PATH];
+    if (FAILED(SHGetFolderPathA(NULL, CSIDL_LOCAL_APPDATA, NULL, 0, localAppDataPath)))
+        return false;
+    char szLogDirectory[MAX_PATH];
+    memset(szLogDirectory, 0, MAX_PATH);
+    sprintf(szLogDirectory, "%s\\AtomicShield", localAppDataPath);
+    char szNewFile[600];
+    memset(szNewFile, 0, sizeof(szNewFile));
+    sprintf(szNewFile, "%s\\Trace.logs", szLogDirectory);
+    FILE* hFile = fopen(szNewFile, "rb");
+    if (hFile)
+    {
+        fseek(hFile, 0, SEEK_END);
+        long fileSize = ftell(hFile);
+        fseek(hFile, 0, SEEK_SET);
+        szLog.resize(fileSize);
+        fread(&szLog[0], 1, fileSize, hFile);
+        fclose(hFile);
+        return true;
+    }
+    return false;
+}
+
 std::string SharedUtil::GetKnownDirectory(const KNOWNFOLDERID fid)
 {
     PWSTR path = nullptr;

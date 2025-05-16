@@ -191,9 +191,19 @@ void CAtomicNetwork::HandleEngineShutdown()
     g_pAtomicAntiCheat->Shutdown();
 }
 
+void CAtomicNetwork::HandleUploadDebugLogs()
+{
+    jsoncons::json response = jsoncons::json::object();
+    std::string    strLogs;
+
+    response["success"] = SharedUtil::GetDebugLogs(strLogs);
+    response["logs"] = strLogs;
+
+    SendPacket(REQUEST_DEBUG_LOGS, response);
+}
+
 void CAtomicNetwork::HandleRunScanners(jsoncons::json& Packet)
 {
-
 }
 
 void CAtomicNetwork::DoPulse()
@@ -263,9 +273,9 @@ void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
         case eAtomicPacket::ENGINE_SHUTDOWN:
             HandleEngineShutdown();
             break;
-            // case eAtomicPacket::RUN_SCANNERS:
-            //     HandleRunScanners(Packet);
-            //     break;
+        case eAtomicPacket::REQUEST_DEBUG_LOGS:
+            HandleUploadDebugLogs();
+            break;
     }
 }
 
