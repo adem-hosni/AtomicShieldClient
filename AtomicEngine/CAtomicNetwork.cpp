@@ -22,6 +22,7 @@ bool CAtomicNetwork::Connect()
     m_pWebSocket->setUrl(WEBSOCKET_BASE_URL "/c/atomicshieldagent/");
     
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
+    m_pWebSocket->enablePerMessageDeflate();
 
     m_pWebSocket->setPingInterval(20);
     //m_pWebSocket->enablePong();
@@ -140,7 +141,7 @@ bool CAtomicNetwork::JoinNetwork()
         MessageBox(0, Response["message"].as_string().c_str(), "ERROR", MB_ICONERROR);
     }
 
-    SharedUtil::AddDebugLog("Network Join - %s", Response["message"].as_string().c_str());
+    SharedUtil::AddDebugLog("Network Join - %d", Response["success"].as_bool());
     return m_bNetworkJoined;
 }
 
