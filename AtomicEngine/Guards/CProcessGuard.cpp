@@ -112,6 +112,7 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::DetectOpenHandlesToFiveM()
 
 void CProcessGuard::DoPulse()
 {
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
     while (g_pAtomicAntiCheat->RunScanners())
     {
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
