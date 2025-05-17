@@ -32,6 +32,7 @@ void CHeuristicGuard::DoPulse()
 {
     KernelCalls_OBJECT_ATTRIBUTES objAttr{};
     KernelCalls_CLIENT_ID         clientId{};
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 
     RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
     objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
