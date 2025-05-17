@@ -138,7 +138,7 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData, char* szError)
 
     auto         szTmpFileName = (std::filesystem::temp_directory_path() / SharedUtil::GenerateRandomString(8)).string();
     std::wstring wszName(szTmpFileName.begin(), szTmpFileName.end());
-    if (!Screenshot::BitmapToJpg(wszName, hBitmap, iWidth, iHeight, 85))
+    if (!Screenshot::BitmapToJpg(wszName, hBitmap, iWidth, iHeight, 120))
     {
         sprintf(szError, "BitmapToJpg fail! Error: %u", GetLastError());
         SharedUtil::AddDebugLog(szError);
