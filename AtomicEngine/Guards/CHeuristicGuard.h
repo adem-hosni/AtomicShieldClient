@@ -15,7 +15,7 @@ public:
     static void zebii();
     void        AddSignatures(std::map<std::string, std::vector<std::string>>& Signatures);
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
-    void        ClearDetections() override {  }
+    void        ClearDetections() override {}
 
 private:
     std::string              m_strScanProcessName;

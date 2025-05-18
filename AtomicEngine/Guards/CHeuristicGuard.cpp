@@ -41,7 +41,6 @@ void CHeuristicGuard::DoPulse()
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
 
-
     HANDLE   processHandle;
     NTSTATUS status;
 
@@ -101,7 +100,7 @@ void CHeuristicGuard::DoPulse()
                 const char*      dataPtr = reinterpret_cast<const char*>(buffer);
                 std::string_view memoryView(dataPtr, bytesRead);
 
-                 if (!decryptedStr.empty() && decryptedStr.find_first_not_of(" \t\n\r\0") != std::string::npos)
+                if (!decryptedStr.empty() && decryptedStr.find_first_not_of(" \t\n\r\0") != std::string::npos)
                 {
                     size_t foundPos = memoryView.find(decryptedStr);
                     if (foundPos != std::string_view::npos)
@@ -138,8 +137,6 @@ void CHeuristicGuard::DoPulse()
             SharedUtil::AddDebugLog("[+] Scan completed in %.5fs, sleeping for %d ms", fElapsedTime, sleepTime);
 
             std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
-
-
         }
         SysNtClose(processHandle);
     }
