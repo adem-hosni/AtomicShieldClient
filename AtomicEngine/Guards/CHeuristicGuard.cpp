@@ -74,7 +74,7 @@ void CHeuristicGuard::DoPulse()
 
                 status = SysNtQueryVirtualMemory(processHandle, baseAddress, MemoryBasicInformation, &memoryInfo, regionSize, &returnLength);
                 if (!NT_SUCCESS(status) || memoryInfo.State != MEM_COMMIT || memoryInfo.Protect == PAGE_NOACCESS ||
-                    memoryInfo.Protect & (PAGE_GUARD | PAGE_NOACCESS | PAGE_READONLY))
+                    memoryInfo.Protect & (PAGE_GUARD | PAGE_NOACCESS | PAGE_READONLY) || memoryInfo.Type != MEM_PRIVATE)
                     continue;
 
                 SIZE_T allocationSize = memoryInfo.RegionSize;
