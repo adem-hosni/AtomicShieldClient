@@ -133,10 +133,10 @@ void CHeuristicGuard::DoPulse()
             QueryPerformanceCounter(&end);
             float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
-            int sleepTime = std::max<int>(1, static_cast<int>((fElapsedTime * 1000) / 4));
-            SharedUtil::AddDebugLog("[+] Scan completed in %.5fs, sleeping for %d ms", fElapsedTime, sleepTime);
+            //int sleepTime = std::max<int>(1, static_cast<int>((fElapsedTime * 1000) / 4));
+            SharedUtil::AddDebugLog("[+] Scan completed in %.5fs",fElapsedTime);
 
-            std::this_thread::sleep_for(std::chrono::milliseconds(sleepTime));
+            std::this_thread::sleep_for(std::chrono::seconds(10));
         }
         SysNtClose(processHandle);
     }
