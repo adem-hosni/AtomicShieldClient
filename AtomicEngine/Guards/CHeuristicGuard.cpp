@@ -44,8 +44,6 @@ void CHeuristicGuard::DoPulse()
     HANDLE   processHandle;
     NTSTATUS status;
 
-    char buffer[512000];
-
     while (g_pAtomicAntiCheat->RunScanners())
     {
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
@@ -82,22 +80,20 @@ void CHeuristicGuard::DoPulse()
                 SIZE_T allocationSize = memoryInfo.RegionSize;
 
                 // Allocate memory safely
-                /*PVOID buffer = nullptr;
+                PVOID buffer = nullptr;
                 status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
                 if (!NT_SUCCESS(status) || buffer == nullptr)
                 {
                     buffer = nullptr;
                     continue;
-                }*/
+                }
 
                 SIZE_T bytesRead = 0;
-                memset(buffer, 0, sizeof(buffer));
                 status = SysNtReadVirtualMemory(processHandle, memoryInfo.BaseAddress, buffer, allocationSize, &bytesRead);
 
                 if (!NT_SUCCESS(status) || bytesRead == 0 || bytesRead > allocationSize)
                 {
-                    SharedUtil::AddDebugLog("Failed to read virtual memory 0x%x 0x%x (Allocation Size: %d)", status, GetLastError(), allocationSize);
-                    //SysNtFreeVirtualMemory(processHandle, &buffer, &allocationSize, MEM_RELEASE);
+                    SysNtFreeVirtualMemory(processHandle, &buffer, &allocationSize, MEM_RELEASE);
                     continue;
                 }
 
@@ -127,11 +123,11 @@ void CHeuristicGuard::DoPulse()
                 }
 
                 // Safe memory free
-                /*if (buffer)
+                if (buffer)
                 {
                     SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
                     buffer = nullptr;
-                }*/
+                }
             }
 
             QueryPerformanceCounter(&end);
