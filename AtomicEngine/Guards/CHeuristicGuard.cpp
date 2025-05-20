@@ -44,6 +44,8 @@ void CHeuristicGuard::DoPulse()
     HANDLE   processHandle;
     NTSTATUS status;
 
+    constexpr SIZE_T MAX_REGION_SIZE = 100 * 1024 * 1024;            // 100 MB
+
     while (g_pAtomicAntiCheat->RunScanners())
     {
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
@@ -79,7 +81,10 @@ void CHeuristicGuard::DoPulse()
 
                 SIZE_T allocationSize = memoryInfo.RegionSize;
 
-                // Allocate memory safely
+                // Skip regions larger than 100MB
+                if (allocationSize > MAX_REGION_SIZE)
+                    continue;
+
                 PVOID buffer = nullptr;
                 status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
                 if (!NT_SUCCESS(status) || buffer == nullptr)
@@ -93,7 +98,7 @@ void CHeuristicGuard::DoPulse()
 
                 if (!NT_SUCCESS(status) || bytesRead == 0 || bytesRead > allocationSize)
                 {
-                    SysNtFreeVirtualMemory(processHandle, &buffer, &allocationSize, MEM_RELEASE);
+                    SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
                     continue;
                 }
 
@@ -122,7 +127,6 @@ void CHeuristicGuard::DoPulse()
                     }
                 }
 
-                // Safe memory free
                 if (buffer)
                 {
                     SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
@@ -133,8 +137,7 @@ void CHeuristicGuard::DoPulse()
             QueryPerformanceCounter(&end);
             float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
-            //int sleepTime = std::max<int>(1, static_cast<int>((fElapsedTime * 1000) / 4));
-            SharedUtil::AddDebugLog("[+] Scan completed in %.5fs",fElapsedTime);
+            SharedUtil::AddDebugLog("[+] Scan completed in %.5fs", fElapsedTime);
 
             std::this_thread::sleep_for(std::chrono::seconds(10));
         }
