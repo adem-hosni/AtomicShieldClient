@@ -27,69 +27,12 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::strin
     }
 }
 
-
-bool CHeuristicGuard::IsWhitelistedModule(HANDLE hProcess, LPVOID address)
-{
-    HMODULE hMods[1024];
-    DWORD   cbNeeded;
-
-    if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
-    {
-        for (DWORD i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
-        {
-            WCHAR szModName[MAX_PATH];
-            if (GetModuleFileNameExW(hProcess, hMods[i], szModName, MAX_PATH))
-            {
-                std::wstring modulePath = szModName;
-                size_t       pos = modulePath.find_last_of(L"\\/");
-
-                std::wstring moduleName = (pos != std::wstring::npos) ? modulePath.substr(pos + 1) : modulePath;
-
-                // Log each module being considered
-                SharedUtil::AddDebugLog("[Whitelist] Checking module: %ws", moduleName.c_str());
-
-                if (m_whitelistedModules.find(moduleName) != m_whitelistedModules.end())
-                {
-                    MODULEINFO modInfo;
-                    if (GetModuleInformation(hProcess, hMods[i], &modInfo, sizeof(modInfo)))
-                    {
-                        LPBYTE modStart = reinterpret_cast<LPBYTE>(hMods[i]);
-                        LPBYTE modEnd = modStart + modInfo.SizeOfImage;
-
-                        if (address >= modStart && address < modEnd)
-                        {
-                            SharedUtil::AddDebugLog("[Whitelist] Address 0x%p is inside whitelisted module: %ws", address, moduleName.c_str());
-                            return true;
-                        }
-                        else
-                        {
-                            SharedUtil::AddDebugLog("[Whitelist] Address 0x%p is not inside module range: %ws [0x%p - 0x%p]", address, moduleName.c_str(),
-                                                    modStart, modEnd);
-                        }
-                    }
-                }
-                else
-                {
-                    SharedUtil::AddDebugLog("[Whitelist] Module not whitelisted: %ws", moduleName.c_str());
-                }
-            }
-        }
-    }
-    else
-    {
-        SharedUtil::AddDebugLog("[-] EnumProcessModules failed.");
-    }
-
-    return false;
-}
-
-
 #pragma optimize("", off)
 void CHeuristicGuard::DoPulse()
 {
     KernelCalls_OBJECT_ATTRIBUTES objAttr{};
     KernelCalls_CLIENT_ID         clientId{};
-    SetThreadPriority(GetCurrentThread(), THREAD_MODE_BACKGROUND_BEGIN);
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 
     RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
     objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
@@ -101,16 +44,7 @@ void CHeuristicGuard::DoPulse()
     HANDLE   processHandle;
     NTSTATUS status;
 
-    constexpr SIZE_T MAX_REGION_SIZE = 10 * 1024 * 1024;       
-
-    PVOID  pReuseBuffer = nullptr;
-    SIZE_T bufferSize = MAX_REGION_SIZE;
-    status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &pReuseBuffer, 0, &bufferSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-    if (!NT_SUCCESS(status) || !pReuseBuffer)
-    {
-        SharedUtil::AddDebugLog("[-] Failed to allocate reuse buffer.");
-        return;
-    }
+    constexpr SIZE_T MAX_REGION_SIZE = 100 * 1024 * 1024;            // 100 MB
 
     while (g_pAtomicAntiCheat->RunScanners())
     {
@@ -118,9 +52,9 @@ void CHeuristicGuard::DoPulse()
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
-
         clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(g_pAtomicAntiCheat->GetProcessID()));
-        status = SysNtOpenProcess(&processHandle, PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, &objAttr, &clientId);
+
+        status = SysNtOpenProcess(&processHandle, (0x0400) | (0x0010), &objAttr, &clientId);
         if (!NT_SUCCESS(status))
             continue;
 
@@ -131,31 +65,44 @@ void CHeuristicGuard::DoPulse()
             QueryPerformanceCounter(&start);
 
             MEMORY_BASIC_INFORMATION memoryInfo{};
+            bool                     found = false;
 
-for (LPVOID addr = sysInfo.lpMinimumApplicationAddress; addr < sysInfo.lpMaximumApplicationAddress;
+            for (LPVOID addr = sysInfo.lpMinimumApplicationAddress; addr < sysInfo.lpMaximumApplicationAddress;
                  addr = static_cast<LPBYTE>(memoryInfo.BaseAddress) + memoryInfo.RegionSize)
             {
                 PVOID  baseAddress = addr;
+                SIZE_T regionSize = sizeof(memoryInfo);
                 SIZE_T returnLength = 0;
 
-                status = SysNtQueryVirtualMemory(processHandle, baseAddress, MemoryBasicInformation, &memoryInfo, sizeof(memoryInfo), &returnLength);
-                if (!NT_SUCCESS(status) || memoryInfo.State != MEM_COMMIT || memoryInfo.Type != MEM_PRIVATE ||
-                    memoryInfo.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_READONLY))
+                status = SysNtQueryVirtualMemory(processHandle, baseAddress, MemoryBasicInformation, &memoryInfo, regionSize, &returnLength);
+                if (!NT_SUCCESS(status) || memoryInfo.State != MEM_COMMIT || memoryInfo.Protect == PAGE_NOACCESS ||
+                    memoryInfo.Protect & (PAGE_GUARD | PAGE_NOACCESS | PAGE_READONLY) || memoryInfo.Type != MEM_PRIVATE)
                     continue;
 
-                //if (IsWhitelistedModule(processHandle, memoryInfo.BaseAddress))
-                //    continue;
-
                 SIZE_T allocationSize = memoryInfo.RegionSize;
+
+                // Skip regions larger than 100MB
                 if (allocationSize > MAX_REGION_SIZE)
                     continue;
 
-                SIZE_T bytesRead = 0;
-                status = SysNtReadVirtualMemory(processHandle, memoryInfo.BaseAddress, pReuseBuffer, allocationSize, &bytesRead);
-                if (!NT_SUCCESS(status) || bytesRead == 0 || bytesRead > MAX_REGION_SIZE)
+                PVOID buffer = nullptr;
+                status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+                if (!NT_SUCCESS(status) || buffer == nullptr)
+                {
+                    buffer = nullptr;
                     continue;
+                }
 
-                const char*      dataPtr = reinterpret_cast<const char*>(pReuseBuffer);
+                SIZE_T bytesRead = 0;
+                status = SysNtReadVirtualMemory(processHandle, memoryInfo.BaseAddress, buffer, allocationSize, &bytesRead);
+
+                if (!NT_SUCCESS(status) || bytesRead == 0 || bytesRead > allocationSize)
+                {
+                    SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
+                    continue;
+                }
+
+                const char*      dataPtr = reinterpret_cast<const char*>(buffer);
                 std::string_view memoryView(dataPtr, bytesRead);
 
                 if (!decryptedStr.empty() && decryptedStr.find_first_not_of(" \t\n\r\0") != std::string::npos)
@@ -179,23 +126,22 @@ for (LPVOID addr = sysInfo.lpMinimumApplicationAddress; addr < sysInfo.lpMaximum
                         g_pAtomicAntiCheat->RunScanners(false);
                     }
                 }
+
+                if (buffer)
+                {
+                    SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
+                    buffer = nullptr;
+                }
             }
 
             QueryPerformanceCounter(&end);
             float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+
             SharedUtil::AddDebugLog("[+] Scan completed in %.5fs", fElapsedTime);
 
             std::this_thread::sleep_for(std::chrono::seconds(10));
         }
-
         SysNtClose(processHandle);
-    }
-
-    // Free buffer once
-    if (pReuseBuffer)
-    {
-        SysNtFreeVirtualMemory(GetCurrentProcess(), &pReuseBuffer, &bufferSize, MEM_RELEASE);
-        pReuseBuffer = nullptr;
     }
 
     _endthreadex(0);
