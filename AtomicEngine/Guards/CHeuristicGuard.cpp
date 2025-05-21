@@ -86,45 +86,6 @@ void CHeuristicGuard::DoPulse()
                     continue;
 
                 PVOID buffer = nullptr;
-
-
-                // Not in the whitelisted regions
-                // and not in the suspicious regions -> check it
-                if (std::find(m_vWhitelistedRegions.begin(), m_vWhitelistedRegions.end(), (DWORD64)memoryInfo.AllocationBase) == m_vWhitelistedRegions.end() &&
-                    std::find(m_vSuspiciousRegions.begin(), m_vSuspiciousRegions.end(), (DWORD64)memoryInfo.AllocationBase) == m_vSuspiciousRegions.end())
-                {
-                    // Try to whitelist that region else add it to the suspicious regions
-                    char szModuleName[MAX_PATH];
-                    GetModuleFileName((HMODULE)memoryInfo.AllocationBase, szModuleName, sizeof(szModuleName));
-                    if (strlen(szModuleName))
-                    {
-                        if (FileAuthentication::IsFileSigned(szModuleName))
-                        {
-                            SharedUtil::AddDebugLog("[+] Whitelisted region: %s", szModuleName);
-                            m_vWhitelistedRegions.push_back((DWORD64)memoryInfo.AllocationBase);
-                        }
-                        else
-                        {
-                            SharedUtil::AddDebugLog("[+] Suspicious region: %s", szModuleName);
-                            m_vSuspiciousRegions.push_back((DWORD64)memoryInfo.AllocationBase);
-                        }
-                    }
-                    else
-                    {
-                        // Module path is empty, we cannot whitelist it yazebi
-                        m_vSuspiciousRegions.push_back((DWORD64)memoryInfo.AllocationBase);
-                    }
-                }
-                else
-                {
-                    // Region is whitelisted
-                    if (std::find(m_vSuspiciousRegions.begin(), m_vSuspiciousRegions.end(), (DWORD64)memoryInfo.AllocationBase) == m_vSuspiciousRegions.end())
-                    {
-                        SharedUtil::AddDebugLog("[+] Skipping whitelisted region: %p", memoryInfo.AllocationBase);
-                        continue;
-                    }
-                }
-
                 status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
                 if (!NT_SUCCESS(status) || buffer == nullptr)
                 {
