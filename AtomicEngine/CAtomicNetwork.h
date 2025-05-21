@@ -31,14 +31,11 @@ public:
     void HandleRequestScreenshot();
     void HandleEngineShutdown();
     void HandleUploadDebugLogs();
-    void HandleFileUpload(jsoncons::json& Packet);
     void HandleRunScanners(jsoncons::json& Packet);
 
     void OnReceivePacket(const ix::WebSocketMessagePtr& Message);
 
     void HandleIncomingPacket(jsoncons::json Packet);
-
-    void RequestFileUpload(std::string strFilePath);
 
     std::map<std::string, std::vector<std::string>> GetSignatures() { return m_Signatures; }
 

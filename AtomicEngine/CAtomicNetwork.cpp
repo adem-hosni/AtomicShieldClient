@@ -3,8 +3,6 @@
 #include "Common.h"
 #include "SharedUtil.h"
 #include <condition_variable>
-#include <filesystem>
-#include <fstream>
 #include <future>
 
 CAtomicNetwork::CAtomicNetwork() : m_bConnected(false), m_bNetworkJoined(false)
@@ -22,11 +20,11 @@ bool CAtomicNetwork::Connect()
     ix::initNetSystem();
 
     m_pWebSocket->setUrl(WEBSOCKET_BASE_URL "/c/atomicshieldagent/");
-
+    
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
-    m_pWebSocket->setPingInterval(30);
+    m_pWebSocket->setPingInterval(20);
     m_pWebSocket->enablePerMessageDeflate();
-    // m_pWebSocket->enablePong();
+    m_pWebSocket->enablePong();
     m_pWebSocket->disableAutomaticReconnection();
 
     ix::WebSocketInitResult result = m_pWebSocket->connect(32);
@@ -90,7 +88,7 @@ jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-
+    
     jsoncons::json Response = m_PendingResponses[PacketID];
 
     // Check if the unix timestamp received is tampered
@@ -204,49 +202,6 @@ void CAtomicNetwork::HandleUploadDebugLogs()
     SendPacket(REQUEST_DEBUG_LOGS, response);
 }
 
-void CAtomicNetwork::HandleFileUpload(jsoncons::json& Packet)
-{
-    jsoncons::json response = jsoncons::json::object();
-
-    std::string strFilePath = Packet["file_path"].as_string();
-    if (strFilePath.empty())
-    {
-        response["success"] = false;
-        response["message"] = "File path is empty!";
-    }
-    else
-    {
-        std::filesystem::path filePath(strFilePath);
-        if (std::filesystem::exists(filePath) && std::filesystem::is_regular_file(filePath))
-        {
-            std::string   strFileBuffer;
-            std::ifstream file(filePath);
-
-            if (file)
-            {
-                std::stringstream buffer;
-                buffer << file.rdbuf();
-                std::string strFileContent = buffer.str();
-
-                std::string strEncodedFile = SharedUtil::Base64Encode(strFileContent);
-                response["success"] = true;
-                response["buffer"] = strEncodedFile;
-            }
-            else
-            {
-                response["success"] = false;
-                response["message"] = "Failed to open file!";
-            }
-        }
-        else
-        {
-            response["success"] = false;
-            response["message"] = "File not found!";
-        }
-    }
-    SendPacket(REQUEST_FILE_UPLOAD, response);
-}
-
 void CAtomicNetwork::HandleRunScanners(jsoncons::json& Packet)
 {
 }
@@ -258,12 +213,7 @@ void CAtomicNetwork::DoPulse()
         if (m_pWebSocket->getReadyState() == ix::ReadyState::Open)
         {
             std::string strPacketBuffer = m_vPendingPackets.front();
-            m_pWebSocket->send(strPacketBuffer.c_str(), false,
-                               [&](int current, int total)
-                               {
-                                   std::this_thread::sleep_for(std::chrono::milliseconds(5));
-                                   return true;
-                               });
+            m_pWebSocket->send(strPacketBuffer.c_str());
             m_vPendingPackets.pop();
         }
     }
@@ -326,39 +276,7 @@ void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
         case eAtomicPacket::REQUEST_DEBUG_LOGS:
             HandleUploadDebugLogs();
             break;
-        case eAtomicPacket::REQUEST_FILE_UPLOAD:
-            HandleFileUpload(Packet);
-            break;
     }
-}
-
-void CAtomicNetwork::RequestFileUpload(std::string strFilePath)
-{
-    SharedUtil::AddDebugLog("Requesting File Hash...");
-    jsoncons::json request = jsoncons::json::object();
-
-    std::filesystem::path filePath(strFilePath);
-    std::ifstream         file(filePath, std::ios::binary);
-    std::string           strFileHash;
-
-    if (file)
-    {
-        std::ostringstream oss;
-        oss << file.rdbuf();
-        strFileHash = g_pAtomicCore->GetMD5Hash(oss.str());
-    }
-    else
-    {
-        SharedUtil::AddDebugLog("Failed to request file hash");
-        return;
-    }
-
-    request["filehash"] = strFileHash;
-    request["filepath"] = strFilePath;
-
-    SharedUtil::AddDebugLog("File Hash Requested Successfuly");
-
-    SendPacket(REQUEST_FILEHASH, request);
 }
 
 void CAtomicNetwork::Disconnect(std::string strReason)
