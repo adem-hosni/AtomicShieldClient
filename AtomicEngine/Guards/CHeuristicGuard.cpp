@@ -97,7 +97,6 @@ void CHeuristicGuard::DoPulse()
                     GetModuleFileName((HMODULE)memoryInfo.AllocationBase, szModuleName, sizeof(szModuleName));
                     if (strlen(szModuleName))
                     {
-                        SharedUtil::AddDebugLog("[+] Module name: %s", szModuleName);
                         if (FileAuthentication::IsFileSigned(szModuleName))
                         {
                             SharedUtil::AddDebugLog("[+] Whitelisted region: %s", szModuleName);
@@ -112,7 +111,6 @@ void CHeuristicGuard::DoPulse()
                     else
                     {
                         // Module path is empty, we cannot whitelist it yazebi
-                        SharedUtil::AddDebugLog("[+] Module path is empty, adding to suspicious regions");
                         m_vSuspiciousRegions.push_back((DWORD64)memoryInfo.AllocationBase);
                     }
                 }
