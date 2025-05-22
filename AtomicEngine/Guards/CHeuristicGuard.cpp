@@ -46,7 +46,7 @@ void CHeuristicGuard::DoPulse()
 
     constexpr SIZE_T MAX_REGION_SIZE = 10 * 1024 * 1024;            // 100 MB
     size_t           regionSize = MAX_REGION_SIZE;
-    PVOID buffer = nullptr;
+    PVOID            buffer = nullptr;
 
     status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &regionSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     if (!NT_SUCCESS(status) || buffer == nullptr)
@@ -86,8 +86,8 @@ void CHeuristicGuard::DoPulse()
                 SIZE_T returnLength = 0;
 
                 status = SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength);
-                if (!NT_SUCCESS(status) || MemoryRegion.State != MEM_COMMIT || MemoryRegion.Protect == PAGE_NOACCESS ||
-                    MemoryRegion.Protect & (PAGE_GUARD | PAGE_NOACCESS | PAGE_READONLY) || MemoryRegion.Type != MEM_PRIVATE)
+                if (!NT_SUCCESS(status) || MemoryRegion.State != MEM_COMMIT || MemoryRegion.Protect == PAGE_NOACCESS || (MemoryRegion.Protect & PAGE_GUARD) ||
+                    (MemoryRegion.Protect & PAGE_NOACCESS) || MemoryRegion.Type != MEM_PRIVATE)
                     continue;
 
                 SIZE_T allocationSize = MemoryRegion.RegionSize;
@@ -108,7 +108,8 @@ void CHeuristicGuard::DoPulse()
 
                 if (!NT_SUCCESS(status) || bytesRead == 0)
                 {
-                    SharedUtil::AddDebugLog("[-] Failed to read memory at 0x%p region size: %d (Error 0x%p, bytes read: %d)", MemoryRegion.BaseAddress, MemoryRegion.RegionSize, bytesRead);
+                    SharedUtil::AddDebugLog("[-] Failed to read memory at 0x%p region size: %d (Error 0x%p, bytes read: %d)", MemoryRegion.BaseAddress,
+                                            MemoryRegion.RegionSize, bytesRead);
                     SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
                     continue;
                 }
@@ -137,7 +138,7 @@ void CHeuristicGuard::DoPulse()
                         g_pAtomicAntiCheat->RunScanners(false);
                     }
                 }
-                
+
                 /*if (buffer)
                 {
                     SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
@@ -150,7 +151,7 @@ void CHeuristicGuard::DoPulse()
 
             SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %d", fElapsedTime, iRegions);
 
-            //std::this_thread::sleep_for(std::chrono::seconds(10));
+            std::this_thread::sleep_for(std::chrono::seconds(10));
         }
         SysNtClose(hProcess);
     }
