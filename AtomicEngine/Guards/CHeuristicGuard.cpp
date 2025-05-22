@@ -44,7 +44,7 @@ void CHeuristicGuard::DoPulse()
     HANDLE   processHandle;
     NTSTATUS status;
 
-    constexpr SIZE_T MAX_REGION_SIZE = 100 * 1024 * 1024;            // 100 MB
+    constexpr SIZE_T MAX_REGION_SIZE = 10 * 1024 * 1024;            // 100 MB
 
     while (g_pAtomicAntiCheat->RunScanners())
     {
