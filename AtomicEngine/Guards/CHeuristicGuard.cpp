@@ -46,14 +46,14 @@ void CHeuristicGuard::DoPulse()
 
     constexpr SIZE_T MAX_REGION_SIZE = 10 * 1024 * 1024;            // 100 MB
     size_t           regionSize = MAX_REGION_SIZE;
-    PVOID            buffer = nullptr;
+    /*PVOID            buffer = nullptr;
 
     status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &regionSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
     if (!NT_SUCCESS(status) || buffer == nullptr)
     {
         SharedUtil::AddDebugLog("[-] Failed to allocate memory for scanning (Error 0x%p)", status);
         return;
-    }
+    }*/
 
     while (g_pAtomicAntiCheat->RunScanners())
     {
@@ -95,13 +95,13 @@ void CHeuristicGuard::DoPulse()
                 if (allocationSize > MAX_REGION_SIZE)
                     continue;
 
-                /*PVOID buffer = nullptr;
+                PVOID buffer = nullptr;
                 status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
                 if (!NT_SUCCESS(status) || buffer == nullptr)
                 {
                     buffer = nullptr;
                     continue;
-                }*/
+                }
 
                 SIZE_T bytesRead = 0;
                 status = SysNtReadVirtualMemory(hProcess, MemoryRegion.BaseAddress, buffer, allocationSize, &bytesRead);
@@ -114,36 +114,27 @@ void CHeuristicGuard::DoPulse()
                     continue;
                 }
 
-                const char*      dataPtr = reinterpret_cast<const char*>(buffer);
-                std::string_view memoryView(dataPtr, bytesRead);
+                const char* dataPtr = reinterpret_cast<const char*>(buffer);
 
-                if (!decryptedStr.empty() && decryptedStr.find_first_not_of(" \t\n\r\0") != std::string::npos)
+                size_t foundPos = std::string_view(dataPtr, bytesRead).find(decryptedStr);
+                if (foundPos != std::string_view::npos && !decryptedStr.empty() && decryptedStr.find_first_not_of(" \t\n\r\0") != std::string::npos)
                 {
-                    size_t foundPos = memoryView.find(decryptedStr);
-                    if (foundPos != std::string_view::npos)
-                    {
-                        LPVOID lpFlaggedAddress = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + foundPos;
-                        SharedUtil::AddDebugLog("Found at 0x%p", lpFlaggedAddress);
+                    LPVOID lpFlaggedAddress = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + foundPos;
+                    SharedUtil::AddDebugLog("Found at 0x%p", lpFlaggedAddress);
 
-                        g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
-                                                                                    {"memory_address", (DWORD64)lpFlaggedAddress},
-                                                                                    {"region_size", MemoryRegion.RegionSize},
-                                                                                    {"base_address", (DWORD64)MemoryRegion.BaseAddress},
-                                                                                    {"region_type", (DWORD64)MemoryRegion.Type},
-                                                                                    {"region_state", (DWORD64)MemoryRegion.State},
-                                                                                    {"region_protect", (DWORD64)MemoryRegion.Protect},
-                                                                                    {"allocation_protect", (DWORD64)MemoryRegion.AllocationProtect},
-                                                                                    {"allocation_address", (DWORD64)MemoryRegion.AllocationBase}});
+                    g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
+                                                                                {"memory_address", (DWORD64)lpFlaggedAddress},
+                                                                                {"region_size", MemoryRegion.RegionSize},
+                                                                                {"base_address", (DWORD64)MemoryRegion.BaseAddress},
+                                                                                {"region_type", (DWORD64)MemoryRegion.Type},
+                                                                                {"region_state", (DWORD64)MemoryRegion.State},
+                                                                                {"region_protect", (DWORD64)MemoryRegion.Protect},
+                                                                                {"allocation_protect", (DWORD64)MemoryRegion.AllocationProtect},
+                                                                                {"allocation_address", (DWORD64)MemoryRegion.AllocationBase}});
 
-                        g_pAtomicAntiCheat->RunScanners(false);
-                    }
+                    g_pAtomicAntiCheat->RunScanners(false);
                 }
-
-                /*if (buffer)
-                {
-                    SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
-                    buffer = nullptr;
-                }*/
+                SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
             }
 
             QueryPerformanceCounter(&end);
