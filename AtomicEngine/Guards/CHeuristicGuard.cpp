@@ -84,16 +84,14 @@ void CHeuristicGuard::DoPulse()
                 PVOID  baseAddress = addr;
                 SIZE_T regionSize = sizeof(MemoryRegion);
                 SIZE_T returnLength = 0;
-
                 status = SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength);
-                if (!NT_SUCCESS(status) || MemoryRegion.State != MEM_COMMIT || MemoryRegion.Protect == PAGE_NOACCESS || (MemoryRegion.Protect & PAGE_GUARD) ||
-                    (MemoryRegion.Protect & PAGE_NOACCESS) || MemoryRegion.Type != MEM_PRIVATE)
+                if (!NT_SUCCESS(status) || MemoryRegion.State != MEM_COMMIT)
                     continue;
 
                 SIZE_T allocationSize = MemoryRegion.RegionSize;
 
-                if (allocationSize > MAX_REGION_SIZE)
-                    continue;
+                //if (allocationSize > MAX_REGION_SIZE)
+                //    continue;
 
                 PVOID buffer = nullptr;
                 status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
