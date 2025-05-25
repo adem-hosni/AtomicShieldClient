@@ -164,7 +164,6 @@ void CProcessGuard::DoPulse()
                 {
                     SharedUtil::AddDebugLog("Reporting...");
                     m_vDetectedProcesses.push_back(strProcessPath);
-                    g_pAtomicAntiCheat->GetNetwork()->RequestFileUpload(strProcessPath);
 
                     // Notify the server about the detection
                     g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
