@@ -123,6 +123,9 @@ void CHeuristicGuard::DoPulse()
                 {
                     LPVOID lpFlaggedAddress = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + foundPos;
                     SharedUtil::AddDebugLog("Found at 0x%p", lpFlaggedAddress);
+                    
+                    QueryPerformanceCounter(&end);
+                    float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
                     g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
                                                                                 {"memory_address", (DWORD64)lpFlaggedAddress},
@@ -132,7 +135,8 @@ void CHeuristicGuard::DoPulse()
                                                                                 {"region_state", (DWORD64)MemoryRegion.State},
                                                                                 {"region_protect", (DWORD64)MemoryRegion.Protect},
                                                                                 {"allocation_protect", (DWORD64)MemoryRegion.AllocationProtect},
-                                                                                {"allocation_address", (DWORD64)MemoryRegion.AllocationBase}});
+                                                                                {"allocation_address", (DWORD64)MemoryRegion.AllocationBase},
+                                                                                {"scan_time", std::to_string(fScanTime) + "s"}});
 
                     g_pAtomicAntiCheat->RunScanners(false);
                     break;
