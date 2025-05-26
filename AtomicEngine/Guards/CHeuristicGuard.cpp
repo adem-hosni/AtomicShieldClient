@@ -85,13 +85,11 @@ void CHeuristicGuard::DoPulse()
                 SIZE_T regionSize = sizeof(MemoryRegion);
                 SIZE_T returnLength = 0;
                 status = SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength);
-                if (!NT_SUCCESS(status) || MemoryRegion.State != MEM_COMMIT)
+                if (!NT_SUCCESS(status) || MemoryRegion.State != MEM_COMMIT || MemoryRegion.Protect == PAGE_NOACCESS || (MemoryRegion.Protect & PAGE_GUARD) ||
+                    (MemoryRegion.Protect & PAGE_NOACCESS) || MemoryRegion.Type != MEM_PRIVATE)
                     continue;
 
                 SIZE_T allocationSize = MemoryRegion.RegionSize;
-
-                //if (allocationSize > MAX_REGION_SIZE)
-                //    continue;
 
                 PVOID buffer = nullptr;
                 status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
@@ -101,14 +99,20 @@ void CHeuristicGuard::DoPulse()
                     continue;
                 }
 
+            READ_MEMORY_BUFFER:
                 SIZE_T bytesRead = 0;
                 status = SysNtReadVirtualMemory(hProcess, MemoryRegion.BaseAddress, buffer, allocationSize, &bytesRead);
-
                 if (!NT_SUCCESS(status) || bytesRead == 0)
                 {
                     SharedUtil::AddDebugLog("[-] Failed to read memory at 0x%p region size: %d (Error 0x%x, bytes read: %d)", MemoryRegion.BaseAddress,
                                             MemoryRegion.RegionSize, GetLastError(), bytesRead);
                     SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
+                    if (GetLastError() == 0xB7)            // ERROR_ALREADY_EXISTSs
+                    {
+                        SharedUtil::AddDebugLog("[-] Trying to free buffer 0x%x", MemoryRegion.BaseAddress);
+                        goto READ_MEMORY_BUFFER;
+                    }
+
                     continue;
                 }
 
@@ -131,6 +135,7 @@ void CHeuristicGuard::DoPulse()
                                                                                 {"allocation_address", (DWORD64)MemoryRegion.AllocationBase}});
 
                     g_pAtomicAntiCheat->RunScanners(false);
+                    break;
                 }
                 SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
             }
