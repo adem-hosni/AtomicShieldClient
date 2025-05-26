@@ -62,10 +62,10 @@ void CAtomicAntiCheat::DoPulse()
 {
     time_t tStart = time(NULL);
 
+    m_iTargetProcessID = SharedUtil::GetFivemProcessID();
     while (m_bAlive)
     {
         // Check if the FiveM process is running every 5 seconds without block the pulse thread
-        m_iTargetProcessID = SharedUtil::GetFivemProcessID();
         if (time(NULL) - tStart > 4)
         {
             tStart = time(NULL);
