@@ -106,8 +106,8 @@ void CHeuristicGuard::DoPulse()
 
                 if (!NT_SUCCESS(status) || bytesRead == 0)
                 {
-                    SharedUtil::AddDebugLog("[-] Failed to read memory at 0x%p region size: %d (Error 0x%p, bytes read: %d)", MemoryRegion.BaseAddress,
-                                            MemoryRegion.RegionSize, bytesRead);
+                    SharedUtil::AddDebugLog("[-] Failed to read memory at 0x%p region size: %d (Error 0x%x, bytes read: %d)", MemoryRegion.BaseAddress,
+                                            MemoryRegion.RegionSize, GetLastError(), bytesRead);
                     SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
                     continue;
                 }
