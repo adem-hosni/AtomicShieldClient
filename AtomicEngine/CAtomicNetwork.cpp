@@ -22,7 +22,7 @@ bool CAtomicNetwork::Connect()
     m_pWebSocket->setUrl(WEBSOCKET_BASE_URL "/c/atomicshieldagent/");
     
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
-    m_pWebSocket->setPingInterval(20);
+    m_pWebSocket->setPingInterval(45);
     m_pWebSocket->enablePerMessageDeflate();
     m_pWebSocket->enablePong();
     m_pWebSocket->disableAutomaticReconnection();
