@@ -52,10 +52,10 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
 
     // SharedProtocols::EnableProcessMitigations(true, true, true, true, true);
 
-    AllocConsole();
+    /*AllocConsole();
     freopen("CONIN$", "r", stdin);
     freopen("CONOUT$", "w", stdout);
-    freopen("CONOUT$", "w", stderr);
+    freopen("CONOUT$", "w", stderr);*/
 
     SharedUtil::SetRegistryIntValue("AtomicShield", 1);
     

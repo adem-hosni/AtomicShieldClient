@@ -5,7 +5,7 @@
 #include <condition_variable>
 #include <future>
 
-CAtomicNetwork::CAtomicNetwork() : m_bConnected(false), m_bNetworkJoined(false)
+CAtomicNetwork::CAtomicNetwork() : m_bConnected(false), m_bNetworkJoined(false), m_ullLastPingTime(NULL)
 {
     m_pWebSocket = new ix::WebSocket();
 }
@@ -217,6 +217,13 @@ void CAtomicNetwork::DoPulse()
             m_vPendingPackets.pop();
         }
     }
+
+    if (time(NULL) - m_ullLastPingTime > 5)
+    {
+        m_pWebSocket->ping("Ping");
+        m_ullLastPingTime = time(NULL);
+    }
+
     std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 

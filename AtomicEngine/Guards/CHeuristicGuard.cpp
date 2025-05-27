@@ -44,17 +44,6 @@ void CHeuristicGuard::DoPulse()
     HANDLE   hProcess;
     NTSTATUS status;
 
-    constexpr SIZE_T MAX_REGION_SIZE = 10 * 1024 * 1024;            // 100 MB
-    size_t           regionSize = MAX_REGION_SIZE;
-    /*PVOID            buffer = nullptr;
-
-    status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &regionSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-    if (!NT_SUCCESS(status) || buffer == nullptr)
-    {
-        SharedUtil::AddDebugLog("[-] Failed to allocate memory for scanning (Error 0x%p)", status);
-        return;
-    }*/
-
     while (g_pAtomicAntiCheat->RunScanners())
     {
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
@@ -85,8 +74,8 @@ void CHeuristicGuard::DoPulse()
                 SIZE_T regionSize = sizeof(MemoryRegion);
                 SIZE_T returnLength = 0;
                 status = SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength);
-                if (!NT_SUCCESS(status) || MemoryRegion.State != MEM_COMMIT || MemoryRegion.Protect == PAGE_NOACCESS || (MemoryRegion.Protect & PAGE_GUARD) ||
-                    (MemoryRegion.Protect & PAGE_NOACCESS) || MemoryRegion.Type != MEM_PRIVATE)
+                if (!NT_SUCCESS(status) || MemoryRegion.State != MEM_COMMIT || MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE) ||
+                    !(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)) || MemoryRegion.Type != MEM_PRIVATE)
                     continue;
 
                 SIZE_T allocationSize = MemoryRegion.RegionSize;
@@ -99,23 +88,31 @@ void CHeuristicGuard::DoPulse()
                     continue;
                 }
 
-            READ_MEMORY_BUFFER:
                 SIZE_T bytesRead = 0;
                 status = SysNtReadVirtualMemory(hProcess, MemoryRegion.BaseAddress, buffer, allocationSize, &bytesRead);
                 if (!NT_SUCCESS(status) || bytesRead == 0)
                 {
-                    SharedUtil::AddDebugLog("[-] Failed to read memory at 0x%p region size: %d (Error 0x%x, bytes read: %d)", MemoryRegion.BaseAddress,
-                                            MemoryRegion.RegionSize, GetLastError(), bytesRead);
-                    SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
-                    if (GetLastError() == 0xB7)            // ERROR_ALREADY_EXISTSs
+                    if (status == 0x8000000D)
                     {
-                        SharedUtil::AddDebugLog("[-] Trying to free buffer 0x%x", MemoryRegion.BaseAddress);
-                        goto READ_MEMORY_BUFFER;
+                        status = SysNtReadVirtualMemory(hProcess, MemoryRegion.BaseAddress, buffer, allocationSize, &bytesRead);
+                        if (!NT_SUCCESS(status))
+                        {
+                            SharedUtil::AddDebugLog(
+                                "[-] Failed to read memory at 0x%p region size: %d (Error 0x%x, status: 0x%016llX, Protection Flags: 0x%llx, Memory State: "
+                                "0x%x, bytes "
+                                "read: %d)",
+                                MemoryRegion.BaseAddress, MemoryRegion.RegionSize, GetLastError(), status, MemoryRegion.Protect, MemoryRegion.State, bytesRead);
+                            SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
+
+                            if (bytesRead == 0)
+                            {
+                                addr = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + MemoryRegion.RegionSize;
+                                continue;
+                            }
+                        }
                     }
-
-                    continue;
                 }
-
+                
                 const char* dataPtr = reinterpret_cast<const char*>(buffer);
 
                 size_t foundPos = std::string_view(dataPtr, bytesRead).find(decryptedStr);
@@ -123,7 +120,7 @@ void CHeuristicGuard::DoPulse()
                 {
                     LPVOID lpFlaggedAddress = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + foundPos;
                     SharedUtil::AddDebugLog("Found at 0x%p", lpFlaggedAddress);
-                    
+
                     QueryPerformanceCounter(&end);
                     float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 

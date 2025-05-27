@@ -49,6 +49,7 @@ private:
     std::map<eAtomicPacket, jsoncons::json>         m_PendingResponses;
     std::map<std::string, std::vector<std::string>> m_Signatures;
     std::queue<std::string>                         m_vPendingPackets;
+    unsigned long long                              m_ullLastPingTime;
 
     bool m_bNetworkJoined;
     bool m_bConnected;
