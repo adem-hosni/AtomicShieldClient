@@ -137,6 +137,7 @@ void CHeuristicGuard::DoPulse()
 
                     g_pAtomicAntiCheat->RunScanners(false);
                     break;
+                    break;
                 }
                 SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
             }
