@@ -22,7 +22,6 @@
 #include <iostream>
 #include <filesystem>
 
-#include "MemoryScanner.h"
 #include "CAtomicHook.h"
 #include "FileAuthentication.h"
 #include "Screenshot.h"
@@ -42,4 +41,3 @@
 #include "Guards/CHeuristicGuard.h"
 #include "Guards/CModuleGuard.h"
 #include "Guards/CProcessGuard.h"
-#include "Guards/CSteamOverlayGuard.h"

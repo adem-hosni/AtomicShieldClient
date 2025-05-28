@@ -186,7 +186,6 @@
     <ClCompile Include="CAtomicThread.cpp" />
     <ClCompile Include="CGuardManager.cpp" />
     <ClCompile Include="CHWID.cpp" />
-    <ClCompile Include="Guards\CSteamOverlayGuard.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="FileAuthentication.cpp" />
     <ClCompile Include="Guards\CGuardBase.cpp" />
@@ -194,7 +193,6 @@
     <ClCompile Include="Guards\CModuleGuard.cpp" />
     <ClCompile Include="Guards\CProcessGuard.cpp" />
     <ClCompile Include="KernelCalls.c" />
-    <ClCompile Include="MemoryScanner.cpp" />
     <ClCompile Include="Screenshot.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Utils.cpp" />
@@ -248,7 +246,6 @@
     <ClInclude Include="CAtomicThread.h" />
     <ClInclude Include="CGuardManager.h" />
     <ClInclude Include="CHWID.h" />
-    <ClInclude Include="Guards\CSteamOverlayGuard.h" />
     <ClInclude Include="FileAuthentication.h" />
     <ClInclude Include="Guards\CGuardBase.h" />
     <ClInclude Include="Guards\CHeuristicGuard.h" />
@@ -256,7 +253,6 @@
     <ClInclude Include="Guards\CProcessGuard.h" />
     <ClInclude Include="KernelCalls.h" />
     <ClInclude Include="KernelCalls.hpp" />
-    <ClInclude Include="MemoryScanner.h" />
     <ClInclude Include="Screenshot.h" />
     <ClInclude Include="skCrypter.h" />
     <ClInclude Include="StdInc.h" />

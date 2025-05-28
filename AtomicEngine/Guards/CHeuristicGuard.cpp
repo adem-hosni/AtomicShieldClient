@@ -56,6 +56,7 @@ void CHeuristicGuard::DoPulse()
         if (!NT_SUCCESS(status))
             continue;
 
+        {
             LARGE_INTEGER frequency, start, end;
             QueryPerformanceFrequency(&frequency);
             QueryPerformanceCounter(&start);
@@ -141,6 +142,7 @@ void CHeuristicGuard::DoPulse()
                     }
                 }
                 SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
+            }
 
             QueryPerformanceCounter(&end);
             float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;

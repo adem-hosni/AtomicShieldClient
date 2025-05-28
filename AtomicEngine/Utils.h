@@ -2,7 +2,6 @@
 #include "StdInc.h"
 #include <Windows.h>
 #include <TlHelp32.h>
-#include <Psapi.h>
 
 namespace Utils
 {
@@ -16,10 +15,9 @@ namespace Utils
     DWORD                     GenerateCRC32(const std::string& filePath, DWORD* FileSize);
     DWORD                     GenerateCRC32(const std::wstring& filePath, DWORD* FileSize);
     std::map<LPVOID, DWORD64> BuildModuledMemoryMap();
-    MODULEENTRY32             GetModuleEntry(const char* szModuleName, int iProcessID);
+    int*                      GetModuleMemoryInfo(HANDLE hProcess, HMODULE Addr);
     DWORD64                   GetModuleBaseAddress(int iProcessID, std::string strModuleName);
     DWORD64                   IsAddressInModuledRange(DWORD64 dwBase);
-    bool                      IsFunctionHooked(const char* szBuffer, DWORD64 dwSize, DWORD64 dwAddress);
     bool                      IsFunctionHooked(const char* szModuleName, const char* szFunctionName);
     std::string               CaesarDecrypt(const std::string& ciphertext, int shift);
     std::wstring              CaesarDecrypt(const std::wstring& ciphertext, int shift);
