@@ -3,6 +3,7 @@
 #include "Guards/CHeuristicGuard.h"
 #include "Guards/CModuleGuard.h"
 #include "Guards/CProcessGuard.h"
+#include "Guards/CSteamOverlayGuard.h"
 
 class CGuardManager
 {
@@ -25,7 +26,8 @@ public:
 private:
     CHeuristicGuard* m_pHeuristicGuard;
     // CModuleGuard*    m_pModuleGuard;
-    CProcessGuard* m_pProcessGuard;
+    CProcessGuard*      m_pProcessGuard;
+    CSteamOverlayGuard* m_pSteamOverlayGuard;
 
     std::vector<CAtomicThread*> m_vThreads;
     bool                        m_bPulseStarted;

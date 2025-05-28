@@ -112,51 +112,15 @@ std::map<LPVOID, DWORD64> Utils::BuildModuledMemoryMap()
     return memoryMap;
 }
 
-int* Utils::GetModuleMemoryInfo(HANDLE hProcess, HMODULE Addr)
-{
-    if (Addr == nullptr)
-        return nullptr;
-    static MODULEINFO modinfo = {0};
-    ZeroMemory(&modinfo, sizeof(MODULEINFO));
-    __try
-    {
-        if (GetModuleInformation(hProcess, Addr, &modinfo, sizeof(MODULEINFO)))
-            return (int*)&modinfo;
-    }
-    __except (EXCEPTION_EXECUTE_HANDLER)
-    {
-#ifdef ARTEMIS_DEBUG
-        Utils::AddDebugLog("[SEH] 0x%X from GetModuleMemoryInfo!\n", GetExceptionCode());
-#endif
-    }
-    return nullptr;
-}
-
 DWORD64 Utils::GetModuleBaseAddress(int iProcessID, std::string strModuleName)
 {
-    DWORD  dwBaseAddress = 0;
-    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, iProcessID);
-
-    if (hSnapshot != INVALID_HANDLE_VALUE)
+    MODULEENTRY32 Entry = GetModuleEntry(strModuleName.c_str(), iProcessID);
+    if (Entry.hModule == NULL)
     {
-        MODULEENTRY32 moduleEntry;
-        moduleEntry.dwSize = sizeof(MODULEENTRY32);
-
-        if (Module32First(hSnapshot, &moduleEntry))
-        {
-            do
-            {
-                // Compare the module name (moduleEntry.szModule) with the input string (moduleName)
-                if (strModuleName == moduleEntry.szModule)
-                {
-                    dwBaseAddress = reinterpret_cast<DWORD64>(moduleEntry.modBaseAddr);
-                    break;
-                }
-            } while (Module32Next(hSnapshot, &moduleEntry));
-        }
+        SharedUtil::AddDebugLog("Couldn't fetch module name '%s'!", strModuleName.c_str());
+        return NULL;
     }
-    CloseHandle(hSnapshot);
-    return dwBaseAddress;
+    return (DWORD64)Entry.modBaseAddr;
 }
 
 DWORD64 Utils::IsAddressInModuledRange(DWORD64 dwBase)
@@ -168,6 +132,27 @@ DWORD64 Utils::IsAddressInModuledRange(DWORD64 dwBase)
             return (DWORD64)it.first;
     }
     return -1;
+}
+
+bool Utils::IsFunctionHooked(const char* szBuffer, DWORD64 dwSize, DWORD64 dwAddress)
+{
+    if (szBuffer == nullptr || dwAddress == NULL)
+        return false;
+
+    LPVOID pFunction = (LPVOID)dwAddress;
+
+    // 0xEB = short jump, 0xE8 = call X, 0xE9 = long jump, 0xEA = "jmp oper2:oper1"
+    __try
+    {
+        if (*(BYTE*)pFunction == 0xE8 || *(BYTE*)pFunction == 0xE9 || *(BYTE*)pFunction == 0xEA || *(BYTE*)pFunction == 0xEB)
+            return true;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        SharedUtil::AddDebugLog("Couldn't read bytes %s", dwAddress);
+    }
+
+    return false;
 }
 
 bool Utils::IsFunctionHooked(const char* szModuleName, const char* szFunctionName)
@@ -250,4 +235,26 @@ std::wstring Utils::CaesarDecrypt(const std::wstring& ciphertext, int shift)
 std::string Utils::GetFivemPath()
 {
     return std::string(SharedUtil::GetKnownDirectory(FOLDERID_LocalAppData) + "\\FiveM\\FiveM.app");
+}
+
+MODULEENTRY32 Utils::GetModuleEntry(const char* szModuleName, int iProcessID)
+{
+    MODULEENTRY32 ModuleEntry = {sizeof(ModuleEntry)};
+    HANDLE         hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, iProcessID);
+
+    if (hSnapshot != INVALID_HANDLE_VALUE)
+    {
+        if (Module32First(hSnapshot, &ModuleEntry))
+        {
+            do
+            {
+                if (stricmp(szModuleName, ModuleEntry.szModule) == 0)
+                {
+                    break;
+                }
+            } while (Module32Next(hSnapshot, &ModuleEntry));
+        }
+        CloseHandle(hSnapshot);
+    }
+    return ModuleEntry;
 }

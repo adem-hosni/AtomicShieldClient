@@ -100,7 +100,7 @@ void CAtomicAntiCheat::DoPulse()
 
         if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
         {
-            m_hProcess = OpenProcess(PROCESS_VM_READ, FALSE, m_iTargetProcessID);
+            m_hProcess = OpenProcess(PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, FALSE, m_iTargetProcessID);
             if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
             {
                 SharedUtil::AddDebugLog("Failed to attach to fivem process!");
