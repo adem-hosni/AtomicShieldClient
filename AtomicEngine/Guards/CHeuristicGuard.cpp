@@ -6,6 +6,7 @@
 
 CHeuristicGuard::CHeuristicGuard()
 {
+    m_bFound = false;
 }
 
 CHeuristicGuard::~CHeuristicGuard()
@@ -33,7 +34,6 @@ void CHeuristicGuard::DoPulse()
     KernelCalls_OBJECT_ATTRIBUTES objAttr{};
     KernelCalls_CLIENT_ID         clientId{};
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
-
     RtlSecureZeroMemory(&objAttr, sizeof(KernelCalls_OBJECT_ATTRIBUTES));
     objAttr.Length = sizeof(KernelCalls_OBJECT_ATTRIBUTES);
     RtlSecureZeroMemory(&clientId, sizeof(KernelCalls_CLIENT_ID));
@@ -62,7 +62,6 @@ void CHeuristicGuard::DoPulse()
             QueryPerformanceCounter(&start);
 
             MEMORY_BASIC_INFORMATION MemoryRegion{};
-            bool                     found = false;
             int                      iRegions = 0;
 
             for (LPVOID addr = sysInfo.lpMinimumApplicationAddress; addr < sysInfo.lpMaximumApplicationAddress;
@@ -117,7 +116,7 @@ void CHeuristicGuard::DoPulse()
                 for (const auto& decryptedStr : m_vSignatures)
                 {
                     size_t foundPos = std::string_view(dataPtr, bytesRead).find(decryptedStr);
-                    if (foundPos != std::string_view::npos && !decryptedStr.empty() && decryptedStr.find_first_not_of(" \t\n\r\0") != std::string::npos)
+                    if (foundPos != std::string_view::npos && !decryptedStr.empty())
                     {
                         LPVOID lpFlaggedAddress = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + foundPos;
                         SharedUtil::AddDebugLog("Found at 0x%p", lpFlaggedAddress);
@@ -137,11 +136,16 @@ void CHeuristicGuard::DoPulse()
                                                                                     {"scan_time", std::to_string(fScanTime) + "s"}});
 
                         g_pAtomicAntiCheat->RunScanners(false);
-                        break;
+                        m_bFound = true;
                         break;
                     }
+
                 }
                 SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
+           
+                if (m_bFound)
+                    break;
+                //std::this_thread::sleep_for(std::chrono::nanoseconds(1));
             }
 
             QueryPerformanceCounter(&end);
@@ -149,7 +153,7 @@ void CHeuristicGuard::DoPulse()
 
             SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %d", fElapsedTime, iRegions);
 
-            std::this_thread::sleep_for(std::chrono::seconds(10));
+            std::this_thread::sleep_for(std::chrono::seconds(25));
         }
         SysNtClose(hProcess);
     }
