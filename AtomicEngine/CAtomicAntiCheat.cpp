@@ -20,33 +20,33 @@ CAtomicAntiCheat::~CAtomicAntiCheat()
         delete m_pAtomicNetwork;
 }
 
-void CAtomicAntiCheat::SEHTranslator(unsigned int code, EXCEPTION_POINTERS* pException)
-{
-    SharedUtil::AddDebugLog(
-        "SEH Exception Caught: %d! Address: 0x%p | Code: %d\n"
-        "\tRAX : 0x%p \tRCX: 0x%p \tRIP: 0x%p",
-        code, pException->ExceptionRecord->ExceptionAddress, pException->ExceptionRecord->ExceptionCode, pException->ContextRecord->Rax,
-        pException->ContextRecord->Rcx, pException->ContextRecord->Rip);
-}
-
 LONG CAtomicAntiCheat::SEHTranslator(EXCEPTION_POINTERS* pException)
 {
+    if (!pException || !pException->ExceptionRecord || !pException->ContextRecord)
+        return EXCEPTION_EXECUTE_HANDLER;
+
     SharedUtil::AddDebugLog(
-        "SEH Exception Caught! Address: 0x%p | Code: %d\n"
-        "\tRAX : 0x%p \tRCX: 0x%p \tRIP: 0x%p",
-        pException->ExceptionRecord->ExceptionAddress, pException->ExceptionRecord->ExceptionCode, pException->ContextRecord->Rax,
-        pException->ContextRecord->Rcx, pException->ContextRecord->Rip);
+        "SEH Exception Caught! Address: 0x%p | Code: 0x%08X\n"
+        "\tRAX: 0x%p \tRCX: 0x%p \tRIP: 0x%p",
+        pException->ExceptionRecord->ExceptionAddress, pException->ExceptionRecord->ExceptionCode, (void*)pException->ContextRecord->Rax,
+        (void*)pException->ContextRecord->Rcx, (void*)pException->ContextRecord->Rip);
 
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
+void GlobalTerminateHandler()
+{
+    SharedUtil::AddDebugLog("Global terminate handler called! Shutting down Atomic AntiCheat...");
+}
+
 bool CAtomicAntiCheat::Initialize()
 {
-    _set_se_translator(SEHTranslator);
+    SetUnhandledExceptionFilter(SEHTranslator);
+    std::set_terminate(GlobalTerminateHandler);
 
     m_hProcess = NULL;
     m_iTargetProcessID = NULL;
- //   m_HWIDCache = g_pHWID->LoadHWIDCaches();
+    //   m_HWIDCache = g_pHWID->LoadHWIDCaches();
 
     m_pGuardManager->InitializeGuards();
     return true;
@@ -117,7 +117,6 @@ void CAtomicAntiCheat::DoPulse()
             std::this_thread::sleep_for(std::chrono::seconds(5));
             continue;
         }
-
 
         if (m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Closed)
         {
@@ -217,7 +216,7 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
 void CAtomicAntiCheat::Shutdown()
 {
     SharedUtil::AddDebugLog("Shutting down Atomic AntiCheat...");
-    
+
     RunScanners(false);
     if (m_hProcess != NULL && m_hProcess != INVALID_HANDLE_VALUE)
     {
