@@ -22,6 +22,7 @@
 #include <iostream>
 #include <filesystem>
 
+#include "CCrashHandler.h"
 #include "CAtomicHook.h"
 #include "FileAuthentication.h"
 #include "Screenshot.h"
@@ -31,6 +32,7 @@
 #include "CAtomicNetwork.h"
 #include "CAtomicThread.h"
 #include "CAtomicAntiCheat.h"
+#include "CAtomicAPI.h"
 #include "SharedUtil.h"
 #include "SharedProtocols.h"
 #include "Utils.h"

@@ -289,7 +289,7 @@ bool SharedUtil::SetPrivilege(LPCTSTR lpszPrivilege)
     return TRUE;
 }
 
-std::string SharedUtil::Base64Encode(std::string& data)
+std::string SharedUtil::Base64Encode(std::string data)
 {
     static const char base64Chars[] =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"

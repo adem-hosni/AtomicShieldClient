@@ -146,6 +146,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CAtomicAPI.cpp" />
     <ClCompile Include="CAtomicCore.cpp" />
     <ClCompile Include="Helpers\AES.cpp" />
     <ClCompile Include="SecurityChecks.cpp" />
@@ -154,6 +155,7 @@
     <ClCompile Include="SharedUtil.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CAtomicAPI.h" />
     <ClInclude Include="CAtomicCore.h" />
     <ClInclude Include="Helpers\AES.h" />
     <ClInclude Include="Common.h" />
@@ -250,6 +252,18 @@
     <ClInclude Include="Vendor\crypto\x509_acert.h" />
     <ClInclude Include="Vendor\crypto\__DECC_INCLUDE_EPILOGUE.H" />
     <ClInclude Include="Vendor\crypto\__DECC_INCLUDE_PROLOGUE.H" />
+    <ClInclude Include="Vendor\curl\curl.h" />
+    <ClInclude Include="Vendor\curl\curlver.h" />
+    <ClInclude Include="Vendor\curl\easy.h" />
+    <ClInclude Include="Vendor\curl\header.h" />
+    <ClInclude Include="Vendor\curl\mprintf.h" />
+    <ClInclude Include="Vendor\curl\multi.h" />
+    <ClInclude Include="Vendor\curl\options.h" />
+    <ClInclude Include="Vendor\curl\stdcheaders.h" />
+    <ClInclude Include="Vendor\curl\system.h" />
+    <ClInclude Include="Vendor\curl\typecheck-gcc.h" />
+    <ClInclude Include="Vendor\curl\urlapi.h" />
+    <ClInclude Include="Vendor\curl\websockets.h" />
     <ClInclude Include="Vendor\internal\asn1.h" />
     <ClInclude Include="Vendor\internal\bio.h" />
     <ClInclude Include="Vendor\internal\bio_addr.h" />

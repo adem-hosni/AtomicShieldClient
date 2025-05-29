@@ -20,20 +20,6 @@ CAtomicAntiCheat::~CAtomicAntiCheat()
         delete m_pAtomicNetwork;
 }
 
-LONG CAtomicAntiCheat::SEHTranslator(EXCEPTION_POINTERS* pException)
-{
-    if (!pException || !pException->ExceptionRecord || !pException->ContextRecord)
-        return EXCEPTION_EXECUTE_HANDLER;
-
-    SharedUtil::AddDebugLog(
-        "SEH Exception Caught! Address: 0x%p | Code: 0x%08X\n"
-        "\tRAX: 0x%p \tRCX: 0x%p \tRIP: 0x%p",
-        pException->ExceptionRecord->ExceptionAddress, pException->ExceptionRecord->ExceptionCode, (void*)pException->ContextRecord->Rax,
-        (void*)pException->ContextRecord->Rcx, (void*)pException->ContextRecord->Rip);
-
-    return EXCEPTION_EXECUTE_HANDLER;
-}
-
 void GlobalTerminateHandler()
 {
     SharedUtil::AddDebugLog("Global terminate handler called! Shutting down Atomic AntiCheat...");
@@ -42,8 +28,7 @@ void GlobalTerminateHandler()
 bool CAtomicAntiCheat::Initialize()
 {
     SharedUtil::AddDebugLog("Initializing Atomic AntiCheat...");
-    SetUnhandledExceptionFilter(SEHTranslator);
-    std::set_terminate(GlobalTerminateHandler);
+    CCrashHandler::Initialize();
 
     m_hProcess = NULL;
     m_iTargetProcessID = NULL;

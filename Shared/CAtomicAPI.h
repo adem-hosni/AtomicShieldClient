@@ -1,6 +1,6 @@
 #pragma once
-#include "StdInc.h"
 #include "jsoncons/json.hpp"
+#include "curl/curl.h"
 
 struct SUserData
 {
@@ -17,6 +17,7 @@ public:
     bool           IsAlreadyConnected();
     bool           IsValidVersion(const char* szVersion);
     void           DownloadEngine(std::string* buffer, SUserData* pUserData);
+    bool           UploadCashReport(jsoncons::json Report);
 
 private:
     std::string   PostRequest(const char* szURL, jsoncons::json Data = jsoncons::json(), SUserData* pUserData = nullptr, bool bEncryptRequestBody = true, bool bDecryptRespnseBody = true);

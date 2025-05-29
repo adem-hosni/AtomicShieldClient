@@ -85,7 +85,7 @@
     <IntDir>$(SolutionDir)Cache\$(Platform)</IntDir>
     <TargetName>Atomic Engine</TargetName>
     <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);$(ProjectDir);$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir)Vendor</IncludePath>
-    <LibraryPath>$(ProjectDir)Vendor;$(LibraryPath)</LibraryPath>
+    <LibraryPath>$(SolutionDir)Shared\Vendor;$(ProjectDir)Vendor;$(LibraryPath)</LibraryPath>
     <ExternalIncludePath>$(SolutionDir)Shared;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Vendor</ExternalIncludePath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
@@ -175,7 +175,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(OutputPath)Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(OutputPath)Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;curl/libcurl.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -184,6 +184,7 @@
     <ClCompile Include="CAtomicHook.cpp" />
     <ClCompile Include="CAtomicNetwork.cpp" />
     <ClCompile Include="CAtomicThread.cpp" />
+    <ClCompile Include="CCrashHandler.cpp" />
     <ClCompile Include="CGuardManager.cpp" />
     <ClCompile Include="CHWID.cpp" />
     <ClCompile Include="dllmain.cpp" />
@@ -244,6 +245,7 @@
     <ClInclude Include="CAtomicHook.h" />
     <ClInclude Include="CAtomicNetwork.h" />
     <ClInclude Include="CAtomicThread.h" />
+    <ClInclude Include="CCrashHandler.h" />
     <ClInclude Include="CGuardManager.h" />
     <ClInclude Include="CHWID.h" />
     <ClInclude Include="FileAuthentication.h" />
