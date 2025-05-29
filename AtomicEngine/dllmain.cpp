@@ -38,32 +38,16 @@ BOOL AdjustTokenPrivilege(const HANDLE hproc)
     return 0;
 }
 
-inline void adjustTokenPrivilege()
-{
-    AdjustTokenPrivilege(GetCurrentProcess());
-}
 void EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
-#ifdef _DEBUG
-   // _beginthread((_beginthread_proc_type)SharedChecks::CheckProcessList, NULL, SharedChecks::MaliciousProcessAlert);
-#endif
-    //PEBHide::EraseSelfPEHeader(lpAntiCheatModuleBase);
-    //PEBHide::UnlinkSelfLdrModule(lpAntiCheatModuleBase);
-
-    // SharedProtocols::EnableProcessMitigations(true, true, true, true, true);
-
-    //AllocConsole();
-    //freopen("CONIN$", "r", stdin);
-    //freopen("CONOUT$", "w", stdout);
-    //freopen("CONOUT$", "w", stderr);
-
+    SharedUtil::AddDebugLog(
+        "============================================================= AtomicShield AntiCheat Loaded! "
+        "=============================================================\n");
     SharedUtil::SetRegistryIntValue("AtomicShield", 1);
-    
+
     if (g_pAtomicAntiCheat->Initialize())
     {
-        adjustTokenPrivilege();
-
-   //     g_pAtomicAntiCheat->SetAntiCheatModuleBase(lpAntiCheatModuleBase);
+        AdjustTokenPrivilege(GetCurrentProcess());
         g_pAtomicAntiCheat->StartBasicChecks();
     }
     _beginthread((_beginthread_proc_type)CAtomicAntiCheat::StaticPulse, NULL, g_pAtomicAntiCheat);
