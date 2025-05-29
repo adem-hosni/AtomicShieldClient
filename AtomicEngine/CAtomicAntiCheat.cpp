@@ -41,6 +41,7 @@ void GlobalTerminateHandler()
 
 bool CAtomicAntiCheat::Initialize()
 {
+    SharedUtil::AddDebugLog("Initializing Atomic AntiCheat...");
     SetUnhandledExceptionFilter(SEHTranslator);
     std::set_terminate(GlobalTerminateHandler);
 
