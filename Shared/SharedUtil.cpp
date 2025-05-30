@@ -193,7 +193,16 @@ void SharedUtil::AddDebugLog(const char* szLog, ...)
     memset(szNewFile, 0, sizeof(szNewFile));
     sprintf(szNewFile, "%s\\Trace.logs", szLogDirectory);
     static bool bOnce = false;
-    
+    if (!bOnce)
+    {
+        FILE* hFile = fopen(szNewFile, "rb");
+        if (hFile)
+        {
+            fclose(hFile);
+            DeleteFileA(szNewFile);
+        }
+        bOnce = true;
+    }
     FILE* hFile = fopen(szNewFile, "a+");
 
     if (hFile)
