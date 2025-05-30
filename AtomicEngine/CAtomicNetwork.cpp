@@ -92,13 +92,13 @@ jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
     jsoncons::json Response = m_PendingResponses[PacketID];
 
     // Check if the unix timestamp received is tampered
-    if (time(NULL) - Response["ut"].as<DWORD>() >= 20)
-    {
-        __fastfail(0);
-        // Return an empty data to crash the engine if the __fastfail was tampered
-        jsoncons::json j;
-        return j;
-    }
+    //if (time(NULL) - Response["ut"].as<DWORD>() >= 20)
+    //{
+    //    __fastfail(0);
+    //    // Return an empty data to crash the engine if the __fastfail was tampered
+    //    jsoncons::json j;
+    //    return j;
+    //}
 
     m_PendingResponses.erase(PacketID);
     return Response;
