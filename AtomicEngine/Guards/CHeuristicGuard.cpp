@@ -46,9 +46,6 @@ void CHeuristicGuard::DoPulse()
 
     while (g_pAtomicAntiCheat->RunScanners())
     {
-        int* p = nullptr;
-        *p = 5;
-
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
