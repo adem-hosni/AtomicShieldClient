@@ -12,26 +12,31 @@ LONG CCrashHandler::SEHTranslator(EXCEPTION_POINTERS* pException)
     if (!pException || !pException->ExceptionRecord || !pException->ContextRecord)
         return EXCEPTION_EXECUTE_HANDLER;
 
+    DWORD64 dwModuleBase = NULL;
+
+    MEMORY_BASIC_INFORMATION mbi;
+    if (VirtualQuery(pException->ExceptionRecord->ExceptionAddress, &mbi, sizeof(mbi)))
+        dwModuleBase = (DWORD64)mbi.AllocationBase;
+
     SharedUtil::AddDebugLog(
-        "SEH Exception Caught! Address: 0x%p | Code: 0x%08X\n"
+        "SEH Exception Caught! Address: 0x%p | Code: 0x%08X | Module Base: 0x%08X\n"
         "\tRAX: 0x%p \tRCX: 0x%p \tRIP: 0x%p",
-        pException->ExceptionRecord->ExceptionAddress, pException->ExceptionRecord->ExceptionCode, (void*)pException->ContextRecord->Rax,
+        pException->ExceptionRecord->ExceptionAddress, pException->ExceptionRecord->ExceptionCode, dwModuleBase, (void*)pException->ContextRecord->Rax,
         (void*)pException->ContextRecord->Rcx, (void*)pException->ContextRecord->Rip);
 
-    if (!UploadCrashReport(pException))
+    jsoncons::json CrashReport = GenerateCrashReport(pException, dwModuleBase);
+    SharedUtil::AddDebugLog("[CrashReport] Crash Report Generated Successfuly");
+
+    if (!UploadCrashReport(CrashReport))
         SharedUtil::AddDebugLog("Failed to upload crash report!");
 
     return EXCEPTION_EXECUTE_HANDLER;
 }
 
-bool CCrashHandler::UploadCrashReport(EXCEPTION_POINTERS* pException)
+bool CCrashHandler::UploadCrashReport(jsoncons::json& CrashReport)
 {
-    jsoncons::json CrashReport = GenerateCrashReport(pException);
-    std::string    strCrashReport = CrashReport.to_string();
-    DWORD          dwDataSize = static_cast<DWORD>(strCrashReport.size());
-
-    SharedUtil::AddDebugLog("[CrashReport] Crash Report Generated Successfuly! (%d bytes)", dwDataSize);
-
+    std::string strCrashReport = CrashReport.to_string();
+    DWORD       dwDataSize = static_cast<DWORD>(strCrashReport.size());
     // Open session
     HINTERNET hSession = WinHttpOpen(L"AtomicShield/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, WINHTTP_NO_PROXY_NAME, WINHTTP_NO_PROXY_BYPASS, 0);
     if (!hSession)
@@ -87,17 +92,17 @@ bool CCrashHandler::UploadCrashReport(EXCEPTION_POINTERS* pException)
     WinHttpCloseHandle(hConnect);
     WinHttpCloseHandle(hSession);
 
-
     return true;
 }
 
-jsoncons::json CCrashHandler::GenerateCrashReport(EXCEPTION_POINTERS* pException)
+jsoncons::json CCrashHandler::GenerateCrashReport(EXCEPTION_POINTERS* pException, DWORD64 dwModuleBase)
 {
     jsoncons::json json;
 
     json["exception_code"] = "(Unknown)";
     json["exception_address"] = "(Unknown)";
     json["exception_flags"] = "(Unknown)";
+    json["module_base"] = "(Unknown)";
 
     if (!pException || !pException->ExceptionRecord || !pException->ContextRecord)
     {
@@ -105,9 +110,10 @@ jsoncons::json CCrashHandler::GenerateCrashReport(EXCEPTION_POINTERS* pException
         return json;
     }
 
-    json["exception_code"] = pException->ExceptionRecord->ExceptionCode;
+    json["exception_code"] = static_cast<uint32_t>(pException->ExceptionRecord->ExceptionCode);
     json["exception_address"] = reinterpret_cast<uintptr_t>(pException->ExceptionRecord->ExceptionAddress);
-    json["exception_flags"] = pException->ExceptionRecord->ExceptionFlags;
+    json["exception_flags"] = static_cast<uint32_t>(pException->ExceptionRecord->ExceptionFlags);
+    json["module_base"] = static_cast<uint64_t>(dwModuleBase);
 
     CONTEXT* ctx = pException->ContextRecord;
     json["registers"] =
