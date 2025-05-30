@@ -2,7 +2,10 @@
 #include <iostream>
 #include "StdInc.h"
 #include "KernelCalls.hpp"
+#include "AhoCoraSick.hpp"
 #include <algorithm>
+
+AhoCorasick searcher;
 
 CHeuristicGuard::CHeuristicGuard()
 {
@@ -19,13 +22,18 @@ void CHeuristicGuard::Initialize()
 
 void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::string>>& Signatures)
 {
+    int i = 0;
     for (auto& [name, vector] : Signatures)
     {
         for (auto& Signature : vector)
         {
-            m_vSignatures.push_back(Utils::CaesarDecrypt(Signature, 3));
+            i++;
+            //m_vSignatures.push_back();
+            auto b = Utils::CaesarDecrypt(Signature, 3);
+            searcher.insert(b, i);
         }
     }
+    searcher.build();
 }
 
 #pragma optimize("", off)
@@ -113,34 +121,35 @@ void CHeuristicGuard::DoPulse()
 
                 const char* dataPtr = reinterpret_cast<const char*>(buffer);
 
-                for (const auto& decryptedStr : m_vSignatures)
-                {
-                    size_t foundPos = std::string_view(dataPtr, bytesRead).find(decryptedStr);
-                    if (foundPos != std::string_view::npos && !decryptedStr.empty())
-                    {
-                        LPVOID lpFlaggedAddress = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + foundPos;
-                        SharedUtil::AddDebugLog("Found at 0x%p", lpFlaggedAddress);
+                //for (const auto& decryptedStr : m_vSignatures)
+                //{
+                //    size_t foundPos = std::string_view(dataPtr, bytesRead).find(decryptedStr);
+                //    if (foundPos != std::string_view::npos && !decryptedStr.empty())
+                //    {
+                //        LPVOID lpFlaggedAddress = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + foundPos;
+                //        SharedUtil::AddDebugLog("Found at 0x%p", lpFlaggedAddress);
 
-                        QueryPerformanceCounter(&end);
-                        float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+                //        QueryPerformanceCounter(&end);
+                //        float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
-                        g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
-                                                                                    {"memory_address", (DWORD64)lpFlaggedAddress},
-                                                                                    {"region_size", MemoryRegion.RegionSize},
-                                                                                    {"base_address", (DWORD64)MemoryRegion.BaseAddress},
-                                                                                    {"region_type", (DWORD64)MemoryRegion.Type},
-                                                                                    {"region_state", (DWORD64)MemoryRegion.State},
-                                                                                    {"region_protect", (DWORD64)MemoryRegion.Protect},
-                                                                                    {"allocation_protect", (DWORD64)MemoryRegion.AllocationProtect},
-                                                                                    {"allocation_address", (DWORD64)MemoryRegion.AllocationBase},
-                                                                                    {"scan_time", std::to_string(fScanTime) + "s"}});
+                //        g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
+                //                                                                    {"memory_address", (DWORD64)lpFlaggedAddress},
+                //                                                                    {"region_size", MemoryRegion.RegionSize},
+                //                                                                    {"base_address", (DWORD64)MemoryRegion.BaseAddress},
+                //                                                                    {"region_type", (DWORD64)MemoryRegion.Type},
+                //                                                                    {"region_state", (DWORD64)MemoryRegion.State},
+                //                                                                    {"region_protect", (DWORD64)MemoryRegion.Protect},
+                //                                                                    {"allocation_protect", (DWORD64)MemoryRegion.AllocationProtect},
+                //                                                                    {"allocation_address", (DWORD64)MemoryRegion.AllocationBase},
+                //                                                                    {"scan_time", std::to_string(fScanTime) + "s"}});
 
-                        g_pAtomicAntiCheat->RunScanners(false);
-                        m_bFound = true;
-                        break;
-                    }
+                //        g_pAtomicAntiCheat->RunScanners(false);
+                //        m_bFound = true;
+                //        break;
+                //    }
 
-                }
+                //}
+                searcher.search(dataPtr);
                 SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
            
                 if (m_bFound)

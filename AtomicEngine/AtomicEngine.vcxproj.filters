@@ -419,6 +419,9 @@
     <ClInclude Include="CCrashHandler.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="AhoCoraSick.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Trace.logs" />
