@@ -20,11 +20,6 @@ CAtomicAntiCheat::~CAtomicAntiCheat()
         delete m_pAtomicNetwork;
 }
 
-void GlobalTerminateHandler()
-{
-    SharedUtil::AddDebugLog("Global terminate handler called! Shutting down Atomic AntiCheat...");
-}
-
 bool CAtomicAntiCheat::Initialize()
 {
     SharedUtil::AddDebugLog("Initializing Atomic AntiCheat...");
