@@ -33,9 +33,6 @@
     <ClCompile Include="SecurityChecks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CAtomicAPI.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SharedChecks.h">
@@ -1065,9 +1062,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="skCrypter.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CAtomicAPI.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vendor\curl\curl.h">

@@ -88,6 +88,9 @@
     <ClCompile Include="StaticAnalysisBypass.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="CAtomicAPI.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\blur.hpp" />
@@ -196,6 +199,7 @@
     <ClInclude Include="ManualMapInjector.h" />
     <ClInclude Include="StaticAnalysisBypass.h" />
     <ClInclude Include="vmaware.hpp" />
+    <ClInclude Include="CAtomicAPI.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Atomic Agent.rc" />

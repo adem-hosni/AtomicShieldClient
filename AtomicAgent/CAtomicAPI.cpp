@@ -63,11 +63,6 @@ void CAtomicAPI::DownloadEngine(std::string* buffer, SUserData* pUserData)
     *buffer = PostRequest(API_BASE_URL "/resources/scan/fivem", jsoncons::json(), pUserData);
 }
 
-bool CAtomicAPI::UploadCashReport(jsoncons::json Report)
-{
-    return !PostRequest(API_BASE_URL "anticheat/crash-report", Report).empty();
-}
-
 std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, SUserData* pUserData, bool bEncryptRequestBody, bool bDecryptRespnseBody)
 {
     CURL*       curl;

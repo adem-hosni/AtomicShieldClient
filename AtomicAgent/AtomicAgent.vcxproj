@@ -173,6 +173,7 @@
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="CAtomicAPI.cpp" />
     <ClCompile Include="GUI\blur.cpp" />
     <ClCompile Include="GUI\Customs.cpp" />
     <ClCompile Include="GUI\Draw.cpp" />
@@ -201,6 +202,7 @@
     <ClCompile Include="Vendor\ImGui\misc\freetype\imgui_freetype.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CAtomicAPI.h" />
     <ClInclude Include="GUI\blur.hpp" />
     <ClInclude Include="GUI\blur_x.h" />
     <ClInclude Include="GUI\blur_y.h" />

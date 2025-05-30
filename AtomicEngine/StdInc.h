@@ -32,7 +32,7 @@
 #include "CAtomicNetwork.h"
 #include "CAtomicThread.h"
 #include "CAtomicAntiCheat.h"
-#include "CAtomicAPI.h"
+#include "Common.h"
 #include "SharedUtil.h"
 #include "SharedProtocols.h"
 #include "Utils.h"
