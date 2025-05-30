@@ -24,7 +24,7 @@ void CGuardManager::StartPulse()
     SharedUtil::AddDebugLog("Starting threads");
     m_bPulseStarted = true;
     m_vThreads.push_back(CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard));
-    m_vThreads.push_back(CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard));
+    //m_vThreads.push_back(CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard));
 }
 
 void CGuardManager::StopPulse()
