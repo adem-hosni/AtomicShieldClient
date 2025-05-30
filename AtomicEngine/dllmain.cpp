@@ -41,8 +41,8 @@ BOOL AdjustTokenPrivilege(const HANDLE hproc)
 void EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
     SharedUtil::AddDebugLog(
-        "============================================================= AtomicShield AntiCheat Loaded! "
-        "=============================================================\n");
+        "======================================= AtomicShield AntiCheat Loaded! "
+        "=======================================\n");
     SharedUtil::SetRegistryIntValue("AtomicShield", 1);
 
     if (g_pAtomicAntiCheat->Initialize())
