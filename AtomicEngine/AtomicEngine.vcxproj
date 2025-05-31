@@ -85,8 +85,8 @@
     <IntDir>$(SolutionDir)Cache\$(Platform)</IntDir>
     <TargetName>Atomic Engine</TargetName>
     <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);$(ProjectDir);$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir)Vendor</IncludePath>
-    <LibraryPath>$(ProjectDir)Vendor;$(LibraryPath)</LibraryPath>
-    <ExternalIncludePath>$(SolutionDir)Shared;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Vendor</ExternalIncludePath>
+    <LibraryPath>C:\vcpkg\installed\x64-windows-static\lib;$(ProjectDir)Vendor;$(LibraryPath)</LibraryPath>
+    <ExternalIncludePath>C:\vcpkg\installed\x64-windows-static\include;$(SolutionDir)Shared;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Vendor</ExternalIncludePath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -148,7 +148,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;NEWENGINE_EXPORTS;_WINDOWS;_USRDLL;%(PreprocessorDefinitions);_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;ATOMICENGINE_EXPORTS;_WINDOWS;_USRDLL;IXWEBSOCKET_USE_ZLIB;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
@@ -175,7 +175,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(OutputPath)Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;winhttp.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>$(OutputPath)Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;winhttp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
