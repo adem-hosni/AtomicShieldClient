@@ -72,6 +72,8 @@ void CHeuristicGuard::DoPulse()
                 SIZE_T regionSize = sizeof(MemoryRegion);
                 SIZE_T returnLength = 0;
                 status = SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength);
+           
+                
                 if (!NT_SUCCESS(status) || MemoryRegion.State != MEM_COMMIT || MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE) ||
                     !(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)) || MemoryRegion.Type != MEM_PRIVATE )
                     continue;
@@ -153,7 +155,7 @@ void CHeuristicGuard::DoPulse()
 
             SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %d", fElapsedTime, iRegions);
 
-            std::this_thread::sleep_for(std::chrono::seconds(25));
+            std::this_thread::sleep_for(std::chrono::seconds(45));
         }
         SysNtClose(hProcess);
     }
