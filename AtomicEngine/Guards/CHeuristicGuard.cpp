@@ -73,7 +73,7 @@ void CHeuristicGuard::DoPulse()
                 SIZE_T returnLength = 0;
                 status = SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength);
                 if (!NT_SUCCESS(status) || MemoryRegion.State != MEM_COMMIT || MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE) ||
-                    !(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)) || MemoryRegion.Type != MEM_PRIVATE )
+                    !(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)) || MemoryRegion.Type != MEM_PRIVATE)
                     continue;
 
                 SIZE_T allocationSize = MemoryRegion.RegionSize;
@@ -90,74 +90,58 @@ void CHeuristicGuard::DoPulse()
                 status = SysNtReadVirtualMemory(hProcess, MemoryRegion.BaseAddress, buffer, allocationSize, &bytesRead);
                 if (!NT_SUCCESS(status) || bytesRead == 0)
                 {
-                    if (status == 0x8000000D)
-                    {
-                        status = SysNtReadVirtualMemory(hProcess, MemoryRegion.BaseAddress, buffer, allocationSize, &bytesRead);
-                        if (!NT_SUCCESS(status))
-                        {
-                            SharedUtil::AddDebugLog(
-                                "[-] Failed to read memory at 0x%p region size: %d (Error 0x%x, status: 0x%016llX, Protection Flags: 0x%llx, Memory State: "
-                                "0x%x, bytes "
-                                "read: %d)",
-                                MemoryRegion.BaseAddress, MemoryRegion.RegionSize, GetLastError(), status, MemoryRegion.Protect, MemoryRegion.State, bytesRead);
-                            SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
-
-                            if (bytesRead == 0)
-                            {
-                                addr = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + MemoryRegion.RegionSize;
-                                continue;
-                            }
-                        }
-                    }
+                    SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
+                    addr = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + MemoryRegion.RegionSize;
+                    continue;
                 }
-
-                const char* dataPtr = reinterpret_cast<const char*>(buffer);
-
-                for (const auto& decryptedStr : m_vSignatures)
-                {
-                    size_t foundPos = std::string_view(dataPtr, bytesRead).find(decryptedStr);
-                    if (foundPos != std::string_view::npos && !decryptedStr.empty())
-                    {
-                        LPVOID lpFlaggedAddress = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + foundPos;
-                        SharedUtil::AddDebugLog("Found at 0x%p", lpFlaggedAddress);
-
-                        QueryPerformanceCounter(&end);
-                        float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
-
-                        g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
-                                                                                    {"memory_address", (DWORD64)lpFlaggedAddress},
-                                                                                    {"region_size", MemoryRegion.RegionSize},
-                                                                                    {"base_address", (DWORD64)MemoryRegion.BaseAddress},
-                                                                                    {"region_type", (DWORD64)MemoryRegion.Type},
-                                                                                    {"region_state", (DWORD64)MemoryRegion.State},
-                                                                                    {"region_protect", (DWORD64)MemoryRegion.Protect},
-                                                                                    {"allocation_protect", (DWORD64)MemoryRegion.AllocationProtect},
-                                                                                    {"allocation_address", (DWORD64)MemoryRegion.AllocationBase},
-                                                                                    {"scan_time", std::to_string(fScanTime) + "s"}});
-
-                        g_pAtomicAntiCheat->RunScanners(false);
-                        m_bFound = true;
-                        break;
-                    }
-
-                }
-                SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
-           
-                if (m_bFound)
-                    break;
-                //std::this_thread::sleep_for(std::chrono::nanoseconds(1));
             }
 
-            QueryPerformanceCounter(&end);
-            float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+            const char* dataPtr = reinterpret_cast<const char*>(buffer);
 
-            SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %d", fElapsedTime, iRegions);
+            for (const auto& decryptedStr : m_vSignatures)
+            {
+                size_t foundPos = std::string_view(dataPtr, bytesRead).find(decryptedStr);
+                if (foundPos != std::string_view::npos && !decryptedStr.empty())
+                {
+                    LPVOID lpFlaggedAddress = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + foundPos;
+                    SharedUtil::AddDebugLog("Found at 0x%p", lpFlaggedAddress);
 
-            std::this_thread::sleep_for(std::chrono::seconds(25));
+                    QueryPerformanceCounter(&end);
+                    float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+
+                    g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
+                                                                                {"memory_address", (DWORD64)lpFlaggedAddress},
+                                                                                {"region_size", MemoryRegion.RegionSize},
+                                                                                {"base_address", (DWORD64)MemoryRegion.BaseAddress},
+                                                                                {"region_type", (DWORD64)MemoryRegion.Type},
+                                                                                {"region_state", (DWORD64)MemoryRegion.State},
+                                                                                {"region_protect", (DWORD64)MemoryRegion.Protect},
+                                                                                {"allocation_protect", (DWORD64)MemoryRegion.AllocationProtect},
+                                                                                {"allocation_address", (DWORD64)MemoryRegion.AllocationBase},
+                                                                                {"scan_time", std::to_string(fScanTime) + "s"}});
+
+                    g_pAtomicAntiCheat->RunScanners(false);
+                    m_bFound = true;
+                    break;
+                }
+            }
+            SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
+
+            if (m_bFound)
+                break;
+            // std::this_thread::sleep_for(std::chrono::nanoseconds(1));
         }
-        SysNtClose(hProcess);
-    }
 
-    _endthreadex(0);
+        QueryPerformanceCounter(&end);
+        float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+
+        SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %d", fElapsedTime, iRegions);
+
+        std::this_thread::sleep_for(std::chrono::seconds(25));
+    }
+    SysNtClose(hProcess);
+}
+
+_endthreadex(0);
 }
 #pragma optimize("", on)
