@@ -19,5 +19,5 @@ public:
 private:
     std::string              m_strScanProcessName;
     std::vector<std::string> m_vSignatures;
-    bool                     m_bFound;
+    std::atomic<bool>        m_bFound;
 };
