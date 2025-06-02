@@ -113,10 +113,7 @@ void CAtomicAntiCheat::DoPulse()
         }
 
         if (m_pAtomicNetwork->IsJoinedNetwork() && !m_pGuardManager->IsPulseStarted())
-        {
-            SharedUtil::AddDebugLog("[GUARDMANAGER] Starting Pulse...");
             m_pGuardManager->StartPulse();
-        }
 
         m_pAtomicNetwork->DoPulse();
 

@@ -189,9 +189,6 @@
     <ClCompile Include="CCrashHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="AhoCorasickMatcher.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Guards\CGuardBase.h">
@@ -420,9 +417,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CCrashHandler.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="AhoCorasickMatcher.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
