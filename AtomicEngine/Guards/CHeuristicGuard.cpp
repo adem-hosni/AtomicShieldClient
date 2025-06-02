@@ -93,7 +93,6 @@ void CHeuristicGuard::DoPulse()
                 if (!NT_SUCCESS(status) || bytesRead == 0)
                 {
                     SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
-                    addr = static_cast<>(MemoryRegion.BaseAddress) + MemoryRegion.RegionSize;
                     continue;
                 }
 
