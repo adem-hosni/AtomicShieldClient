@@ -138,10 +138,10 @@ void CProcessGuard::DoPulse()
                 }
             }
 
-            if (strProcessName.find("FiveM") != std::string::npos)
-            {
-                bIsWhitelisted = true;
-            }
+            //if (strProcessName.find("FiveM") != std::string::npos)
+            //{
+            //    bIsWhitelisted = true;
+            //}
 
             if (bIsWhitelisted)
                 continue;
