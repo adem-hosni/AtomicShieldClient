@@ -179,6 +179,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AhoCorasickMatcher.cpp" />
     <ClCompile Include="BasicChecks.cpp" />
     <ClCompile Include="CAtomicAntiCheat.cpp" />
     <ClCompile Include="CAtomicHook.cpp" />
@@ -239,6 +240,7 @@
     <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="AhoCorasickMatcher.h" />
     <ClInclude Include="AtomicPacket.h" />
     <ClInclude Include="BasicChecks.h" />
     <ClInclude Include="CAtomicAntiCheat.h" />

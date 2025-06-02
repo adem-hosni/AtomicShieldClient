@@ -254,7 +254,7 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         case ix::WebSocketMessageType::Close:
         {
             m_bNetworkJoined = false;
-            SharedUtil::AddDebugLog("WebSocket Closed: %s (%d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code);
+            SharedUtil::AddDebugLog("WebSocket Closed: %s (%d | State: %d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code, m_pWebSocket->getReadyState());
             break;
         }
 

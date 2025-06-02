@@ -22,6 +22,7 @@
 #include <iostream>
 #include <filesystem>
 
+#include "AhoCorasickMatcher.h"
 #include "CCrashHandler.h"
 #include "CAtomicHook.h"
 #include "FileAuthentication.h"

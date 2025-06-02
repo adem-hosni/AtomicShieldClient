@@ -17,6 +17,7 @@ public:
     void        ClearDetections() override { m_bFound = false; }
 
 private:
+    CAhoCorasickMatcher*     m_pMatcher;
     std::string              m_strScanProcessName;
     std::vector<std::string> m_vSignatures;
     bool                     m_bFound;
