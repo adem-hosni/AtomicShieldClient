@@ -56,45 +56,43 @@ void CHeuristicGuard::DoPulse()
         if (!NT_SUCCESS(status))
             continue;
 
+        LARGE_INTEGER frequency, start, end;
+        QueryPerformanceFrequency(&frequency);
+        QueryPerformanceCounter(&start);
+
+        MEMORY_BASIC_INFORMATION MemoryRegion{};
+        int                      iRegions = 0;
+
+        for (LPVOID addr = sysInfo.lpMinimumApplicationAddress; addr < sysInfo.lpMaximumApplicationAddress;
+             addr = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + MemoryRegion.RegionSize)
         {
-            LARGE_INTEGER frequency, start, end;
-            QueryPerformanceFrequency(&frequency);
-            QueryPerformanceCounter(&start);
+            iRegions++;
+            PVOID  baseAddress = addr;
+            SIZE_T regionSize = sizeof(MemoryRegion);
+            SIZE_T returnLength = 0;
+            status = SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength);
 
-            MEMORY_BASIC_INFORMATION MemoryRegion{};
-            int                      iRegions = 0;
+            if (!NT_SUCCESS(status) || MemoryRegion.State != MEM_COMMIT || MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE) ||
+                !(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)) || MemoryRegion.Type != MEM_PRIVATE)
+                continue;
 
-            for (LPVOID addr = sysInfo.lpMinimumApplicationAddress; addr < sysInfo.lpMaximumApplicationAddress;
-                 addr = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + MemoryRegion.RegionSize)
+            SIZE_T allocationSize = MemoryRegion.RegionSize;
+
+            PVOID buffer = nullptr;
+            status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
+            if (!NT_SUCCESS(status) || buffer == nullptr)
             {
-                iRegions++;
-                PVOID  baseAddress = addr;
-                SIZE_T regionSize = sizeof(MemoryRegion);
-                SIZE_T returnLength = 0;
-                status = SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength);
-           
-                
-                if (!NT_SUCCESS(status) || MemoryRegion.State != MEM_COMMIT || MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE) ||
-                    !(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)) || MemoryRegion.Type != MEM_PRIVATE)
-                    continue;
+                buffer = nullptr;
+                continue;
+            }
 
-                SIZE_T allocationSize = MemoryRegion.RegionSize;
-
-                PVOID buffer = nullptr;
-                status = SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE);
-                if (!NT_SUCCESS(status) || buffer == nullptr)
-                {
-                    buffer = nullptr;
-                    continue;
-                }
-
-                SIZE_T bytesRead = 0;
-                status = SysNtReadVirtualMemory(hProcess, MemoryRegion.BaseAddress, buffer, allocationSize, &bytesRead);
-                if (!NT_SUCCESS(status) || bytesRead == 0)
-                {
-                    SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
-                    continue;
-                }
+            SIZE_T bytesRead = 0;
+            status = SysNtReadVirtualMemory(hProcess, MemoryRegion.BaseAddress, buffer, allocationSize, &bytesRead);
+            if (!NT_SUCCESS(status) || bytesRead == 0)
+            {
+                SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
+                continue;
+            }
 
             const char* dataPtr = reinterpret_cast<const char*>(buffer);
 
@@ -129,7 +127,6 @@ void CHeuristicGuard::DoPulse()
 
             if (m_bFound)
                 break;
-            // std::this_thread::sleep_for(std::chrono::nanoseconds(1));
         }
 
         QueryPerformanceCounter(&end);
@@ -137,11 +134,10 @@ void CHeuristicGuard::DoPulse()
 
         SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %d", fElapsedTime, iRegions);
 
-        std::this_thread::sleep_for(std::chrono::seconds(25));
+        std::this_thread::sleep_for(std::chrono::seconds(45));
     }
     SysNtClose(hProcess);
-}
 
-_endthreadex(0);
+    _endthreadex(0);
 }
 #pragma optimize("", on)
