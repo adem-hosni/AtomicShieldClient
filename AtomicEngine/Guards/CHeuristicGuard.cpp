@@ -90,7 +90,18 @@ void CHeuristicGuard::DoPulse()
             regions.push_back({MemoryRegion, baseAddress});
         }
 
-        size_t            quarter = regions.size() / 4;
+        // Determine number of threads based on CPU cores
+        unsigned int numCores = std::thread::hardware_concurrency();
+        unsigned int numThreads = 1;            // fallback to 1 thread if detection fails
+
+        if (numCores >= 4)
+            numThreads = 4;
+        else if (numCores >= 2)
+            numThreads = 2;
+        else
+            numThreads = 1;
+
+        size_t quarter = regions.size() / numThreads;
 
         auto scanFunc = [&](size_t startIdx, size_t endIdx)
         {
@@ -136,29 +147,28 @@ void CHeuristicGuard::DoPulse()
                                                                                     {"scan_time", std::to_string(fScanTime) + "s"}});
 
                         g_pAtomicAntiCheat->RunScanners(false);
-                        m_bFound.store(true);            // atomic store here
+                        m_bFound.store(true);
                         break;
                     }
                 }
 
                 SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
-                if (m_bFound.load())       
+                if (m_bFound.load())
                     break;
-           
-            
             }
         };
 
-        // Launch 4 threads
-        std::thread t1(scanFunc, 0, quarter);
-        std::thread t2(scanFunc, quarter, quarter * 2);
-        std::thread t3(scanFunc, quarter * 2, quarter * 3);
-        std::thread t4(scanFunc, quarter * 3, regions.size());
+        // Launch threads dynamically based on numThreads
+        std::vector<std::thread> threads;
+        for (unsigned int i = 0; i < numThreads; ++i)
+        {
+            size_t startIdx = i * quarter;
+            size_t endIdx = (i == numThreads - 1) ? regions.size() : (i + 1) * quarter;
+            threads.emplace_back(scanFunc, startIdx, endIdx);
+        }
 
-        t1.join();
-        t2.join();
-        t3.join();
-        t4.join();
+        for (auto& t : threads)
+            t.join();
 
         QueryPerformanceCounter(&end);
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
