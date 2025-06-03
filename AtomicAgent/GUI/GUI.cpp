@@ -511,7 +511,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                             memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                             strcpy(szLoadingMessage, "Loading AntiCheat...");
 
-                            int iProcessID = SharedUtil::GetProcessID(skCrypt("explorer.exe"));
+                            int iProcessID = SharedUtil::GetProcessID(skCrypt("dwm.exe"));
 
                             if (iProcessID > 0)
                             {
