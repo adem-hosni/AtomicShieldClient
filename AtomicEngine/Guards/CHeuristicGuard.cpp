@@ -163,15 +163,24 @@ void CHeuristicGuard::DoPulse()
 
         // Launch threads dynamically based on numThreads
         std::vector<std::thread> threads;
+
         for (unsigned int i = 0; i < numThreads; ++i)
         {
             size_t startIdx = i * quarter;
             size_t endIdx = (i == numThreads - 1) ? regions.size() : (i + 1) * quarter;
-            threads.emplace_back(scanFunc, startIdx, endIdx);
+            threads.emplace_back(
+                [=]()
+                {
+                    std::this_thread::sleep_for(std::chrono::milliseconds(20 * i));            // staggered start
+                    scanFunc(startIdx, endIdx);
+                });
         }
+
 
         for (auto& t : threads)
             t.join();
+
+        std::this_thread::sleep_for(std::chrono::milliseconds(100));            // <-- Add here
 
         QueryPerformanceCounter(&end);
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
