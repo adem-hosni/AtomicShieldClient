@@ -133,6 +133,9 @@ void CHeuristicGuard::DoPulse()
             if (MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE))
                 continue;
 
+            if (!(MemoryRegion.Protect & (PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
+                continue;
+
             if (!(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
                 continue;
 
