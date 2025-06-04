@@ -109,6 +109,9 @@ void CHeuristicGuard::DoPulse()
 
             for (size_t i = startIdx; i < endIdx && !m_bFound.load(); ++i)
             {
+                if (regions[i].mbi.RegionSize > 25 * 1024 * 1024)            // Skip regions larger than 25MB
+                    continue;
+
                 const auto& region = regions[i];
                 SIZE_T      allocationSize = region.mbi.RegionSize;
                 PVOID       buffer = nullptr;
