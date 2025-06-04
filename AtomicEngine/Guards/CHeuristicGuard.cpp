@@ -16,7 +16,9 @@ CHeuristicGuard::~CHeuristicGuard()
 
 void CHeuristicGuard::Initialize()
 {
+
 }
+
 struct RegionInfo
 {
     MEMORY_BASIC_INFORMATION mbi;
@@ -92,9 +94,10 @@ void CHeuristicGuard::DoPulse()
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
 
-    HANDLE   hProcess;
-    NTSTATUS status;
+    HANDLE     hProcess;
+    NTSTATUS   status;
     ThreadPool pool(std::thread::hardware_concurrency());            // create thread pool
+
 
     while (g_pAtomicAntiCheat->RunScanners())
     {
@@ -106,6 +109,8 @@ void CHeuristicGuard::DoPulse()
         status = SysNtOpenProcess(&hProcess, PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, &objAttr, &clientId);
         if (!NT_SUCCESS(status))
             continue;
+        auto MemoryMap = Utils::BuildModuledMemoryMap(hProcess);
+
         float usage = GetCPUUsageForProcess(GetCurrentProcess(), 1000);
         SharedUtil::AddDebugLog("CPU usage of target process: %.2f%%", usage);
 
@@ -127,6 +132,9 @@ void CHeuristicGuard::DoPulse()
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength)))
                 continue;
 
+            if (Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(MemoryRegion.AllocationBase), MemoryMap))
+                continue;
+
             if (MemoryRegion.State != MEM_COMMIT || MemoryRegion.Type != MEM_PRIVATE)
                 continue;
 
@@ -143,7 +151,7 @@ void CHeuristicGuard::DoPulse()
         }
 
         unsigned int numCores = std::thread::hardware_concurrency();
-        unsigned int numThreads = 1;       
+        unsigned int numThreads = 1;
 
         if (numCores >= 2)
             numThreads = 2;
@@ -158,8 +166,6 @@ void CHeuristicGuard::DoPulse()
 
             for (size_t i = startIdx; i < endIdx && !m_bFound.load(); ++i)
             {
-
-
                 if (regions[i].mbi.RegionSize > 25 * 1024 * 1024)            // Skip regions larger than 25MB
                     continue;
 
@@ -212,7 +218,6 @@ void CHeuristicGuard::DoPulse()
             }
         };
 
-
         for (unsigned int i = 0; i < numThreads; ++i)
         {
             size_t startIdx = i * quarter;
@@ -225,8 +230,6 @@ void CHeuristicGuard::DoPulse()
                     scanFunc(startIdx, endIdx);
                 });
         }
-
-
 
         QueryPerformanceCounter(&end);
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;

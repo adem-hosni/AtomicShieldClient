@@ -92,25 +92,27 @@ DWORD Utils::GenerateCRC32(const std::wstring& wfilePath, DWORD* FileSize)
     return crc;
 }
 
-std::map<LPVOID, DWORD64> Utils::BuildModuledMemoryMap()
+std::map<LPVOID, DWORD64> Utils::BuildModuledMemoryMap(HANDLE hProcess)
 {
     std::map<LPVOID, DWORD64> memoryMap;
     HMODULE                   hMods[1024];
     DWORD                     cbNeeded;
-    EnumProcessModules(GetCurrentProcess(), hMods, sizeof(hMods), &cbNeeded);
-    for (unsigned int i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
-    {
-        MODULEINFO modinfo;
-        GetModuleInformation(GetCurrentProcess(), hMods[i], &modinfo, sizeof(modinfo));
-        char buffer[144];
-        memset(buffer, 0, sizeof(buffer));
-        GetModuleFileName(hMods[i], buffer, sizeof(buffer));
-        std::string modname = Utils::ParseModuleNameFromPath(buffer);
 
-        memoryMap.insert(memoryMap.begin(), std::pair<LPVOID, DWORD64>(modinfo.lpBaseOfDll, modinfo.SizeOfImage));
+    if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
+    {
+        for (unsigned int i = 0; i < cbNeeded / sizeof(HMODULE); ++i)
+        {
+            MODULEINFO modinfo;
+            if (GetModuleInformation(hProcess, hMods[i], &modinfo, sizeof(modinfo)))
+            {
+                memoryMap[modinfo.lpBaseOfDll] = modinfo.SizeOfImage;
+            }
+        }
     }
+
     return memoryMap;
 }
+
 
 int* Utils::GetModuleMemoryInfo(HANDLE hProcess, HMODULE Addr)
 {
@@ -159,15 +161,16 @@ DWORD64 Utils::GetModuleBaseAddress(int iProcessID, std::string strModuleName)
     return dwBaseAddress;
 }
 
-DWORD64 Utils::IsAddressInModuledRange(DWORD64 dwBase)
+DWORD64 Utils::IsAddressInModuledRange(DWORD64 addr, const std::map<LPVOID, DWORD64>& MemoryMap)
 {
-    std::map<LPVOID, DWORD64> memory = BuildModuledMemoryMap();
-    for (const auto& it : memory)
+    for (const auto& [base, size] : MemoryMap)
     {
-        if (dwBase >= (DWORD64)it.first && dwBase <= ((DWORD64)it.first + it.second))
-            return (DWORD64)it.first;
+        DWORD64 start = (DWORD64)base;
+        DWORD64 end = start + size;
+        if (addr >= start && addr < end)
+            return true;
     }
-    return -1;
+    return false;
 }
 
 bool Utils::IsFunctionHooked(const char* szModuleName, const char* szFunctionName)

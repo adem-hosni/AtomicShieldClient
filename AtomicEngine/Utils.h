@@ -14,10 +14,10 @@ namespace Utils
     long                      GetFileSize(FILE* File);
     DWORD                     GenerateCRC32(const std::string& filePath, DWORD* FileSize);
     DWORD                     GenerateCRC32(const std::wstring& filePath, DWORD* FileSize);
-    std::map<LPVOID, DWORD64> BuildModuledMemoryMap();
+    std::map<LPVOID, DWORD64> BuildModuledMemoryMap(HANDLE hProcess);
     int*                      GetModuleMemoryInfo(HANDLE hProcess, HMODULE Addr);
     DWORD64                   GetModuleBaseAddress(int iProcessID, std::string strModuleName);
-    DWORD64                   IsAddressInModuledRange(DWORD64 dwBase);
+    DWORD64                   IsAddressInModuledRange(DWORD64 addr, const std::map<LPVOID, DWORD64>& MemoryMap);
     bool                      IsFunctionHooked(const char* szModuleName, const char* szFunctionName);
     std::string               CaesarDecrypt(const std::string& ciphertext, int shift);
     std::wstring              CaesarDecrypt(const std::wstring& ciphertext, int shift);
