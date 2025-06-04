@@ -196,6 +196,7 @@
     <ClCompile Include="KernelCalls.c" />
     <ClCompile Include="Screenshot.cpp" />
     <ClCompile Include="StdInc.cpp" />
+    <ClCompile Include="ThreadPool.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Vendor\ixwebsocket\IXBench.cpp" />
     <ClCompile Include="Vendor\ixwebsocket\IXCancellationRequest.cpp" />

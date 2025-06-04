@@ -3,6 +3,7 @@
 #include "StdInc.h"
 #include "KernelCalls.hpp"
 #include <algorithm>
+#include <ThreadPool.cpp>
 
 CHeuristicGuard::CHeuristicGuard()
 {
@@ -48,6 +49,7 @@ void CHeuristicGuard::DoPulse()
 
     HANDLE   hProcess;
     NTSTATUS status;
+    ThreadPool pool(std::thread::hardware_concurrency());            // create thread pool
 
     while (g_pAtomicAntiCheat->RunScanners())
     {
@@ -90,13 +92,10 @@ void CHeuristicGuard::DoPulse()
             regions.push_back({MemoryRegion, baseAddress});
         }
 
-        // Determine number of threads based on CPU cores
         unsigned int numCores = std::thread::hardware_concurrency();
-        unsigned int numThreads = 1;            // fallback to 1 thread if detection fails
+        unsigned int numThreads = 1;       
 
-        if (numCores >= 4)
-            numThreads = 4;
-        else if (numCores >= 2)
+        if (numCores >= 2)
             numThreads = 2;
         else
             numThreads = 1;
@@ -109,6 +108,9 @@ void CHeuristicGuard::DoPulse()
 
             for (size_t i = startIdx; i < endIdx && !m_bFound.load(); ++i)
             {
+
+                std::this_thread::sleep_for(std::chrono::milliseconds(10));
+
                 if (regions[i].mbi.RegionSize > 25 * 1024 * 1024)            // Skip regions larger than 25MB
                     continue;
 
@@ -161,14 +163,13 @@ void CHeuristicGuard::DoPulse()
             }
         };
 
-        // Launch threads dynamically based on numThreads
-        std::vector<std::thread> threads;
 
         for (unsigned int i = 0; i < numThreads; ++i)
         {
             size_t startIdx = i * quarter;
             size_t endIdx = (i == numThreads - 1) ? regions.size() : (i + 1) * quarter;
-            threads.emplace_back(
+
+            pool.enqueue(
                 [=]()
                 {
                     std::this_thread::sleep_for(std::chrono::milliseconds(20 * i));            // staggered start
@@ -177,10 +178,6 @@ void CHeuristicGuard::DoPulse()
         }
 
 
-        for (auto& t : threads)
-            t.join();
-
-        std::this_thread::sleep_for(std::chrono::milliseconds(100));            // <-- Add here
 
         QueryPerformanceCounter(&end);
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
