@@ -111,9 +111,6 @@ void CHeuristicGuard::DoPulse()
             continue;
         auto MemoryMap = Utils::BuildModuledMemoryMap(hProcess);
 
-        float usage = GetCPUUsageForProcess(GetCurrentProcess(), 1000);
-        SharedUtil::AddDebugLog("CPU usage of target process: %.2f%%", usage);
-
         LARGE_INTEGER frequency, start, end;
         QueryPerformanceFrequency(&frequency);
         QueryPerformanceCounter(&start);
@@ -132,9 +129,6 @@ void CHeuristicGuard::DoPulse()
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength)))
                 continue;
 
-            if (Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(MemoryRegion.AllocationBase), MemoryMap))
-                continue;
-
             if (MemoryRegion.State != MEM_COMMIT || MemoryRegion.Type != MEM_PRIVATE)
                 continue;
 
@@ -145,6 +139,9 @@ void CHeuristicGuard::DoPulse()
                 continue;
 
             if (!(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
+                continue;
+
+            if (Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(addr), MemoryMap) != NULL)
                 continue;
 
             regions.push_back({MemoryRegion, baseAddress});
@@ -166,9 +163,6 @@ void CHeuristicGuard::DoPulse()
 
             for (size_t i = startIdx; i < endIdx && !m_bFound.load(); ++i)
             {
-                if (regions[i].mbi.RegionSize > 25 * 1024 * 1024)            // Skip regions larger than 25MB
-                    continue;
-
                 const auto& region = regions[i];
                 SIZE_T      allocationSize = region.mbi.RegionSize;
                 PVOID       buffer = nullptr;
@@ -192,6 +186,9 @@ void CHeuristicGuard::DoPulse()
                     {
                         LPVOID lpFlaggedAddress = static_cast<LPBYTE>(region.mbi.BaseAddress) + foundPos;
                         QueryPerformanceCounter(&end);
+                        SharedUtil::AddDebugLog("[+] Found signature at address 0x%llX in region 0x%llX (size: %zu bytes) with protection 0x%llX",
+                                                (DWORD64)lpFlaggedAddress, (DWORD64)region.mbi.BaseAddress, region.mbi.RegionSize,
+                                                region.mbi.Protect);
 
                         float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
@@ -236,7 +233,7 @@ void CHeuristicGuard::DoPulse()
 
         SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());
 
-        std::this_thread::sleep_for(std::chrono::seconds(45));
+        std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
     SysNtClose(hProcess);

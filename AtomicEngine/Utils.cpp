@@ -105,7 +105,23 @@ std::map<LPVOID, DWORD64> Utils::BuildModuledMemoryMap(HANDLE hProcess)
             MODULEINFO modinfo;
             if (GetModuleInformation(hProcess, hMods[i], &modinfo, sizeof(modinfo)))
             {
-                memoryMap[modinfo.lpBaseOfDll] = modinfo.SizeOfImage;
+
+                char szModulePath[MAX_PATH];
+                if (GetModuleFileNameExA(hProcess, hMods[i], szModulePath, sizeof(szModulePath)))
+                {
+                    std::string moduleName = ParseModuleNameFromPath(szModulePath);
+                    /*orderedMapping[(DWORD64)modinfo.lpBaseOfDll] = modinfo.SizeOfImage;
+                    orderedIdentify[(DWORD)modinfo.lpBaseOfDll] = std::wstring(moduleName.begin(), moduleName.end());*/
+
+                    if (!moduleName.empty())
+                    {
+                        memoryMap[modinfo.lpBaseOfDll] = modinfo.SizeOfImage;
+                    }
+                    else
+                    {
+                        SharedUtil::AddDebugLog("Module: Unknown, Base Address: 0x%p, Size: %llu bytes", modinfo.lpBaseOfDll, modinfo.SizeOfImage);
+                    }
+                }
             }
         }
     }
@@ -165,12 +181,12 @@ DWORD64 Utils::IsAddressInModuledRange(DWORD64 addr, const std::map<LPVOID, DWOR
 {
     for (const auto& [base, size] : MemoryMap)
     {
-        DWORD64 start = (DWORD64)base;
-        DWORD64 end = start + size;
-        if (addr >= start && addr < end)
-            return true;
+        if (addr >= (DWORD64)base && addr <= (DWORD64)base + size)
+        {
+            return (DWORD64)base;
+        }
     }
-    return false;
+    return NULL;
 }
 
 bool Utils::IsFunctionHooked(const char* szModuleName, const char* szFunctionName)
