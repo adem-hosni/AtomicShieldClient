@@ -99,6 +99,7 @@ void CHeuristicGuard::DoPulse()
     ThreadPool pool(std::thread::hardware_concurrency());            // create thread pool
 
 
+    auto MemoryMap = Utils::BuildModuledMemoryMap(hProcess);
     while (g_pAtomicAntiCheat->RunScanners())
     {
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
@@ -109,7 +110,6 @@ void CHeuristicGuard::DoPulse()
         status = SysNtOpenProcess(&hProcess, PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, &objAttr, &clientId);
         if (!NT_SUCCESS(status))
             continue;
-        auto MemoryMap = Utils::BuildModuledMemoryMap(hProcess);
 
         LARGE_INTEGER frequency, start, end;
         QueryPerformanceFrequency(&frequency);
