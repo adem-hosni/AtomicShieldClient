@@ -109,7 +109,6 @@ void CHeuristicGuard::DoPulse()
         status = SysNtOpenProcess(&hProcess, PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, &objAttr, &clientId);
         if (!NT_SUCCESS(status))
             continue;
-        auto MemoryMap = Utils::BuildModuledMemoryMap(hProcess);
 
         LARGE_INTEGER frequency, start, end;
         QueryPerformanceFrequency(&frequency);
@@ -138,8 +137,7 @@ void CHeuristicGuard::DoPulse()
             if (!(MemoryRegion.Protect & (PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
                 continue;
 
-            /*if (Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(addr), MemoryMap) != NULL)
-                continue;*/
+
             if (!(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
                 continue;
 
@@ -232,7 +230,7 @@ void CHeuristicGuard::DoPulse()
 
         SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());
 
-        std::this_thread::sleep_for(std::chrono::seconds(1));
+        std::this_thread::sleep_for(std::chrono::seconds(45));
     }
 
     SysNtClose(hProcess);
