@@ -143,11 +143,11 @@ void CHeuristicGuard::DoPulse()
 
             NTSTATUS            status;
             MEMORY_SECTION_NAME sectionName;
-            SIZE_T              returnLength;
+            SIZE_T              returnLength0;
             WCHAR               filenameBuffer[MAX_PATH];
 
             // First call to get required size
-            if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryMappedFilenameInformation, &sectionName, sizeof(sectionName), &returnLength)))
+            if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryMappedFilenameInformation, &sectionName, sizeof(sectionName), &returnLength0)))
                 continue;
 
             auto wstr = std::wstring(sectionName.SectionFileName.Buffer);
