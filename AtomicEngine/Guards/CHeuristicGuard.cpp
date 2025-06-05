@@ -135,6 +135,24 @@ void CHeuristicGuard::DoPulse()
             SIZE_T regionSize = sizeof(MemoryRegion);
             SIZE_T returnLength = 0;
 
+            if (Utils::IsAddressInModuledRange((DWORD64)addr, m_WhitelistedRegions))
+                continue;
+
+            if (!Utils::IsAddressInModuledRange((DWORD64)addr, m_BlacklistedRegions))
+                continue;
+
+            NTSTATUS            status;
+            MEMORY_SECTION_NAME sectionName;
+            SIZE_T              returnLength;
+            WCHAR               filenameBuffer[MAX_PATH];
+
+            // First call to get required size
+            if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryMappedFilenameInformation, &sectionName, sizeof(sectionName), &returnLength)))
+                continue;
+
+            auto wstr = std::wstring(sectionName.SectionFileName.Buffer);
+            wprintf(L"Section File Name: %s\n", wstr.c_str());
+
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength)))
                 continue;
 

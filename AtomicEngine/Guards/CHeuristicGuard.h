@@ -17,7 +17,9 @@ public:
     void        ClearDetections() override { m_bFound = false; }
 
 private:
-    std::string              m_strScanProcessName;
-    std::vector<std::string> m_vSignatures;
-    std::atomic<bool>        m_bFound;
+    std::map<LPVOID, DWORD64> m_WhitelistedRegions;
+    std::map<LPVOID, DWORD64> m_BlacklistedRegions;
+    std::string               m_strScanProcessName;
+    std::vector<std::string>  m_vSignatures;
+    std::atomic<bool>         m_bFound;
 };

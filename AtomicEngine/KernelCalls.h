@@ -185,6 +185,12 @@ typedef enum _KernelCalls_MEMORY_INFORMATION_CLASS
 } KernelCalls_MEMORY_INFORMATION_CLASS,
     *KernelCalls_PMEMORY_INFORMATION_CLASS;
 
+typedef struct _MEMORY_SECTION_NAME
+{
+    UNICODE_STRING SectionFileName;
+} MEMORY_SECTION_NAME, *PMEMORY_SECTION_NAME;
+
+
 typedef struct KernelCalls_CLIENT_ID
 {
     HANDLE UniqueProcess;
