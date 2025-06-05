@@ -138,9 +138,6 @@ void CHeuristicGuard::DoPulse()
             if (Utils::IsAddressInModuledRange((DWORD64)addr, m_WhitelistedRegions))
                 continue;
 
-            if (!Utils::IsAddressInModuledRange((DWORD64)addr, m_BlacklistedRegions))
-                continue;
-
             NTSTATUS            status;
             KernelCalls_MEMORY_SECTION_NAME sectionName;
             SIZE_T              returnLength0;
@@ -152,6 +149,9 @@ void CHeuristicGuard::DoPulse()
 
             auto wstr = std::wstring(sectionName.SectionFileName.Buffer);
             wprintf(L"Section File Name: %s\n", wstr.c_str());
+
+                        if (!Utils::IsAddressInModuledRange((DWORD64)addr, m_BlacklistedRegions))
+                continue;
 
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength)))
                 continue;
