@@ -2,26 +2,6 @@
 #include "StdInc.h"
 #include "CGuardBase.h"
 
-class TaskCompletionGuard
-{
-public:
-    TaskCompletionGuard(std::atomic<unsigned>& counter, std::condition_variable& cv) : m_counter(counter), m_cv(cv) {}
-
-    ~TaskCompletionGuard()
-    {
-        m_counter--;
-        m_cv.notify_one();
-    }
-
-    // Prevent copying
-    TaskCompletionGuard(const TaskCompletionGuard&) = delete;
-    TaskCompletionGuard& operator=(const TaskCompletionGuard&) = delete;
-
-private:
-    std::atomic<unsigned>&   m_counter;
-    std::condition_variable& m_cv;
-};
-
 class CHeuristicGuard final : public CGuardBase
 {
 public:

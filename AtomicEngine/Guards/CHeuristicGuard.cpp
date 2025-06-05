@@ -83,203 +83,159 @@ float GetCPUUsageForProcess(HANDLE hProcess, int intervalMs = 1000)
 #pragma optimize("", off)
 void CHeuristicGuard::DoPulse()
 {
-    // One-time initialization for job object and process priority
-    static std::once_flag initFlag;
-    std::call_once(initFlag,
-                   []
-                   {
-                       SetPriorityClass(GetCurrentProcess(), IDLE_PRIORITY_CLASS);
-
-                       HANDLE hJob = CreateJobObject(NULL, NULL);
-                       if (hJob)
-                       {
-                           JOBOBJECT_CPU_RATE_CONTROL_INFORMATION cpuRateControl = {};
-                           cpuRateControl.ControlFlags = JOB_OBJECT_CPU_RATE_CONTROL_ENABLE | JOB_OBJECT_CPU_RATE_CONTROL_HARD_CAP;
-                           cpuRateControl.CpuRate = 500;            // 5% CPU cap
-
-                           if (SetInformationJobObject(hJob, JobObjectCpuRateControlInformation, &cpuRateControl, sizeof(cpuRateControl)))
-                           {
-                               AssignProcessToJobObject(hJob, GetCurrentProcess());
-                           }
-                       }
-                   });
-
-    KernelCalls_OBJECT_ATTRIBUTES objAttr = {};
-    KernelCalls_CLIENT_ID         clientId = {};
+    KernelCalls_OBJECT_ATTRIBUTES objAttr{};
+    KernelCalls_CLIENT_ID         clientId{};
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
+
+    RtlSecureZeroMemory(&objAttr, sizeof(objAttr));
+    objAttr.Length = sizeof(objAttr);
+    RtlSecureZeroMemory(&clientId, sizeof(clientId));
 
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
 
-    ThreadPool            pool(std::thread::hardware_concurrency());
-    static ULARGE_INTEGER lastIdleTime = {}, lastKernelTime = {}, lastUserTime = {};
+    HANDLE     hProcess;
+    NTSTATUS   status;
+    ThreadPool pool(std::thread::hardware_concurrency());            // create thread pool
+
 
     while (g_pAtomicAntiCheat->RunScanners())
     {
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
             std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        HANDLE hProcess = NULL;
         clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(g_pAtomicAntiCheat->GetProcessID()));
-        NTSTATUS status = SysNtOpenProcess(&hProcess, PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, &objAttr, &clientId);
+
+        status = SysNtOpenProcess(&hProcess, PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, &objAttr, &clientId);
         if (!NT_SUCCESS(status))
             continue;
 
-        m_bFound.store(false);
-
-        LARGE_INTEGER frequency, start;
+        LARGE_INTEGER frequency, start, end;
         QueryPerformanceFrequency(&frequency);
         QueryPerformanceCounter(&start);
 
-        // Calculate system CPU usage
-        FILETIME idleTime, kernelTime, userTime;
-        GetSystemTimes(&idleTime, &kernelTime, &userTime);
-        ULARGE_INTEGER currentIdleTime = {.LowPart = idleTime.dwLowDateTime, .HighPart = idleTime.dwHighDateTime};
-        ULARGE_INTEGER currentKernelTime = {.LowPart = kernelTime.dwLowDateTime, .HighPart = kernelTime.dwHighDateTime};
-        ULARGE_INTEGER currentUserTime = {.LowPart = userTime.dwLowDateTime, .HighPart = userTime.dwHighDateTime};
-
-        double cpuUsage = 0.0;
-        if (lastIdleTime.QuadPart != 0)
-        {
-            ULONGLONG idleDiff = currentIdleTime.QuadPart - lastIdleTime.QuadPart;
-            ULONGLONG kernelDiff = currentKernelTime.QuadPart - lastKernelTime.QuadPart;
-            ULONGLONG userDiff = currentUserTime.QuadPart - lastUserTime.QuadPart;
-            ULONGLONG totalSystem = kernelDiff + userDiff;
-
-            if (totalSystem > 0)
-                cpuUsage = (1.0 - (double)idleDiff / totalSystem) * 100.0;
-        }
-        lastIdleTime = currentIdleTime;
-        lastKernelTime = currentKernelTime;
-        lastUserTime = currentUserTime;
-
-        // Determine thread count based on CPU load
-        unsigned int numThreads = (cpuUsage > 80.0) ? 1 : (std::thread::hardware_concurrency() > 1) ? 2 : 1;
-
-        // Collect memory regions
         std::vector<RegionInfo>  regions;
-        MEMORY_BASIC_INFORMATION mbi = {};
-        LPVOID                   addr = sysInfo.lpMinimumApplicationAddress;
+        MEMORY_BASIC_INFORMATION MemoryRegion{};
+        GetSystemInfo(&sysInfo);
 
-        while (addr < sysInfo.lpMaximumApplicationAddress)
+        for (LPVOID addr = sysInfo.lpMinimumApplicationAddress; addr < sysInfo.lpMaximumApplicationAddress;
+             addr = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + MemoryRegion.RegionSize)
         {
+            PVOID  baseAddress = addr;
+            SIZE_T regionSize = sizeof(MemoryRegion);
             SIZE_T returnLength = 0;
-            if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, addr, MemoryBasicInformation, &mbi, sizeof(mbi), &returnLength)))
-            {
-                addr = static_cast<LPBYTE>(addr) + sysInfo.dwPageSize;
+
+            if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength)))
                 continue;
-            }
 
-            if (mbi.State == MEM_COMMIT && mbi.Type == MEM_PRIVATE && !(mbi.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE)) &&
-                (mbi.Protect & (PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
-            {
-                regions.push_back({mbi, addr});
-            }
-            addr = static_cast<LPBYTE>(mbi.BaseAddress) + mbi.RegionSize;
+            if (MemoryRegion.State != MEM_COMMIT || MemoryRegion.Type != MEM_PRIVATE)
+                continue;
+
+            if (MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE))
+                continue;
+
+            if (!(MemoryRegion.Protect & (PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
+                continue;
+
+
+            if (!(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
+                continue;
+
+
+
+            regions.push_back({MemoryRegion, baseAddress});
         }
 
-        // Calculate max signature length for chunk overlap
-        size_t maxSigLen = 0;
-        for (const auto& sig : m_vSignatures)
-        {
-            if (sig.length() > maxSigLen)
-                maxSigLen = sig.length();
-        }
-        const size_t overlap = maxSigLen > 0 ? maxSigLen - 1 : 0;
-        const size_t CHUNK_SIZE = 256 * 1024;            // 256KB chunks
+        unsigned int numCores = std::thread::hardware_concurrency();
+        unsigned int numThreads = 1;
 
-        // Scanning lambda with adaptive throttling
+        if (numCores >= 2)
+            numThreads = 2;
+        else
+            numThreads = 1;
+
+        size_t quarter = regions.size() / numThreads;
+
         auto scanFunc = [&](size_t startIdx, size_t endIdx)
         {
             SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 
-            // Thread-local reusable buffer
-            thread_local std::vector<char> buffer;
-            if (buffer.capacity() < CHUNK_SIZE + overlap)
-                buffer.reserve(CHUNK_SIZE + overlap);
-
             for (size_t i = startIdx; i < endIdx && !m_bFound.load(); ++i)
             {
-                const RegionInfo& region = regions[i];
-                const SIZE_T      regionSize = region.mbi.RegionSize;
-                const DWORD_PTR   baseAddr = reinterpret_cast<DWORD_PTR>(region.mbi.BaseAddress);
+                const auto& region = regions[i];
+                SIZE_T      allocationSize = region.mbi.RegionSize;
+                PVOID       buffer = nullptr;
 
-                for (SIZE_T offset = 0; offset < regionSize && !m_bFound.load(); offset += CHUNK_SIZE)
+                if (!NT_SUCCESS(SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE)))
+                    continue;
+
+                SIZE_T bytesRead = 0;
+                if (!NT_SUCCESS(SysNtReadVirtualMemory(hProcess, region.mbi.BaseAddress, buffer, allocationSize, &bytesRead)) || bytesRead == 0)
                 {
-                    // Adaptive throttling based on system load
-                    if (cpuUsage > 90.0)
-                        std::this_thread::sleep_for(std::chrono::milliseconds(1));
-                    else if (cpuUsage > 80.0)
-                        std::this_thread::yield();
+                    SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
+                    continue;
+                }
 
-                    const SIZE_T chunkSize = min(CHUNK_SIZE + overlap, regionSize - offset);
-                    SIZE_T       bytesRead = 0;
+                const char* dataPtr = reinterpret_cast<const char*>(buffer);
 
-                    // Reuse buffer without reallocation
-                    buffer.resize(chunkSize);
-                    if (!NT_SUCCESS(SysNtReadVirtualMemory(hProcess, reinterpret_cast<LPVOID>(baseAddr + offset), buffer.data(), chunkSize, &bytesRead)) ||
-                        bytesRead == 0)
+                for (const auto& decryptedStr : m_vSignatures)
+                {
+                    size_t foundPos = std::string_view(dataPtr, bytesRead).find(decryptedStr);
+                    if (foundPos != std::string_view::npos && !decryptedStr.empty())
                     {
-                        continue;
-                    }
+                        LPVOID lpFlaggedAddress = static_cast<LPBYTE>(region.mbi.BaseAddress) + foundPos;
+                        QueryPerformanceCounter(&end);
+                        SharedUtil::AddDebugLog("[+] Found signature at address 0x%llX in region 0x%llX (size: %zu bytes) with protection 0x%llX",
+                                                (DWORD64)lpFlaggedAddress, (DWORD64)region.mbi.BaseAddress, region.mbi.RegionSize,
+                                                region.mbi.Protect);
 
-                    // String search in chunk
-                    std::string_view chunkView(buffer.data(), bytesRead);
-                    for (const auto& sig : m_vSignatures)
-                    {
-                        if (sig.empty() || m_bFound.load())
-                            continue;
+                        float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
-                        size_t pos = 0;
-                        while ((pos = chunkView.find(sig, pos)) != std::string_view::npos)
-                        {
-                            LPVOID foundAddr = reinterpret_cast<LPVOID>(baseAddr + offset + pos);
+                        g_pAtomicAntiCheat->NotifyDetection(CHEAT_SIGNATURE_FOUND, {{"string", decryptedStr},
+                                                                                    {"memory_address", (DWORD64)lpFlaggedAddress},
+                                                                                    {"region_size", region.mbi.RegionSize},
+                                                                                    {"base_address", (DWORD64)region.mbi.BaseAddress},
+                                                                                    {"region_type", (DWORD64)region.mbi.Type},
+                                                                                    {"region_state", (DWORD64)region.mbi.State},
+                                                                                    {"region_protect", (DWORD64)region.mbi.Protect},
+                                                                                    {"allocation_protect", (DWORD64)region.mbi.AllocationProtect},
+                                                                                    {"allocation_address", (DWORD64)region.mbi.AllocationBase},
+                                                                                    {"scan_time", std::to_string(fScanTime) + "s"}});
 
-                            SharedUtil::AddDebugLog("Found ya zebiiii");
-
-                            m_bFound.store(true);
-                            break;
-                        }
-                        if (m_bFound.load())
-                            break;
+                        g_pAtomicAntiCheat->RunScanners(false);
+                        m_bFound.store(true);
+                        break;
                     }
                 }
+
+                SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
+                if (m_bFound.load())
+                    break;
             }
         };
 
-        // Parallel execution with completion tracking
-        std::atomic<unsigned>   tasksRemaining{numThreads};
-        std::mutex              cvMutex;
-        std::condition_variable cv;
-        const size_t            regionsPerThread = regions.size() / numThreads;
-
-        for (unsigned i = 0; i < numThreads; ++i)
+        for (unsigned int i = 0; i < numThreads; ++i)
         {
-            const size_t startIdx = i * regionsPerThread;
-            const size_t endIdx = (i == numThreads - 1) ? regions.size() : startIdx + regionsPerThread;
+            size_t startIdx = i * quarter;
+            size_t endIdx = (i == numThreads - 1) ? regions.size() : (i + 1) * quarter;
 
             pool.enqueue(
-                [=, &tasksRemaining, &cv]
+                [=]()
                 {
-                    TaskCompletionGuard guard(tasksRemaining, cv);
-                    std::this_thread::sleep_for(std::chrono::milliseconds(20 * i));
+                    std::this_thread::sleep_for(std::chrono::milliseconds(20 * i));            // staggered start
                     scanFunc(startIdx, endIdx);
                 });
         }
 
-        // Wait for all tasks to complete
-        std::unique_lock<std::mutex> lock(cvMutex);
-        cv.wait(lock, [&] { return tasksRemaining == 0; });
-
-        // Final timing and cleanup
-        LARGE_INTEGER end;
         QueryPerformanceCounter(&end);
-        float elapsed = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+        float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
-        SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Regions: %zu | CPU Load: %.1f%%", elapsed, regions.size(), cpuUsage);
+        SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());
 
-        std::this_thread::sleep_for(std::chrono::seconds(cpuUsage > 80.0 ? 90 : 45));
+        std::this_thread::sleep_for(std::chrono::seconds(45));
     }
+
+    SysNtClose(hProcess);
     _endthreadex(0);
 }
 #pragma optimize("", on)
