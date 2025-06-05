@@ -142,7 +142,7 @@ void CHeuristicGuard::DoPulse()
                 continue;
 
             NTSTATUS            status;
-            KernelCalls_MEMORY_SECTION_NAME sectionName;
+            MEMORY_SECTION_NAME sectionName;
             SIZE_T              returnLength0;
             WCHAR               filenameBuffer[MAX_PATH];
 
