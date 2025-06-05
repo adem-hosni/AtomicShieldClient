@@ -141,6 +141,9 @@ void CHeuristicGuard::DoPulse()
             if (Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(addr), MemoryMap))
                 continue;
 
+            if (MemoryRegion.RegionSize > 50 * 1024 * 1024)
+                continue;
+
             regions.push_back({MemoryRegion, baseAddress});
         }
         unsigned int numCores = std::thread::hardware_concurrency();
