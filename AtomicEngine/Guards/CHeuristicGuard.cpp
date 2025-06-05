@@ -141,6 +141,8 @@ void CHeuristicGuard::DoPulse()
             if (!(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
                 continue;
 
+
+
             regions.push_back({MemoryRegion, baseAddress});
         }
 
