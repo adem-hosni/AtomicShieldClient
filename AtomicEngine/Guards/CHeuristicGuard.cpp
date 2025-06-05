@@ -16,6 +16,7 @@ CHeuristicGuard::~CHeuristicGuard()
 
 void CHeuristicGuard::Initialize()
 {
+
 }
 
 struct RegionInfo
@@ -97,18 +98,7 @@ void CHeuristicGuard::DoPulse()
     NTSTATUS   status;
     ThreadPool pool(std::thread::hardware_concurrency());            // create thread pool
 
-    HANDLE hJob = CreateJobObject(NULL, NULL);
-    if (hJob)
-    {
-        JOBOBJECT_CPU_RATE_CONTROL_INFORMATION cpuRateControl = {};
-        cpuRateControl.ControlFlags = JOB_OBJECT_CPU_RATE_CONTROL_ENABLE | JOB_OBJECT_CPU_RATE_CONTROL_HARD_CAP;
-        cpuRateControl.CpuRate = 500;            // 5% CPU cap
 
-        if (SetInformationJobObject(hJob, JobObjectCpuRateControlInformation, &cpuRateControl, sizeof(cpuRateControl)))
-        {
-            AssignProcessToJobObject(hJob, GetCurrentProcess());
-        }
-    }
     while (g_pAtomicAntiCheat->RunScanners())
     {
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
@@ -119,6 +109,7 @@ void CHeuristicGuard::DoPulse()
         status = SysNtOpenProcess(&hProcess, PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, &objAttr, &clientId);
         if (!NT_SUCCESS(status))
             continue;
+        auto MemoryMap = Utils::BuildModuledMemoryMap(hProcess);
 
         LARGE_INTEGER frequency, start, end;
         QueryPerformanceFrequency(&frequency);
@@ -135,24 +126,6 @@ void CHeuristicGuard::DoPulse()
             SIZE_T regionSize = sizeof(MemoryRegion);
             SIZE_T returnLength = 0;
 
-            if (Utils::IsAddressInModuledRange((DWORD64)addr, m_WhitelistedRegions))
-                continue;
-
-            if (!Utils::IsAddressInModuledRange((DWORD64)addr, m_BlacklistedRegions))
-                continue;
-
-            NTSTATUS            status;
-            MEMORY_SECTION_NAME sectionName;
-            SIZE_T              returnLength0;
-            WCHAR               filenameBuffer[MAX_PATH];
-
-            // First call to get required size
-            if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryMappedFilenameInformation, &sectionName, sizeof(sectionName), &returnLength0)))
-                continue;
-
-            auto wstr = std::wstring(sectionName.SectionFileName.Buffer);
-            wprintf(L"Section File Name: %s\n", wstr.c_str());
-
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength)))
                 continue;
 
@@ -165,8 +138,8 @@ void CHeuristicGuard::DoPulse()
             if (!(MemoryRegion.Protect & (PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
                 continue;
 
-            if (!(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
-                continue;
+            /*if (Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(addr), MemoryMap) != NULL)
+                continue;*/
 
             regions.push_back({MemoryRegion, baseAddress});
         }
@@ -211,7 +184,8 @@ void CHeuristicGuard::DoPulse()
                         LPVOID lpFlaggedAddress = static_cast<LPBYTE>(region.mbi.BaseAddress) + foundPos;
                         QueryPerformanceCounter(&end);
                         SharedUtil::AddDebugLog("[+] Found signature at address 0x%llX in region 0x%llX (size: %zu bytes) with protection 0x%llX",
-                                                (DWORD64)lpFlaggedAddress, (DWORD64)region.mbi.BaseAddress, region.mbi.RegionSize, region.mbi.Protect);
+                                                (DWORD64)lpFlaggedAddress, (DWORD64)region.mbi.BaseAddress, region.mbi.RegionSize,
+                                                region.mbi.Protect);
 
                         float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
