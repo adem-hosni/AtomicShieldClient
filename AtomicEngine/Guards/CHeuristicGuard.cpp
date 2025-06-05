@@ -140,8 +140,6 @@ void CHeuristicGuard::DoPulse()
 
             /*if (Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(addr), MemoryMap) != NULL)
                 continue;*/
-            if (!(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
-                continue;
 
             regions.push_back({MemoryRegion, baseAddress});
         }
