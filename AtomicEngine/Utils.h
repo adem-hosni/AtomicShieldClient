@@ -3,6 +3,12 @@
 #include <Windows.h>
 #include <TlHelp32.h>
 
+struct ModuleInfo
+{
+    DWORD64     BaseAddress;
+    DWORD       Size;
+    std::string Path;
+};
 namespace Utils
 {
     static std::map<DWORD64, DWORD64>    orderedMapping;             // global module runtime list (PE Image Info)
@@ -14,10 +20,10 @@ namespace Utils
     long                      GetFileSize(FILE* File);
     DWORD                     GenerateCRC32(const std::string& filePath, DWORD* FileSize);
     DWORD                     GenerateCRC32(const std::wstring& filePath, DWORD* FileSize);
-    std::map<LPVOID, DWORD64> BuildModuledMemoryMap(HANDLE hProcess);
+    std::vector<ModuleInfo>   BuildModuledMemoryMap(HANDLE hProcess);
     int*                      GetModuleMemoryInfo(HANDLE hProcess, HMODULE Addr);
     DWORD64                   GetModuleBaseAddress(int iProcessID, std::string strModuleName);
-    DWORD64                   IsAddressInModuledRange(DWORD64 addr, const std::map<LPVOID, DWORD64>& MemoryMap);
+    bool                   IsAddressInModuledRange(DWORD64 address, const std::vector<ModuleInfo>& memoryMap);
     bool                      IsFunctionHooked(const char* szModuleName, const char* szFunctionName);
     std::string               CaesarDecrypt(const std::string& ciphertext, int shift);
     std::wstring              CaesarDecrypt(const std::wstring& ciphertext, int shift);

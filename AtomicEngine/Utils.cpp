@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include "Utils.h"
-
+#include <psapi.h>
+#include <tlhelp32.h>
 std::string Utils::ParseModuleNameFromPath(std::string strPath)
 {
     if (strPath.empty())
@@ -92,43 +93,29 @@ DWORD Utils::GenerateCRC32(const std::wstring& wfilePath, DWORD* FileSize)
     return crc;
 }
 
-std::map<LPVOID, DWORD64> Utils::BuildModuledMemoryMap(HANDLE hProcess)
+std::vector<ModuleInfo> Utils::BuildModuledMemoryMap(HANDLE hProcess)
 {
-    std::map<LPVOID, DWORD64> memoryMap;
-    HMODULE                   hMods[1024];
-    DWORD                     cbNeeded;
+    std::vector<ModuleInfo> modules;
+    HMODULE                 hMods[1024];
+    DWORD                   cbNeeded;
 
     if (EnumProcessModules(hProcess, hMods, sizeof(hMods), &cbNeeded))
     {
-        for (unsigned int i = 0; i < cbNeeded / sizeof(HMODULE); ++i)
+        for (DWORD i = 0; i < (cbNeeded / sizeof(HMODULE)); i++)
         {
-            MODULEINFO modinfo;
-            if (GetModuleInformation(hProcess, hMods[i], &modinfo, sizeof(modinfo)))
+            MODULEINFO modInfo;
+            if (GetModuleInformation(hProcess, hMods[i], &modInfo, sizeof(modInfo)))
             {
-
-                char szModulePath[MAX_PATH];
-                if (GetModuleFileNameExA(hProcess, hMods[i], szModulePath, sizeof(szModulePath)))
+                char szModName[MAX_PATH];
+                if (GetModuleFileNameExA(hProcess, hMods[i], szModName, sizeof(szModName)))
                 {
-                    std::string moduleName = ParseModuleNameFromPath(szModulePath);
-                    /*orderedMapping[(DWORD64)modinfo.lpBaseOfDll] = modinfo.SizeOfImage;
-                    orderedIdentify[(DWORD)modinfo.lpBaseOfDll] = std::wstring(moduleName.begin(), moduleName.end());*/
-
-                    if (!moduleName.empty())
-                    {
-                        memoryMap[modinfo.lpBaseOfDll] = modinfo.SizeOfImage;
-                    }
-                    else
-                    {
-                        SharedUtil::AddDebugLog("Module: Unknown, Base Address: 0x%p, Size: %llu bytes", modinfo.lpBaseOfDll, modinfo.SizeOfImage);
-                    }
+                    modules.push_back({reinterpret_cast<DWORD64>(modInfo.lpBaseOfDll), modInfo.SizeOfImage, std::string(szModName)});
                 }
             }
         }
     }
-
-    return memoryMap;
+    return modules;
 }
-
 
 int* Utils::GetModuleMemoryInfo(HANDLE hProcess, HMODULE Addr)
 {
@@ -177,16 +164,16 @@ DWORD64 Utils::GetModuleBaseAddress(int iProcessID, std::string strModuleName)
     return dwBaseAddress;
 }
 
-DWORD64 Utils::IsAddressInModuledRange(DWORD64 addr, const std::map<LPVOID, DWORD64>& MemoryMap)
+bool Utils::IsAddressInModuledRange(DWORD64 address, const std::vector<ModuleInfo>& memoryMap)
 {
-    for (const auto& [base, size] : MemoryMap)
+    for (const auto& module : memoryMap)
     {
-        if (addr >= (DWORD64)base && addr <= (DWORD64)base + size)
+        if (address >= module.BaseAddress && address < (module.BaseAddress + module.Size))
         {
-            return (DWORD64)base;
+            return true;
         }
     }
-    return NULL;
+    return false;
 }
 
 bool Utils::IsFunctionHooked(const char* szModuleName, const char* szFunctionName)

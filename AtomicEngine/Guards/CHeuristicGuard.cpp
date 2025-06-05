@@ -138,12 +138,11 @@ void CHeuristicGuard::DoPulse()
             if (!(MemoryRegion.Protect & (PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
                 continue;
 
-            /*if (Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(addr), MemoryMap) != NULL)
-                continue;*/
+            if (Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(addr), MemoryMap))
+                continue;
 
             regions.push_back({MemoryRegion, baseAddress});
         }
-
         unsigned int numCores = std::thread::hardware_concurrency();
         unsigned int numThreads = 1;
 
