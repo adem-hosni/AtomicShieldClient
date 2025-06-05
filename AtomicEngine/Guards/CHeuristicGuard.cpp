@@ -108,7 +108,7 @@ void CHeuristicGuard::DoPulse()
         {
             AssignProcessToJobObject(hJob, GetCurrentProcess());
         }
-
+    }
         while (g_pAtomicAntiCheat->RunScanners())
         {
             while (g_pAtomicAntiCheat->GetProcessID() == NULL)
