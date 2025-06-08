@@ -155,8 +155,8 @@ void CManualMappingGuard::DoPulse()
             if (MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE))
                 continue;
 
-            if (MemoryRegion.Type != MEM_PRIVATE)
-                continue;
+            /*if (MemoryRegion.Type != MEM_PRIVATE)
+                continue;*/
 
             const DWORD64 dwPEHeaderSize = GetPEHeaderSize(reinterpret_cast<DWORD64>(lpCurrentAddress));
 
