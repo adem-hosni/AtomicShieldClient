@@ -14,6 +14,7 @@ public:
 
     bool    IsModuleLoaded(DWORD64 dwAddress);
     DWORD64 GetPEHeaderSize(DWORD64 dwBaseAddress);
+    bool    GetCodeSectionAddress(DWORD64 dwModuleBase, DWORD64& sectionStart, DWORD64& sectionSize, NTSTATUS& status);
 
     void        DoPulse();
     static void StaticPulse(void* pContext) { reinterpret_cast<CManualMappingGuard*>(pContext)->DoPulse(); }

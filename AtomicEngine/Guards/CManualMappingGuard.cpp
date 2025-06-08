@@ -90,7 +90,7 @@ DWORD64 CManualMappingGuard::GetPEHeaderSize(DWORD64 dwBaseAddress)
     SIZE_T           bytesRead = 0;
     HANDLE           hProcess = g_pAtomicAntiCheat->GetProcessHandle();
 
-    if (SysNtReadVirtualMemory(hProcess, (PVOID)dwBaseAddress, &dosHeader, sizeof(dosHeader), &bytesRead) != 0 || bytesRead != sizeof(dosHeader))
+    if (!NT_SUCCESS(SysNtReadVirtualMemory(hProcess, (PVOID)dwBaseAddress, &dosHeader, sizeof(dosHeader), &bytesRead)) || bytesRead == 0)
         return 0;
 
     if (dosHeader.e_magic != IMAGE_DOS_SIGNATURE)
@@ -99,7 +99,7 @@ DWORD64 CManualMappingGuard::GetPEHeaderSize(DWORD64 dwBaseAddress)
     IMAGE_NT_HEADERS ntHeader = {};
     DWORD64          ntHeaderAddr = dwBaseAddress + dosHeader.e_lfanew;
 
-    if (SysNtReadVirtualMemory(hProcess, (PVOID)ntHeaderAddr, &ntHeader, sizeof(ntHeader), &bytesRead) != 0 || bytesRead != sizeof(ntHeader))
+    if (!NT_SUCCESS(SysNtReadVirtualMemory(hProcess, (PVOID)ntHeaderAddr, &ntHeader, sizeof(ntHeader), &bytesRead)) || bytesRead != sizeof(ntHeader))
         return 0;
 
     if (ntHeader.Signature != IMAGE_NT_SIGNATURE)
@@ -109,6 +109,40 @@ DWORD64 CManualMappingGuard::GetPEHeaderSize(DWORD64 dwBaseAddress)
         return 0;
 
     return ntHeader.FileHeader.SizeOfOptionalHeader;
+}
+
+bool CManualMappingGuard::GetCodeSectionAddress(DWORD64 dwModuleBase, DWORD64& sectionStart, DWORD64& sectionSize, NTSTATUS& status)
+{
+    MEMORY_BASIC_INFORMATION mbi = {0};
+    SIZE_T                   len = 0;
+    PVOID                    currentAddr = (PVOID)dwModuleBase;
+    HANDLE                   hProcess = GetCurrentProcess();            // Or whatever process handle you're using
+
+    while (true)
+    {
+        status = SysNtQueryVirtualMemory(hProcess, currentAddr, MemoryBasicInformation, &mbi, sizeof(mbi), &len);
+
+        if (!NT_SUCCESS(status))
+            break;
+
+        // Exit if we've moved outside our module's memory
+        if ((DWORD64)mbi.AllocationBase != dwModuleBase)
+            break;
+
+        // Check for committed, MEM_IMAGE, and executable protection
+        if ((mbi.State == MEM_COMMIT) && (mbi.Type == MEM_IMAGE) &&
+            (mbi.Protect & (PAGE_EXECUTE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY)))
+        {
+            sectionStart = (DWORD64)mbi.BaseAddress;
+            sectionSize = (DWORD64)mbi.RegionSize;
+            return true;
+        }
+
+        // Move to next memory region
+        currentAddr = (PBYTE)mbi.BaseAddress + mbi.RegionSize;
+    }
+
+    return false;
 }
 
 void CManualMappingGuard::DoPulse()
@@ -158,12 +192,20 @@ void CManualMappingGuard::DoPulse()
             /*if (MemoryRegion.Type != MEM_PRIVATE)
                 continue;*/
 
-            const DWORD64 dwPEHeaderSize = GetPEHeaderSize(reinterpret_cast<DWORD64>(lpCurrentAddress));
+            if (MemoryRegion.RegionSize < 1024 * 1024)
+                continue;
+
+            const DWORD64 dwPEHeaderSize = 0x1000; //GetPEHeaderSize(reinterpret_cast<DWORD64>(lpCurrentAddress));
+            /*if (dwPEHeaderSize == NULL)
+            {
+                MANUALMAP_LOG("PE Header size is 0, looking for another region...");
+                continue;
+            }*/
 
             size_t               bytesRead = NULL;
             std::vector<uint8_t> buffer(dwPEHeaderSize);
             status = SysNtReadVirtualMemory(g_pAtomicAntiCheat->GetProcessHandle(), lpCurrentAddress, buffer.data(), dwPEHeaderSize, &bytesRead);
-            if (!NT_SUCCESS(status))
+            if (!NT_SUCCESS(status) || bytesRead == NULL)
             {
                 MANUALMAP_LOG("Failed to read memory at address 0x%llx, error: 0x%llx", reinterpret_cast<DWORD64>(lpCurrentAddress), status);
                 continue;
@@ -181,18 +223,60 @@ void CManualMappingGuard::DoPulse()
 
             if ((!bHasLoaded) || bHasErasedHeader)
             {
-                MANUALMAP_LOG(
-                    "A MMM Detected at 0x%llx with size %zu and memory type 0x%llx, base address: 0x%llX file "
-                    "%s, has loaded: %d, has erased header: %d",
-                    reinterpret_cast<DWORD64>(lpCurrentAddress), MemoryRegion.RegionSize, MemoryRegion.Type, reinterpret_cast<DWORD64>(MemoryRegion.BaseAddress), szFileName,
-                    bHasLoaded, bHasErasedHeader);
+                DWORD64 dwTextSectionStart = NULL;
+                DWORD64 dwTextSectionSize = NULL;
+
+                if (GetCodeSectionAddress(reinterpret_cast<DWORD64>(lpCurrentAddress), dwTextSectionStart, dwTextSectionSize, status))
+                {
+                    std::vector<BYTE> TextSectionBuffer(dwTextSectionSize);
+                    if (!NT_SUCCESS(status = SysNtReadVirtualMemory(g_pAtomicAntiCheat->GetProcessHandle(), lpCurrentAddress, TextSectionBuffer.data(),
+                                                                    dwTextSectionSize, &bytesRead)) ||
+                        bytesRead == NULL)
+                    {
+                        MANUALMAP_LOG("Failed to read text section vmemory, error: 0x%llx", status);
+                        continue;
+                    }
+
+                    const char pattern[] =
+                        "\x48\x8B\xC4\x48\x89\x58\x20\x4C\x89\x40\x18\x89\x50\x10\x48\x89\x48\x08\x56\x57\x41\x56\x48\x83\xEC\x40\x49\x8B\xF0\x8B\xFA\x4C\x8B"
+                        "\xF1\x85\xD2\x75\x0F\x39\x15\x00\x00\x00\x00\x7F\x07\x33\xC0\xE9\x00\x00\x00\x00";
+                    const char wildcard[] = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx????xxxxx????";
+
+                    size_t patternLength = strlen(wildcard);
+
+                    for (size_t z = 0; z < dwTextSectionSize - patternLength; z++)
+                    {
+                        bool bFound = true;
+                        for (size_t j = 0; j < patternLength; j++)
+                        {
+                            if (wildcard[j] != 'j' && pattern[j] != *reinterpret_cast<char*>(&TextSectionBuffer[z + j]))
+                            {
+                                bFound = false;
+                                break;
+                            }
+                        }
+
+                        if (bFound)
+                        {
+                            MANUALMAP_LOG(
+                                "A MMM Detected at 0x%llx with size %zu and memory type 0x%llx, base address: 0x%llX file "
+                                "%s, has loaded: %d, has erased header: %d",
+                                reinterpret_cast<DWORD64>(lpCurrentAddress), MemoryRegion.RegionSize, MemoryRegion.Type,
+                                reinterpret_cast<DWORD64>(MemoryRegion.BaseAddress), szFileName, bHasLoaded, bHasErasedHeader);
+                        }
+                    }
+                }
+                else
+                {
+                    MANUALMAP_LOG("Failed to get text section address! error: 0x%llx", status);
+                }
             }
         }
 
         QueryPerformanceCounter(&end);
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
-        MANUALMAP_LOG("Manual Mapping Guard Pulse completed in %.3f seconds", fElapsedTime);
+        MANUALMAP_LOG("Manual Mapping Guard Pulse completed in %.5f seconds", fElapsedTime);
 
         std::this_thread::sleep_for(std::chrono::seconds(4));
     }
