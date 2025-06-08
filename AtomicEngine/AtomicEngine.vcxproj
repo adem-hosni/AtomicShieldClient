@@ -188,6 +188,7 @@
     <ClCompile Include="CCrashHandler.cpp" />
     <ClCompile Include="CGuardManager.cpp" />
     <ClCompile Include="CHWID.cpp" />
+    <ClCompile Include="Guards\CManualMappingGuard.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="FileAuthentication.cpp" />
     <ClCompile Include="Guards\CGuardBase.cpp" />
@@ -250,6 +251,7 @@
     <ClInclude Include="CCrashHandler.h" />
     <ClInclude Include="CGuardManager.h" />
     <ClInclude Include="CHWID.h" />
+    <ClInclude Include="Guards\CManualMappingGuard.h" />
     <ClInclude Include="FileAuthentication.h" />
     <ClInclude Include="Guards\CGuardBase.h" />
     <ClInclude Include="Guards\CHeuristicGuard.h" />
@@ -260,6 +262,7 @@
     <ClInclude Include="Screenshot.h" />
     <ClInclude Include="skCrypter.h" />
     <ClInclude Include="StdInc.h" />
+    <ClInclude Include="Structs.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Vendor\CRC32\CRC32.h" />
     <ClInclude Include="Vendor\Detours\detours.h" />

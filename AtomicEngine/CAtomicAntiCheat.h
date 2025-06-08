@@ -2,6 +2,7 @@
 #include "StdInc.h"
 #include "CAtomicNetwork.h"
 #include "CGuardManager.h"
+#include "KernelCalls.hpp"
 
 struct SMemoryDetectionReport
 {
@@ -59,6 +60,8 @@ public:
     HANDLE GetProcessHandle() { return m_hProcess; }
     int    GetProcessID() { return m_iTargetProcessID; }
 
+    bool IsValidProcessHandle() { return m_hProcess != NULL && m_hProcess != INVALID_HANDLE_VALUE; }
+
     bool                         IsAtomicThread(HANDLE hThread);
     std::vector<CAtomicThread*>& GetAtomicThreads() { return m_vAtomicThreads; }
 
@@ -76,6 +79,9 @@ private:
     std::vector<CAtomicThread*> m_vAtomicThreads;
     LPVOID                      m_lpAntiCheatModuleBase;
     bool                        m_bRunScanners;
+
+    KernelCalls_OBJECT_ATTRIBUTES m_ObjAttr{};
+    KernelCalls_CLIENT_ID         m_ClientId{};
 };
 
 extern CAtomicAntiCheat* g_pAtomicAntiCheat;

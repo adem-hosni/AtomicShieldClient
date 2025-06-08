@@ -17,7 +17,6 @@
 #include <CRC32/CRC32.h>
 
 #include <Windows.h>
-#include <winternl.h>
 #include <Psapi.h>
 #include <iostream>
 #include <filesystem>
@@ -43,3 +42,4 @@
 #include "Guards/CHeuristicGuard.h"
 #include "Guards/CModuleGuard.h"
 #include "Guards/CProcessGuard.h"
+#include "Guards/CManualMappingGuard.h"

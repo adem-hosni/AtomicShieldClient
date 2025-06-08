@@ -1,6 +1,7 @@
 #include "StdInc.h"
 #include <ctime>
 #include <filesystem>
+#include <winternl.h>
 #include <WbemCli.h>
 #include <comutil.h>
 

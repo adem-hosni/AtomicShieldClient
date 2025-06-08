@@ -1,4 +1,5 @@
 #include "StdInc.h"
+#include <winternl.h>
 #include <Psapi.h>
 
 CProcessGuard::CProcessGuard()

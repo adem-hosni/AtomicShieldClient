@@ -25,6 +25,10 @@ bool CAtomicAntiCheat::Initialize()
     SharedUtil::AddDebugLog("Initializing Atomic AntiCheat...");
     CCrashHandler::Initialize();
 
+    RtlSecureZeroMemory(&m_ObjAttr, sizeof(m_ObjAttr));
+    m_ObjAttr.Length = sizeof(m_ObjAttr);
+    RtlSecureZeroMemory(&m_ClientId, sizeof(m_ClientId));
+
     m_hProcess = NULL;
     m_iTargetProcessID = NULL;
     //   m_HWIDCache = g_pHWID->LoadHWIDCaches();
@@ -69,9 +73,9 @@ void CAtomicAntiCheat::DoPulse()
                 m_pAtomicNetwork->Disconnect("FiveM Closed");
             }
 
-            if (m_hProcess != NULL && m_hProcess != INVALID_HANDLE_VALUE)
+            if (!g_pAtomicAntiCheat->IsValidProcessHandle())
             {
-                CloseHandle(m_hProcess);
+                SysNtClose(m_hProcess);
                 m_hProcess = NULL;
             }
 
@@ -81,7 +85,14 @@ void CAtomicAntiCheat::DoPulse()
 
         if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
         {
-            m_hProcess = OpenProcess(PROCESS_VM_READ, FALSE, m_iTargetProcessID);
+            m_ClientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(m_iTargetProcessID));
+            NTSTATUS status = SysNtOpenProcess(&m_hProcess, PROCESS_ALL_ACCESS, &m_ObjAttr, &m_ClientId);
+            if (!NT_SUCCESS(status) || !g_pAtomicAntiCheat->IsValidProcessHandle())
+            {
+                SharedUtil::AddDebugLog("Failed to open FiveM process with ID %d, error: %d", m_iTargetProcessID, status);
+                continue;
+            }
+
             if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
             {
                 SharedUtil::AddDebugLog("Failed to attach to fivem process!");
@@ -201,7 +212,7 @@ void CAtomicAntiCheat::Shutdown()
     RunScanners(false);
     if (m_hProcess != NULL && m_hProcess != INVALID_HANDLE_VALUE)
     {
-        CloseHandle(m_hProcess);
+        SysNtClose(m_hProcess);
         m_hProcess = NULL;
     }
 

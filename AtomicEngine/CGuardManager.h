@@ -3,6 +3,7 @@
 #include "Guards/CHeuristicGuard.h"
 #include "Guards/CModuleGuard.h"
 #include "Guards/CProcessGuard.h"
+#include "Guards/CManualMappingGuard.h"
 
 class CGuardManager
 {
@@ -18,14 +19,15 @@ public:
 
     CProcessGuard*   GetProcessGuard() { return m_pProcessGuard; }
     CHeuristicGuard* GetHeuristicGuard() { return m_pHeuristicGuard; }
-    // CModuleGuard*    GetModuleGuard() { return m_pModuleGuard; }
+    CManualMappingGuard* GetManualMappingGuard() { return m_pManualMappingGuard; }
+
 
     bool IsPulseStarted() { return m_bPulseStarted; }
 
 private:
     CHeuristicGuard* m_pHeuristicGuard;
-    // CModuleGuard*    m_pModuleGuard;
     CProcessGuard* m_pProcessGuard;
+    CManualMappingGuard* m_pManualMappingGuard;
 
     std::vector<CAtomicThread*> m_vThreads;
     bool                        m_bPulseStarted;

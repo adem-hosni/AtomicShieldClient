@@ -94,22 +94,15 @@ void CHeuristicGuard::DoPulse()
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
 
-    HANDLE     hProcess;
     NTSTATUS   status;
     ThreadPool pool(std::thread::hardware_concurrency());            // create thread pool
 
 
-    auto MemoryMap = Utils::BuildModuledMemoryMap(hProcess);
+    auto MemoryMap = Utils::BuildModuledMemoryMap(g_pAtomicAntiCheat->GetProcessHandle());
     while (g_pAtomicAntiCheat->RunScanners())
     {
-        while (g_pAtomicAntiCheat->GetProcessID() == NULL)
+        while (!g_pAtomicAntiCheat->IsValidProcessHandle())
             std::this_thread::sleep_for(std::chrono::seconds(1));
-
-        clientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(g_pAtomicAntiCheat->GetProcessID()));
-
-        status = SysNtOpenProcess(&hProcess, PROCESS_VM_READ | PROCESS_QUERY_INFORMATION, &objAttr, &clientId);
-        if (!NT_SUCCESS(status))
-            continue;
 
         LARGE_INTEGER frequency, start, end;
         QueryPerformanceFrequency(&frequency);
@@ -118,6 +111,7 @@ void CHeuristicGuard::DoPulse()
         std::vector<RegionInfo>  regions;
         MEMORY_BASIC_INFORMATION MemoryRegion{};
         GetSystemInfo(&sysInfo);
+        HANDLE hProcess = g_pAtomicAntiCheat->GetProcessHandle();
 
         for (LPVOID addr = sysInfo.lpMinimumApplicationAddress; addr < sysInfo.lpMaximumApplicationAddress;
              addr = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + MemoryRegion.RegionSize)
@@ -235,7 +229,6 @@ void CHeuristicGuard::DoPulse()
         std::this_thread::sleep_for(std::chrono::seconds(45));
     }
 
-    SysNtClose(hProcess);
     _endthreadex(0);
 }
 #pragma optimize("", on)
