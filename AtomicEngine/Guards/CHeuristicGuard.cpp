@@ -36,50 +36,6 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::strin
     }
 }
 
-float GetCPUUsageForProcess(HANDLE hProcess, int intervalMs = 1000)
-{
-    FILETIME ftCreate1, ftExit1, ftKernel1, ftUser1;
-    FILETIME ftCreate2, ftExit2, ftKernel2, ftUser2;
-
-    if (!GetProcessTimes(hProcess, &ftCreate1, &ftExit1, &ftKernel1, &ftUser1))
-        return -1.0f;
-
-    ULARGE_INTEGER k1, u1;
-    k1.LowPart = ftKernel1.dwLowDateTime;
-    k1.HighPart = ftKernel1.dwHighDateTime;
-
-    u1.LowPart = ftUser1.dwLowDateTime;
-    u1.HighPart = ftUser1.dwHighDateTime;
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(intervalMs));
-
-    if (!GetProcessTimes(hProcess, &ftCreate2, &ftExit2, &ftKernel2, &ftUser2))
-        return -1.0f;
-
-    ULARGE_INTEGER k2, u2;
-    k2.LowPart = ftKernel2.dwLowDateTime;
-    k2.HighPart = ftKernel2.dwHighDateTime;
-
-    u2.LowPart = ftUser2.dwLowDateTime;
-    u2.HighPart = ftUser2.dwHighDateTime;
-
-    // Calculate CPU time used during interval
-    ULONGLONG kernelTime = k2.QuadPart - k1.QuadPart;
-    ULONGLONG userTime = u2.QuadPart - u1.QuadPart;
-    ULONGLONG totalTime100ns = kernelTime + userTime;
-
-    // Convert to seconds
-    float secondsPassed = intervalMs / 1000.0f;
-    float cpuSecondsUsed = totalTime100ns / 10000000.0f;            // Convert from 100ns to seconds
-
-    // Logical cores
-    int numCores = std::thread::hardware_concurrency();
-
-    // Calculate CPU usage %
-    float cpuUsage = (cpuSecondsUsed / (secondsPassed * numCores)) * 100.0f;
-    return cpuUsage;
-}
-
 #pragma optimize("", off)
 void CHeuristicGuard::DoPulse()
 {
