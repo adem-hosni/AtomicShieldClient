@@ -3,7 +3,6 @@
 #include "StdInc.h"
 #include "KernelCalls.hpp"
 #include <algorithm>
-#include <ThreadPool.cpp>
 
 CHeuristicGuard::CHeuristicGuard()
 {
@@ -16,7 +15,6 @@ CHeuristicGuard::~CHeuristicGuard()
 
 void CHeuristicGuard::Initialize()
 {
-
 }
 
 struct RegionInfo
@@ -50,9 +48,7 @@ void CHeuristicGuard::DoPulse()
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
 
-    NTSTATUS   status;
-    ThreadPool pool(std::thread::hardware_concurrency());            // create thread pool
-
+    NTSTATUS        status;
 
     auto MemoryMap = Utils::BuildModuledMemoryMap(g_pAtomicAntiCheat->GetProcessHandle());
     while (g_pAtomicAntiCheat->RunScanners())
@@ -91,21 +87,14 @@ void CHeuristicGuard::DoPulse()
             if (!(MemoryRegion.Protect & (PAGE_READWRITE | PAGE_EXECUTE_READWRITE)))
                 continue;
 
-            if (MemoryRegion.RegionSize < 512 * 1024 )            // < 1MB — usually not large cheat payloads
+            if (MemoryRegion.RegionSize < 512 * 1024)            // < 1MB — usually not large cheat payloads
                 continue;
 
-
             regions.push_back({MemoryRegion, baseAddress});
+            std::this_thread::sleep_for(std::chrono::milliseconds(1));
+
         }
-        unsigned int numCores = std::thread::hardware_concurrency();
-        unsigned int numThreads = 1;
 
-        if (numCores >= 2)
-            numThreads = 2;
-        else
-            numThreads = 1;
-
-        size_t quarter = regions.size() / numThreads;
 
         auto scanFunc = [&](size_t startIdx, size_t endIdx)
         {
@@ -137,8 +126,7 @@ void CHeuristicGuard::DoPulse()
                         LPVOID lpFlaggedAddress = static_cast<LPBYTE>(region.mbi.BaseAddress) + foundPos;
                         QueryPerformanceCounter(&end);
                         SharedUtil::AddDebugLog("[+] Found signature at address 0x%llX in region 0x%llX (size: %zu bytes) with protection 0x%llX",
-                                                (DWORD64)lpFlaggedAddress, (DWORD64)region.mbi.BaseAddress, region.mbi.RegionSize,
-                                                region.mbi.Protect);
+                                                (DWORD64)lpFlaggedAddress, (DWORD64)region.mbi.BaseAddress, region.mbi.RegionSize, region.mbi.Protect);
 
                         float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
@@ -165,18 +153,7 @@ void CHeuristicGuard::DoPulse()
             }
         };
 
-        for (unsigned int i = 0; i < numThreads; ++i)
-        {
-            size_t startIdx = i * quarter;
-            size_t endIdx = (i == numThreads - 1) ? regions.size() : (i + 1) * quarter;
-
-            pool.enqueue(
-                [=]()
-                {
-                    std::this_thread::sleep_for(std::chrono::milliseconds(20 * i));            // staggered start
-                    scanFunc(startIdx, endIdx);
-                });
-        }
+        scanFunc(0, regions.size());
 
         QueryPerformanceCounter(&end);
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
