@@ -132,11 +132,15 @@ void CHeuristicGuard::DoPulse()
             if (!(MemoryRegion.Protect & (PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
                 continue;
 
-            if (Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(addr), MemoryMap))
+            //if (Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(addr), MemoryMap))
+            //    continue;
+
+            if (!(MemoryRegion.Protect & (PAGE_READWRITE | PAGE_EXECUTE_READWRITE)))
                 continue;
 
-            if (MemoryRegion.RegionSize > 50 * 1024 * 1024)
+            if (MemoryRegion.RegionSize < 512 * 1024 )            // < 1MB — usually not large cheat payloads
                 continue;
+
 
             regions.push_back({MemoryRegion, baseAddress});
         }
