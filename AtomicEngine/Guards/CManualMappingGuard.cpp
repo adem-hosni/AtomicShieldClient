@@ -175,7 +175,7 @@ bool CManualMappingGuard::ScanRegionForIATThunk(BYTE* pBuffer, size_t regionSize
 
             if (complete_sequence >= 8)
             {
-                    return true;
+                return true;
             }
         }
     }
@@ -195,6 +195,8 @@ void CManualMappingGuard::DoPulse()
     MEMORY_BASIC_INFORMATION MemoryRegion{};
     SYSTEM_INFO              sysInfo;
     GetSystemInfo(&sysInfo);
+
+    auto MemoryMap = Utils::BuildModuledMemoryMap(g_pAtomicAntiCheat->GetProcessHandle());
 
     while (g_pAtomicAntiCheat->RunScanners())
     {
@@ -221,19 +223,23 @@ void CManualMappingGuard::DoPulse()
             if (!MemoryRegion.AllocationBase || lpCurrentAddress != MemoryRegion.AllocationBase)
                 continue;
 
-            if (!(MemoryRegion.State & MEM_COMMIT) || MemoryRegion.State & MEM_RELEASE)
-                continue;
-
-            if (MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE))
-                continue;
-
             /*if (MemoryRegion.Type != MEM_PRIVATE)
                 continue;*/
 
             if (MemoryRegion.RegionSize < 1024 * 1024)
                 continue;
 
+            if (MemoryRegion.State != MEM_COMMIT)
+                continue;
+
+            if (MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE))
+                continue;
+
             if (!(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
+                continue;
+
+            // Region is executable?
+            if (!(MemoryRegion.Protect & PAGE_EXECUTE_READ || MemoryRegion.Protect & PAGE_EXECUTE_READWRITE))
                 continue;
 
             const DWORD64 dwPEHeaderSize = 0x1000;            // GetPEHeaderSize(reinterpret_cast<DWORD64>(lpCurrentAddress));
@@ -262,14 +268,14 @@ void CManualMappingGuard::DoPulse()
 
             bool bHasErasedHeader = !memcmp(buffer.data(), nullBuffer.data(), dwPEHeaderSize);
 
-            if ((!bHasLoaded) || bHasErasedHeader)
+            if ((!bHasLoaded || bHasErasedHeader) && Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(lpCurrentAddress), MemoryMap))
             {
-                MANUALMAP_LOG("Suspicious module found at 0x%ullx | Erased Header: %d, Loaded: %d", lpCurrentAddress, bHasErasedHeader, bHasLoaded);
+                MANUALMAP_LOG("Suspicious module found at 0x%llx | Erased Header: %d, Loaded: %d", lpCurrentAddress, bHasErasedHeader, bHasLoaded);
 
                 DWORD64 dwTextSectionStart = NULL;
                 DWORD64 dwTextSectionSize = NULL;
 
-                if (GetCodeSectionAddress(reinterpret_cast<DWORD64>(lpCurrentAddress), dwTextSectionStart, dwTextSectionSize, status))
+                /*if (GetCodeSectionAddress(reinterpret_cast<DWORD64>(lpCurrentAddress), dwTextSectionStart, dwTextSectionSize, status))
                 {
                     std::vector<BYTE> TextSectionBuffer(dwTextSectionSize);
                     if (!NT_SUCCESS(status = SysNtReadVirtualMemory(g_pAtomicAntiCheat->GetProcessHandle(), lpCurrentAddress, TextSectionBuffer.data(),
@@ -311,20 +317,8 @@ void CManualMappingGuard::DoPulse()
                 }
                 else
                 {
-                    MANUALMAP_LOG("Failed to get text section address! error: 0x%llx", status);
                     bytesRead = NULL;
-                    
-                    std::vector<BYTE> ImportTableBuffer(0x100000);
-                    status = SysNtReadVirtualMemory(g_pAtomicAntiCheat->GetProcessHandle(), lpCurrentAddress, ImportTableBuffer.data(), 0x100000, &bytesRead);
-                    if (!NT_SUCCESS(status) || bytesRead == NULL)
-                    {
-                        MANUALMAP_LOG("Failed to read import addresses table virtual memory! error: 0x%llx", status);
-                        continue;
-                    }
-                    bool bFound = ScanRegionForIATThunk(ImportTableBuffer.data(), 0x100000);
-                    MANUALMAP_LOG("IAT Found: %d", bFound);
-
-                }
+                }*/
             }
         }
 
