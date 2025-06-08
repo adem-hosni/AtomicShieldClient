@@ -197,6 +197,10 @@ void CManualMappingGuard::DoPulse()
     GetSystemInfo(&sysInfo);
 
     auto MemoryMap = Utils::BuildModuledMemoryMap(g_pAtomicAntiCheat->GetProcessHandle());
+    if (MemoryMap.size() == 0)
+    {
+        MANUALMAP_LOG("Failed to build module map! error: 0x%llx", GetLastError());
+    }
 
     while (g_pAtomicAntiCheat->RunScanners())
     {
