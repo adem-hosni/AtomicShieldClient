@@ -145,6 +145,44 @@ bool CManualMappingGuard::GetCodeSectionAddress(DWORD64 dwModuleBase, DWORD64& s
     return false;
 }
 
+bool CManualMappingGuard::ScanRegionForIATThunk(BYTE* pBuffer, size_t regionSize, DWORD64 dwBaseAddress)
+{
+    SIZE_T  complete_sequence = 0;
+    DWORD64 foundIAT = 0;
+
+    for (SIZE_T z = 0; z < regionSize; ++z)
+    {
+        for (SIZE_T x = 0; x < (8 * 6); x += 0x6)
+        {
+            SIZE_T offset = z + x;
+
+            if ((offset + 1) < regionSize)
+            {
+                if (pBuffer[offset] == 0xFF && pBuffer[offset + 1] == 0x25)
+                {
+                    foundIAT = dwBaseAddress + offset;
+                    complete_sequence++;
+                }
+                else
+                {
+                    complete_sequence = 0;
+                }
+            }
+            else
+            {
+                complete_sequence = 0;
+            }
+
+            if (complete_sequence >= 8)
+            {
+                    return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 void CManualMappingGuard::DoPulse()
 {
     MANUALMAP_LOG(__FUNCTION__ " Called");
@@ -195,7 +233,10 @@ void CManualMappingGuard::DoPulse()
             if (MemoryRegion.RegionSize < 1024 * 1024)
                 continue;
 
-            const DWORD64 dwPEHeaderSize = 0x1000; //GetPEHeaderSize(reinterpret_cast<DWORD64>(lpCurrentAddress));
+            if (!(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
+                continue;
+
+            const DWORD64 dwPEHeaderSize = 0x1000;            // GetPEHeaderSize(reinterpret_cast<DWORD64>(lpCurrentAddress));
             /*if (dwPEHeaderSize == NULL)
             {
                 MANUALMAP_LOG("PE Header size is 0, looking for another region...");
@@ -223,6 +264,8 @@ void CManualMappingGuard::DoPulse()
 
             if ((!bHasLoaded) || bHasErasedHeader)
             {
+                MANUALMAP_LOG("Suspicious module found at 0x%ullx | Erased Header: %d, Loaded: %d", lpCurrentAddress, bHasErasedHeader, bHasLoaded);
+
                 DWORD64 dwTextSectionStart = NULL;
                 DWORD64 dwTextSectionSize = NULL;
 
@@ -269,6 +312,18 @@ void CManualMappingGuard::DoPulse()
                 else
                 {
                     MANUALMAP_LOG("Failed to get text section address! error: 0x%llx", status);
+                    bytesRead = NULL;
+                    
+                    std::vector<BYTE> ImportTableBuffer(0x100000);
+                    status = SysNtReadVirtualMemory(g_pAtomicAntiCheat->GetProcessHandle(), lpCurrentAddress, ImportTableBuffer.data(), 0x100000, &bytesRead);
+                    if (!NT_SUCCESS(status) || bytesRead == NULL)
+                    {
+                        MANUALMAP_LOG("Failed to read import addresses table virtual memory! error: 0x%llx", status);
+                        continue;
+                    }
+                    bool bFound = ScanRegionForIATThunk(ImportTableBuffer.data(), 0x100000);
+                    MANUALMAP_LOG("IAT Found: %d", bFound);
+
                 }
             }
         }
