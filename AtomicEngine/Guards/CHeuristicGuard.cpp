@@ -160,7 +160,7 @@ void CHeuristicGuard::DoPulse()
 
         SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());
 
-        std::this_thread::sleep_for(std::chrono::seconds(45));
+        std::this_thread::sleep_for(std::chrono::seconds(60));
     }
 
     _endthreadex(0);
