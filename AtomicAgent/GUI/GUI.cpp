@@ -1,7 +1,6 @@
 #define IMGUI_DEFINE_MATH_OPERATORS
 #define IMGUI_DISABLE_DEBUG_TOOLS
 #define IM_ASSERT(_EXPR) ((void)0)
-
 #include "imgui.h"
 #include "imgui_impl_dx9.h"
 #include "imgui_internal.h"
@@ -30,6 +29,7 @@
 #include "GUI.h"
 #include "Resources/Image.h"
 #include "Resources/Font.h"
+#include "Resources/resource.h"
 #include "ImAnim/ImVec2Anim.h"
 #include "ImAnim/ImVec4Anim.h"
 #include "notification.h"
@@ -208,19 +208,19 @@ bool GUI::Initialize()
     GUI::wc.lpfnWndProc = WndProc;
     GUI::wc.cbClsExtra = NULL;
     GUI::wc.cbWndExtra = NULL;
-    GUI::wc.hInstance = nullptr;
-    GUI::wc.hIcon = LoadIcon(0, IDI_APPLICATION);
     GUI::wc.hCursor = LoadCursor(0, IDC_ARROW);
     GUI::wc.hbrBackground = nullptr;
     GUI::wc.lpszMenuName = L"AtomicShield";
-    GUI::wc.lpszClassName = L"Agent";
-    GUI::wc.hIconSm = LoadIcon(0, IDI_APPLICATION);
+    GUI::wc.lpszClassName = L"AtomicShield";
+    GUI::wc.hInstance = GetModuleHandleW(NULL);
+    GUI::wc.hIcon = LoadIcon(GUI::wc.hInstance, MAKEINTRESOURCE(ico4));
+    GUI::wc.hIconSm = LoadIcon(GUI::wc.hInstance, MAKEINTRESOURCE(ico4));
 
     RegisterClassExW(&GUI::wc);
     hwnd = CreateWindowExW(NULL, GUI::wc.lpszClassName, L"Agent", WS_POPUP, (GetSystemMetrics(SM_CXSCREEN) / 2) - (WIDTH / 2),
                            (GetSystemMetrics(SM_CYSCREEN) / 2) - (HEIGHT / 2), WIDTH, HEIGHT, 0, 0, 0, 0);
 
-    SetWindowLongA(hwnd, GWL_EXSTYLE, GetWindowLong(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
+    SetWindowLongA(hwnd, GWL_EXSTYLE, GetWindowLongW(hwnd, GWL_EXSTYLE) | WS_EX_LAYERED);
     SetLayeredWindowAttributes(hwnd, RGB(0, 0, 0), 255, LWA_ALPHA);
 
     MARGINS margins = {0, 0, 0, 0};
@@ -308,7 +308,7 @@ int         fake_function()
     return 42;
 }
 
-void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTitle, std::string& strErrorDescription, std::string processName)
+void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTitle, std::string* pstrErrorDescription, std::string processName)
 {
     bool               show_demo_window = true;
     bool               show_another_window = false;
@@ -442,18 +442,39 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                         }
                         else
                         {
-                            if (!bInitialized)
+                            if (!*bInitialized)
                             {
-                                ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(200, 285), ImGui::GetColorU32(c::text_blue),
-                                                                    strErrorTitle.c_str());
-                                ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(187, 330), ImGui::GetColorU32(c::text),
-                                                                    strErrorDescription.c_str());
+                                ImGuiIO&    io = ImGui::GetIO();
+                                ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+                                ImVec2 window_pos = ImGui::GetWindowPos();
+                                ImVec2 window_size = ImGui::GetWindowSize();
+
+                                ImVec2 title_size = Tektur_Medium->CalcTextSizeA(36.f, FLT_MAX, 0.0f, pstrErrorTitle->c_str());
+                                ImVec2 title_pos = window_pos + ImVec2((window_size.x - title_size.x) * 0.5f, 285.f);
+
+                                ImVec2 desc_size = Instrument_Medium_2->CalcTextSizeA(15.f, FLT_MAX, 0.0f, pstrErrorDescription->c_str());
+                                ImVec2 desc_pos = window_pos + ImVec2((window_size.x - desc_size.x) * 0.5f, 330.f);
+
+                                draw_list->AddText(Tektur_Medium, 36.f, title_pos, ImGui::GetColorU32(c::text_blue), pstrErrorTitle->c_str());
+                                draw_list->AddText(Instrument_Medium_2, 15.f, desc_pos, ImGui::GetColorU32(c::text), pstrErrorDescription->c_str());
                             }
                             else
                             {
-                                ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(190, 310), ImGui::GetColorU32(c::text_blue),
-                                                                    skCrypt("Checking Requirements..."));
+                                ImGuiIO&    io = ImGui::GetIO();
+                                ImDrawList* draw_list = ImGui::GetWindowDrawList();
+
+                                const char* szLoadingMessage = skCrypt("Loading Content Manifest...");
+
+                                ImVec2 window_pos = ImGui::GetWindowPos();
+                                ImVec2 window_size = ImGui::GetWindowSize();
+
+                                ImVec2 text_size = Tektur_Medium->CalcTextSizeA(36.f, FLT_MAX, 0.0f, szLoadingMessage);
+                                ImVec2 center_pos = window_pos + ImVec2((window_size.x - text_size.x) * 0.5f, 310.f);
+
+                                draw_list->AddText(Tektur_Medium, 36.f, center_pos, ImGui::GetColorU32(c::text_blue), szLoadingMessage);
                             }
+
                         }
 
                         ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x + 237, p.y + 415), ImVec2(p.x + 425, p.y + 416), ImGui::GetColorU32(c::line_bg),

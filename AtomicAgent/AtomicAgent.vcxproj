@@ -211,7 +211,6 @@
     <ClInclude Include="GUI\Elements.h" />
     <ClInclude Include="GUI\Variables.h" />
     <ClInclude Include="ManualMapInjector.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="Resources\Font.h" />
     <ClInclude Include="GUI\Utils.h" />
     <ClInclude Include="Resources\Image.h" />
@@ -229,6 +228,7 @@
     <ClInclude Include="Main.h" />
     <ClInclude Include="GUI\GUI.h" />
     <ClInclude Include="GUI\Notification.h" />
+    <ClInclude Include="Resources\resource.h" />
     <ClInclude Include="StartupManager.h" />
     <ClInclude Include="StaticAnalysisBypass.h" />
     <ClInclude Include="StdInc.h" />
@@ -317,7 +317,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="resource.rc" />
     <ResourceCompile Include="Resources\Atomic Agent.rc" />
   </ItemGroup>
   <ItemGroup>

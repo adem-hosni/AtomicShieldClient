@@ -195,15 +195,14 @@
     <ClInclude Include="Vendor\ImGui\misc\freetype\imgui_freetype.h" />
     <ClInclude Include="Vendor\ImGui\misc\single_file\imgui_single_file.h" />
     <ClInclude Include="StartupManager.h" />
-    <ClInclude Include="resource.h" />
     <ClInclude Include="ManualMapInjector.h" />
     <ClInclude Include="StaticAnalysisBypass.h" />
     <ClInclude Include="vmaware.hpp" />
     <ClInclude Include="CAtomicAPI.h" />
+    <ClInclude Include="Resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Atomic Agent.rc" />
-    <ResourceCompile Include="resource.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="Resources\icon.ico" />
