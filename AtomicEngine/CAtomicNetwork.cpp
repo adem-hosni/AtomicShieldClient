@@ -106,6 +106,7 @@ jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
 
 bool CAtomicNetwork::JoinNetwork()
 {
+    SharedUtil::AddDebugLog("Joining Network...");
     jsoncons::json RequestHWID;
     RequestHWID["extra"] = g_pHWID->GetExtraData();
     RequestHWID["username"] = g_pHWID->GetWindowsUsername();
@@ -140,7 +141,7 @@ bool CAtomicNetwork::JoinNetwork()
         MessageBox(0, Response["message"].as_string().c_str(), "ERROR", MB_ICONERROR);
     }
 
-    SharedUtil::AddDebugLog("Network Join - %d", Response["success"].as_bool());
+    SharedUtil::AddDebugLog("Network Join Result -> %d", Response["success"].as_bool());
     return m_bNetworkJoined;
 }
 
