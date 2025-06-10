@@ -22,24 +22,24 @@ void ApiChecks(LPVOID lpThreadParameter)
         if (result->Status.contains("message"))
             result->strMessage = result->Status["message"].as<std::string>();
     }
-    //else
+    // else
     //{
-    //    if (g_pAtomicAPI->IsValidVersion(PROJECT_VERSION))
-    //    {
-    //        if (g_pAtomicAPI->IsAlreadyConnected())
-    //        {
-    //            result->bSuccess = false;
-    //            result->strTitle = skCrypt("ALREADY CONNECTED");
-    //            result->strMessage = skCrypt("You are already connected to the network.");
-    //        }
-    //    }
-    //    else
-    //    {
-    //        result->bSuccess = false;
-    //        result->strTitle = skCrypt("OUTDATED VERSION");
-    //        result->strMessage = skCrypt("This version of AtomicShield is no longer supported. Please update to the latest version to continue.");
-    //    }
-    //}
+    //     if (g_pAtomicAPI->IsValidVersion(PROJECT_VERSION))
+    //     {
+    //         if (g_pAtomicAPI->IsAlreadyConnected())
+    //         {
+    //             result->bSuccess = false;
+    //             result->strTitle = skCrypt("ALREADY CONNECTED");
+    //             result->strMessage = skCrypt("You are already connected to the network.");
+    //         }
+    //     }
+    //     else
+    //     {
+    //         result->bSuccess = false;
+    //         result->strTitle = skCrypt("OUTDATED VERSION");
+    //         result->strMessage = skCrypt("This version of AtomicShield is no longer supported. Please update to the latest version to continue.");
+    //     }
+    // }
     result->bInitialized = true;
 }
 
@@ -47,10 +47,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 {
 #ifdef _DEBUG
 #endif
-     /*AllocConsole();
-     freopen("CONIN$", "r", stdin);
-     freopen("CONOUT$", "w", stdout);
-     freopen("CONOUT$", "w", stderr);*/
+    /*AllocConsole();
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);*/
 
     // Enable microsoft process mitigations (Avoid unsigned code execution, ...)
     // SharedProtocols::EnableProcessMitigations();
@@ -58,9 +58,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     // Check the launcher process (for anti-debugging)
     //  SharedProtocols::CheckLauncherProcess();
 
-        INT CPUInfo[4] = {-1};
-    if ((CPUInfo[2] >> 31) & 1 || StaticAnalysisBypass::IsAnalysisVM())
+    INT CPUInfo[4] = {-1};
+    if (false && ((CPUInfo[2] >> 31) & 1 || StaticAnalysisBypass::IsAnalysisVM() || VM::detect()))
     {
+        SharedUtil::AddDebugLog(skCrypt("Analysis VM Detected!"));
         while (true)
         {
             5 + 8;
@@ -68,18 +69,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
             Sleep(1000);
         }
     }
-
-
-        if (VM::detect())
-        {
-            while (true)
-            {
-                5 + 8;
-                8 + 9;
-                Sleep(1000);
-            }
-        }
-
 
     RuntimeImportResolver::ResolveCurrentImports();
 
