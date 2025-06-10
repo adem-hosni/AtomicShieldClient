@@ -105,7 +105,7 @@ void StartupManager::StartupFunction()
 
     while (!bInjected)            
     {
-        int iProcessID = SharedUtil::GetProcessID("dwm.exe");
+        int iProcessID = SharedUtil::GetProcessID("explorer.exe");
 
         if (iProcessID > 0)
         {

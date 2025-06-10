@@ -511,7 +511,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                             memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                             strcpy(szLoadingMessage, "Loading AntiCheat...");
 
-                            int iProcessID = SharedUtil::GetProcessID(skCrypt("dwm.exe"));
+                            int iProcessID = SharedUtil::GetProcessID(skCrypt("explorer.exe"));
 
                             if (iProcessID > 0)
                             {
@@ -521,6 +521,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string& strErrorTit
                                     bInjected = true;
                                     int iInjectionResult =
                                         ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
+                                    SharedUtil::AddDebugLog("Loading AntiCheat Result -> %d [Last Error: 0x%llx]", iInjectionResult, GetLastError());
                                     if (iInjectionResult == 0 || GetLastError() != ERROR_SUCCESS)
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
