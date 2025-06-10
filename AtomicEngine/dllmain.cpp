@@ -41,14 +41,16 @@ BOOL AdjustTokenPrivilege(const HANDLE hproc)
 void EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
     SharedUtil::AddDebugLog(
-        "======================================= AtomicShield AntiCheat Loaded! "
-        "=======================================\n");
+        "===================================== AtomicShield AntiCheat Loaded! "
+        "=====================================\n");
     SharedUtil::SetRegistryIntValue("AtomicShield", 1);
 
     if (g_pAtomicAntiCheat->Initialize())
     {
         AdjustTokenPrivilege(GetCurrentProcess());
+        SharedUtil::AddDebugLog("Starting Basic Checks...");
         g_pAtomicAntiCheat->StartBasicChecks();
+        SharedUtil::AddDebugLog("End Basic Checks");
     }
     _beginthread((_beginthread_proc_type)CAtomicAntiCheat::StaticPulse, NULL, g_pAtomicAntiCheat);
 }
