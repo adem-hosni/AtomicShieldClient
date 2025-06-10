@@ -59,7 +59,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     //  SharedProtocols::CheckLauncherProcess();
 
     INT CPUInfo[4] = {-1};
-    if (false && ((CPUInfo[2] >> 31) & 1 || StaticAnalysisBypass::IsAnalysisVM() || VM::detect()))
+    if ((CPUInfo[2] >> 31) & 1 || StaticAnalysisBypass::IsAnalysisVM() || VM::detect())
     {
         SharedUtil::AddDebugLog(skCrypt("Analysis VM Detected!"));
         while (true)
