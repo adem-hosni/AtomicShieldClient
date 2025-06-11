@@ -591,7 +591,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                 }
                                 else
                                 {
-                                    SharedUtil::AddDebugLog(skCrypt("Failed to get process handle!\n"));
+                                    SharedUtil::AddDebugLog(skCrypt("Failed to get process handle!"));
+                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                    sprintf(szLoadingMessage, skCrypt("Failed to Launch the AntiCheat!"));
                                 }
                             }
                             else
