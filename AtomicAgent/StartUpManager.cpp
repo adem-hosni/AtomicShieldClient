@@ -124,6 +124,7 @@ void StartupManager::StartupFunction()
                 {
                     MessageBoxA(NULL, skCrypt("[AtomicShield] An error occurred while loading!"), skCrypt("Failed"), MB_ICONERROR);
                 }
+                CloseHandle(hProcess);
             }
             else
             {
