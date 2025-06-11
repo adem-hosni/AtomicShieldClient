@@ -536,7 +536,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
                             if (iProcessID > 0)
                             {
-                                HANDLE hProcess = OpenProcess(PROCESS_VM_WRITE, FALSE, iProcessID);
+                                HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
                                 if (hProcess)
                                 {
                                     bInjected = true;
