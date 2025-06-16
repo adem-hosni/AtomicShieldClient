@@ -41,6 +41,9 @@ void ApiChecks(LPVOID lpThreadParameter)
         }
     }
     result->bInitialized = true;
+    
+    if (result->bSuccess)
+        RuntimeImportResolver::ResolveCurrentImports();
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
@@ -59,7 +62,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     //  SharedProtocols::CheckLauncherProcess();
 
     INT CPUInfo[4] = {-1};
-    if ((CPUInfo[2] >> 31) & 1 || StaticAnalysisBypass::IsAnalysisVM() || VM::detect())
+    if ((CPUInfo[2] >> 31) & 1 || StaticAnalysisBypass::IsAnalysisVM() /*|| VM::detect()*/)
     {
         SharedUtil::AddDebugLog(skCrypt("Analysis VM Detected!"));
         while (true)
@@ -69,8 +72,6 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
             Sleep(1000);
         }
     }
-
-    RuntimeImportResolver::ResolveCurrentImports();
 
     std::string processName = StartupManager::GetCurrentProcessName();
     bool        isStartup = false;

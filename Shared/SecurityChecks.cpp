@@ -23,7 +23,7 @@ extern "C" NTSTATUS NtQueryVirtualMemory(HANDLE ProcessHandle, PVOID BaseAddress
 
 bool SecurityChecks::AntiBreakpoint::HasHardwareBreakpoint()
 {
-    CONTEXT ctx = {0};
+    /*CONTEXT ctx = {0};
     ctx.ContextFlags = CONTEXT_DEBUG_REGISTERS;
 
     if (GetThreadContext(((HANDLE)-2), &ctx))
@@ -32,14 +32,14 @@ bool SecurityChecks::AntiBreakpoint::HasHardwareBreakpoint()
         {
             return true;
         }
-    }
+    }*/
 
     return false;
 }
 
 bool SecurityChecks::AntiBreakpoint::HasEntrypointBreakpoint()
 {
-    auto pIDH = reinterpret_cast<PIMAGE_DOS_HEADER>(GetModuleHandle(NULL));
+    /*auto pIDH = reinterpret_cast<PIMAGE_DOS_HEADER>(GetModuleHandle(NULL));
     if (pIDH->e_magic != IMAGE_DOS_SIGNATURE)
         return false;
 
@@ -48,12 +48,13 @@ bool SecurityChecks::AntiBreakpoint::HasEntrypointBreakpoint()
         return false;
 
     auto pEntryPoint = reinterpret_cast<PBYTE>((pINH->OptionalHeader.AddressOfEntryPoint + reinterpret_cast<DWORD_PTR>(pIDH)));
-    return (pEntryPoint[0] == 0xCC);
+    return (pEntryPoint[0] == 0xCC);*/
+    return false;
 }
 
 bool SecurityChecks::AntiBreakpoint::HasMemoryBreakpoint()
 {
-    SYSTEM_INFO SystemInfo = {0};
+    /*SYSTEM_INFO SystemInfo = {0};
     GetSystemInfo(&SystemInfo);
 
     auto pAllocation = VirtualAlloc(NULL, SystemInfo.dwPageSize, MEM_COMMIT | MEM_RESERVE, PAGE_EXECUTE_READWRITE);
@@ -77,7 +78,7 @@ bool SecurityChecks::AntiBreakpoint::HasMemoryBreakpoint()
     }
 
     VirtualFree(pAllocation, NULL, MEM_RELEASE);
-    return true;
+    return true;*/
 }
 
 bool SecurityChecks::AntiDebug::CheckCPUId()
@@ -92,7 +93,7 @@ bool SecurityChecks::AntiDebug::CheckCPUId()
 
 inline LPVOID CreateSafeMemoryPage(DWORD dwRegionSize, DWORD dwProtection)
 {
-    LPVOID pMemBase = nullptr;
+    /*LPVOID pMemBase = nullptr;
 
     __try
     {
@@ -102,47 +103,48 @@ inline LPVOID CreateSafeMemoryPage(DWORD dwRegionSize, DWORD dwProtection)
     {
     }
 
-    return pMemBase;
+    return pMemBase;*/
+    return 0;
 }
 
 bool SecurityChecks::AntiDump::InitializeAntiDump(HMODULE hModule)
 {
-    for (std::size_t i = 0; i < SharedUtil::GenerateRandomNumber(20, 50); i++)
-        CreateSafeMemoryPage(BUFFER_SIZE, PAGE_READWRITE);
+    //for (std::size_t i = 0; i < SharedUtil::GenerateRandomNumber(20, 50); i++)
+    //    CreateSafeMemoryPage(BUFFER_SIZE, PAGE_READWRITE);
 
-    s_pGuardMem = CreateSafeMemoryPage(BUFFER_SIZE, PAGE_READWRITE);
+    //s_pGuardMem = CreateSafeMemoryPage(BUFFER_SIZE, PAGE_READWRITE);
 
-    for (std::size_t i = 0; i < SharedUtil::GenerateRandomNumber(20, 50); i++)
-        CreateSafeMemoryPage(BUFFER_SIZE, PAGE_READWRITE);
+    //for (std::size_t i = 0; i < SharedUtil::GenerateRandomNumber(20, 50); i++)
+    //    CreateSafeMemoryPage(BUFFER_SIZE, PAGE_READWRITE);
 
-    //	auto hTargetModule = g_winapiModuleTable->hBaseModule;
-    auto hTargetModule = hModule;
+    ////	auto hTargetModule = g_winapiModuleTable->hBaseModule;
+    //auto hTargetModule = hModule;
 
-    auto pDOS = (IMAGE_DOS_HEADER*)hTargetModule;
-    if (pDOS->e_magic != IMAGE_DOS_SIGNATURE)
-        return false;
+    //auto pDOS = (IMAGE_DOS_HEADER*)hTargetModule;
+    //if (pDOS->e_magic != IMAGE_DOS_SIGNATURE)
+    //    return false;
 
-    auto pINH = (IMAGE_NT_HEADERS*)(pDOS + pDOS->e_lfanew);
-    //	if (pINH->Signature != IMAGE_NT_SIGNATURE)
-    //		return false;
+    //auto pINH = (IMAGE_NT_HEADERS*)(pDOS + pDOS->e_lfanew);
+    ////	if (pINH->Signature != IMAGE_NT_SIGNATURE)
+    ////		return false;
 
-    auto pISH = (PIMAGE_SECTION_HEADER)(pINH + 1);
-    if (!pISH)
-        return false;
+    //auto pISH = (PIMAGE_SECTION_HEADER)(pINH + 1);
+    //if (!pISH)
+    //    return false;
 
-    auto dwOldProtect = 0UL;
-    VirtualProtect((LPVOID)pISH, sizeof(LPVOID), PAGE_READWRITE, &dwOldProtect);
+    //auto dwOldProtect = 0UL;
+    //VirtualProtect((LPVOID)pISH, sizeof(LPVOID), PAGE_READWRITE, &dwOldProtect);
 
-    pISH[0].VirtualAddress = reinterpret_cast<DWORD_PTR>(s_pGuardMem);
+    //pISH[0].VirtualAddress = reinterpret_cast<DWORD_PTR>(s_pGuardMem);
 
-    VirtualProtect((LPVOID)pISH, sizeof(LPVOID), dwOldProtect, &dwOldProtect);
+    //VirtualProtect((LPVOID)pISH, sizeof(LPVOID), dwOldProtect, &dwOldProtect);
 
     return true;
 }
 
 bool SecurityChecks::AntiDump::IsDumpTriggered()
 {
-    if (!s_pGuardMem)
+    /*if (!s_pGuardMem)
     {
         SharedUtil::AddDebugLog("Null guard ptr!");
         return true;
@@ -158,7 +160,7 @@ bool SecurityChecks::AntiDump::IsDumpTriggered()
     {
         if (pworkingSetExInformation.VirtualAttributes.Valid)
             return true;
-    }
+    }*/
 
     return false;
 }

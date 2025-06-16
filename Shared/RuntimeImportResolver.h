@@ -27,7 +27,7 @@ namespace RuntimeImportResolver
 
     static LPVOID ResolveFunction(const char* szLibrary, const char* szFunctionName)
     {
-        HMODULE hModule = LoadLibrary(szLibrary);
+        HMODULE hModule = GetModuleHandle(szLibrary);
         if (!hModule)
         {
             DWORD error = GetLastError();
