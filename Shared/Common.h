@@ -14,6 +14,6 @@
 #endif
 
 #define API_BASE_URL       "https://atomic-shield.com"
-#define WEBSOCKET_BASE_URL "ws://157.173.212.241:443"
+#define WEBSOCKET_BASE_URL "ws://31.97.180.157:443"
 
 #define STRINGIFY(x) #x
