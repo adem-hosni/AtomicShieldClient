@@ -234,6 +234,8 @@ void CManualMappingGuard::DoPulse()
         QueryPerformanceFrequency(&frequency);
         QueryPerformanceCounter(&start);
 
+        int iDetectedMappingSections = 0;
+
         for (LPVOID lpCurrentAddress = sysInfo.lpMinimumApplicationAddress; lpCurrentAddress < sysInfo.lpMaximumApplicationAddress;
              lpCurrentAddress = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + MemoryRegion.RegionSize)
         {
@@ -248,6 +250,9 @@ void CManualMappingGuard::DoPulse()
             if (MemoryRegion.RegionSize <= 4096)
                 continue;
 
+            if (MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE))
+                continue;
+
             if (!(MemoryRegion.Protect & (PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_WRITECOPY)))
                 continue;
 
@@ -255,8 +260,8 @@ void CManualMappingGuard::DoPulse()
                 continue;
 
             std::vector<BYTE> PEHeaderBuffer(512);
-            if (!NT_SUCCESS(SysNtReadVirtualMemory(g_pAtomicAntiCheat->GetProcessHandle(), MemoryRegion.BaseAddress, PEHeaderBuffer.data(), PEHeaderBuffer.size(),
-                                                   &returnLength)) ||
+            if (!NT_SUCCESS(SysNtReadVirtualMemory(g_pAtomicAntiCheat->GetProcessHandle(), MemoryRegion.BaseAddress, PEHeaderBuffer.data(),
+                                                   PEHeaderBuffer.size(), &returnLength)) ||
                 returnLength < sizeof(IMAGE_DOS_HEADER))
             {
                 MANUALMAP_LOG("Failed to read memory at address 0x%llx, error: %d", reinterpret_cast<DWORD64>(lpCurrentAddress), GetLastError());
@@ -278,7 +283,7 @@ void CManualMappingGuard::DoPulse()
                 {
                     if (!workingSetInfo.VirtualAttributes.Shared)
                     {
-                        bool  bFoundPossibleSection = false;
+                        bool bFoundPossibleSection = false;
                         BYTE BufferPossibleMappingSection[128]{0};
 
                         returnLength = NULL;
@@ -287,7 +292,6 @@ void CManualMappingGuard::DoPulse()
                                                               BufferPossibleMappingSection, sizeof(BufferPossibleMappingSection), &returnLength)) &&
                             returnLength > 0)
                         {
-                            int iDetectedMappingSections = 0;
                             for (int i = 0; i < sizeof(BufferPossibleMappingSection) - 4; i++)
                             {
                                 if (BufferPossibleMappingSection[i] != 0 && BufferPossibleMappingSection[i + 1] != 0 &&
@@ -301,8 +305,6 @@ void CManualMappingGuard::DoPulse()
                                     break;
                                 }
                             }
-                            MANUALMAP_LOG("Found %d possible mapping sections", iDetectedMappingSections);
-
                         }
                         else
                         {
@@ -321,7 +323,7 @@ void CManualMappingGuard::DoPulse()
         QueryPerformanceCounter(&end);
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
-        MANUALMAP_LOG("Manual Mapping Guard Pulse completed in %.5f seconds", fElapsedTime);
+        MANUALMAP_LOG("Manual Mapping Guard Pulse completed in %.5f seconds | Detected: %d", fElapsedTime, iDetectedMappingSections);
 
         std::this_thread::sleep_for(std::chrono::seconds(4));
     }
