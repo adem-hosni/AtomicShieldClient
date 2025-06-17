@@ -22,4 +22,5 @@ private:
     std::string               m_strScanProcessName;
     std::vector<std::string>  m_vSignatures;
     std::atomic<bool>         m_bFound;
+    std::vector<DWORD64>      m_vScannedRegions;
 };

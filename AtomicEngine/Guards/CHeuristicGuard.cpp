@@ -75,6 +75,9 @@ void CHeuristicGuard::DoPulse()
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength)))
                 continue;
 
+            if (std::find(m_vScannedRegions.begin(), m_vScannedRegions.end(), (DWORD64)MemoryRegion.BaseAddress) != m_vScannedRegions.end())
+                continue;
+
             if (MemoryRegion.State != MEM_COMMIT || MemoryRegion.Type != MEM_PRIVATE)
                 continue;
 
@@ -148,6 +151,9 @@ void CHeuristicGuard::DoPulse()
                 }
 
                 SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
+
+                m_vScannedRegions.push_back((DWORD64)region.mbi.BaseAddress);
+
                 if (m_bFound.load())
                     break;
             }
