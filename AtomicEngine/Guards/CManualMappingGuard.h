@@ -12,6 +12,8 @@ public:
 
     void Initialize() override;
 
+    bool IsPEHeader(BYTE* Memory);
+
     bool    IsModuleLoaded(DWORD64 dwAddress);
     DWORD64 GetPEHeaderSize(DWORD64 dwBaseAddress);
     bool    GetCodeSectionAddress(DWORD64 dwModuleBase, DWORD64& sectionStart, DWORD64& sectionSize, NTSTATUS& status);

@@ -183,6 +183,27 @@ bool CManualMappingGuard::ScanRegionForIATThunk(BYTE* pBuffer, size_t regionSize
     return false;
 }
 
+bool CManualMappingGuard::IsPEHeader(BYTE* Memory)
+{
+    __try
+    {
+        if (*((WORD*)Memory) != IMAGE_DOS_SIGNATURE)            // check for "MZ" at the start
+            return false;
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        return false;
+    }
+
+    IMAGE_DOS_HEADER* pDosHeader = (IMAGE_DOS_HEADER*)Memory;
+    IMAGE_NT_HEADERS* pNtHeaders = (IMAGE_NT_HEADERS*)(Memory + pDosHeader->e_lfanew);
+
+    if (pNtHeaders->Signature != IMAGE_NT_SIGNATURE)            // check for "PE" signature
+        return false;
+
+    return true;
+}
+
 void CManualMappingGuard::DoPulse()
 {
     MANUALMAP_LOG(__FUNCTION__ " Called");
@@ -196,17 +217,17 @@ void CManualMappingGuard::DoPulse()
     SYSTEM_INFO              sysInfo;
     GetSystemInfo(&sysInfo);
 
-    auto MemoryMap = Utils::BuildModuledMemoryMap(g_pAtomicAntiCheat->GetProcessHandle());
-    if (MemoryMap.size() == 0)
-    {
-        MANUALMAP_LOG("Failed to build module map! error: 0x%llx", GetLastError());
-    }
-
     while (g_pAtomicAntiCheat->RunScanners())
     {
         while (!g_pAtomicAntiCheat->IsValidProcessHandle())
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
+        }
+
+        auto MemoryMap = Utils::BuildModuledMemoryMap(g_pAtomicAntiCheat->GetProcessHandle());
+        if (MemoryMap.size() == 0)
+        {
+            MANUALMAP_LOG("Failed to build module map! error: 0x%llx", GetLastError());
         }
 
         LARGE_INTEGER frequency, start, end;
@@ -224,105 +245,76 @@ void CManualMappingGuard::DoPulse()
                 continue;
             }
 
-            if (!MemoryRegion.AllocationBase || lpCurrentAddress != MemoryRegion.AllocationBase)
+            if (MemoryRegion.RegionSize <= 4096)
                 continue;
 
-            /*if (MemoryRegion.Type != MEM_PRIVATE)
-                continue;*/
-
-            if (MemoryRegion.RegionSize < 1024 * 1024)
+            if (!(MemoryRegion.Protect & (PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_WRITECOPY)))
                 continue;
 
-            if (MemoryRegion.State != MEM_COMMIT)
+            if (Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(lpCurrentAddress), MemoryMap))
                 continue;
 
-            if (MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE))
-                continue;
-
-            if (!(MemoryRegion.Protect & (PAGE_READONLY | PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
-                continue;
-
-            // Region is executable?
-            if (!(MemoryRegion.Protect & PAGE_EXECUTE_READ || MemoryRegion.Protect & PAGE_EXECUTE_READWRITE))
-                continue;
-
-            const DWORD64 dwPEHeaderSize = 0x1000;            // GetPEHeaderSize(reinterpret_cast<DWORD64>(lpCurrentAddress));
-            /*if (dwPEHeaderSize == NULL)
+            std::vector<BYTE> PEHeaderBuffer(512);
+            if (!NT_SUCCESS(SysNtReadVirtualMemory(g_pAtomicAntiCheat->GetProcessHandle(), MemoryRegion.BaseAddress, PEHeaderBuffer.data(), PEHeaderBuffer.size(),
+                                                   &returnLength)) ||
+                returnLength < sizeof(IMAGE_DOS_HEADER))
             {
-                MANUALMAP_LOG("PE Header size is 0, looking for another region...");
-                continue;
-            }*/
-
-            size_t               bytesRead = NULL;
-            std::vector<uint8_t> buffer(dwPEHeaderSize);
-            status = SysNtReadVirtualMemory(g_pAtomicAntiCheat->GetProcessHandle(), lpCurrentAddress, buffer.data(), dwPEHeaderSize, &bytesRead);
-            if (!NT_SUCCESS(status) || bytesRead == NULL)
-            {
-                MANUALMAP_LOG("Failed to read memory at address 0x%llx, error: 0x%llx", reinterpret_cast<DWORD64>(lpCurrentAddress), status);
+                MANUALMAP_LOG("Failed to read memory at address 0x%llx, error: %d", reinterpret_cast<DWORD64>(lpCurrentAddress), GetLastError());
                 continue;
             }
 
-            char szFileName[MAX_PATH] = {0};
-            GetMappedFileNameA(g_pAtomicAntiCheat->GetProcessHandle(), lpCurrentAddress, szFileName, sizeof(szFileName));
-
-            auto wStrFileName = std::wstring(szFileName, szFileName + strlen(szFileName));
-
-            bool                 bHasLoaded = IsModuleLoaded(reinterpret_cast<DWORD64>(lpCurrentAddress));
-            std::vector<uint8_t> nullBuffer(dwPEHeaderSize, 0x00);
-
-            bool bHasErasedHeader = !memcmp(buffer.data(), nullBuffer.data(), dwPEHeaderSize);
-
-            if ((!bHasLoaded || bHasErasedHeader) && Utils::IsAddressInModuledRange(reinterpret_cast<DWORD64>(lpCurrentAddress), MemoryMap))
+            if (IsPEHeader(PEHeaderBuffer.data()))
             {
-                MANUALMAP_LOG("Suspicious module found at 0x%llx | Erased Header: %d, Loaded: %d", lpCurrentAddress, bHasErasedHeader, bHasLoaded);
+                MANUALMAP_LOG("Found Suspicious PE header at address 0x%llx", reinterpret_cast<DWORD64>(lpCurrentAddress));
+            }
 
-                DWORD64 dwTextSectionStart = NULL;
-                DWORD64 dwTextSectionSize = NULL;
+            PSAPI_WORKING_SET_EX_INFORMATION workingSetInfo = {};
+            workingSetInfo.VirtualAddress = MemoryRegion.BaseAddress;
 
-                /*if (GetCodeSectionAddress(reinterpret_cast<DWORD64>(lpCurrentAddress), dwTextSectionStart, dwTextSectionSize, status))
+            bool bFoundPossibleErasedHeaderModule = true;
+            if (QueryWorkingSetEx(g_pAtomicAntiCheat->GetProcessHandle(), &workingSetInfo, sizeof(workingSetInfo)))
+            {
+                if (workingSetInfo.VirtualAttributes.Valid)
                 {
-                    std::vector<BYTE> TextSectionBuffer(dwTextSectionSize);
-                    if (!NT_SUCCESS(status = SysNtReadVirtualMemory(g_pAtomicAntiCheat->GetProcessHandle(), lpCurrentAddress, TextSectionBuffer.data(),
-                                                                    dwTextSectionSize, &bytesRead)) ||
-                        bytesRead == NULL)
+                    if (!workingSetInfo.VirtualAttributes.Shared)
                     {
-                        MANUALMAP_LOG("Failed to read text section vmemory, error: 0x%llx", status);
-                        continue;
-                    }
+                        bool  bFoundPossibleSection = false;
+                        BYTE BufferPossibleMappingSection[128]{0};
 
-                    const char pattern[] =
-                        "\x48\x8B\xC4\x48\x89\x58\x20\x4C\x89\x40\x18\x89\x50\x10\x48\x89\x48\x08\x56\x57\x41\x56\x48\x83\xEC\x40\x49\x8B\xF0\x8B\xFA\x4C\x8B"
-                        "\xF1\x85\xD2\x75\x0F\x39\x15\x00\x00\x00\x00\x7F\x07\x33\xC0\xE9\x00\x00\x00\x00";
-                    const char wildcard[] = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx????xxxxx????";
-
-                    size_t patternLength = strlen(wildcard);
-
-                    for (size_t z = 0; z < dwTextSectionSize - patternLength; z++)
-                    {
-                        bool bFound = true;
-                        for (size_t j = 0; j < patternLength; j++)
+                        returnLength = NULL;
+                        DWORD64 dwPossibleTextSectionAddress = (DWORD64)MemoryRegion.BaseAddress;
+                        if (NT_SUCCESS(SysNtReadVirtualMemory(g_pAtomicAntiCheat->GetProcessHandle(), (PVOID)dwPossibleTextSectionAddress,
+                                                              BufferPossibleMappingSection, sizeof(BufferPossibleMappingSection), &returnLength)) &&
+                            returnLength > 0)
                         {
-                            if (wildcard[j] != 'j' && pattern[j] != *reinterpret_cast<char*>(&TextSectionBuffer[z + j]))
+                            int iDetectedMappingSections = 0;
+                            for (int i = 0; i < sizeof(BufferPossibleMappingSection) - 4; i++)
                             {
-                                bFound = false;
-                                break;
+                                if (BufferPossibleMappingSection[i] != 0 && BufferPossibleMappingSection[i + 1] != 0 &&
+                                    BufferPossibleMappingSection[i + 2] != 0 && BufferPossibleMappingSection[i + 3] != 0)
+                                {
+                                    bFoundPossibleSection = true;
+                                    MANUALMAP_LOG("Found possible section at address 0x%llx >> Protection: 0x%x, State: 0x%x, Type: 0x%x, Size: %zu",
+                                                  dwPossibleTextSectionAddress + i, MemoryRegion.Protect, MemoryRegion.State, MemoryRegion.Type,
+                                                  MemoryRegion.RegionSize);
+                                    iDetectedMappingSections++;
+                                    break;
+                                }
                             }
-                        }
+                            MANUALMAP_LOG("Found %d possible mapping sections", iDetectedMappingSections);
 
-                        if (bFound)
+                        }
+                        else
                         {
-                            MANUALMAP_LOG(
-                                "A MMM Detected at 0x%llx with size %zu and memory type 0x%llx, base address: 0x%llX file "
-                                "%s, has loaded: %d, has erased header: %d",
-                                reinterpret_cast<DWORD64>(lpCurrentAddress), MemoryRegion.RegionSize, MemoryRegion.Type,
-                                reinterpret_cast<DWORD64>(MemoryRegion.BaseAddress), szFileName, bHasLoaded, bHasErasedHeader);
+                            MANUALMAP_LOG("Failed to read memory at address 0x%llx, error: %d", dwPossibleTextSectionAddress, GetLastError());
                         }
                     }
                 }
-                else
-                {
-                    bytesRead = NULL;
-                }*/
+            }
+            else
+            {
+                MANUALMAP_LOG("Failed to query working set for address 0x%llx, error: %d", reinterpret_cast<DWORD64>(MemoryRegion.BaseAddress), GetLastError());
+                bFoundPossibleErasedHeaderModule = false;
             }
         }
 

@@ -122,6 +122,7 @@ bool CAtomicNetwork::JoinNetwork()
     RequestData["hwid"] = RequestHWID;
     RequestData["cache"] = g_pAtomicAntiCheat->GetCurrentHWIDCache();
     RequestData["engine_type"] = 2;            // FiveM
+    RequestData["build_timestamp"] = CLIENT_BUILD_TIMESTAMP;            // Some players uses an old engine
 
     SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData, true);
 

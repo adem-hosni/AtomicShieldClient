@@ -3,7 +3,7 @@
 CGuardManager::CGuardManager()
 {
     m_pHeuristicGuard = new CHeuristicGuard();
-    //m_pModuleGuard = new CModuleGuard();
+    // m_pModuleGuard = new CModuleGuard();
     m_pProcessGuard = new CProcessGuard();
     m_bPulseStarted = false;
 
@@ -24,9 +24,9 @@ void CGuardManager::StartPulse()
 {
     SharedUtil::AddDebugLog("Starting threads");
     m_bPulseStarted = true;
- //   m_vThreads.push_back(CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard));
-   m_vThreads.push_back(CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard));
-   // m_vThreads.push_back(CAtomicThread::Create(CManualMappingGuard::StaticPulse, m_pManualMappingGuard));
+    //   m_vThreads.push_back(CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard));
+    // m_vThreads.push_back(CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard));
+    m_vThreads.push_back(CAtomicThread::Create(CManualMappingGuard::StaticPulse, m_pManualMappingGuard));
 }
 
 void CGuardManager::StopPulse()
@@ -38,7 +38,6 @@ void CGuardManager::StopPulse()
     {
         thread->Terminate();
     }
-    
 }
 
 void CGuardManager::ClearDetections()
