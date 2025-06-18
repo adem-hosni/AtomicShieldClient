@@ -188,7 +188,6 @@ std::string CAtomicNetwork::GetPublicIP()
     {
         // Remove trailing newlines or whitespace
         result.erase(result.find_last_not_of(" \r\n\t") + 1);
-        SharedUtil::AddDebugLog("[WinHTTP] Public IP fetched: %s", result.c_str());
     }
     else
     {
@@ -218,7 +217,6 @@ bool CAtomicNetwork::JoinNetwork()
     RequestData["engine_type"] = 2;                                     // FiveM
     RequestData["build_timestamp"] = CLIENT_BUILD_TIMESTAMP;            // Some players uses an old engine
     RequestData["ip"] = GetPublicIP();
-    SharedUtil::AddDebugLog("S: %s", RequestData["ip"].as_string().c_str());
 
     SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData, true);
 
