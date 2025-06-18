@@ -5,6 +5,14 @@
 class CHeuristicGuard final : public CGuardBase
 {
 public:
+    struct RegionHashEntry
+    {
+        PVOID        baseAddress{};
+        SIZE_T       regionSize{};
+        DWORD        protect{};
+        XXH64_hash_t hash{};
+    };
+
     CHeuristicGuard();
     ~CHeuristicGuard();
 
@@ -22,5 +30,5 @@ private:
     std::string               m_strScanProcessName;
     std::vector<std::string>  m_vSignatures;
     std::atomic<bool>         m_bFound;
-    std::vector<DWORD64>      m_vScannedRegions;
+    std::vector<RegionHashEntry>      m_vScannedRegions;
 };

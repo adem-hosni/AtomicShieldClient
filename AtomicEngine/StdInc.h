@@ -9,17 +9,14 @@
 // Jsoncons
 #include "jsoncons/json.hpp"
 
-
-
-
-
 // IXWebSocket
 #include <ixwebsocket/IXNetSystem.h>
 #include <ixwebsocket/IXWebSocket.h>
 #include <ixwebsocket/IXUserAgent.h>
 
-
-
+// xxHash
+#include <xxhash/xxhash.h>
+#include <xxhash/xxh3.h>
 
 #include <CRC32/CRC32.h>
 

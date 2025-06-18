@@ -189,10 +189,10 @@
     <ClCompile Include="CCrashHandler.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Vendor\Threadpool\BS_thread_pool.hpp">
+    <ClCompile Include="Guards\CManualMappingGuard.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Guards\CManualMappingGuard.cpp">
+    <ClCompile Include="Vendor\xxHash\xxhash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -429,6 +429,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Structs.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vendor\xxHash\xxh3.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vendor\xxHash\xxhash.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

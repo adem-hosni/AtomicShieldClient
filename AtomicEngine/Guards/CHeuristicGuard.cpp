@@ -37,6 +37,8 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::strin
 #pragma optimize("", off)
 void CHeuristicGuard::DoPulse()
 {
+    constexpr SIZE_T kSampleSize = 256;
+
     KernelCalls_OBJECT_ATTRIBUTES objAttr{};
     KernelCalls_CLIENT_ID         clientId{};
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
@@ -48,7 +50,7 @@ void CHeuristicGuard::DoPulse()
     SYSTEM_INFO sysInfo;
     GetSystemInfo(&sysInfo);
 
-    NTSTATUS        status;
+    NTSTATUS status;
 
     auto MemoryMap = Utils::BuildModuledMemoryMap(g_pAtomicAntiCheat->GetProcessHandle());
     while (g_pAtomicAntiCheat->RunScanners())
@@ -69,13 +71,13 @@ void CHeuristicGuard::DoPulse()
              addr = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + MemoryRegion.RegionSize)
         {
             PVOID  baseAddress = addr;
-            SIZE_T regionSize = sizeof(MemoryRegion);
+            SIZE_T rSize = sizeof(MemoryRegion);
             SIZE_T returnLength = 0;
 
-            if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, regionSize, &returnLength)))
+            if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, rSize, &returnLength)))
                 continue;
 
-            if (std::find(m_vScannedRegions.begin(), m_vScannedRegions.end(), (DWORD64)MemoryRegion.BaseAddress) != m_vScannedRegions.end())
+            if (MemoryRegion.RegionSize < 512 * 1024)
                 continue;
 
             if (MemoryRegion.State != MEM_COMMIT || MemoryRegion.Type != MEM_PRIVATE)
@@ -84,20 +86,53 @@ void CHeuristicGuard::DoPulse()
             if (MemoryRegion.Protect & (PAGE_NOACCESS | PAGE_GUARD | PAGE_WRITECOMBINE))
                 continue;
 
-            if (!(MemoryRegion.Protect & (PAGE_READWRITE | PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE)))
+            if (!(MemoryRegion.Protect & (PAGE_EXECUTE_READ | PAGE_EXECUTE_READWRITE | PAGE_EXECUTE_WRITECOPY | PAGE_READWRITE)))
                 continue;
 
-            if (!(MemoryRegion.Protect & (PAGE_READWRITE | PAGE_EXECUTE_READWRITE)))
+            XXH64_hash_t currentHash = 0;
+            BYTE         sampleBuffer[kSampleSize * 3] = {};
+            size_t       totalCopied = 0;
+
+            LPBYTE base = static_cast<LPBYTE>(MemoryRegion.BaseAddress);
+            SIZE_T regionSize = MemoryRegion.RegionSize;
+            LPVOID offsets[3] = {base, regionSize >= kSampleSize * 2 ? base + (regionSize / 2) : nullptr,
+                                 regionSize >= kSampleSize * 3 ? base + (regionSize - kSampleSize) : nullptr};
+
+            for (int i = 0; i < 3; ++i)
+            {
+                if (!offsets[i])
+                    continue;
+
+                SIZE_T r = 0;
+                if (NT_SUCCESS(SysNtReadVirtualMemory(hProcess, offsets[i], sampleBuffer + totalCopied, kSampleSize, &r)) && r == kSampleSize)
+                    totalCopied += r;
+            }
+
+            if (totalCopied == 0)
                 continue;
 
-            if (MemoryRegion.RegionSize < 512 * 1024)            // < 1MB — usually not large cheat payloads
+            currentHash = XXH64(sampleBuffer, totalCopied, 0);
+
+            bool regionAlreadyScanned = false;
+            for (auto& entry : m_vScannedRegions)
+            {
+                if (entry.baseAddress == MemoryRegion.BaseAddress && entry.regionSize == MemoryRegion.RegionSize && entry.protect == MemoryRegion.Protect)
+                {
+                    if (entry.hash == currentHash)
+                        regionAlreadyScanned = true;
+                    else
+                        entry.hash = currentHash;
+                    break;
+                }
+            }
+
+            if (regionAlreadyScanned)
                 continue;
 
+            m_vScannedRegions.push_back({MemoryRegion.BaseAddress, MemoryRegion.RegionSize, MemoryRegion.Protect, currentHash});
             regions.push_back({MemoryRegion, baseAddress});
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
-
         }
-
 
         auto scanFunc = [&](size_t startIdx, size_t endIdx)
         {
@@ -152,8 +187,6 @@ void CHeuristicGuard::DoPulse()
 
                 SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
 
-                m_vScannedRegions.push_back((DWORD64)region.mbi.BaseAddress);
-
                 if (m_bFound.load())
                     break;
             }
@@ -165,8 +198,6 @@ void CHeuristicGuard::DoPulse()
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
         SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());
-
-        std::this_thread::sleep_for(std::chrono::seconds(60));
     }
 
     _endthreadex(0);
