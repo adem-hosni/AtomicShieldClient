@@ -106,17 +106,21 @@ jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
 
 std::string CAtomicNetwork::GetPublicIP()
 {
-    std::string ipResult;
+    std::string result;
 
-    // Open WinHTTP session
-    HINTERNET hSession = WinHttpOpen(L"AtomicShield/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, nullptr, nullptr, 0);
+    HINTERNET hSession = WinHttpOpen(L"AtomicShield/1.0", WINHTTP_ACCESS_TYPE_NO_PROXY, nullptr, nullptr, 0);
     if (!hSession)
     {
         SharedUtil::AddDebugLog("[WinHTTP] WinHttpOpen failed: %lu", GetLastError());
         return "";
     }
 
-    HINTERNET hConnect = WinHttpConnect(hSession, L"api.ipify.org", INTERNET_DEFAULT_HTTP_PORT, 0);
+    // Optionally enable TLS 1.2 for future HTTPS endpoints
+    DWORD protocols = WINHTTP_FLAG_SECURE_PROTOCOL_TLS1_2;
+    WinHttpSetOption(hSession, WINHTTP_OPTION_SECURE_PROTOCOLS, &protocols, sizeof(protocols));
+
+    // Connect to endpoint
+    HINTERNET hConnect = WinHttpConnect(hSession, L"checkip.amazonaws.com", INTERNET_DEFAULT_HTTP_PORT, 0);
     if (!hConnect)
     {
         SharedUtil::AddDebugLog("[WinHTTP] WinHttpConnect failed: %lu", GetLastError());
@@ -124,6 +128,7 @@ std::string CAtomicNetwork::GetPublicIP()
         return "";
     }
 
+    // Open GET request (HTTP, no SSL flag)
     HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"GET", nullptr, nullptr, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
     if (!hRequest)
     {
@@ -171,7 +176,7 @@ std::string CAtomicNetwork::GetPublicIP()
             break;
         }
 
-        ipResult.append(buffer, 0, dwDownloaded);
+        result.append(buffer.c_str(), dwDownloaded);
 
     } while (dwSize > 0);
 
@@ -179,9 +184,18 @@ std::string CAtomicNetwork::GetPublicIP()
     WinHttpCloseHandle(hConnect);
     WinHttpCloseHandle(hSession);
 
-    SharedUtil::AddDebugLog("[WinHTTP] Public IP fetched: %s", ipResult.c_str());
+    if (!result.empty())
+    {
+        // Remove trailing newlines or whitespace
+        result.erase(result.find_last_not_of(" \r\n\t") + 1);
+        SharedUtil::AddDebugLog("[WinHTTP] Public IP fetched: %s", result.c_str());
+    }
+    else
+    {
+        SharedUtil::AddDebugLog("[WinHTTP] No data received from IP API");
+    }
 
-    return ipResult;
+    return result;
 }
 
 bool CAtomicNetwork::JoinNetwork()
@@ -204,6 +218,7 @@ bool CAtomicNetwork::JoinNetwork()
     RequestData["engine_type"] = 2;                                     // FiveM
     RequestData["build_timestamp"] = CLIENT_BUILD_TIMESTAMP;            // Some players uses an old engine
     RequestData["ip"] = GetPublicIP();
+    SharedUtil::AddDebugLog("S: %s", RequestData["ip"].as_string().c_str());
 
     SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData, true);
 
