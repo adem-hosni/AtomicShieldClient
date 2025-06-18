@@ -1,4 +1,5 @@
 #pragma once
+#include <winhttp.h>
 #include "StdInc.h"
 
 #include <ixwebsocket/IXNetSystem.h>
@@ -25,6 +26,8 @@ public:
     void        DoPulse();
 
     ix::WebSocket* GetWebSocket() { return m_pWebSocket; }
+
+    std::string GetPublicIP();
 
     bool JoinNetwork();
     bool SyncMaliciousSignatures(jsoncons::json& Signatures);

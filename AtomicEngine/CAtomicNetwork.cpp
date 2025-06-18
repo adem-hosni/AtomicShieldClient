@@ -20,7 +20,7 @@ bool CAtomicNetwork::Connect()
     ix::initNetSystem();
 
     m_pWebSocket->setUrl(WEBSOCKET_BASE_URL "/c/atomicshieldagent/");
-    
+
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
     m_pWebSocket->setPingInterval(45);
     m_pWebSocket->enablePerMessageDeflate();
@@ -88,11 +88,11 @@ jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
-    
+
     jsoncons::json Response = m_PendingResponses[PacketID];
 
     // Check if the unix timestamp received is tampered
-    //if (time(NULL) - Response["ut"].as<DWORD>() >= 20)
+    // if (time(NULL) - Response["ut"].as<DWORD>() >= 20)
     //{
     //    __fastfail(0);
     //    // Return an empty data to crash the engine if the __fastfail was tampered
@@ -102,6 +102,86 @@ jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
 
     m_PendingResponses.erase(PacketID);
     return Response;
+}
+
+std::string CAtomicNetwork::GetPublicIP()
+{
+    std::string ipResult;
+
+    // Open WinHTTP session
+    HINTERNET hSession = WinHttpOpen(L"AtomicShield/1.0", WINHTTP_ACCESS_TYPE_DEFAULT_PROXY, nullptr, nullptr, 0);
+    if (!hSession)
+    {
+        SharedUtil::AddDebugLog("[WinHTTP] WinHttpOpen failed: %lu", GetLastError());
+        return "";
+    }
+
+    HINTERNET hConnect = WinHttpConnect(hSession, L"api.ipify.org", INTERNET_DEFAULT_HTTP_PORT, 0);
+    if (!hConnect)
+    {
+        SharedUtil::AddDebugLog("[WinHTTP] WinHttpConnect failed: %lu", GetLastError());
+        WinHttpCloseHandle(hSession);
+        return "";
+    }
+
+    HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"GET", nullptr, nullptr, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
+    if (!hRequest)
+    {
+        SharedUtil::AddDebugLog("[WinHTTP] WinHttpOpenRequest failed: %lu", GetLastError());
+        WinHttpCloseHandle(hConnect);
+        WinHttpCloseHandle(hSession);
+        return "";
+    }
+
+    if (!WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0))
+    {
+        SharedUtil::AddDebugLog("[WinHTTP] WinHttpSendRequest failed: %lu", GetLastError());
+        WinHttpCloseHandle(hRequest);
+        WinHttpCloseHandle(hConnect);
+        WinHttpCloseHandle(hSession);
+        return "";
+    }
+
+    if (!WinHttpReceiveResponse(hRequest, nullptr))
+    {
+        SharedUtil::AddDebugLog("[WinHTTP] WinHttpReceiveResponse failed: %lu", GetLastError());
+        WinHttpCloseHandle(hRequest);
+        WinHttpCloseHandle(hConnect);
+        WinHttpCloseHandle(hSession);
+        return "";
+    }
+
+    DWORD dwSize = 0;
+    do
+    {
+        DWORD dwDownloaded = 0;
+        if (!WinHttpQueryDataAvailable(hRequest, &dwSize))
+        {
+            SharedUtil::AddDebugLog("[WinHTTP] WinHttpQueryDataAvailable failed: %lu", GetLastError());
+            break;
+        }
+
+        if (dwSize == 0)
+            break;
+
+        std::string buffer(dwSize, 0);
+        if (!WinHttpReadData(hRequest, buffer.data(), dwSize, &dwDownloaded))
+        {
+            SharedUtil::AddDebugLog("[WinHTTP] WinHttpReadData failed: %lu", GetLastError());
+            break;
+        }
+
+        ipResult.append(buffer, 0, dwDownloaded);
+
+    } while (dwSize > 0);
+
+    WinHttpCloseHandle(hRequest);
+    WinHttpCloseHandle(hConnect);
+    WinHttpCloseHandle(hSession);
+
+    SharedUtil::AddDebugLog("[WinHTTP] Public IP fetched: %s", ipResult.c_str());
+
+    return ipResult;
 }
 
 bool CAtomicNetwork::JoinNetwork()
@@ -121,8 +201,9 @@ bool CAtomicNetwork::JoinNetwork()
     jsoncons::json RequestData;
     RequestData["hwid"] = RequestHWID;
     RequestData["cache"] = g_pAtomicAntiCheat->GetCurrentHWIDCache();
-    RequestData["engine_type"] = 2;            // FiveM
+    RequestData["engine_type"] = 2;                                     // FiveM
     RequestData["build_timestamp"] = CLIENT_BUILD_TIMESTAMP;            // Some players uses an old engine
+    RequestData["ip"] = GetPublicIP();
 
     SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData, true);
 
