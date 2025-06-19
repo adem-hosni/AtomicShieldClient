@@ -139,10 +139,10 @@ void CProcessGuard::DoPulse()
                 }
             }
 
-            //if (strProcessName.find("FiveM") != std::string::npos)
+            // if (strProcessName.find("FiveM") != std::string::npos)
             //{
-            //    bIsWhitelisted = true;
-            //}
+            //     bIsWhitelisted = true;
+            // }
 
             if (bIsWhitelisted)
                 continue;
@@ -153,11 +153,11 @@ void CProcessGuard::DoPulse()
             if (!strProcessPath.empty() && FileAuthentication::IsFileSigned(strProcessPath))
                 continue;
 
-            if (!strProcessPath.empty() &&
-                (handle.GrantedAccess & PROCESS_ALL_ACCESS || handle.GrantedAccess & PROCESS_VM_WRITE ||         /*handle.GrantedAccess & PROCESS_VM_READ ||*/
-                 handle.GrantedAccess & PROCESS_SUSPEND_RESUME || handle.GrantedAccess & PROCESS_SET_INFORMATION /*||
-                 handle.GrantedAccess & PROCESS_VM_OPERATION*/
-                 || handle.GrantedAccess & PROCESS_DUP_HANDLE))
+            if (!strProcessPath.empty() && (handle.GrantedAccess & (PROCESS_ALL_ACCESS | PROCESS_VM_WRITE |
+                                                                    // PROCESS_VM_READ |
+                                                                    PROCESS_SUSPEND_RESUME | PROCESS_SET_INFORMATION |
+                                                                    // PROCESS_VM_OPERATION |
+                                                                    PROCESS_DUP_HANDLE)))
             {
                 if (std::find(m_vDetectedProcesses.begin(), m_vDetectedProcesses.end(), strProcessPath) == m_vDetectedProcesses.end())
                 {
