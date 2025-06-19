@@ -24,12 +24,12 @@ std::string GetProcessPath(DWORD pid)
         }
         else
         {
-            SharedUtil::AddDebugLog("GetModuleBaseName failed with error %d @Process::GetProcessName", GetLastError());
+            PROCESS_LOG("GetModuleBaseName failed with error %d @Process::GetProcessName", GetLastError());
         }
     }
     else
     {
-        SharedUtil::AddDebugLog("OpenProcess failed with error %d @  Process::GetProcessName", GetLastError());
+        PROCESS_LOG("OpenProcess failed with error %d @  Process::GetProcessName", GetLastError());
     }
     CloseHandle(hProcess);
 
@@ -47,7 +47,7 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::GetHandles()
         buffer = malloc(bufferSize);
         if (!buffer)
         {
-            SharedUtil::AddDebugLog("Memory allocation failed @ Handles::GetHandles");
+            PROCESS_LOG("Memory allocation failed @ Handles::GetHandles");
             return {};
         }
 
@@ -59,7 +59,7 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::GetHandles()
         }
         else if (!(((NTSTATUS)(status)) >= 0))
         {
-            SharedUtil::AddDebugLog("NtQuerySystemInformation failed @ Handles::GetHandles");
+            PROCESS_LOG("NtQuerySystemInformation failed @ Handles::GetHandles");
             free(buffer);
             return {};
         }
@@ -121,33 +121,16 @@ void CProcessGuard::DoPulse()
             std::this_thread::sleep_for(std::chrono::seconds(1));
         }
 
+        LARGE_INTEGER frequency, start, end;
+        QueryPerformanceFrequency(&frequency);
+        QueryPerformanceCounter(&start);
+
         std::vector<Handles::SYSTEM_HANDLE> handles = Handles::DetectOpenHandlesToFiveM();
 
         for (auto& handle : handles)
         {
             std::string strProcessPath = GetProcessPath(handle.ProcessId);
             std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
-
-            bool bIsWhitelisted = false;
-
-            for (int i = 0; i < std::size(Handles::Whitelisted); i++)
-            {
-                if (strcmp(Handles::Whitelisted[i], strProcessName.c_str()) == 0)
-                {
-                    bIsWhitelisted = true;
-                    break;
-                }
-            }
-
-            // if (strProcessName.find("FiveM") != std::string::npos)
-            //{
-            //     bIsWhitelisted = true;
-            // }
-
-
-            if (bIsWhitelisted)
-                continue;
-            
 
             if (strProcessPath.find("C:\\Windows") != std::string::npos)
                 continue;
@@ -158,12 +141,11 @@ void CProcessGuard::DoPulse()
             if (!strProcessPath.empty() &&
                 (handle.GrantedAccess & (PROCESS_ALL_ACCESS | PROCESS_VM_WRITE | PROCESS_VM_READ | PROCESS_VM_OPERATION | PROCESS_QUERY_INFORMATION |
                                          PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_DUP_HANDLE | PROCESS_SUSPEND_RESUME | PROCESS_SET_INFORMATION)))
-
-
             {
                 if (std::find(m_vDetectedProcesses.begin(), m_vDetectedProcesses.end(), strProcessPath) == m_vDetectedProcesses.end())
                 {
-                    SharedUtil::AddDebugLog("Reporting...");
+                    PROCESS_LOG("[!] Detected malicious process: %s (PID: %d, Granted Access: 0x%X)", strProcessPath.c_str(), handle.ProcessId,
+                                handle.GrantedAccess);
                     m_vDetectedProcesses.push_back(strProcessPath);
 
                     // Notify the server about the detection
@@ -174,6 +156,9 @@ void CProcessGuard::DoPulse()
                 }
             }
         }
+        QueryPerformanceCounter(&end);
+        float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
+        PROCESS_LOG("[*] Process Guard Pulse completed in %.5f seconds", fElapsedTime);
 
         std::this_thread::sleep_for(std::chrono::seconds(4));
     }

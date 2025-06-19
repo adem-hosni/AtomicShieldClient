@@ -2,6 +2,8 @@
 #include "StdInc.h"
 #include "CGuardBase.h"
 
+#define PROCESS_LOG(fmt, ...) SharedUtil::AddDebugLog("[ProcessGuard]: " fmt, __VA_ARGS__)
+
 #ifndef STATUS_INFO_LENGTH_MISMATCH
     #define STATUS_INFO_LENGTH_MISMATCH ((NTSTATUS)0xC0000004L)
 #endif
