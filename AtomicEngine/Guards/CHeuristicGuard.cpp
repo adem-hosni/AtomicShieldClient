@@ -77,7 +77,7 @@ void CHeuristicGuard::DoPulse()
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, rSize, &returnLength)))
                 continue;
 
-            if (MemoryRegion.RegionSize < 512 * 1024)
+            if (MemoryRegion.RegionSize < 1024)            // instead of 1024
                 continue;
 
             if (MemoryRegion.State != MEM_COMMIT || MemoryRegion.Type != MEM_PRIVATE)
