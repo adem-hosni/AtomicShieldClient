@@ -519,6 +519,7 @@
     <ClInclude Include="Vendor\jsoncons_ext\ubjson\ubjson_parser.hpp" />
     <ClInclude Include="Vendor\jsoncons_ext\ubjson\ubjson_reader.hpp" />
     <ClInclude Include="Vendor\jsoncons_ext\ubjson\ubjson_type.hpp" />
+    <ClInclude Include="Vendor\MD5\MD5.hpp" />
     <ClInclude Include="Vendor\VMProtect\VMProtectSDK.h" />
     <ClInclude Include="XorStr.h" />
   </ItemGroup>

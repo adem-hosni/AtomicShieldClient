@@ -138,9 +138,11 @@ void CProcessGuard::DoPulse()
             if (!strProcessPath.empty() && FileAuthentication::IsFileSigned(strProcessPath))
                 continue;
 
-            if (!strProcessPath.empty() &&
-                (handle.GrantedAccess & (PROCESS_ALL_ACCESS | PROCESS_VM_WRITE | PROCESS_VM_READ | PROCESS_VM_OPERATION | PROCESS_QUERY_INFORMATION |
-                                         PROCESS_QUERY_LIMITED_INFORMATION | PROCESS_DUP_HANDLE | PROCESS_SUSPEND_RESUME | PROCESS_SET_INFORMATION)))
+            if (!strProcessPath.empty() && (handle.GrantedAccess & (PROCESS_ALL_ACCESS | PROCESS_VM_WRITE |
+                                                                    // PROCESS_VM_READ |
+                                                                    PROCESS_SUSPEND_RESUME | PROCESS_SET_INFORMATION |
+                                                                    // PROCESS_VM_OPERATION |
+                                                                    PROCESS_DUP_HANDLE)))
             {
                 if (std::find(m_vDetectedProcesses.begin(), m_vDetectedProcesses.end(), strProcessPath) == m_vDetectedProcesses.end())
                 {
@@ -148,7 +150,6 @@ void CProcessGuard::DoPulse()
                                 handle.GrantedAccess);
                     m_vDetectedProcesses.push_back(strProcessPath);
 
-                    // Notify the server about the detection
                     g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
                                                                                         {"process_path", strProcessPath},
                                                                                         {"pid", handle.ProcessId},

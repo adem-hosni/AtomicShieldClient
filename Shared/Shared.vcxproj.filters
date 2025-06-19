@@ -1100,6 +1100,9 @@
     <ClInclude Include="Vendor\curl\websockets.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Vendor\MD5\MD5.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <None Include="Vendor\crypto\riscv_arch.def">
