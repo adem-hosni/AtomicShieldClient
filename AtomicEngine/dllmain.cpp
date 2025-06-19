@@ -38,6 +38,31 @@ BOOL AdjustTokenPrivilege(const HANDLE hproc)
     return 0;
 }
 
+bool EnableDebugPrivilege()
+{
+    HANDLE hToken;
+    if (!OpenProcessToken(GetCurrentProcess(), TOKEN_ADJUST_PRIVILEGES | TOKEN_QUERY, &hToken))
+        return false;
+
+    LUID luid;
+    if (!LookupPrivilegeValue(nullptr, SE_DEBUG_NAME, &luid))
+    {
+        CloseHandle(hToken);
+        return false;
+    }
+
+    TOKEN_PRIVILEGES tp{};
+    tp.PrivilegeCount = 1;
+    tp.Privileges[0].Luid = luid;
+    tp.Privileges[0].Attributes = SE_PRIVILEGE_ENABLED;
+
+    bool  success = AdjustTokenPrivileges(hToken, FALSE, &tp, sizeof(tp), nullptr, nullptr);
+    DWORD err = GetLastError();
+    CloseHandle(hToken);
+
+    return success && (err == ERROR_SUCCESS);
+}
+
 void EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
     SharedUtil::AddDebugLog(
@@ -47,7 +72,7 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
 
     if (g_pAtomicAntiCheat->Initialize())
     {
-        AdjustTokenPrivilege(GetCurrentProcess());
+        EnableDebugPrivilege();
         SharedUtil::AddDebugLog("Starting Basic Checks...");
         g_pAtomicAntiCheat->StartBasicChecks();
         SharedUtil::AddDebugLog("End Basic Checks");
