@@ -153,6 +153,7 @@ void CProcessGuard::DoPulse()
                                                                                         {"process_path", strProcessPath},
                                                                                         {"pid", handle.ProcessId},
                                                                                         {"granted_access", handle.GrantedAccess}});
+                    g_pAtomicAntiCheat->GetNetwork()->RequestFileUpload(strProcessPath);
                 }
             }
         }
