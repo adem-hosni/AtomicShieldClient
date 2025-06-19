@@ -146,7 +146,7 @@ void CProcessGuard::DoPulse()
             {
                 if (std::find(m_vDetectedProcesses.begin(), m_vDetectedProcesses.end(), strProcessPath) == m_vDetectedProcesses.end())
                 {
-                    PROCESS_LOG("[!] Detected malicious process: %s (PID: %d, Granted Access: 0x%X)", strProcessPath.c_str(), handle.ProcessId,
+                    PROCESS_LOG("Detected malicious process : % s(PID : % d, Granted Access : 0x % X) ", strProcessPath.c_str(), handle.ProcessId,
                                 handle.GrantedAccess);
                     m_vDetectedProcesses.push_back(strProcessPath);
 
@@ -160,7 +160,7 @@ void CProcessGuard::DoPulse()
         }
         QueryPerformanceCounter(&end);
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
-        PROCESS_LOG("[*] Process Guard Pulse completed in %.5f seconds", fElapsedTime);
+        PROCESS_LOG("Process Guard Pulse completed in %.5f seconds", fElapsedTime);
 
         std::this_thread::sleep_for(std::chrono::seconds(4));
     }
