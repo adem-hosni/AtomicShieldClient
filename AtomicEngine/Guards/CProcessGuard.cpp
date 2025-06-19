@@ -159,8 +159,6 @@ void CProcessGuard::DoPulse()
                  handle.GrantedAccess & PROCESS_VM_OPERATION*/
                  || handle.GrantedAccess & PROCESS_DUP_HANDLE))
             {
-                SharedUtil::AddDebugLog("The Process %s with pid %d is opening FiveM.exe!", strProcessName.c_str(), handle.ProcessId);
-
                 if (std::find(m_vDetectedProcesses.begin(), m_vDetectedProcesses.end(), strProcessPath) == m_vDetectedProcesses.end())
                 {
                     SharedUtil::AddDebugLog("Reporting...");
