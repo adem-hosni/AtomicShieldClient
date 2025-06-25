@@ -22,7 +22,7 @@ public:
     void        DoPulse();
     void        AddSignatures(std::map<std::string, std::vector<std::string>>& Signatures);
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
-    void        ClearDetections() override { m_bFound = false; }
+    void        ClearDetections() override;
 
 private:
     std::map<LPVOID, DWORD64> m_WhitelistedRegions;

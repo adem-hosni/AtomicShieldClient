@@ -77,7 +77,6 @@ void CHeuristicGuard::DoPulse()
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, rSize, &returnLength)))
                 continue;
 
-
             if (MemoryRegion.RegionSize < 512 * 1024)
                 continue;
 
@@ -205,3 +204,10 @@ void CHeuristicGuard::DoPulse()
     _endthreadex(0);
 }
 #pragma optimize("", on)
+
+void CHeuristicGuard::ClearDetections()
+{
+    m_bFound.store(false);
+    m_vScannedRegions.clear();
+    m_vSignatures.clear();
+}
