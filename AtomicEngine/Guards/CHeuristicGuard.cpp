@@ -52,7 +52,6 @@ void CHeuristicGuard::DoPulse()
 
     NTSTATUS status;
 
-    auto MemoryMap = Utils::BuildModuledMemoryMap(g_pAtomicAntiCheat->GetProcessHandle());
     while (g_pAtomicAntiCheat->RunScanners())
     {
         while (!g_pAtomicAntiCheat->IsValidProcessHandle())

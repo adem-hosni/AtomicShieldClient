@@ -64,6 +64,8 @@ void CAtomicAntiCheat::DoPulse()
             if (m_pGuardManager->IsPulseStarted())
                 m_pGuardManager->StopPulse();
 
+            RunScanners(false);
+
             // Clear the detected threats for the next scan session
             m_vDetectedTypes.clear();
             m_pGuardManager->ClearDetections();
@@ -73,11 +75,8 @@ void CAtomicAntiCheat::DoPulse()
                 m_pAtomicNetwork->Disconnect("FiveM Closed");
             }
 
-            if (!g_pAtomicAntiCheat->IsValidProcessHandle())
-            {
-                SysNtClose(m_hProcess);
-                m_hProcess = NULL;
-            }
+            SysNtClose(m_hProcess);
+            m_hProcess = NULL;
 
             std::this_thread::sleep_for(std::chrono::seconds(5));
             continue;
