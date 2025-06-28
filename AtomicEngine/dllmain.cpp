@@ -65,8 +65,6 @@ bool EnableDebugPrivilege()
 
 void EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
-    SharedProtocols::EnableProcessMitigations();
-
     SharedUtil::AddDebugLog(
         "===================================== AtomicShield AntiCheat Loaded! "
         "=====================================\n");
