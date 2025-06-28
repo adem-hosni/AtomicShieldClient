@@ -35,6 +35,7 @@
 #include "notification.h"
 #include <CAtomicAPI.h>
 #include <tlhelp32.h>
+#include "EngineLauncher.h"
 // Forward declarations of helper functions
 bool           CreateDeviceD3D(HWND hWnd);
 void           CleanupDeviceD3D();
@@ -474,7 +475,6 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
                                 draw_list->AddText(Tektur_Medium, 36.f, center_pos, ImGui::GetColorU32(c::text_blue), szLoadingMessage);
                             }
-
                         }
 
                         ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(p.x + 237, p.y + 415), ImVec2(p.x + 425, p.y + 416), ImGui::GetColorU32(c::line_bg),
@@ -532,74 +532,99 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                             strcpy(szLoadingMessage, "Loading AntiCheat...");
 
-                            int iProcessID = SharedUtil::GetProcessID(skCrypt("explorer.exe"));
-
-                            if (iProcessID > 0)
                             {
-                                HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
-                                if (hProcess)
                                 {
                                     bInjected = true;
-                                    int iInjectionResult =
-                                        ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
-                                    SharedUtil::AddDebugLog("Loading AntiCheat Result -> %d [Last Error: 0x%llx]", iInjectionResult, GetLastError());
-                                    if (iInjectionResult == 0 || GetLastError() != ERROR_SUCCESS)
+                                    /*int iInjectionResult =
+                                        ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());*/
+
+                                    std::filesystem::path EnginePath = EngineLauncher::GetEnginePath();
+                                    if (EngineLauncher::DumpEngineProcess(EnginePath, EngineLauncher::pProcessBuffer, sizeof(EngineLauncher::pProcessBuffer)))
                                     {
-                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        strcat(szLoadingMessage, skCrypt("Please hold while we verify that everything is ready"));
+                                        HANDLE                        hLauncher = INVALID_HANDLE_VALUE;
+                                        EngineLauncher::eLaunchResult result = EngineLauncher::LaunchEngineProcess(EnginePath, &hLauncher);
+                                        switch (result)
+                                        {
+                                            case EngineLauncher::eLaunchResult::UAC_CANCELLED:
+                                                SharedUtil::AddDebugLog("UAC Cancelled");
+                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                strcat(szLoadingMessage, skCrypt("Operation aborted, Please accept to continue"));
+                                                break;
+                                            case EngineLauncher::eLaunchResult::LAUNCH_ELEVATION_FAILED:
+                                                SharedUtil::AddDebugLog("Launch Elevation Failed");
+                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                strcat(szLoadingMessage, skCrypt("Failed to set anticheat rights!"));
+                                                break;
+                                            case EngineLauncher::eLaunchResult::SHELL_EXECUTE_FAILED:
+                                                SharedUtil::AddDebugLog("Shell Execute Failed");
+                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                strcat(szLoadingMessage, skCrypt("Failed to execute anticheat launcher!"));
+                                                break;
+                                        }
 
-                                        // Injection Succeded
-                                        _beginthread(
-                                            [](void*)
+                                        if (hLauncher == INVALID_HANDLE_VALUE || hLauncher == NULL)
+                                        {
+                                            SharedUtil::AddDebugLog("AntiCheat Launcher handle was null!");
+                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                            strcat(szLoadingMessage, skCrypt("Failed to retreive anticheat launcher!"));
+                                        }
+
+                                        if (result == EngineLauncher::eLaunchResult::SUCCESS)
+                                        {
+                                            int iInjectionResult = EngineLauncher::InjectEngineIntoLauncher(
+                                                EnginePath, hLauncher, (BYTE*)strEngineBuffer.c_str(), strEngineBuffer.size());
+
+                                            SharedUtil::AddDebugLog("Loading AntiCheat Result -> %d [Last Error: 0x%llx]", iInjectionResult, GetLastError());
+                                            if (iInjectionResult == 0 || GetLastError() != ERROR_SUCCESS)
                                             {
-                                                time_t injected_time = time(NULL);
-                                                bool   bFailure = false;
-                                                while (!CheckIfLoaded())
-                                                {
-                                                    // Wait 5 seconds if the 0 value didnt changed to 1, so the injection faileds
-                                                    bFailure = time(NULL) - injected_time > 5;
-                                                    if (bFailure)
-                                                        break;
+                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                strcat(szLoadingMessage, skCrypt("Please hold while we verify that everything is ready"));
 
-                                                    Sleep(90);
-                                                }
+                                                // Injection Succeded
+                                                _beginthread(
+                                                    [](void*)
+                                                    {
+                                                        time_t injected_time = time(NULL);
+                                                        bool   bFailure = false;
+                                                        while (!CheckIfLoaded())
+                                                        {
+                                                            // Wait 5 seconds if the 0 value didnt changed to 1, so the injection faileds
+                                                            bFailure = time(NULL) - injected_time > 5;
+                                                            if (bFailure)
+                                                                break;
 
-                                                if (bFailure)
-                                                {
-                                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                                    strcat(szLoadingMessage, skCrypt("Startup routine missing or blocked"));
-                                                }
-                                                else
-                                                {
-                                                    SharedUtil::SetRegistryIntValue("AtomicShield", 0);
-                                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                                    strcat(szLoadingMessage, skCrypt("Have Fun! (You can close now)"));
-                                                    page = 2;
-                                                    active_anim_1 = true;
-                                                }
-                                            },
-                                            0, nullptr);
+                                                            Sleep(90);
+                                                        }
+
+                                                        if (bFailure)
+                                                        {
+                                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                            strcat(szLoadingMessage, skCrypt("Startup routine missing or blocked"));
+                                                        }
+                                                        else
+                                                        {
+                                                            SharedUtil::SetRegistryIntValue("AtomicShield", 0);
+                                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                            strcat(szLoadingMessage, skCrypt("Have Fun! (You can close now)"));
+                                                            page = 2;
+                                                            active_anim_1 = true;
+                                                        }
+                                                    },
+                                                    0, nullptr);
+                                            }
+                                            else
+                                            {
+                                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                                sprintf(szLoadingMessage, skCrypt("Failed to load anticheat (0x%X - 0x%X)"), iInjectionResult, GetLastError());
+                                            }
+                                        }
                                     }
                                     else
                                     {
                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                        sprintf(szLoadingMessage, skCrypt("Failed to load anticheat (0x%X - 0x%X)"), iInjectionResult, GetLastError());
+                                        strcat(szLoadingMessage, skCrypt("Failed to load anticheat launcher!"));
                                     }
-
-                                    CloseHandle(hProcess);
-                                    // printf("Result from dll injection: %d\n", bResult);
                                 }
-                                else
-                                {
-                                    SharedUtil::AddDebugLog(skCrypt("Failed to get process handle!"));
-                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                    sprintf(szLoadingMessage, skCrypt("Failed to Launch the AntiCheat!"));
-                                }
-                            }
-                            else
-                            {
-                                memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                strcat(szLoadingMessage, skCrypt("Waiting windows services..."));
                             }
                         }
                     }
