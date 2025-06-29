@@ -268,9 +268,11 @@ bool CAtomicNetwork::SyncMaliciousSignatures(jsoncons::json& Signatures)
     return true;
 }
 
-void CAtomicNetwork::HandleRequestScreenshot()
+void CAtomicNetwork::HandleRequestScreenshot(jsoncons::json& Packet)
 {
     jsoncons::json response = jsoncons::json::object();
+    response["request_id"] = Packet.contains("request_id") ? Packet["request_id"].as_string() : SharedUtil::GenerateRandomString(8);
+
     char           szError[256];
     memset(szError, 0, sizeof(szError));
 
@@ -289,9 +291,11 @@ void CAtomicNetwork::HandleEngineShutdown()
     g_pAtomicAntiCheat->Shutdown();
 }
 
-void CAtomicNetwork::HandleUploadDebugLogs()
+void CAtomicNetwork::HandleUploadDebugLogs(jsoncons::json& Packet)
 {
     jsoncons::json response = jsoncons::json::object();
+    response["request_id"] = Packet.contains("request_id") ? Packet["request_id"].as_string() : SharedUtil::GenerateRandomString(8);
+
     std::string    strLogs;
 
     response["success"] = SharedUtil::GetDebugLogs(strLogs);
@@ -303,6 +307,8 @@ void CAtomicNetwork::HandleUploadDebugLogs()
 void CAtomicNetwork::HandleFileUpload(jsoncons::json& Packet)
 {
     jsoncons::json response = jsoncons::json::object();
+
+    response["request_id"] = Packet.contains("request_id") ? Packet["request_id"].as_string() : SharedUtil::GenerateRandomString(8);
 
     std::string strFilePath = Packet["file_path"].as_string();
     if (strFilePath.empty())
@@ -422,13 +428,13 @@ void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
     switch ((eAtomicPacket)iPacketID)
     {
         case eAtomicPacket::REQUEST_SCREENSHOT:
-            HandleRequestScreenshot();
+            HandleRequestScreenshot(Packet);
             break;
         case eAtomicPacket::ENGINE_SHUTDOWN:
             HandleEngineShutdown();
             break;
         case eAtomicPacket::REQUEST_DEBUG_LOGS:
-            HandleUploadDebugLogs();
+            HandleUploadDebugLogs(Packet);
             break;
         case eAtomicPacket::REQUEST_FILE_UPLOAD:
             HandleFileUpload(Packet);

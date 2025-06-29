@@ -31,9 +31,9 @@ public:
 
     bool JoinNetwork();
     bool SyncMaliciousSignatures(jsoncons::json& Signatures);
-    void HandleRequestScreenshot();
+    void HandleRequestScreenshot(jsoncons::json& Packet);
     void HandleEngineShutdown();
-    void HandleUploadDebugLogs();
+    void HandleUploadDebugLogs(jsoncons::json& Packet);
     void HandleFileUpload(jsoncons::json& Packet);
     void HandleRunScanners(jsoncons::json& Packet);
 
