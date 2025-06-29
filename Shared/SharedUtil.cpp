@@ -260,7 +260,7 @@ std::string SharedUtil::GetKnownDirectory(const KNOWNFOLDERID fid)
     if (!FAILED(result))
     {
         wcstombs(szProgramDataDir, path, MAX_PATH);
-        CoTaskMemFree(path);
+        //CoTaskMemFree(path);
     }
     return std::string(szProgramDataDir);
 }
