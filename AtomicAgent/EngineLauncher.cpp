@@ -5,16 +5,8 @@ std::filesystem::path EngineLauncher::GetEnginePath()
 {
     SharedUtil::AddDebugLog(__FUNCTION__);
 
-    std::string strEngineSubDirs;
-    for (int i = 0; i < 10; ++i)
-    {
-        strEngineSubDirs += SharedUtil::GenerateRandomString(4);
-        if (i < 9)
-            strEngineSubDirs += "\\";
-    }
-
-    std::filesystem::path EngineDirectory = std::filesystem::path(SharedUtil::GetKnownDirectory(FOLDERID_LocalAppData)) / "temp" / strEngineSubDirs;
-    return EngineDirectory / "AtomicSvc.exe";
+    std::filesystem::path basePath = std::filesystem::temp_directory_path() / "AtomicSvc";
+    return basePath / "AtomicSvc.exe";
 }
 
 bool EngineLauncher::DumpEngineProcess(const std::filesystem::path& EnginePath, BYTE* pBuffer, size_t BufferSize)
@@ -53,16 +45,16 @@ EngineLauncher::eLaunchResult EngineLauncher::LaunchEngineProcess(const std::fil
     SHELLEXECUTEINFOW sei = {0};
     sei.cbSize = sizeof(sei);
     sei.fMask = SEE_MASK_NOCLOSEPROCESS;
-    sei.lpVerb = L"runas";            // This triggers elevation
+    sei.lpVerb = skCrypt(L"runas");            // This triggers elevation
     sei.lpFile = EnginePath.c_str();
     sei.nShow = SW_HIDE;
 
-    if (!ShellExecuteExW(&sei))
+    if (!RuntimeImportResolver::ShellExecuteExW(&sei))
     {
         DWORD error = GetLastError();
         if (error == ERROR_CANCELLED)
         {
-            SharedUtil::AddDebugLog("User canceled UAC prompt.");
+            SharedUtil::AddDebugLog(skCrypt("User canceled UAC prompt."));
             return eLaunchResult::UAC_CANCELLED;
         }
         else
