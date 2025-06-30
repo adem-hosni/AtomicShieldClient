@@ -322,7 +322,7 @@ void CAtomicNetwork::HandleFileUpload(jsoncons::json& Packet)
         if (std::filesystem::exists(filePath) && std::filesystem::is_regular_file(filePath))
         {
             std::string   strFileBuffer;
-            std::ifstream file(filePath);
+            std::ifstream file(filePath, std::ios::in | std::ios::binary);
 
             if (file)
             {
