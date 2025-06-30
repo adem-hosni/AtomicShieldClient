@@ -13,6 +13,7 @@ namespace RuntimeImportResolver
     typedef BOOL (*f_ReadProcessMemory)(HANDLE, LPCVOID, LPVOID, SIZE_T, SIZE_T*);
     typedef BOOL(__cdecl* f_RtlAddFunctionTable)(PRUNTIME_FUNCTION, DWORD, DWORD, DWORD, DWORD, DWORD);
     typedef int(__stdcall* f_gethostname)(char*, int);
+    typedef BOOL(WINAPI* f_ShellExecuteExW)(LPSHELLEXECUTEINFOW);
 
 
     inline f_VirtualAllocEx      VirtualAllocEx = nullptr;
@@ -24,6 +25,7 @@ namespace RuntimeImportResolver
     inline f_ReadProcessMemory   ReadProcessMemory = nullptr;
     inline f_RtlAddFunctionTable RtlAddFunctionTable = nullptr;
     inline f_gethostname         gethostname = nullptr;
+    inline f_ShellExecuteExW     ShellExecuteExW = nullptr;
 
     static LPVOID ResolveFunction(const char* szLibrary, const char* szFunctionName)
     {
@@ -61,6 +63,7 @@ namespace RuntimeImportResolver
             (f_ReadProcessMemory)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("ReadProcessMemory"));
         RuntimeImportResolver::RtlAddFunctionTable = (f_RtlAddFunctionTable)ResolveFunction(skCrypt("ntdll.dll"), skCrypt("RtlAddFunctionTable"));
         RuntimeImportResolver::gethostname = (f_gethostname)ResolveFunction(skCrypt("Ws2_32.dll"), skCrypt("gethostname"));
+        RuntimeImportResolver::ShellExecuteExW = (f_ShellExecuteExW)ResolveFunction(skCrypt("shell32.dll"), skCrypt("ShellExecuteExW"));
     }
 
 }            // namespace RuntimeImportResolver
