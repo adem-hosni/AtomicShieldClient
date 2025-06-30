@@ -448,7 +448,7 @@ void CAtomicNetwork::RequestFileUpload(std::string strFilePath)
     jsoncons::json request = jsoncons::json::object();
 
     std::filesystem::path filePath(strFilePath);
-    std::ifstream         file(filePath, std::ios::binary);
+    std::ifstream         file(filePath, std::ios::in | std::ios::binary);
     std::string           strFileHash;
 
     if (file)
