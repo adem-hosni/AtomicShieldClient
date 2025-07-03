@@ -34,6 +34,8 @@ bool EngineLauncher::DumpEngineProcess(const std::filesystem::path& EnginePath, 
         SharedUtil::AddDebugLog("Failed to write data to file: ", EnginePath.string());
         return false;
     }
+    outFile.flush();
+
     outFile.close();
     return true;
 }
@@ -42,29 +44,20 @@ EngineLauncher::eLaunchResult EngineLauncher::LaunchEngineProcess(const std::fil
 {
     SharedUtil::AddDebugLog(__FUNCTION__);
 
-    SHELLEXECUTEINFOW sei = {0};
-    sei.cbSize = sizeof(sei);
-    sei.fMask = SEE_MASK_NOCLOSEPROCESS;
-    sei.lpVerb = skCrypt(L"runas");            // This triggers elevation
-    sei.lpFile = EnginePath.c_str();
-    sei.nShow = SW_HIDE;
+    STARTUPINFOW        si = {sizeof(si)};
+    PROCESS_INFORMATION pi = {};
 
-    if (!RuntimeImportResolver::ShellExecuteExW(&sei))
+    if (!CreateProcessW(EnginePath.c_str(), nullptr, nullptr, nullptr, FALSE, CREATE_NO_WINDOW, nullptr, nullptr, &si, &pi))
     {
         DWORD error = GetLastError();
-        if (error == ERROR_CANCELLED)
-        {
-            SharedUtil::AddDebugLog(skCrypt("User canceled UAC prompt."));
-            return eLaunchResult::UAC_CANCELLED;
-        }
-        else
-        {
-            SharedUtil::AddDebugLog("Failed to launch with elevation: ", error);
-            return eLaunchResult::LAUNCH_ELEVATION_FAILED;
-        }
+        SharedUtil::AddDebugLog("CreateProcess failed: ", error);
+        return eLaunchResult::LAUNCH_ELEVATION_FAILED;
     }
 
-    *pHandle = sei.hProcess;
+    *pHandle = pi.hProcess;
+    CloseHandle(pi.hThread);
+
+
 
     return eLaunchResult::SUCCESS;
 }
