@@ -1,6 +1,7 @@
 #include <iostream>
 #include "StdInc.h">
 #include <shlwapi.h>
+#include <EngineLauncher.h>
 #include <GUI/GUI.h>
 #pragma comment(lib, "shlwapi.lib")
 
@@ -81,60 +82,84 @@ std::string StartupManager::GetCurrentProcessName()
 
 void StartupManager::StartupFunction()
 {
-    static bool        bDownloading = false;
-    static std::string strEngineBuffer;
+    static bool        bDownloadStarted = false;
+    static bool        bDownloadFinished = false;
     static bool        bInjected = false;
-    static char        szLoadingMessage[144];
+    static std::string strEngineBuffer;
+    static char        szLoadingMessage[144] = {0};
     static SUserData   DownloadData{};
 
-
-    std::thread AgentPEBDownloader(
-        [&]()
+    std::thread downloader(
+        []()
         {
+            bDownloadStarted = true;        
             g_pAtomicAPI->DownloadEngine(&strEngineBuffer, &DownloadData);
-            bDownloading = false;
+            bDownloadFinished = true;
         });
+    downloader.detach();
 
-    AgentPEBDownloader.detach();
-    bDownloading = true;
-
-    while (bDownloading || strEngineBuffer.empty())
-    {
+    while (!bDownloadFinished)
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
+
+    if (strEngineBuffer.empty())
+    {
+        SharedUtil::AddDebugLog("[Startup] Engine buffer is empty!");
+        return;
     }
 
-    while (!bInjected)            
+    if (SharedUtil::GetProcessID(skCrypt("AtomicSvc.exe")) != NULL)
     {
-        int iProcessID = SharedUtil::GetProcessID("explorer.exe");
+        SharedUtil::AddDebugLog("[Startup] AtomicSvc.exe already running. Skipping startup loading.");
+        return;
+    }
 
-        if (iProcessID > 0)
+    std::filesystem::path EnginePath = EngineLauncher::GetEnginePath();
+    if (!EngineLauncher::DumpEngineProcess(EnginePath, EngineLauncher::pProcessBuffer, sizeof(EngineLauncher::pProcessBuffer)))
+    {
+        SharedUtil::AddDebugLog("[Startup] Failed to dump engine process to disk.");
+        return;
+    }
+
+    HANDLE                        hLauncher = INVALID_HANDLE_VALUE;
+    EngineLauncher::eLaunchResult result = EngineLauncher::LaunchEngineProcess(EnginePath, &hLauncher);
+    if (result != EngineLauncher::eLaunchResult::SUCCESS || hLauncher == INVALID_HANDLE_VALUE)
+    {
+        SharedUtil::AddDebugLog("[Startup] Failed to launch engine process. Result: %d", result);
+        return;
+    }
+
+    int iLoadResult = EngineLauncher::LoadEngineIntoLauncher(EnginePath, hLauncher, reinterpret_cast<BYTE*>(const_cast<char*>(strEngineBuffer.c_str())),
+                                                                    strEngineBuffer.size());
+
+    DWORD lastErr = GetLastError();
+    SharedUtil::AddDebugLog("[Startup] Loading result: %d, LastError: 0x%llX", iLoadResult, lastErr);
+
+    if (iLoadResult == 0 && lastErr == ERROR_SUCCESS)
+    {
+        bool   bFailure = false;
+        time_t startTime = time(NULL);
+        while (!CheckIfLoaded())
         {
-            HANDLE hProcess = OpenProcess(PROCESS_ALL_ACCESS, FALSE, iProcessID);
-            if (hProcess)
+            if (time(NULL) - startTime > 5)
             {
-          
-                bool bResult = ManualMapDll(hProcess, reinterpret_cast<BYTE*>((char*)strEngineBuffer.c_str()), strEngineBuffer.size());
-                if (bResult)
-                {
-                    MessageBoxA(NULL, skCrypt("[AtomicShield] Have fun!"), skCrypt("Success"), MB_OK);
-                    __fastfail(0);
-                    bInjected = true;
-                }
-                else
-                {
-                    MessageBoxA(NULL, skCrypt("[AtomicShield] An error occurred while loading!"), skCrypt("Failed"), MB_ICONERROR);
-                }
-                CloseHandle(hProcess);
+                bFailure = true;
+                break;
             }
-            else
-            {
-                SharedUtil::AddDebugLog(skCrypt("[AtomicShield] Failed to get process handle!\n"));
-            }
+            Sleep(90);
+        }
+
+        if (bFailure)
+        {
+            SharedUtil::AddDebugLog("[Startup] Loading timed out, module may be blocked.");
         }
         else
         {
-            std::this_thread::sleep_for(std::chrono::seconds(10));            
+            SharedUtil::AddDebugLog("[Startup] Engine loaded successfully.");
+            SharedUtil::SetRegistryIntValue("AtomicShield", 0);
         }
     }
-    
+    else
+    {
+        SharedUtil::AddDebugLog("[Startup] Load failed: %d, error: 0x%llX", iLoadResult, lastErr);
+    }
 }

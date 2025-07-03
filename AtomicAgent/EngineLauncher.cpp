@@ -62,7 +62,7 @@ EngineLauncher::eLaunchResult EngineLauncher::LaunchEngineProcess(const std::fil
     return eLaunchResult::SUCCESS;
 }
 
-int EngineLauncher::InjectEngineIntoLauncher(const std::filesystem::path& EnginePath, HANDLE hProcess, BYTE* pBuffer, size_t size)
+int EngineLauncher::LoadEngineIntoLauncher(const std::filesystem::path& EnginePath, HANDLE hProcess, BYTE* pBuffer, size_t size)
 {
     SharedUtil::AddDebugLog(__FUNCTION__);
 

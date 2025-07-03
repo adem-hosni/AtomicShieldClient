@@ -51,8 +51,6 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
     if (!pTargetBase)
     {
         ILog("Target process memory allocation failed (ex) 0x%X", GetLastError());
-        char szErrorMsg[64];
-        ILog(szErrorMsg);
         return 3;
     }
 
@@ -144,8 +142,21 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
     system("pause");
 #endif
 
-    HANDLE hThread =
-        RuntimeImportResolver::CreateRemoteThread(hProc, nullptr, 0, reinterpret_cast<LPTHREAD_START_ROUTINE>(pShellcode), MappingDataAlloc, 0, nullptr);
+    HANDLE   hThread = nullptr;
+    NTSTATUS status = RuntimeImportResolver::NtCreateThreadEx(&hThread, THREAD_ALL_ACCESS, nullptr, hProc, reinterpret_cast<LPTHREAD_START_ROUTINE>(pShellcode), MappingDataAlloc,
+                                         FALSE,                      // CreateFlags: 0 = run immediately
+                                         0, 0, 0, nullptr            // Optional parameters for advanced scenarios
+    );
+
+    if (!NT_SUCCESS(status) || !hThread)
+    {
+        ILog("NtCreateThreadEx failed with NTSTATUS 0x%X", status);
+        RuntimeImportResolver::VirtualFreeEx(hProc, pTargetBase, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, MappingDataAlloc, 0, MEM_RELEASE);
+        RuntimeImportResolver::VirtualFreeEx(hProc, pShellcode, 0, MEM_RELEASE);
+        return 12;
+    }
+
     if (!hThread)
     {
         ILog("Thread creation failed 0x%X", GetLastError());

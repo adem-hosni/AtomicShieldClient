@@ -17,7 +17,7 @@ namespace EngineLauncher
     std::filesystem::path GetEnginePath();
     bool                  DumpEngineProcess(const std::filesystem::path& EnginePath, BYTE* pBuffer, size_t BufferSize);
     eLaunchResult         LaunchEngineProcess(const std::filesystem::path& EnginePath, HANDLE* pHandle);
-    int                   InjectEngineIntoLauncher(const std::filesystem::path& EnginePath, HANDLE hProcess, BYTE* pBuffer, size_t size);
+    int                   LoadEngineIntoLauncher(const std::filesystem::path& EnginePath, HANDLE hProcess, BYTE* pBuffer, size_t size);
 
     static unsigned char pProcessBuffer[21368] = {
         0x4D, 0x5A, 0x90, 0x00, 0x03, 0x00, 0x00, 0x00, 0x04, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0x00, 0x00, 0xB8, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x40,

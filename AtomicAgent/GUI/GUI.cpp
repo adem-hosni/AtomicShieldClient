@@ -576,7 +576,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
                                     if (result == EngineLauncher::eLaunchResult::SUCCESS)
                                     {
-                                        int iInjectionResult = EngineLauncher::InjectEngineIntoLauncher(EnginePath, hLauncher, (BYTE*)strEngineBuffer.c_str(),
+                                        int iInjectionResult = EngineLauncher::LoadEngineIntoLauncher(EnginePath, hLauncher, (BYTE*)strEngineBuffer.c_str(),
                                                                                                         strEngineBuffer.size());
 
                                         SharedUtil::AddDebugLog("Loading AntiCheat Result -> %d [Last Error: 0x%llx]", iInjectionResult, GetLastError());

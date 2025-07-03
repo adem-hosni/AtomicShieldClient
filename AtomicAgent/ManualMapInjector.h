@@ -37,10 +37,12 @@ int ManualMapDll(HANDLE hProc, BYTE* pSrcData, SIZE_T FileSize, bool ClearHeader
                   bool SEHExceptionSupport = true, DWORD fdwReason = DLL_PROCESS_ATTACH, LPVOID lpReserved = 0);
 void __stdcall Shellcode(MANUAL_MAPPING_DATA* pData);
 
+#define NT_SUCCESS(Status) (((NTSTATUS)(Status)) >= 0)
+
 #if defined(DISABLE_OUTPUT)
     #define ILog(data, ...)
 #else
-    #define ILog(text, ...) SharedUtil::AddDebugLog(text, __VA_ARGS__);
+    #define ILog(text, ...) SharedUtil::AddDebugLog(skCrypt(text), __VA_ARGS__);
 #endif
 
 #ifdef _WIN64
