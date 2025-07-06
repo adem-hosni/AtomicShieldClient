@@ -533,17 +533,17 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             strcpy(szLoadingMessage, "Loading AntiCheat...");
 
                             bInjected = true;
+                            std::filesystem::path EnginePath = EngineLauncher::GetEnginePath();
+
                             if (SharedUtil::GetProcessID(skCrypt("AtomicSvc.exe")) != NULL)
                             {
-                                SharedUtil::AddDebugLog("Engine detected, skipping load");
+                                SharedUtil::AddDebugLog("Engine detected, reloading...");
                                 memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                strcat(szLoadingMessage, skCrypt("AtomicShield is already running!"));
-                                page = 2;
-                                active_anim_1 = true;
+                                strcat(szLoadingMessage, skCrypt("AtomicShield is already running! Reloading"));
+                                goto LOAD_ENGINE;
                             }
                             else
                             {
-                                std::filesystem::path EnginePath = EngineLauncher::GetEnginePath();
                                 if (EngineLauncher::DumpEngineProcess(EnginePath, EngineLauncher::pProcessBuffer, sizeof(EngineLauncher::pProcessBuffer)))
                                 {
                                     HANDLE                        hLauncher = INVALID_HANDLE_VALUE;
@@ -576,6 +576,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
                                     if (result == EngineLauncher::eLaunchResult::SUCCESS)
                                     {
+                                        LOAD_ENGINE:
                                         int iInjectionResult = EngineLauncher::LoadEngineIntoLauncher(EnginePath, hLauncher, (BYTE*)strEngineBuffer.c_str(),
                                                                                                         strEngineBuffer.size());
 
