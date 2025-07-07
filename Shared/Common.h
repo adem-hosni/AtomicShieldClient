@@ -13,7 +13,7 @@
     #define PROJECT_VERSION STRINGIFY(VERSION_MAJOR) "." STRINGIFY(VERSION_MINOR)
 #endif
 
-#define API_BASE_URL       "https://atomic-shield.com"
+#define API_BASE_URL       "http://31.97.180.157"
 #define WEBSOCKET_BASE_URL "ws://31.97.180.157:443"
 
 #define CLIENT_BUILD_TIMESTAMP __TIMESTAMP__
