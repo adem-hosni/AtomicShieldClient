@@ -132,7 +132,7 @@ void CProcessGuard::DoPulse()
             std::string strProcessPath = GetProcessPath(handle.ProcessId);
             std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
 
-            if (!strProcessPath.empty())
+            if (strProcessPath.empty())
                 continue;
 
             if (strProcessPath.find("C:\\Windows") != std::string::npos)
