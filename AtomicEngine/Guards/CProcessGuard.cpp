@@ -139,9 +139,7 @@ void CProcessGuard::DoPulse()
                 continue;
 
             if (!(handle.GrantedAccess & (PROCESS_ALL_ACCESS | PROCESS_VM_WRITE |
-                                          // PROCESS_VM_READ |
                                           PROCESS_SUSPEND_RESUME | PROCESS_SET_INFORMATION |
-                                          // PROCESS_VM_OPERATION |
                                           PROCESS_DUP_HANDLE)))
                 continue;
 
@@ -165,7 +163,7 @@ void CProcessGuard::DoPulse()
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
         PROCESS_LOG("Process Guard Pulse completed in %.5f seconds", fElapsedTime);
 
-        std::this_thread::sleep_for(std::chrono::seconds(4));
+        std::this_thread::sleep_for(std::chrono::seconds(15));
     }
 
     _endthreadex(0);
