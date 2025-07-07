@@ -132,17 +132,20 @@ void CProcessGuard::DoPulse()
             std::string strProcessPath = GetProcessPath(handle.ProcessId);
             std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
 
+            if (!strProcessPath.empty())
+                continue;
+
             if (strProcessPath.find("C:\\Windows") != std::string::npos)
                 continue;
 
-            if (!strProcessPath.empty() && FileAuthentication::IsFileSigned(strProcessPath))
+            if (!(handle.GrantedAccess & (PROCESS_ALL_ACCESS | PROCESS_VM_WRITE |
+                                          // PROCESS_VM_READ |
+                                          PROCESS_SUSPEND_RESUME | PROCESS_SET_INFORMATION |
+                                          // PROCESS_VM_OPERATION |
+                                          PROCESS_DUP_HANDLE)))
                 continue;
 
-            if (!strProcessPath.empty() && (handle.GrantedAccess & (PROCESS_ALL_ACCESS | PROCESS_VM_WRITE |
-                                                                    // PROCESS_VM_READ |
-                                                                    PROCESS_SUSPEND_RESUME | PROCESS_SET_INFORMATION |
-                                                                    // PROCESS_VM_OPERATION |
-                                                                    PROCESS_DUP_HANDLE)))
+            if (!FileAuthentication::IsFileSigned(strProcessPath))
             {
                 if (std::find(m_vDetectedProcesses.begin(), m_vDetectedProcesses.end(), strProcessPath) == m_vDetectedProcesses.end())
                 {
