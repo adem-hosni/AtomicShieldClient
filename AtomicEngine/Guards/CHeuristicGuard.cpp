@@ -76,7 +76,7 @@ void CHeuristicGuard::DoPulse()
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, rSize, &returnLength)))
                 continue;
 
-            if (MemoryRegion.RegionSize < 512 * 1024)
+            if (MemoryRegion.RegionSize < 400 * 1024)
                 continue;
 
             if (MemoryRegion.State != MEM_COMMIT || MemoryRegion.Type != MEM_PRIVATE)
@@ -154,7 +154,6 @@ void CHeuristicGuard::DoPulse()
                 }
 
                 const char* dataPtr = reinterpret_cast<const char*>(buffer);
-
                 for (const auto& decryptedStr : m_vSignatures)
                 {
                     size_t foundPos = std::string_view(dataPtr, bytesRead).find(decryptedStr);
