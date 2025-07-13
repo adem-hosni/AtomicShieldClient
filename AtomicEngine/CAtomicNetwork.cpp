@@ -122,7 +122,7 @@ std::string CAtomicNetwork::GetPublicIP()
     WinHttpSetOption(hSession, WINHTTP_OPTION_SECURE_PROTOCOLS, &protocols, sizeof(protocols));
 
     // Connect to endpoint
-    HINTERNET hConnect = WinHttpConnect(hSession, L"checkip.amazonaws.com", INTERNET_DEFAULT_HTTP_PORT, 0);
+    HINTERNET hConnect = WinHttpConnect(hSession, L"api.ipify.org", INTERNET_DEFAULT_HTTP_PORT, 0);
     if (!hConnect)
     {
         SharedUtil::AddDebugLog("[WinHTTP] WinHttpConnect failed: %lu", GetLastError());
@@ -131,7 +131,8 @@ std::string CAtomicNetwork::GetPublicIP()
     }
 
     // Open GET request (HTTP, no SSL flag)
-    HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"GET", nullptr, nullptr, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
+    HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"GET", L"/?format=json", nullptr, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
+
     if (!hRequest)
     {
         SharedUtil::AddDebugLog("[WinHTTP] WinHttpOpenRequest failed: %lu", GetLastError());
@@ -201,7 +202,12 @@ std::string CAtomicNetwork::GetPublicIP()
 
 bool CAtomicNetwork::JoinNetwork()
 {
+    jsoncons::json RequestData;
+    RequestData["ip"] = GetPublicIP();
+    SharedUtil::AddDebugLog("Connecting With %s", RequestData["ip"].as_string().c_str());
+
     SharedUtil::AddDebugLog("Joining Network...");
+
     jsoncons::json RequestHWID;
     RequestHWID["extra"] = g_pHWID->GetExtraData();
     RequestHWID["username"] = g_pHWID->GetWindowsUsername();
@@ -213,12 +219,11 @@ bool CAtomicNetwork::JoinNetwork()
     RequestHWID["computer_name"] = g_pHWID->GetComputerName_();
     RequestHWID["monitor"] = g_pHWID->GetMonitorSerial();
 
-    jsoncons::json RequestData;
     RequestData["hwid"] = RequestHWID;
     RequestData["cache"] = g_pAtomicAntiCheat->GetCurrentHWIDCache();
     RequestData["engine_type"] = 2;                                     // FiveM
     RequestData["build_timestamp"] = CLIENT_BUILD_TIMESTAMP;            // Some players uses an old engine
-    RequestData["ip"] = GetPublicIP();
+
 
     SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData, true);
 
