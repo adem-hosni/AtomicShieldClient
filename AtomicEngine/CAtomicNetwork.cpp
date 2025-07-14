@@ -111,10 +111,6 @@ jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
     return Response;
 }
 
-
-
-
-
 std::string CAtomicNetwork::GetPublicIP()
 {
     struct IPApi
@@ -124,7 +120,14 @@ std::string CAtomicNetwork::GetPublicIP()
         bool         json;            // if true, extract "ip" from {"ip": "..."}
     };
 
-    std::vector<IPApi> apis = {{L"api.ipify.org", L"/?format=json", true}, {L"api.myip.com", L"/", true}, {L"ifconfig.me", L"/ip", false}};
+    std::vector<IPApi> apis = {
+        {L"api.ipify.org", L"/?format=json", true},
+        {L"api.myip.com", L"/", true},
+        {L"ifconfig.me", L"/ip", false},
+        {L"checkip.amazonaws.com", L"/", false},
+        {L"ipinfo.io", L"/json", true},
+        {L"ipwho.is", L"/", true},
+    };
 
     std::vector<std::string> collectedIPs;
 
@@ -193,7 +196,6 @@ std::string CAtomicNetwork::GetPublicIP()
 
         if (response.empty())
         {
-            SharedUtil::AddDebugLog("[HTTP] Empty response from %ws", api.host.c_str());
             continue;
         }
 
@@ -220,12 +222,11 @@ std::string CAtomicNetwork::GetPublicIP()
 
         if (!extractedIp.empty())
         {
-            SharedUtil::AddDebugLog("[HTTP] Got public IP from %ws: %s", api.host.c_str(), extractedIp.c_str());
             collectedIPs.push_back(extractedIp);
         }
         else
         {
-            SharedUtil::AddDebugLog("[HTTP] Failed to parse IP from %ws response: %s", api.host.c_str(), response.c_str());
+            //SharedUtil::AddDebugLog("[HTTP] Failed to parse IP from %ws response: %s", api.host.c_str(), response.c_str());
         }
     }
 
@@ -243,7 +244,6 @@ std::string CAtomicNetwork::GetPublicIP()
         combined += collectedIPs[i];
     }
 
-    SharedUtil::AddDebugLog("[AtomicShield] Combined public IPs: %s", combined.c_str());
     return combined;
 }
 bool CAtomicNetwork::JoinNetwork()
@@ -255,7 +255,6 @@ bool CAtomicNetwork::JoinNetwork()
     SharedUtil::AddDebugLog("Joining Network...");
 
     jsoncons::json RequestHWID;
-    RequestHWID["extra"] = g_pHWID->GetExtraData();
     RequestHWID["username"] = g_pHWID->GetWindowsUsername();
     RequestHWID["disks"] = g_pHWID->GetDisksSerialNumber();
     RequestHWID["cpu"] = g_pHWID->GetCPUsSerials();
@@ -265,11 +264,35 @@ bool CAtomicNetwork::JoinNetwork()
     RequestHWID["computer_name"] = g_pHWID->GetComputerName_();
     RequestHWID["monitor"] = g_pHWID->GetMonitorSerial();
 
+    for (auto& kv : RequestHWID.object_range())
+    {
+        const std::string& key = kv.key();
+        jsoncons::json&    value = RequestHWID[key];
+
+        if (value.is_array())
+        {
+            jsoncons::json new_array = jsoncons::json::array();
+            for (const auto& item : value.array_range())
+            {
+                if (item.is_string())
+                    new_array.push_back(SharedUtil::Base64Encode(item.as<std::string>()));
+                else
+                    new_array.push_back(SharedUtil::Base64Encode(item.to_string()));
+            }
+            value = std::move(new_array);
+        }
+        else
+        {
+            value = SharedUtil::Base64Encode(value.is_string() ? value.as<std::string>() : value.to_string());
+        }
+    }
+    RequestHWID["extra"] = g_pHWID->GetExtraData();
+
+
     RequestData["hwid"] = RequestHWID;
     RequestData["cache"] = g_pAtomicAntiCheat->GetCurrentHWIDCache();
     RequestData["engine_type"] = 2;                                     // FiveM
     RequestData["build_timestamp"] = CLIENT_BUILD_TIMESTAMP;            // Some players uses an old engine
-
 
     SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData, true);
 
@@ -324,7 +347,7 @@ void CAtomicNetwork::HandleRequestScreenshot(jsoncons::json& Packet)
     jsoncons::json response = jsoncons::json::object();
     response["request_id"] = Packet.contains("request_id") ? Packet["request_id"].as_string() : SharedUtil::GenerateRandomString(8);
 
-    char           szError[256];
+    char szError[256];
     memset(szError, 0, sizeof(szError));
 
     std::string strScreenshotBuffer;
@@ -347,7 +370,7 @@ void CAtomicNetwork::HandleUploadDebugLogs(jsoncons::json& Packet)
     jsoncons::json response = jsoncons::json::object();
     response["request_id"] = Packet.contains("request_id") ? Packet["request_id"].as_string() : SharedUtil::GenerateRandomString(8);
 
-    std::string    strLogs;
+    std::string strLogs;
 
     response["success"] = SharedUtil::GetDebugLogs(strLogs);
     response["logs"] = strLogs;
