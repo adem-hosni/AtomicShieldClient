@@ -164,6 +164,7 @@
     <ClCompile Include="SharedChecks.cpp" />
     <ClCompile Include="SharedProtocols.cpp" />
     <ClCompile Include="SharedUtil.cpp" />
+    <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="CAtomicCore.h" />
@@ -519,6 +520,7 @@
     <ClInclude Include="Vendor\jsoncons_ext\ubjson\ubjson_parser.hpp" />
     <ClInclude Include="Vendor\jsoncons_ext\ubjson\ubjson_reader.hpp" />
     <ClInclude Include="Vendor\jsoncons_ext\ubjson\ubjson_type.hpp" />
+    <ClInclude Include="Vendor\LiteRegedit\LiteRegedit.h" />
     <ClInclude Include="Vendor\MD5\MD5.hpp" />
     <ClInclude Include="Vendor\VMProtect\VMProtectSDK.h" />
     <ClInclude Include="XorStr.h" />

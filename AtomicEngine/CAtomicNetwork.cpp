@@ -1,11 +1,16 @@
 #include "CAtomicAntiCheat.h"
 #include "CAtomicCore.h"
 #include "Common.h"
+#include <winsock2.h>
+#include <ws2tcpip.h>
+#include <iphlpapi.h>
 #include "SharedUtil.h"
 #include <condition_variable>
 #include <filesystem>
 #include <fstream>
 #include <future>
+#pragma comment(lib, "ws2_32.lib")
+#pragma comment(lib, "iphlpapi.lib")
 
 CAtomicNetwork::CAtomicNetwork() : m_bConnected(false), m_bNetworkJoined(false), m_ullLastPingTime(NULL)
 {
@@ -106,100 +111,141 @@ jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
     return Response;
 }
 
+
+
+
+
 std::string CAtomicNetwork::GetPublicIP()
 {
-    std::string result;
-
-    HINTERNET hSession = WinHttpOpen(L"AtomicShield/1.0", WINHTTP_ACCESS_TYPE_NO_PROXY, nullptr, nullptr, 0);
-    if (!hSession)
+    struct IPApi
     {
-        SharedUtil::AddDebugLog("[WinHTTP] WinHttpOpen failed: %lu", GetLastError());
-        return "";
-    }
+        std::wstring host;
+        std::wstring path;
+        bool         json;            // if true, extract "ip" from {"ip": "..."}
+    };
 
-    // Optionally enable TLS 1.2 for future HTTPS endpoints
-    DWORD protocols = WINHTTP_FLAG_SECURE_PROTOCOL_TLS1_2;
-    WinHttpSetOption(hSession, WINHTTP_OPTION_SECURE_PROTOCOLS, &protocols, sizeof(protocols));
+    std::vector<IPApi> apis = {{L"api.ipify.org", L"/?format=json", true}, {L"api.myip.com", L"/", true}, {L"ifconfig.me", L"/ip", false}};
 
-    // Connect to endpoint
-    HINTERNET hConnect = WinHttpConnect(hSession, L"api.ipify.org", INTERNET_DEFAULT_HTTP_PORT, 0);
-    if (!hConnect)
+    std::vector<std::string> collectedIPs;
+
+    for (const auto& api : apis)
     {
-        SharedUtil::AddDebugLog("[WinHTTP] WinHttpConnect failed: %lu", GetLastError());
-        WinHttpCloseHandle(hSession);
-        return "";
-    }
+        HINTERNET hSession = WinHttpOpen(L"AtomicShield/1.0", WINHTTP_ACCESS_TYPE_NO_PROXY, nullptr, nullptr, 0);
+        if (!hSession)
+        {
+            SharedUtil::AddDebugLog("[HTTP] WinHttpOpen failed: %lu", GetLastError());
+            continue;
+        }
 
-    // Open GET request (HTTP, no SSL flag)
-    HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"GET", L"/?format=json", nullptr, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
+        HINTERNET hConnect = WinHttpConnect(hSession, api.host.c_str(), INTERNET_DEFAULT_HTTP_PORT, 0);
+        if (!hConnect)
+        {
+            SharedUtil::AddDebugLog("[HTTP] WinHttpConnect failed: %lu", GetLastError());
+            WinHttpCloseHandle(hSession);
+            continue;
+        }
 
-    if (!hRequest)
-    {
-        SharedUtil::AddDebugLog("[WinHTTP] WinHttpOpenRequest failed: %lu", GetLastError());
-        WinHttpCloseHandle(hConnect);
-        WinHttpCloseHandle(hSession);
-        return "";
-    }
+        HINTERNET hRequest = WinHttpOpenRequest(hConnect, L"GET", api.path.c_str(), nullptr, WINHTTP_NO_REFERER, WINHTTP_DEFAULT_ACCEPT_TYPES, 0);
+        if (!hRequest)
+        {
+            SharedUtil::AddDebugLog("[HTTP] WinHttpOpenRequest failed: %lu", GetLastError());
+            WinHttpCloseHandle(hConnect);
+            WinHttpCloseHandle(hSession);
+            continue;
+        }
 
-    if (!WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0))
-    {
-        SharedUtil::AddDebugLog("[WinHTTP] WinHttpSendRequest failed: %lu", GetLastError());
+        if (!WinHttpSendRequest(hRequest, WINHTTP_NO_ADDITIONAL_HEADERS, 0, WINHTTP_NO_REQUEST_DATA, 0, 0, 0))
+        {
+            SharedUtil::AddDebugLog("[HTTP] WinHttpSendRequest failed: %lu", GetLastError());
+            WinHttpCloseHandle(hRequest);
+            WinHttpCloseHandle(hConnect);
+            WinHttpCloseHandle(hSession);
+            continue;
+        }
+
+        if (!WinHttpReceiveResponse(hRequest, nullptr))
+        {
+            SharedUtil::AddDebugLog("[HTTP] WinHttpReceiveResponse failed: %lu", GetLastError());
+            WinHttpCloseHandle(hRequest);
+            WinHttpCloseHandle(hConnect);
+            WinHttpCloseHandle(hSession);
+            continue;
+        }
+
+        std::string response;
+        DWORD       dwSize = 0;
+        do
+        {
+            DWORD dwDownloaded = 0;
+            if (!WinHttpQueryDataAvailable(hRequest, &dwSize) || dwSize == 0)
+                break;
+
+            std::string buffer(dwSize, 0);
+            if (!WinHttpReadData(hRequest, buffer.data(), dwSize, &dwDownloaded))
+                break;
+
+            response.append(buffer.c_str(), dwDownloaded);
+        } while (dwSize > 0);
+
         WinHttpCloseHandle(hRequest);
         WinHttpCloseHandle(hConnect);
         WinHttpCloseHandle(hSession);
+
+        if (response.empty())
+        {
+            SharedUtil::AddDebugLog("[HTTP] Empty response from %ws", api.host.c_str());
+            continue;
+        }
+
+        std::string extractedIp;
+        if (api.json)
+        {
+            size_t ipKey = response.find("\"ip\"");
+            if (ipKey != std::string::npos)
+            {
+                size_t quote1 = response.find('\"', ipKey + 4);
+                size_t quote2 = response.find('\"', quote1 + 1);
+                if (quote1 != std::string::npos && quote2 != std::string::npos)
+                    extractedIp = response.substr(quote1 + 1, quote2 - quote1 - 1);
+            }
+        }
+        else
+        {
+            // raw IP, strip whitespace
+            size_t start = response.find_first_not_of(" \r\n\t");
+            size_t end = response.find_last_not_of(" \r\n\t");
+            if (start != std::string::npos && end != std::string::npos)
+                extractedIp = response.substr(start, end - start + 1);
+        }
+
+        if (!extractedIp.empty())
+        {
+            SharedUtil::AddDebugLog("[HTTP] Got public IP from %ws: %s", api.host.c_str(), extractedIp.c_str());
+            collectedIPs.push_back(extractedIp);
+        }
+        else
+        {
+            SharedUtil::AddDebugLog("[HTTP] Failed to parse IP from %ws response: %s", api.host.c_str(), response.c_str());
+        }
+    }
+
+    if (collectedIPs.empty())
+    {
+        SharedUtil::AddDebugLog("[AtomicShield] All IP API requests failed.");
         return "";
     }
 
-    if (!WinHttpReceiveResponse(hRequest, nullptr))
+    std::string combined;
+    for (size_t i = 0; i < collectedIPs.size(); ++i)
     {
-        SharedUtil::AddDebugLog("[WinHTTP] WinHttpReceiveResponse failed: %lu", GetLastError());
-        WinHttpCloseHandle(hRequest);
-        WinHttpCloseHandle(hConnect);
-        WinHttpCloseHandle(hSession);
-        return "";
+        if (i != 0)
+            combined += "-";
+        combined += collectedIPs[i];
     }
 
-    DWORD dwSize = 0;
-    do
-    {
-        DWORD dwDownloaded = 0;
-        if (!WinHttpQueryDataAvailable(hRequest, &dwSize))
-        {
-            SharedUtil::AddDebugLog("[WinHTTP] WinHttpQueryDataAvailable failed: %lu", GetLastError());
-            break;
-        }
-
-        if (dwSize == 0)
-            break;
-
-        std::string buffer(dwSize, 0);
-        if (!WinHttpReadData(hRequest, buffer.data(), dwSize, &dwDownloaded))
-        {
-            SharedUtil::AddDebugLog("[WinHTTP] WinHttpReadData failed: %lu", GetLastError());
-            break;
-        }
-
-        result.append(buffer.c_str(), dwDownloaded);
-
-    } while (dwSize > 0);
-
-    WinHttpCloseHandle(hRequest);
-    WinHttpCloseHandle(hConnect);
-    WinHttpCloseHandle(hSession);
-
-    if (!result.empty())
-    {
-        // Remove trailing newlines or whitespace
-        result.erase(result.find_last_not_of(" \r\n\t") + 1);
-    }
-    else
-    {
-        SharedUtil::AddDebugLog("[WinHTTP] No data received from IP API");
-    }
-
-    return result;
+    SharedUtil::AddDebugLog("[AtomicShield] Combined public IPs: %s", combined.c_str());
+    return combined;
 }
-
 bool CAtomicNetwork::JoinNetwork()
 {
     jsoncons::json RequestData;

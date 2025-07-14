@@ -4,6 +4,8 @@
 #include <curl/curl.h>
 #include <Common.h>
 
+#include "Vendor/LiteRegedit/LiteRegedit.h"
+
 #include "skCrypter.h"
 #include <XorStr.h>
 #include "SharedUtil.h"

@@ -238,7 +238,6 @@
     <ClCompile Include="Vendor\ixwebsocket\IXWebSocketProxyServer.cpp" />
     <ClCompile Include="Vendor\ixwebsocket\IXWebSocketServer.cpp" />
     <ClCompile Include="Vendor\ixwebsocket\IXWebSocketTransport.cpp" />
-    <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp" />
     <ClCompile Include="Vendor\xxHash\xxhash.c" />
   </ItemGroup>
   <ItemGroup>
@@ -319,7 +318,6 @@
     <ClInclude Include="Vendor\ixwebsocket\IXWebSocketServer.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXWebSocketTransport.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXWebSocketVersion.h" />
-    <ClInclude Include="Vendor\LiteRegedit\LiteRegedit.h" />
     <ClInclude Include="Vendor\xxHash\xxh3.h" />
     <ClInclude Include="Vendor\xxHash\xxhash.h" />
   </ItemGroup>

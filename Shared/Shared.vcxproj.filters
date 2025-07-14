@@ -33,6 +33,9 @@
     <ClCompile Include="SecurityChecks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SharedChecks.h">
@@ -1101,6 +1104,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vendor\MD5\MD5.hpp">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Vendor\LiteRegedit\LiteRegedit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

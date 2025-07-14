@@ -147,9 +147,6 @@
     <ClCompile Include="Vendor\ixwebsocket\IXWebSocketTransport.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="BasicChecks.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -372,9 +369,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vendor\ixwebsocket\IXWebSocketVersion.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Vendor\LiteRegedit\LiteRegedit.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="AtomicPacket.h">
