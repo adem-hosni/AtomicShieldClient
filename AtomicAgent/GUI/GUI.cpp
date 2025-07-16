@@ -309,7 +309,7 @@ int         fake_function()
     return 42;
 }
 
-void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTitle, std::string* pstrErrorDescription, std::string processName)
+void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTitle, std::string* pstrErrorDescription, std::string processName, bool tos)
 {
     bool               show_demo_window = true;
     bool               show_another_window = false;
@@ -322,6 +322,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
     static char        szLoadingMessage[144];
     static SUserData   DownloadData{};
     static bool        bEnableStartup = StartupManager::IsAppInRegistry(processName);
+    static bool        s_bTosPopupOpen = tos;
 
     static float anim_speed = ImGui::GetIO().DeltaTime * 12.f;
     ImGui::GetIO().IniFilename = NULL;
@@ -347,6 +348,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
         {
             blur::set_device(g_pd3dDevice);
             blur::new_frame();
+            ImGui::GetBackgroundDrawList()->AddImage(bg, ImVec2(0, 0), ImVec2(1920, 1080), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255));
             ImGuiContext& g = *GImGui;
             ImGuiStyle*   style = &ImGui::GetStyle();
             style->Alpha = 1.0f;                                                          // No global transparency
@@ -355,11 +357,11 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
             if (bg == nullptr)
                 D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Background, sizeof(Background), 1920, 1080, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
                                                     D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &bg);
-            ImGui::GetBackgroundDrawList()->AddImage(bg, ImVec2(0, 0), ImVec2(1920, 1080), ImVec2(0, 0), ImVec2(1, 1), ImColor(255, 255, 255, 255));
 
             CustomStyleColor();
             ImGui::SetNextWindowSize(ImVec2(WIDTH, HEIGHT));
             ImGui::SetNextWindowPos({0, 0});
+
             ImGui::Begin("General", nullptr,
                          ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar);
             {
@@ -388,6 +390,101 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                 if (tab_alpha < 0.01f && tab_add < 0.01f)
                     active_tab = page;
 
+                static bool bTosAccepted = false;
+                static bool bTosPopupOpened = false;
+
+                 if (tos && !bTosAccepted)
+                {
+                    if (!bTosPopupOpened)
+                    {
+                        ImGui::OpenPopup("Terms of Service");
+                        bTosPopupOpened = true;
+                    }
+
+                    const float popupWidth = 500.f;
+                    const float popupHeight = 300.f;
+                    ImGui::SetNextWindowSize(ImVec2(popupWidth, popupHeight));
+                    ImGui::SetNextWindowPos(ImVec2((WIDTH - popupWidth) * 0.5f, (HEIGHT - popupHeight) * 0.5f));
+
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(25, 25));
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 40);
+                    ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+                    ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.95f));
+                    bool popupShown = ImGui::BeginPopupModal("Terms of Service", nullptr,
+                                                             ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |
+                                                                 ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
+
+                    if (popupShown)
+                    {
+
+                        ImVec4 blue_color = ImVec4(0.0f, 0.5f, 1.0f, 1.0f);      
+
+
+                        ImGui::PushFont(Tektur_Medium);
+                        ImGui::SetCursorPosX((popupWidth - ImGui::CalcTextSize("Terms of Service").x) * 0.5f);
+                        ImGui::PushStyleColor(ImGuiCol_Text, blue_color);
+                        ImGui::Text("TERMS OF SERVICE");
+                        ImGui::PopFont();
+                        ImGui::PopStyleColor();
+
+                        ImGui::Dummy(ImVec2(0.0f, 20.0f));
+
+                        ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
+                        ImGui::PushFont(Instrument_Medium_2);
+
+                        ImGui::TextWrapped("Please accept our Terms of Service to continue.");
+                        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+
+                        ImGui::BulletText("Only use Atomic Shield for fair gameplay.");
+                        ImGui::BulletText("Cheating or abuse will lead to a ban.");
+                        ImGui::BulletText("We do not access or collect personal files or data.");
+                        ImGui::BulletText("We only monitor the game while it's running.");
+                        ImGui::BulletText("Atomic Shield is digitally signed and verified.");
+
+
+                        ImGui::PopFont();
+                        ImGui::PopStyleColor();
+
+                        ImGui::Dummy(ImVec2(0.0f, 15.0f));
+                        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+
+                        ImGui::SetCursorPosX((popupWidth - 120) * 0.5f);
+                        if (ImGui::ButtonLogins("Accept", ImVec2(120, 35)))
+                        {
+                            bTosAccepted = true;
+                            SharedUtil::SetRegistryIntValue("AtomicShield_TOS", 1);
+
+                            ImGui::CloseCurrentPopup();
+                        }
+
+                        ImGui::EndPopup();
+                    }
+
+                    // Always pop styles regardless of popup state
+                    ImGui::PopStyleColor(1);
+                    ImGui::PopStyleVar(3);
+                    // Block all other UI interaction until accepted
+                    ImGui::End();                 // Close the "General" window
+                    ImGui::EndFrame();            // Skip rest of frame
+                    g_pd3dDevice->SetRenderState(D3DRS_ZENABLE, FALSE);
+                    g_pd3dDevice->SetRenderState(D3DRS_ALPHABLENDENABLE, FALSE);
+                    g_pd3dDevice->SetRenderState(D3DRS_SCISSORTESTENABLE, FALSE);
+
+                    D3DCOLOR clear_col_dx = D3DCOLOR_RGBA((int)(clear_color.x * clear_color.w * 255.0f), (int)(clear_color.y * clear_color.w * 255.0f),
+                                                          (int)(clear_color.z * clear_color.w * 255.0f), (int)(clear_color.w * 255.0f));
+
+                    g_pd3dDevice->Clear(0, NULL, D3DCLEAR_TARGET | D3DCLEAR_ZBUFFER, clear_col_dx, 1.0f, 0);
+                    if (g_pd3dDevice->BeginScene() >= 0)
+                    {
+                        ImGui::RenderNotifications();
+                        ImGui::Render();
+                        ImGui_ImplDX9_RenderDrawData(ImGui::GetDrawData());
+                        g_pd3dDevice->EndScene();
+                    }
+
+                    g_pd3dDevice->Present(NULL, NULL, NULL, NULL);
+                    continue;            // Restart frame loop
+                }
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1.0f);
                 {
                     if (active_tab == 0)
@@ -576,9 +673,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
                                     if (result == EngineLauncher::eLaunchResult::SUCCESS)
                                     {
-                                        LOAD_ENGINE:
+                                    LOAD_ENGINE:
                                         int iInjectionResult = EngineLauncher::LoadEngineIntoLauncher(EnginePath, hLauncher, (BYTE*)strEngineBuffer.c_str(),
-                                                                                                        strEngineBuffer.size());
+                                                                                                      strEngineBuffer.size());
 
                                         SharedUtil::AddDebugLog("Loading AntiCheat Result -> %d [Last Error: 0x%llx]", iInjectionResult, GetLastError());
                                         if (iInjectionResult == 0 || GetLastError() != ERROR_SUCCESS)
@@ -592,7 +689,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                                 {
                                                     time_t injected_time = time(NULL);
                                                     bool   bFailure = false;
-                                                    while (!CheckIfLoaded())
+                                                    while (!CheckIfLoaded("Software\\AtomicShield"))
                                                     {
                                                         // Wait 5 seconds if the 0 value didnt changed to 1, so the injection faileds
                                                         bFailure = time(NULL) - injected_time > 5;

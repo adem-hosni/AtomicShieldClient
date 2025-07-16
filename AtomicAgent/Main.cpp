@@ -77,11 +77,12 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     bool        isStartup = false;
     bool        bInitialized = false;
     std::string cmdLine = pCmdLine;
-
+    bool             tos = false;
     SAPIChecksResult result;
     result.bSuccess = true;
     result.bInitialized = true;
     _beginthread((_beginthread_proc_type)ApiChecks, NULL, &result);
+    tos = !CheckIfLoaded("AtomicShield_TOS");
 
     if (cmdLine.find(skCrypt("--startup")) != std::string::npos)
     {
@@ -89,7 +90,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     }
     else if (GUI::Initialize())
     {
-        GUI::RenderUI(&bInitialized, result.bSuccess, &result.strTitle, &result.strMessage, processName);
+        GUI::RenderUI(&bInitialized, result.bSuccess, &result.strTitle, &result.strMessage, processName,tos);
     }
     GUI::Destroy();
 

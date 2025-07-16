@@ -3,7 +3,7 @@
 #pragma runtime_checks("", off)
 #pragma optimize("", off)
 
-bool CheckIfLoaded()
+bool CheckIfLoaded(const char* ss)
 {
     HKEY  hKey;
     DWORD dwType = 0;
@@ -12,7 +12,7 @@ bool CheckIfLoaded()
 
     if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
     {
-        if (RegQueryValueEx(hKey, "AtomicShield", 0, &dwType, (LPBYTE)&dwValue, &dwSize) == ERROR_SUCCESS)
+        if (RegQueryValueEx(hKey, ss, 0, &dwType, (LPBYTE)&dwValue, &dwSize) == ERROR_SUCCESS)
         {
             RegCloseKey(hKey);
             return dwValue == 1;

@@ -8,7 +8,7 @@
 #include <StdInc.h>
 
 
-bool CheckIfLoaded();
+bool CheckIfLoaded(const char* ss);
 
 using f_LoadLibraryA = HINSTANCE(WINAPI*)(const char* lpLibFilename);
 using f_GetProcAddress = FARPROC(WINAPI*)(HMODULE hModule, LPCSTR lpProcName);

@@ -132,7 +132,7 @@ namespace GUI
     static WNDCLASSEXW wc;
 
     bool Initialize();
-    void RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTitle, std::string* pstrErrorDescription, std::string processName);
+    void RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTitle, std::string* pstrErrorDescription, std::string processName,bool tos);
     void Destroy();
     bool InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll);
 }            // namespace GUI

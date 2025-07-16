@@ -242,3 +242,4 @@ void blur::add_blur(ImDrawList* drawList, ImVec2 min, ImVec2 max, float alpha) n
 {
     BlurEffect::draw(drawList, min, max, alpha);
 }
+

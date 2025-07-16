@@ -138,7 +138,7 @@ void StartupManager::StartupFunction()
     {
         bool   bFailure = false;
         time_t startTime = time(NULL);
-        while (!CheckIfLoaded())
+        while (!CheckIfLoaded("Software\\AtomicShield"))
         {
             if (time(NULL) - startTime > 5)
             {
