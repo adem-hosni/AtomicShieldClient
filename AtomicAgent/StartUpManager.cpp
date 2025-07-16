@@ -5,7 +5,7 @@
 #include <GUI/GUI.h>
 #pragma comment(lib, "shlwapi.lib")
 
-bool StartupManager::IsAppInRegistry(std::string& appName)
+bool StartupManager::IsAppInRegistry()
 {
     HKEY hKey;
     if (RegOpenKeyEx(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_READ, &hKey) == ERROR_SUCCESS)
@@ -14,7 +14,7 @@ bool StartupManager::IsAppInRegistry(std::string& appName)
         DWORD dwSize = MAX_PATH;
         WCHAR szValue[MAX_PATH] = {0};
 
-        if (RegQueryValueEx(hKey, appName.c_str(), NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS)
+        if (RegQueryValueEx(hKey, "AtomicShield", NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS)
         {
             RegCloseKey(hKey);
             return true;
@@ -25,7 +25,7 @@ bool StartupManager::IsAppInRegistry(std::string& appName)
     return false;
 }
 
-bool StartupManager::AddAppToRegistry(std::string& appName)
+bool StartupManager::AddAppToRegistry()
 {
     HKEY        hKey;
     std::string appPath = skCrypt("\"").decrypt();
@@ -41,7 +41,7 @@ bool StartupManager::AddAppToRegistry(std::string& appName)
 
     if (RegOpenKeyEx(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) == ERROR_SUCCESS)
     {
-        if (RegSetValueEx(hKey, appName.c_str(), 0, REG_SZ, (const BYTE*)appPath.c_str(), (appPath.length() + 1) * sizeof(wchar_t)) == ERROR_SUCCESS)
+        if (RegSetValueEx(hKey, "AtomicShield", 0, REG_SZ, (const BYTE*)appPath.c_str(), (appPath.length() + 1) * sizeof(wchar_t)) == ERROR_SUCCESS)
         {
             RegCloseKey(hKey);
             return true;
@@ -51,14 +51,14 @@ bool StartupManager::AddAppToRegistry(std::string& appName)
     return false;
 }
 
-bool StartupManager::RemoveAppFromRegistry(std::string& appName)
+bool StartupManager::RemoveAppFromRegistry()
 {
     HKEY hKey;
 
     if (RegOpenKeyEx(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) == ERROR_SUCCESS)
     {
         // Try to delete the value
-        LONG result = RegDeleteValue(hKey, appName.c_str());
+        LONG result = RegDeleteValue(hKey, "AtomicShield");
         RegCloseKey(hKey);
 
         // Return true if deleted successfully or if the value didn't exist
