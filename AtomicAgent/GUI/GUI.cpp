@@ -321,7 +321,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
     static bool        bInjected = false;
     static char        szLoadingMessage[144];
     static SUserData   DownloadData{};
-    static bool        bEnableStartup = StartupManager::IsAppInRegistry(processName);
+    static bool        bEnableStartup = StartupManager::IsAppInRegistry();
 
     static float anim_speed = ImGui::GetIO().DeltaTime * 12.f;
     ImGui::GetIO().IniFilename = NULL;
@@ -409,9 +409,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             if (Custom_Checkbox("lbl", "Enable Startup Mode", &bEnableStartup, ImVec2(270, -1)))
                             {
                                 if (bEnableStartup)
-                                    StartupManager::AddAppToRegistry(processName);
+                                    StartupManager::AddAppToRegistry();
                                 else
-                                    StartupManager::RemoveAppFromRegistry(processName);
+                                    StartupManager::RemoveAppFromRegistry();
                             }
 
                             if (ImGui::IsItemHovered())

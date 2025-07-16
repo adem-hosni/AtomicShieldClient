@@ -78,6 +78,12 @@ std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, SUse
                                        ? SharedUtil::Base64Encode(Data.to_string().length() >= 16 ? g_pAtomicCore->Encrypt(Data.to_string()) : Data.to_string())
                                        : Data.to_string();
 
+        curl_easy_setopt(curl, CURLOPT_CONNECTTIMEOUT, 10L);
+        curl_easy_setopt(curl, CURLOPT_TIMEOUT, 30L);
+        curl_easy_setopt(curl, CURLOPT_LOW_SPEED_TIME, 5L);
+        curl_easy_setopt(curl, CURLOPT_LOW_SPEED_LIMIT, 10L);
+
+
         curl_easy_setopt(curl, CURLOPT_POST, 1L);
         curl_easy_setopt(curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(curl, CURLOPT_POSTFIELDS, request_body_buffer.c_str());
