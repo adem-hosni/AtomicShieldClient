@@ -690,7 +690,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                                 {
                                                     time_t injected_time = time(NULL);
                                                     bool   bFailure = false;
-                                                    while (!CheckIfLoaded("Software\\AtomicShield"))
+                                                    while (!CheckIfLoaded("AtomicShield"))
                                                     {
                                                         // Wait 5 seconds if the 0 value didnt changed to 1, so the injection faileds
                                                         bFailure = time(NULL) - injected_time > 5;
