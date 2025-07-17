@@ -422,7 +422,7 @@ std::string SharedUtil::Base64Decode(std::string& encoded_string)
     return decoded_string;
 }
 
-void SharedUtil::SetRegistryIntValue(const char* szKey, int iValue)
+void SharedUtil::SetRegistryIntValue(const char* ss,const char* szKey, int iValue)
 {
     HKEY hKey;
 

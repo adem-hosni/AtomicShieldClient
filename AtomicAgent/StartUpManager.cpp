@@ -155,7 +155,7 @@ void StartupManager::StartupFunction()
         else
         {
             SharedUtil::AddDebugLog("[Startup] Engine loaded successfully.");
-            SharedUtil::SetRegistryIntValue("AtomicShield", 0);
+            SharedUtil::SetRegistryIntValue("AtomicShield","AtomicShield", 0);
         }
     }
     else

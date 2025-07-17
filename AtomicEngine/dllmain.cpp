@@ -68,7 +68,7 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
     SharedUtil::AddDebugLog(
         "===================================== AtomicShield AntiCheat Loaded! "
         "=====================================\n");
-    SharedUtil::SetRegistryIntValue("AtomicShield", 1);
+    SharedUtil::SetRegistryIntValue("AtomicShield","AtomicShield", 1);
 
     if (g_pAtomicAntiCheat->Initialize())
     {

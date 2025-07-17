@@ -453,7 +453,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         if (ImGui::ButtonLogins("Accept", ImVec2(120, 35)))
                         {
                             bTosAccepted = true;
-                            SharedUtil::SetRegistryIntValue("AtomicShield_TOS", 1);
+                            SharedUtil::SetRegistryIntValue("AtomicShield_TOS","AtomicShield_TOS", 1);
 
                             ImGui::CloseCurrentPopup();
                         }
@@ -707,7 +707,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                                     }
                                                     else
                                                     {
-                                                        SharedUtil::SetRegistryIntValue("AtomicShield", 0);
+                                                        SharedUtil::SetRegistryIntValue("AtomicShield","AtomicShield", 0);
                                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                                         strcat(szLoadingMessage, skCrypt("Have Fun! (You can close now)"));
                                                         page = 2;

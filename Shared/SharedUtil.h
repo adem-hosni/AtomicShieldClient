@@ -20,5 +20,5 @@ namespace SharedUtil
     std::string  Base64Encode(std::string data);
     std::wstring Base64Encode(std::wstring data);
     std::string  Base64Decode(std::string& data);
-    void         SetRegistryIntValue(const char* szKey, int iValue);
+    void         SetRegistryIntValue(const char* ss,const char* szKey, int iValue);
 }            // namespace SharedUtil
