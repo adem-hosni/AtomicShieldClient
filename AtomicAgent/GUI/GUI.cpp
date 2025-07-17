@@ -398,7 +398,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                 {
                     if (!bTosPopupOpened)
                     {
-                        ImGui::OpenPopup("Terms of Service");
+                        ImGui::OpenPopup("Disclaimer & Legal Notice");
                         bTosPopupOpened = true;
                     }
 
@@ -411,7 +411,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 40);
                     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
                     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.95f));
-                    bool popupShown = ImGui::BeginPopupModal("Terms of Service", nullptr,
+                    bool popupShown = ImGui::BeginPopupModal("Disclaimer & Legal Notice", nullptr,
                                                              ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |
                                                                  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
 
@@ -422,9 +422,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
 
                         ImGui::PushFont(Tektur_Medium);
-                        ImGui::SetCursorPosX((popupWidth - ImGui::CalcTextSize("Terms of Service").x) * 0.5f);
+                        ImGui::SetCursorPosX((popupWidth - ImGui::CalcTextSize("Disclaimer & Legal Notice").x) * 0.5f);
                         ImGui::PushStyleColor(ImGuiCol_Text, blue_color);
-                        ImGui::Text("TERMS OF SERVICE");
+                        ImGui::Text("Disclaimer & Legal Notice");
                         ImGui::PopFont();
                         ImGui::PopStyleColor();
 
@@ -433,14 +433,38 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 1.0f, 1.0f, 1.0f));
                         ImGui::PushFont(Instrument_Medium_2);
 
-                        ImGui::TextWrapped("Please accept our Terms of Service to continue.");
-                        ImGui::Dummy(ImVec2(0.0f, 10.0f));
+// First disclaimer line
+                        ImGui::TextWrapped(
+                            "This software is an independent tool designed for private use only. It has no affiliation with any third-party services or "
+                            "platforms.");
 
-                        ImGui::BulletText("Only use Atomic Shield for fair gameplay.");
-                        ImGui::BulletText("Cheating or abuse will lead to a ban.");
-                        ImGui::BulletText("We do not access or collect personal files or data.");
-                        ImGui::BulletText("We only monitor the game while it's running.");
-                        ImGui::BulletText("Atomic Shield is digitally signed and verified.");
+                        // Manual layout — no TextWrapped
+                        ImGui::Text("By clicking 'Accept', you agree to our");
+                        ImGui::SameLine();
+
+                        ImGui::PushStyleColor(ImGuiCol_Text, blue_color);
+                        ImGui::Text("Terms of Service");
+                        if (ImGui::IsItemHovered())
+                            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+                        if (ImGui::IsItemClicked())
+                            OpenURL(skCrypt("https://atomic-shield.com/tos/"));
+                        ImGui::PopStyleColor();
+                        ImGui::SameLine();
+
+                        ImGui::Text("and");
+                        ImGui::SameLine();
+
+                        ImGui::PushStyleColor(ImGuiCol_Text, blue_color);
+                        ImGui::Text("General Conditions");
+                        if (ImGui::IsItemHovered())
+                            ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+                        if (ImGui::IsItemClicked())
+                            OpenURL(skCrypt("https://atomic-shield.com/privacy/"));
+                        ImGui::PopStyleColor();
+
+                        ImGui::TextWrapped("The developer & seller assumes no responsibility for any misuse.");
+
+
 
 
                         ImGui::PopFont();
