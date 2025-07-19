@@ -36,14 +36,6 @@ bool FileAuthentication::IsFileSigned(const std::string& filePath)
 }
 
 
-
-
-
-
-
-
-
-
 bool FileAuthentication::VerifyEmbeddedSignature(LPCWSTR filePath)
 {
     WINTRUST_FILE_INFO fileData;
@@ -162,8 +154,16 @@ bool FileAuthentication::VerifyCatalogSignature(LPCWSTR filePath)
 
     return lStatus == ERROR_SUCCESS;
 }
-
-bool FileAuthentication::HasSignature(LPCWSTR filePath)
+std::wstring ConvertToWString(const std::string& str)
 {
-    return (FileAuthentication::VerifyEmbeddedSignature(filePath) || FileAuthentication::VerifyCatalogSignature(filePath));
+    int          size_needed = MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, NULL, 0);
+    std::wstring wstr(size_needed, 0);
+    MultiByteToWideChar(CP_UTF8, 0, str.c_str(), -1, &wstr[0], size_needed);
+    return wstr;
+}
+
+bool FileAuthentication::HasSignature(const std::string& filePath)
+{
+    std::wstring wFilePath = ConvertToWString(filePath);
+    return (VerifyEmbeddedSignature(wFilePath.c_str()) || VerifyCatalogSignature(wFilePath.c_str()));
 }
