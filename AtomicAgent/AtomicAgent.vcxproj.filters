@@ -94,6 +94,9 @@
     <ClCompile Include="EngineLauncher.cpp">
       <Filter>sources</Filter>
     </ClCompile>
+    <ClCompile Include="UpdateManager.cpp">
+      <Filter>sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GUI\blur.hpp" />
@@ -204,6 +207,7 @@
     <ClInclude Include="CAtomicAPI.h" />
     <ClInclude Include="Resources\resource.h" />
     <ClInclude Include="EngineLauncher.h" />
+    <ClInclude Include="UpdateManager.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="Resources\Atomic Agent.rc" />

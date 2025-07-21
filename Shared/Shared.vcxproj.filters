@@ -36,6 +36,12 @@
     <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CServerEndPoint.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="CLatencyEvaluator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SharedChecks.h">
@@ -1107,6 +1113,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vendor\LiteRegedit\LiteRegedit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CServerEndPoint.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CLatencyEvaluator.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
