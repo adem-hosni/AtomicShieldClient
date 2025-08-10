@@ -13,6 +13,6 @@ namespace FileAuthentication
 {
     bool VerifyEmbeddedSignature(LPCWSTR pwszSourceFile);
     bool VerifyCatalogSignature(LPCWSTR wszFilePath);
-    bool HasSignature(const std::string& filePath);
+    bool HasSignature(LPCWSTR wszFilePath);
     bool IsFileSigned(const std::string& filePath);
 };        

@@ -137,13 +137,13 @@ void CProcessGuard::DoPulse()
 
             if (strProcessPath.find("C:\\Windows") != std::string::npos)
                 continue;
-            PROCESS_LOG("Handle opened: %s (PID: %d, Access: 0x%X)", strProcessPath.c_str(), handle.ProcessId, handle.GrantedAccess);
 
-            if (!(handle.GrantedAccess & (PROCESS_ALL_ACCESS | PROCESS_VM_WRITE | PROCESS_VM_READ | PROCESS_SUSPEND_RESUME | PROCESS_SET_INFORMATION |
-                                          PROCESS_DUP_HANDLE | PROCESS_QUERY_INFORMATION)))
+            if (!(handle.GrantedAccess & (PROCESS_ALL_ACCESS | PROCESS_VM_WRITE |
+                                          PROCESS_SUSPEND_RESUME | PROCESS_SET_INFORMATION |
+                                          PROCESS_DUP_HANDLE)))
                 continue;
 
-            if (!FileAuthentication::HasSignature(strProcessPath))
+            if (!FileAuthentication::IsFileSigned(strProcessPath))
             {
                 if (std::find(m_vDetectedProcesses.begin(), m_vDetectedProcesses.end(), strProcessPath) == m_vDetectedProcesses.end())
                 {
