@@ -78,7 +78,7 @@ int SharedUtil::GetFivemProcessID()
     auto IsFivemProcess = [](const std::string& strProcessName) -> bool
     {
         // List of base names
-        static std::vector<std::string> baseNames = {"FiveM", "NVN", "GvR"};
+        static std::vector<std::string> baseNames = {"FiveM", "NVN"};
 
         static std::vector<std::string> suffixes = {"_GTAProcess.exe", "_GameProcess.exe"};
 
