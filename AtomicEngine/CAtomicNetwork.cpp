@@ -26,7 +26,7 @@ bool CAtomicNetwork::Connect()
     m_bNetworkJoined = false;
     ix::initNetSystem();
 
-    m_pWebSocket->setUrl(m_strServerEndPoint + "/c/atomicshieldagent/");
+    m_pWebSocket->setUrl(WEBSOCKET_BASE_URL "/c/atomicshieldagent/");
 
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
     m_pWebSocket->setPingInterval(45);

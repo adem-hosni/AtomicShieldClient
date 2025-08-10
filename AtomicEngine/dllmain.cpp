@@ -1,7 +1,6 @@
 #include "StdInc.h"
 #include "SharedChecks.h"
 #include <winternl.h>
-#include "CLatencyEvaluator.h"
 
 BOOL AdjustTokenPrivilege(const HANDLE hproc)
 {
@@ -71,11 +70,14 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
         "=====================================\n");
     SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 1);
 
+<<<<<<< HEAD
     CLatencyEvaluator::SetupServerEndPoint([](std::string strBestEndPoint) -> void
         {
             g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint);
         });
 
+=======
+>>>>>>> parent of 02bc362 (Add latency-based server endpoint selection and agent updater)
     if (g_pAtomicAntiCheat->Initialize())
     {
         EnableDebugPrivilege();

@@ -1,10 +1,9 @@
 #include "StdInc.h"
-#include <string>
 #include "Main.h"
 #include "SharedChecks.h"
 #include "SharedProtocols.h"
 #include "StaticAnalysisBypass.h"
-#include "CLatencyEvaluator.h"
+#include <vmaware.hpp>
 
 void ApiChecks(LPVOID lpThreadParameter)
 {
@@ -37,24 +36,33 @@ void ApiChecks(LPVOID lpThreadParameter)
         else
         {
             result->bSuccess = false;
-            result->strTitle = skCrypt("ATOMICSHIELD UPDATE IN PROGRESS");
+            result->strTitle = skCrypt("OUTDATED VERSION");
             result->strMessage = skCrypt("This version of AtomicShield is no longer supported. Please update to the latest version to continue.");
-
-            std::string AgentBuffer;
-            g_pAtomicAPI->DownloadLatestAgent(&AgentBuffer);
-            UpdateManager::InstallAgent(AgentBuffer, result->strTitle, result->strMessage);
         }
     }
     result->bInitialized = true;
-
+    
     if (result->bSuccess)
         RuntimeImportResolver::ResolveCurrentImports();
 }
 
 int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine, int nCmdShow)
 {
+#ifdef _DEBUG
+#endif
+    /*AllocConsole();
+    freopen("CONIN$", "r", stdin);
+    freopen("CONOUT$", "w", stdout);
+    freopen("CONOUT$", "w", stderr);*/
+
+    // Enable microsoft process mitigations (Avoid unsigned code execution, ...)
+    // SharedProtocols::EnableProcessMitigations();
+
+    // Check the launcher process (for anti-debugging)
+    //  SharedProtocols::CheckLauncherProcess();
+
     INT CPUInfo[4] = {-1};
-    if ((CPUInfo[2] >> 31) & 1 || StaticAnalysisBypass::IsAnalysisVM())
+    if ((CPUInfo[2] >> 31) & 1 || StaticAnalysisBypass::IsAnalysisVM() /*|| VM::detect()*/)
     {
         SharedUtil::AddDebugLog(skCrypt("Analysis VM Detected!"));
         while (true)
@@ -65,36 +73,15 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
         }
     }
 
-    CLatencyEvaluator::SetupServerEndPoint();
-
     std::string processName = StartupManager::GetCurrentProcessName();
     bool        isStartup = false;
     bool        bInitialized = false;
     std::string cmdLine = pCmdLine;
-    bool        tos = false;
-
-    SharedUtil::AddDebugLog(skCrypt("AtomicShield Agent started with command line: %s"), cmdLine.c_str());
-    if (cmdLine.find(skCrypt("--old")) != std::string::npos)
-    {
-        size_t pos = cmdLine.find(skCrypt("--old"));
-        if (pos != std::string::npos)
-        {
-            size_t      endPos = cmdLine.find(' ', pos);
-            std::string oldAgentPath = cmdLine.substr(pos + 6, endPos - pos - 6);
-            if (!oldAgentPath.empty())
-            {
-                SharedUtil::AddDebugLog(skCrypt("Deleting old agent at path: %s"), oldAgentPath.c_str());
-                DeleteFileA(oldAgentPath.c_str());
-            }
-        }
-    }
-
+    bool             tos = false;
     SAPIChecksResult result;
     result.bSuccess = true;
     result.bInitialized = true;
-
     _beginthread((_beginthread_proc_type)ApiChecks, NULL, &result);
-
     tos = !CheckIfLoaded("AtomicShield_TOS");
 
     if (cmdLine.find(skCrypt("--startup")) != std::string::npos)
@@ -103,7 +90,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     }
     else if (GUI::Initialize())
     {
-        GUI::RenderUI(&bInitialized, result.bSuccess, &result.strTitle, &result.strMessage, processName, tos);
+        GUI::RenderUI(&bInitialized, result.bSuccess, &result.strTitle, &result.strMessage, processName,tos);
     }
     GUI::Destroy();
 
