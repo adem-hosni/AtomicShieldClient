@@ -1,7 +1,6 @@
 #include "StdInc.h"
 #include "SharedChecks.h"
 #include <winternl.h>
-#include "CLatencyEvaluator.h"
 
 BOOL AdjustTokenPrivilege(const HANDLE hproc)
 {
@@ -70,8 +69,6 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
         "===================================== AtomicShield AntiCheat Loaded! "
         "=====================================\n");
     SharedUtil::SetRegistryIntValue("AtomicShield","AtomicShield", 1);
-
-    CLatencyEvaluator::SetupServerEndPoint();
 
     if (g_pAtomicAntiCheat->Initialize())
     {

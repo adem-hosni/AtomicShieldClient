@@ -15,8 +15,6 @@ public:
     CAtomicNetwork();
     ~CAtomicNetwork();
 
-    void SetServerEndPoint(std::string& strServerEndPoint) { m_strServerEndPoint = strServerEndPoint; }
-
     bool           Connect();
     bool           IsConnected() { return m_bConnected; }
     bool           IsJoinedNetwork() { return m_bNetworkJoined; }
@@ -51,7 +49,6 @@ public:
     void           Disconnect(std::string strReason);
 
 private:
-    std::string                                     m_strServerEndPoint;
     ix::WebSocket*                                  m_pWebSocket;
     std::mutex                                      m_mutex;
     std::condition_variable                         m_condition;
