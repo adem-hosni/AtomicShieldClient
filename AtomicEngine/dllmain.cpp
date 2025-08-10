@@ -69,12 +69,9 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
     SharedUtil::AddDebugLog(
         "===================================== AtomicShield AntiCheat Loaded! "
         "=====================================\n");
-    SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 1);
+    SharedUtil::SetRegistryIntValue("AtomicShield","AtomicShield", 1);
 
-    CLatencyEvaluator::SetupServerEndPoint([](std::string strBestEndPoint) -> void
-        {
-            g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint);
-        });
+    CLatencyEvaluator::SetupServerEndPoint();
 
     if (g_pAtomicAntiCheat->Initialize())
     {
