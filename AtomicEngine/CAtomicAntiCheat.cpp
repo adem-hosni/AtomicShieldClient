@@ -50,7 +50,6 @@ void CAtomicAntiCheat::DoPulse()
     m_iTargetProcessID = SharedUtil::GetFivemProcessID();
     while (m_bAlive)
     {
-        // Check if the FiveM process is running every 5 seconds without block the pulse thread
         if (time(NULL) - tStart > 4)
         {
             tStart = time(NULL);
@@ -101,7 +100,7 @@ void CAtomicAntiCheat::DoPulse()
             }
         }
 
-        if (false && !Utils::isFiveMReady())
+        if (!Utils::isFiveMReady())
         {
             SharedUtil::AddDebugLog("FiveM is not ready, waiting...");
 
