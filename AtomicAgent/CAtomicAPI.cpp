@@ -8,6 +8,7 @@ CAtomicAPI* g_pAtomicAPI = new CAtomicAPI();
 
 CAtomicAPI::CAtomicAPI()
 {
+    m_strServerEndPoint = API_BASE_URL;
 }
 
 CAtomicAPI::~CAtomicAPI()
@@ -18,7 +19,7 @@ jsoncons::json CAtomicAPI::GetStatus()
 {
     auto        sk_title = skCrypt("Connection Error");
     auto        sk_message = skCrypt("Failed to connect to AtomicShield Server");
-    std::string end = API_BASE_URL + std::string(skCrypt("/anticheat/status/agent").decrypt());
+    std::string end = m_strServerEndPoint + std::string(skCrypt("/anticheat/status/agent").decrypt());
     std::string buffer = PostRequest(end.c_str(), jsoncons::json());
     if (buffer.empty())
     {
@@ -34,7 +35,7 @@ jsoncons::json CAtomicAPI::GetStatus()
 
 bool CAtomicAPI::IsAlreadyConnected()
 {
-    std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/isconnected");
+    std::string buffer = PostRequest(m_strServerEndPoint + "/anticheat/status/isconnected");
     if (buffer.empty())
     {
         return false;
@@ -48,7 +49,7 @@ bool CAtomicAPI::IsValidVersion(const char* szVersion)
 {
     jsoncons::json RequestBody = jsoncons::json::object();
     RequestBody["version"] = szVersion;
-    std::string buffer = PostRequest(API_BASE_URL "/anticheat/status/version", RequestBody);
+    std::string buffer = PostRequest(m_strServerEndPoint + "/anticheat/status/version", RequestBody);
 
     if (buffer.empty())
     {
@@ -60,10 +61,15 @@ bool CAtomicAPI::IsValidVersion(const char* szVersion)
 
 void CAtomicAPI::DownloadEngine(std::string* buffer, SUserData* pUserData)
 {
-    *buffer = PostRequest(API_BASE_URL "/resources/scan/fivem", jsoncons::json(), pUserData);
+    *buffer = PostRequest(m_strServerEndPoint + "/resources/scan/fivem", jsoncons::json(), pUserData);
 }
 
-std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, SUserData* pUserData, bool bEncryptRequestBody, bool bDecryptRespnseBody)
+void CAtomicAPI::DownloadLatestAgent(std::string* buffer)
+{
+    *buffer = PostRequest(m_strServerEndPoint + "/resources/latest-agent", jsoncons::json(), nullptr, false, false);
+}
+
+std::string CAtomicAPI::PostRequest(std::string strURL, jsoncons::json Data, SUserData* pUserData, bool bEncryptRequestBody, bool bDecryptRespnseBody)
 {
     CURL*       curl;
     CURLcode    response_code;
@@ -72,7 +78,7 @@ std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, SUse
     curl = curl_easy_init();
     if (curl)
     {
-        curl_easy_setopt(curl, CURLOPT_URL, szURL);
+        curl_easy_setopt(curl, CURLOPT_URL, strURL.c_str());
 
         auto request_body_buffer = bEncryptRequestBody
                                        ? SharedUtil::Base64Encode(Data.to_string().length() >= 16 ? g_pAtomicCore->Encrypt(Data.to_string()) : Data.to_string())
@@ -90,6 +96,7 @@ std::string CAtomicAPI::PostRequest(const char* szURL, jsoncons::json Data, SUse
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_buffer);
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, "AtomicShield");
 
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
         curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, ProgressCallback);

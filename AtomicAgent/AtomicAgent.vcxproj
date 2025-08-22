@@ -114,7 +114,7 @@
       <Optimization>Disabled</Optimization>
       <AdditionalIncludeDirectories>..\..;..\..\backends;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include;</AdditionalIncludeDirectories>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;_ATOMIC_AGENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
     </ClCompile>
@@ -154,7 +154,7 @@
       <AdditionalIncludeDirectories>..\..;..\..\backends;%(AdditionalIncludeDirectories);$(DXSDK_DIR)Include;</AdditionalIncludeDirectories>
       <BufferSecurityCheck>false</BufferSecurityCheck>
       <LanguageStandard>stdcpp17</LanguageStandard>
-      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;CURL_STATICLIB;_ATOMIC_AGENT;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
@@ -206,6 +206,7 @@
     <ClCompile Include="StartupManager.cpp" />
     <ClCompile Include="StaticAnalysisBypass.cpp" />
     <ClCompile Include="StdInc.cpp" />
+    <ClCompile Include="UpdateManager.cpp" />
     <ClCompile Include="Vendor\ImGui\backends\imgui_impl_dx9.cpp" />
     <ClCompile Include="Vendor\ImGui\backends\imgui_impl_win32.cpp" />
     <ClCompile Include="Vendor\ImGui\imgui.cpp" />
@@ -245,6 +246,7 @@
     <ClInclude Include="StartupManager.h" />
     <ClInclude Include="StaticAnalysisBypass.h" />
     <ClInclude Include="StdInc.h" />
+    <ClInclude Include="UpdateManager.h" />
     <ClInclude Include="Vendor\curl\curl.h" />
     <ClInclude Include="Vendor\curl\curlver.h" />
     <ClInclude Include="Vendor\curl\easy.h" />

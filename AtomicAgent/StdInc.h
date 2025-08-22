@@ -14,6 +14,7 @@
 #include <urlmon.h>
 #include <iptypes.h>
 #include <iphlpapi.h>
+#include "UpdateManager.h"
 #include "GUI/GUI.h"
 
 #include "CAtomicAPI.h"
