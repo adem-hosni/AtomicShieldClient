@@ -74,7 +74,7 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
     CLatencyEvaluator::SetupServerEndPoint([](std::string strBestEndPoint) -> void
         {
             g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint);
-        });
+        }, false);
 
     if (g_pAtomicAntiCheat->Initialize())
     {
