@@ -11,7 +11,7 @@ public:
     void        CacheEndPoint(std::string strEndPoint);
     std::string GetCachedEndPoint();
 
-    static void SetupServerEndPoint();
+    static void SetupServerEndPoint(void(__stdcall* EndPointCallback)(std::string));
 
 private:
     std::vector<CServerEndPoint*> m_vServers;

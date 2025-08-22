@@ -55,15 +55,16 @@ std::string CLatencyEvaluator::GetCachedEndPoint()
     return g_pAtomicCore->Decrypt(SharedUtil::Base64Decode(strEncryptedEndPoint));
 }
 
-void CLatencyEvaluator::SetupServerEndPoint()
+
+void CLatencyEvaluator::SetupServerEndPoint(void(__stdcall* EndPointCallback)(std::string))
 {
     CLatencyEvaluator* pLatencyEvaluator = new CLatencyEvaluator();
     std::string        strCachedEndPoint = pLatencyEvaluator->GetCachedEndPoint();
     std::string        strBestEndPoint;
     if (strCachedEndPoint.empty())
     {
-        pLatencyEvaluator->AddServer("http://31.97.180.157");
-        pLatencyEvaluator->AddServer("http://149.28.29.222");
+        pLatencyEvaluator->AddServer("31.97.180.157");
+        pLatencyEvaluator->AddServer("149.28.29.222");
 
         pLatencyEvaluator->EvaluateAll();
 
@@ -77,13 +78,18 @@ void CLatencyEvaluator::SetupServerEndPoint()
     else
     {
         SharedUtil::AddDebugLog(skCrypt("Using cached endpoint: %s"), pLatencyEvaluator->GetCachedEndPoint().c_str());
+        strBestEndPoint = strCachedEndPoint;
     }
+
+    if (EndPointCallback)
+        EndPointCallback("http://" + strBestEndPoint);
 
 #ifdef _ATOMIC_AGENT
     g_pAtomicAPI->SetServerEndPoint(strBestEndPoint);
 #endif
 
 #ifdef _ATOMIC_ENGINE
+    SharedUtil::AddDebugLog("Setting Server Endpoint: %s", strBestEndPoint.c_str());
     g_pAtomicNetwork->SetServerEndPoint(strBestEndPoint);
 #endif
 }
