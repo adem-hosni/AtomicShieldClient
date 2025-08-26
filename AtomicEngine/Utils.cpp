@@ -18,7 +18,7 @@ std::wstring Utils::ParseModuleNameFromPath(std::wstring wstrPath)
 
 bool Utils::isFiveMReady()
 {
-    static std::vector<std::string> chromeNames = {"FiveM_ChromeBrowser", "NVN_ChromeBrowser", "GvRCity_ChromeBrowser"};
+    static std::vector<std::string> chromeNames = {"FiveM_ChromeBrowser", "NVN_ChromeBrowser", "GvR_ChromeBrowser", "GvRCity_ChromeBrowser"};
     HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
     if (hSnapshot == INVALID_HANDLE_VALUE)
     {
