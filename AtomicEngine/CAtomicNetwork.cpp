@@ -121,12 +121,8 @@ std::string CAtomicNetwork::GetIPAddressChain()
     };
 
     std::vector<IPApi> apis = {
-        {L"api.ipify.org", L"/?format=json", true},
-        {L"api.myip.com", L"/", true},
-        {L"ifconfig.me", L"/ip", false},
-        {L"checkip.amazonaws.com", L"/", false},
-        {L"ipinfo.io", L"/json", true},
-        {L"ipwho.is", L"/", true},
+        {L"api.ipify.org", L"/?format=json", true}, {L"api.myip.com", L"/", true},  {L"ifconfig.me", L"/ip", false},
+        {L"checkip.amazonaws.com", L"/", false},    {L"ipinfo.io", L"/json", true}, {L"ipwho.is", L"/", true},
     };
 
     std::vector<std::string> collectedIPs;
@@ -226,7 +222,7 @@ std::string CAtomicNetwork::GetIPAddressChain()
         }
         else
         {
-            //SharedUtil::AddDebugLog("[HTTP] Failed to parse IP from %ws response: %s", api.host.c_str(), response.c_str());
+            // SharedUtil::AddDebugLog("[HTTP] Failed to parse IP from %ws response: %s", api.host.c_str(), response.c_str());
         }
     }
 
@@ -290,7 +286,6 @@ bool CAtomicNetwork::JoinNetwork()
         }
     }
     RequestHWID["extra"] = g_pHWID->GetExtraData();
-
 
     RequestData["hwid"] = RequestHWID;
     RequestData["cache"] = g_pAtomicAntiCheat->GetCurrentHWIDCache();
@@ -495,9 +490,11 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         }
 
         case ix::WebSocketMessageType::Error:
+            SharedUtil::AddDebugLog("WebSocket Error: %s (\"%s\", %d | Decompression Error: %d)", Message->errorInfo.reason.c_str(), Message->str.c_str(),
+                                    Message->errorInfo.http_status,
+                                    Message->errorInfo.decompressionError);
             m_pWebSocket->close();
             m_bNetworkJoined = false;
-            SharedUtil::AddDebugLog("Error: %s", Message->errorInfo.reason.c_str());
             // Reconnect();
             break;
     }
