@@ -15,7 +15,7 @@
 #endif
 
 #define API_BASE_URL       "http://31.97.180.157"
-#define WEBSOCKET_BASE_URL "ws://31.97.180.157:443"
+#define WEBSOCKET_BASE_URL "ws://atomic-shield.com"
 
 #define CLIENT_BUILD_TIMESTAMP __TIMESTAMP__
 

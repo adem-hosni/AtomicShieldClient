@@ -182,7 +182,6 @@ namespace ix
         if (_thread.joinable()) return; // we've already been started
 
         _thread = std::thread(&WebSocket::run, this);
-        _thread.detach();
     }
 
     void WebSocket::stop(uint16_t code, const std::string& reason)
@@ -311,7 +310,7 @@ namespace ix
         uint32_t retries = 0;
         millis duration(0);
 
-        // Try to connect perpertually
+        // Try to connect perpetually
         while (true)
         {
             if (isConnected() || isClosing() || _stop)
@@ -450,7 +449,6 @@ namespace ix
 
                     WebSocket::invokeTrafficTrackerCallback(wireSize, true);
                 });
-            std::this_thread::sleep_for(std::chrono::milliseconds(50));
         }
     }
 

@@ -362,7 +362,14 @@ void CAtomicNetwork::HandleRequestScreenshot(jsoncons::json& Packet)
 
 void CAtomicNetwork::HandleEngineShutdown()
 {
-    g_pAtomicAntiCheat->Shutdown();
+    if (m_bNetworkJoined)
+    {
+        g_pAtomicAntiCheat->Shutdown();
+    }
+    else
+    {
+        SharedUtil::AddDebugLog("Engine shutdown requested but network not joined yet.");
+    }
 }
 
 void CAtomicNetwork::HandleUploadDebugLogs(jsoncons::json& Packet)
