@@ -29,7 +29,7 @@ public:
 
     ix::WebSocket* GetWebSocket() { return m_pWebSocket; }
 
-    std::string GetPublicIP();
+    std::string GetIPAddressChain();
 
     bool JoinNetwork();
     bool SyncMaliciousSignatures(jsoncons::json& Signatures);

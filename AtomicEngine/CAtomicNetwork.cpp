@@ -111,7 +111,7 @@ jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
     return Response;
 }
 
-std::string CAtomicNetwork::GetPublicIP()
+std::string CAtomicNetwork::GetIPAddressChain()
 {
     struct IPApi
     {
@@ -239,6 +239,9 @@ std::string CAtomicNetwork::GetPublicIP()
     std::string combined;
     for (size_t i = 0; i < collectedIPs.size(); ++i)
     {
+        if (combined.find(collectedIPs[i]) != std::string::npos)
+            continue;
+
         if (i != 0)
             combined += "-";
         combined += collectedIPs[i];
@@ -249,7 +252,7 @@ std::string CAtomicNetwork::GetPublicIP()
 bool CAtomicNetwork::JoinNetwork()
 {
     jsoncons::json RequestData;
-    RequestData["ip"] = GetPublicIP();
+    RequestData["ip"] = GetIPAddressChain();
     SharedUtil::AddDebugLog("Connecting With %s", RequestData["ip"].as_string().c_str());
 
     SharedUtil::AddDebugLog("Joining Network...");
