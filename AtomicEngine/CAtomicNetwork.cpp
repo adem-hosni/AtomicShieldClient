@@ -23,13 +23,16 @@ CAtomicNetwork::~CAtomicNetwork()
 
 bool CAtomicNetwork::Connect()
 {
+    delete m_pWebSocket;
+    m_pWebSocket = new ix::WebSocket();
+
     m_bNetworkJoined = false;
     ix::initNetSystem();
 
     m_pWebSocket->setUrl(m_strServerEndPoint + "/c/atomicshieldagent/");
 
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
-    m_pWebSocket->setPingInterval(45);
+    m_pWebSocket->setPingInterval(10);
     m_pWebSocket->enablePerMessageDeflate();
     m_pWebSocket->enablePong();
     m_pWebSocket->disableAutomaticReconnection();
@@ -245,6 +248,7 @@ std::string CAtomicNetwork::GetIPAddressChain()
 
     return combined;
 }
+
 bool CAtomicNetwork::JoinNetwork()
 {
     jsoncons::json RequestData;
@@ -485,6 +489,7 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         case ix::WebSocketMessageType::Close:
         {
             m_bNetworkJoined = false;
+            m_bConnected = false;
             SharedUtil::AddDebugLog("WebSocket Closed: %s (%d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code);
             break;
         }

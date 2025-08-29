@@ -358,7 +358,7 @@ std::wstring SharedUtil::Base64Encode(std::wstring data)
     return encoded;
 }
 
-std::string SharedUtil::Base64Decode(std::string& encoded_string)
+std::string SharedUtil::Base64Decode(std::string encoded_string)
 {
     static const std::string base64_chars =
         "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
