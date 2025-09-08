@@ -130,6 +130,13 @@ void CAtomicAntiCheat::DoPulse()
         {
             SharedUtil::AddDebugLog("FiveM process exited unexpectedly!");
         }
+
+        if (!m_pAtomicNetwork->IsJoinedNetwork() || m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Closed ||
+            m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Closing)
+        {
+            RunScanners(false);
+        }
+
     }
 }
 
