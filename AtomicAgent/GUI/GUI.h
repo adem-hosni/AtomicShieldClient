@@ -133,6 +133,8 @@ namespace GUI
 
     bool Initialize();
     void RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTitle, std::string* pstrErrorDescription, std::string processName,bool tos);
+    void RenderDebugWindow(ImVec2& p, ImVec2& posmin, ImVec2& posmax);
+
     void Destroy();
     bool InjectDLL(HANDLE handleToProc, DWORD PID, const char* dll);
 }            // namespace GUI

@@ -25,7 +25,7 @@ void ApiChecks(LPVOID lpThreadParameter)
     }
     else
     {
-        if (g_pAtomicAPI->IsValidVersion(PROJECT_VERSION))
+        if (g_pAtomicAPI->IsValidVersion(PROJECT_VERSION) || true)
         {
             if (g_pAtomicAPI->IsAlreadyConnected())
             {
@@ -38,7 +38,7 @@ void ApiChecks(LPVOID lpThreadParameter)
         {
             result->bSuccess = false;
             result->strTitle = skCrypt("ATOMICSHIELD UPDATE IN PROGRESS");
-            result->strMessage = skCrypt("This version of AtomicShield is no longer supported. Please update to the latest version to continue.");
+            result->strMessage = skCrypt("This version of CashLine is no longer supported. Please update to the latest version to continue.");
 
             std::string AgentBuffer;
             g_pAtomicAPI->DownloadLatestAgent(&AgentBuffer);
@@ -73,7 +73,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     std::string cmdLine = pCmdLine;
     bool        tos = false;
 
-    SharedUtil::AddDebugLog(skCrypt("AtomicShield Agent started with command line: %s"), cmdLine.c_str());
+    SharedUtil::AddDebugLog(skCrypt("CashLine Agent started with command line: %s"), cmdLine.c_str());
     if (cmdLine.find(skCrypt("--old")) != std::string::npos)
     {
         size_t pos = cmdLine.find(skCrypt("--old"));
@@ -95,7 +95,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
 
     _beginthread((_beginthread_proc_type)ApiChecks, NULL, &result);
 
-    tos = !CheckIfLoaded("AtomicShield_TOS");
+    tos = !CheckIfLoaded("CashLine_TOS");
 
     if (cmdLine.find(skCrypt("--startup")) != std::string::npos)
     {

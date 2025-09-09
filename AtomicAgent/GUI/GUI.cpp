@@ -211,8 +211,8 @@ bool GUI::Initialize()
     GUI::wc.cbWndExtra = NULL;
     GUI::wc.hCursor = LoadCursor(0, IDC_ARROW);
     GUI::wc.hbrBackground = nullptr;
-    GUI::wc.lpszMenuName = L"AtomicShield";
-    GUI::wc.lpszClassName = L"AtomicShield";
+    GUI::wc.lpszMenuName = L"CashLine";
+    GUI::wc.lpszClassName = L"CashLine";
     GUI::wc.hInstance = GetModuleHandleW(NULL);
     GUI::wc.hIcon = LoadIcon(GUI::wc.hInstance, MAKEINTRESOURCE(ico4));
     GUI::wc.hIconSm = LoadIcon(GUI::wc.hInstance, MAKEINTRESOURCE(ico4));
@@ -477,7 +477,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         if (ImGui::ButtonLogins("Accept", ImVec2(120, 35)))
                         {
                             bTosAccepted = true;
-                            SharedUtil::SetRegistryIntValue("AtomicShield_TOS","AtomicShield_TOS", 1);
+                            SharedUtil::SetRegistryIntValue("CashLine_TOS","CashLine_TOS", 1);
 
                             ImGui::CloseCurrentPopup();
                         }
@@ -510,6 +510,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                     g_pd3dDevice->Present(NULL, NULL, NULL, NULL);
                     continue;            // Restart frame loop
                 }
+                static ImVec2 posmin(p.x + 50, p.y + 60);
+                static ImVec2 posmax(p.x + 630, p.y + 290);
+
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1.0f);
                 {
                     if (active_tab == 0)
@@ -517,11 +520,11 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         if (image::Logo == nullptr)
                             D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Logo, sizeof(Logo), 500, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
                                                                 D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::Logo);
-                        ImGui::GetWindowDrawList()->AddImageRounded(image::Logo, ImVec2(p.x + 198, p.y + 64), ImVec2(p.x + 464, p.y + 277), ImVec2(0, 0),
+                        ImGui::GetWindowDrawList()->AddImageRounded(image::Logo, posmin, posmax, ImVec2(0, 0),
                                                                     ImVec2(1, 1), ImGui::GetColorU32(c::icon_welcome) /*color*/, 0 /*rounding*/);
 
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 160, p.y + 101), ImGui::GetColorU32(c::text_blue),
-                                                            "ATOMIC SHIELD");
+                                                            "CASH LINE");
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 380, p.y + 101), ImGui::GetColorU32(c::text_checkbox_active_on),
                                                             "Agent");
 
@@ -662,7 +665,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             {
                                 SharedUtil::AddDebugLog("Engine detected, reloading...");
                                 memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                strcat(szLoadingMessage, skCrypt("AtomicShield is already running! Reloading"));
+                                strcat(szLoadingMessage, skCrypt("CashLine is already running! Reloading"));
                                 goto LOAD_ENGINE;
                             }
                             else
@@ -715,7 +718,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                                 {
                                                     time_t injected_time = time(NULL);
                                                     bool   bFailure = false;
-                                                    while (!CheckIfLoaded("AtomicShield"))
+                                                    while (!CheckIfLoaded("CashLine"))
                                                     {
                                                         // Wait 5 seconds if the 0 value didnt changed to 1, so the injection faileds
                                                         bFailure = time(NULL) - injected_time > 5;
@@ -732,7 +735,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                                     }
                                                     else
                                                     {
-                                                        SharedUtil::SetRegistryIntValue("AtomicShield","AtomicShield", 0);
+                                                        SharedUtil::SetRegistryIntValue("CashLine","CashLine", 0);
                                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                                         strcat(szLoadingMessage, skCrypt("Have Fun! (You can close now)"));
                                                         page = 2;

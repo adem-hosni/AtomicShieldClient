@@ -18,7 +18,7 @@ CAtomicAPI::~CAtomicAPI()
 jsoncons::json CAtomicAPI::GetStatus()
 {
     auto        sk_title = skCrypt("Connection Error");
-    auto        sk_message = skCrypt("Failed to connect to AtomicShield Server");
+    auto        sk_message = skCrypt("Failed to connect to CashLine Server");
     std::string end = m_strServerEndPoint + std::string(skCrypt("/anticheat/status/agent").decrypt());
     std::string buffer = PostRequest(end.c_str(), jsoncons::json());
     if (buffer.empty())
@@ -96,7 +96,7 @@ std::string CAtomicAPI::PostRequest(std::string strURL, jsoncons::json Data, SUs
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_buffer);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, "AtomicShield");
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, "CashLine");
 
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
         curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, ProgressCallback);

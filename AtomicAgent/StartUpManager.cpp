@@ -14,7 +14,7 @@ bool StartupManager::IsAppInRegistry()
         DWORD dwSize = MAX_PATH;
         WCHAR szValue[MAX_PATH] = {0};
 
-        if (RegQueryValueEx(hKey, "AtomicShield", NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS)
+        if (RegQueryValueEx(hKey, "CashLine", NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS)
         {
             RegCloseKey(hKey);
             return true;
@@ -41,7 +41,7 @@ bool StartupManager::AddAppToRegistry()
 
     if (RegOpenKeyEx(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) == ERROR_SUCCESS)
     {
-        if (RegSetValueEx(hKey, "AtomicShield", 0, REG_SZ, (const BYTE*)appPath.c_str(), (appPath.length() + 1) * sizeof(wchar_t)) == ERROR_SUCCESS)
+        if (RegSetValueEx(hKey, "CashLine", 0, REG_SZ, (const BYTE*)appPath.c_str(), (appPath.length() + 1) * sizeof(wchar_t)) == ERROR_SUCCESS)
         {
             RegCloseKey(hKey);
             return true;
@@ -58,7 +58,7 @@ bool StartupManager::RemoveAppFromRegistry()
     if (RegOpenKeyEx(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) == ERROR_SUCCESS)
     {
         // Try to delete the value
-        LONG result = RegDeleteValue(hKey, "AtomicShield");
+        LONG result = RegDeleteValue(hKey, "CashLine");
         RegCloseKey(hKey);
 
         // Return true if deleted successfully or if the value didn't exist
@@ -73,7 +73,7 @@ std::string StartupManager::GetCurrentProcessName()
     char szPath[MAX_PATH];
     if (GetModuleFileName(NULL, szPath, MAX_PATH) == 0)
     {
-        SharedUtil::AddDebugLog(skCrypt("[AtomicShield] Error retrieving executable path"));
+        SharedUtil::AddDebugLog(skCrypt("[CashLine] Error retrieving executable path"));
         return "";
     }
     std::string fileName = PathFindFileName(szPath);
@@ -138,7 +138,7 @@ void StartupManager::StartupFunction()
     {
         bool   bFailure = false;
         time_t startTime = time(NULL);
-        while (!CheckIfLoaded("Software\\AtomicShield"))
+        while (!CheckIfLoaded("Software\\CashLine"))
         {
             if (time(NULL) - startTime > 5)
             {
@@ -155,7 +155,7 @@ void StartupManager::StartupFunction()
         else
         {
             SharedUtil::AddDebugLog("[Startup] Engine loaded successfully.");
-            SharedUtil::SetRegistryIntValue("AtomicShield","AtomicShield", 0);
+            SharedUtil::SetRegistryIntValue("CashLine","CashLine", 0);
         }
     }
     else
