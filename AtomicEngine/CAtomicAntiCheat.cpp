@@ -158,6 +158,8 @@ void CAtomicAntiCheat::StartBasicChecks()
 
     BasicChecks::TestsigningEnabled();
 
+    BasicChecks::CheckSecurityFeatures();
+
     CAtomicThread::Create(&BasicChecks::CheckBlacklistedDrivers);
 }
 
