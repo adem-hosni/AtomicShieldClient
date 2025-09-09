@@ -81,102 +81,100 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData, char* szError)
         return false;
     }
 
-    /// Screen configs
-    RECT rcDesktop;
-    HWND hwDesktop = GetDesktopWindow();
-    if (GetWindowRect(hwDesktop, &rcDesktop) == FALSE)
+    /// Find FiveM window
+    HWND hWndGame = FindWindowW(NULL, L"FiveM");            // Window title
+    if (!hWndGame)
+        hWndGame = FindWindowW(L"grcWindow", NULL);            // Class name fallback
+
+    if (!hWndGame)
     {
-        sprintf(szError, "GetWindowRect fail! Error: %u", GetLastError());
+        sprintf(szError, "FiveM window not found!");
         SharedUtil::AddDebugLog(szError);
         Gdiplus::GdiplusShutdown(gdiplusToken);
         return false;
     }
 
-    int iWidth = rcDesktop.right;
-    int iHeight = rcDesktop.bottom;
-
-    /// Create screenshot
-    auto hDCScreen = GetDC(NULL);
-    if (hDCScreen == NULL)
+    /// Get game window rect
+    RECT rcGame;
+    if (!GetClientRect(hWndGame, &rcGame))
     {
-        sprintf(szError, "hDCScreen fail! Error: %u", GetLastError());
+        sprintf(szError, "GetClientRect fail! Error: %u", GetLastError());
         SharedUtil::AddDebugLog(szError);
-
         Gdiplus::GdiplusShutdown(gdiplusToken);
         return false;
     }
 
-    auto hDC = CreateCompatibleDC(hDCScreen);
-    if (hDC == NULL)
-    {
-        sprintf(szError, "hDC fail! Error: %u", GetLastError());
-        SharedUtil::AddDebugLog(szError);
+    int iWidth = rcGame.right - rcGame.left;
+    int iHeight = rcGame.bottom - rcGame.top;
 
+    /// Get DC for game window
+    HDC hDCScreen = GetDC(hWndGame);
+    if (!hDCScreen)
+    {
+        sprintf(szError, "GetDC fail! Error: %u", GetLastError());
+        SharedUtil::AddDebugLog(szError);
         Gdiplus::GdiplusShutdown(gdiplusToken);
         return false;
     }
 
-    auto hBitmap = CreateCompatibleBitmap(hDCScreen, iWidth, iHeight);
-    if (hBitmap == NULL)
-    {
-        sprintf(szError, "hBitmap fail! Error: %u", GetLastError());
-        SharedUtil::AddDebugLog(szError);
+    HDC     hDC = CreateCompatibleDC(hDCScreen);
+    HBITMAP hBitmap = CreateCompatibleBitmap(hDCScreen, iWidth, iHeight);
+    SelectObject(hDC, hBitmap);
 
-        Gdiplus::GdiplusShutdown(gdiplusToken);
-        return false;
-    }
-
-    auto hGdiObj = SelectObject(hDC, hBitmap);
-    if (BitBlt(hDC, 0, 0, iWidth, iHeight, hDCScreen, 0, 0, SRCCOPY) == FALSE)
+    if (!BitBlt(hDC, 0, 0, iWidth, iHeight, hDCScreen, 0, 0, SRCCOPY))
     {
         sprintf(szError, "BitBlt fail! Error: %u", GetLastError());
         SharedUtil::AddDebugLog(szError);
 
+        ReleaseDC(hWndGame, hDCScreen);
+        DeleteDC(hDC);
+        DeleteObject(hBitmap);
         Gdiplus::GdiplusShutdown(gdiplusToken);
         return false;
     }
 
+    /// Save to temp file
     auto         szTmpFileName = (std::filesystem::temp_directory_path() / SharedUtil::GenerateRandomString(8)).string();
     std::wstring wszName(szTmpFileName.begin(), szTmpFileName.end());
+
     if (!Screenshot::BitmapToJpg(wszName, hBitmap, iWidth, iHeight, 120))
     {
         sprintf(szError, "BitmapToJpg fail! Error: %u", GetLastError());
         SharedUtil::AddDebugLog(szError);
 
+        ReleaseDC(hWndGame, hDCScreen);
+        DeleteDC(hDC);
+        DeleteObject(hBitmap);
         Gdiplus::GdiplusShutdown(gdiplusToken);
         return false;
     }
 
-    /// Copy screenshot to Memory
-    std::string szOutput = "";
-    //auto        bF2mRet = CFileFunctions::File2Mem(szTmpFileName, &szOutput);
+    /// Copy to memory
     std::ifstream file(szTmpFileName, std::ios::binary | std::ios::ate);
     if (!file.is_open())
     {
-        return false;            // File could not be opened
+        return false;
     }
 
     std::streamsize size = file.tellg();
-    if (size < 0)
-    {
-        return false;            // Invalid file size
-    }
-
     file.seekg(0, std::ios::beg);
 
-    szOutput.resize(static_cast<size_t>(size));
-    if (!file.read(&(szOutput)[0], size))
+    std::string szOutput(size, '\0');
+    if (!file.read(&szOutput[0], size))
     {
-        return false;            // Failed to read the file
+        return false;
     }
 
     if (pszData)
         *pszData = szOutput;
 
-    /// Finalize
     DeleteFileA(szTmpFileName.c_str());
 
-    /// Deinit GDI+
+    /// Cleanup
+    ReleaseDC(hWndGame, hDCScreen);
+    DeleteDC(hDC);
+    DeleteObject(hBitmap);
+
     Gdiplus::GdiplusShutdown(gdiplusToken);
     return true;
 }
