@@ -354,52 +354,87 @@ bool isMemoryIntegrityEnabled()
 {
     bool hvciEnabled = false;
 
+    SharedUtil::AddDebugLog("Starting Memory Integrity (HVCI) check...");
+
     // -----------------------------
     // First: Check via WMI (Win32_DeviceGuard)
     // -----------------------------
     HRESULT hres = CoInitializeEx(0, COINIT_MULTITHREADED);
-    if (SUCCEEDED(hres))
+    if (FAILED(hres))
     {
-        hres = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
+        SharedUtil::AddDebugLog("CoInitializeEx failed: " , std::to_string(hres));
+        return false;
+    }
+    SharedUtil::AddDebugLog("CoInitializeEx succeeded.");
 
-        if (SUCCEEDED(hres))
+    hres = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
+    if (FAILED(hres))
+    {
+        SharedUtil::AddDebugLog("CoInitializeSecurity failed: " , std::to_string(hres));
+    }
+    else
+    {
+        SharedUtil::AddDebugLog("CoInitializeSecurity succeeded.");
+
+        IWbemLocator* pLoc = nullptr;
+        hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
+        if (FAILED(hres) || !pLoc)
         {
-            IWbemLocator* pLoc = nullptr;
-            hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
+            SharedUtil::AddDebugLog("CoCreateInstance for IWbemLocator failed: " , std::to_string(hres));
+        }
+        else
+        {
+            SharedUtil::AddDebugLog("IWbemLocator created successfully.");
 
-            if (SUCCEEDED(hres) && pLoc)
+            IWbemServices* pSvc = nullptr;
+            hres = pLoc->ConnectServer(_bstr_t(L"ROOT\\Microsoft\\Windows\\DeviceGuard"), NULL, NULL, 0, NULL, 0, 0, &pSvc);
+            if (FAILED(hres) || !pSvc)
             {
-                IWbemServices* pSvc = nullptr;
-                hres = pLoc->ConnectServer(_bstr_t(L"ROOT\\Microsoft\\Windows\\DeviceGuard"), NULL, NULL, 0, NULL, 0, 0, &pSvc);
+                SharedUtil::AddDebugLog("ConnectServer to ROOT\\Microsoft\\Windows\\DeviceGuard failed: " , std::to_string(hres));
+            }
+            else
+            {
+                SharedUtil::AddDebugLog("Connected to WMI namespace ROOT\\Microsoft\\Windows\\DeviceGuard.");
 
-                if (SUCCEEDED(hres) && pSvc)
+                hres = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
+                if (FAILED(hres))
                 {
-                    hres = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL,
-                                             EOAC_NONE);
+                    SharedUtil::AddDebugLog("CoSetProxyBlanket failed: " , std::to_string(hres));
+                }
+                else
+                {
+                    SharedUtil::AddDebugLog("CoSetProxyBlanket succeeded.");
 
-                    if (SUCCEEDED(hres))
+                    IEnumWbemClassObject* pEnumerator = nullptr;
+                    hres = pSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT * FROM Win32_DeviceGuard"), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
+                                           NULL, &pEnumerator);
+
+                    if (FAILED(hres) || !pEnumerator)
                     {
-                        IEnumWbemClassObject* pEnumerator = nullptr;
-                        hres = pSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT * FROM Win32_DeviceGuard"), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY,
-                                               NULL, &pEnumerator);
+                        SharedUtil::AddDebugLog("ExecQuery for Win32_DeviceGuard failed: " , std::to_string(hres));
+                    }
+                    else
+                    {
+                        SharedUtil::AddDebugLog("ExecQuery succeeded. Iterating results...");
 
-                        if (SUCCEEDED(hres) && pEnumerator)
+                        IWbemClassObject* pclsObj = nullptr;
+                        ULONG             uReturn = 0;
+
+                        while (true)
                         {
-                            IWbemClassObject* pclsObj = nullptr;
-                            ULONG             uReturn = 0;
+                            HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+                            if (uReturn == 0)
+                                break;
 
-                            while (pEnumerator)
+                            VARIANT vtProp;
+                            VariantInit(&vtProp);
+
+                            hr = pclsObj->Get(L"SecurityServicesRunning", 0, &vtProp, 0, 0);
+                            if (SUCCEEDED(hr))
                             {
-                                HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
-                                if (uReturn == 0)
-                                    break;
+                                SharedUtil::AddDebugLog("Retrieved SecurityServicesRunning property.");
 
-                                VARIANT vtProp;
-                                VariantInit(&vtProp);
-
-                                // Check SecurityServicesRunning
-                                hr = pclsObj->Get(L"SecurityServicesRunning", 0, &vtProp, 0, 0);
-                                if (SUCCEEDED(hr) && (vtProp.vt == (VT_ARRAY | VT_I4)))
+                                if (vtProp.vt == (VT_ARRAY | VT_I4))
                                 {
                                     SAFEARRAY* psa = vtProp.parray;
                                     LONG       lBound, uBound;
@@ -410,27 +445,43 @@ bool isMemoryIntegrityEnabled()
                                     {
                                         LONG val;
                                         SafeArrayGetElement(psa, &i, &val);
-                                        if (val == 2)            // 2 = HVCI (Memory Integrity)
+                                        SharedUtil::AddDebugLog("SecurityServiceRunning value: " , std::to_string(val));
+
+                                        if (val == 2)            // 2 = HVCI
+                                        {
                                             hvciEnabled = true;
+                                            SharedUtil::AddDebugLog("Detected HVCI running via WMI.");
+                                        }
                                     }
                                 }
-                                VariantClear(&vtProp);
-                                pclsObj->Release();
+                                else
+                                {
+                                    SharedUtil::AddDebugLog("SecurityServicesRunning not of expected type.");
+                                }
                             }
-                            pEnumerator->Release();
+                            else
+                            {
+                                SharedUtil::AddDebugLog("Failed to get SecurityServicesRunning property: " , std::to_string(hr));
+                            }
+
+                            VariantClear(&vtProp);
+                            pclsObj->Release();
                         }
-                        pSvc->Release();
+                        pEnumerator->Release();
                     }
                 }
-                pLoc->Release();
+                pSvc->Release();
             }
+            pLoc->Release();
         }
-        CoUninitialize();
     }
+    CoUninitialize();
 
     // -----------------------------
     // Second: Check via Registry
     // -----------------------------
+    SharedUtil::AddDebugLog("Checking registry key for HVCI...");
+
     HKEY hKey;
     if (RegOpenKeyExW(HKEY_LOCAL_MACHINE, L"SYSTEM\\CurrentControlSet\\Control\\DeviceGuard\\Scenarios\\HypervisorEnforcedCodeIntegrity", 0, KEY_READ, &hKey) ==
         ERROR_SUCCESS)
@@ -439,16 +490,28 @@ bool isMemoryIntegrityEnabled()
         DWORD size = sizeof(hvci);
         if (RegGetValueW(hKey, NULL, L"Enabled", RRF_RT_REG_DWORD, NULL, &hvci, &size) == ERROR_SUCCESS)
         {
+            SharedUtil::AddDebugLog("Registry HVCI Enabled value: " , std::to_string(hvci));
             if (hvci == 1)
+            {
                 hvciEnabled = true;
+                SharedUtil::AddDebugLog("Detected HVCI enabled via registry.");
+            }
+        }
+        else
+        {
+            SharedUtil::AddDebugLog("Failed to read 'Enabled' registry value.");
         }
         RegCloseKey(hKey);
     }
+    else
+    {
+        SharedUtil::AddDebugLog("Failed to open registry key for HVCI.");
+    }
 
     if (hvciEnabled)
-        SharedUtil::AddDebugLog("Memory Integrity (HVCI): Enabled");
+        SharedUtil::AddDebugLog("Memory Integrity (HVCI): ENABLED ✅");
     else
-        SharedUtil::AddDebugLog("Memory Integrity (HVCI): Disabled");
+        SharedUtil::AddDebugLog("Memory Integrity (HVCI): DISABLED ❌");
 
     return hvciEnabled;
 }
