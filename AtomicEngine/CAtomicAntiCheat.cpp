@@ -122,7 +122,12 @@ void CAtomicAntiCheat::DoPulse()
         }
 
         if (m_pAtomicNetwork->IsJoinedNetwork() && !m_pGuardManager->IsPulseStarted())
+        {
             m_pGuardManager->StartPulse();
+            SharedUtil::AddDebugLog("Starting Basic Checks...");
+            g_pAtomicAntiCheat->StartBasicChecks();
+            SharedUtil::AddDebugLog("End Basic Checks");
+        }
 
         m_pAtomicNetwork->DoPulse();
 

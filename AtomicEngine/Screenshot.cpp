@@ -2,8 +2,39 @@
 #include <GdiPlus.h>
 #include <fstream>
 
-
 using namespace Gdiplus;
+
+namespace
+{
+    struct EnumData
+    {
+        DWORD pid;
+        HWND  hwnd;
+    };
+
+    BOOL CALLBACK EnumWindowsProc(HWND hwnd, LPARAM lParam)
+    {
+        EnumData* data = reinterpret_cast<EnumData*>(lParam);
+        DWORD     windowPid = 0;
+        GetWindowThreadProcessId(hwnd, &windowPid);
+
+        // Filter only visible, top-level windows
+        if (windowPid == data->pid && GetWindow(hwnd, GW_OWNER) == nullptr && IsWindowVisible(hwnd))
+        {
+            data->hwnd = hwnd;
+            return FALSE;            // stop
+        }
+        return TRUE;            // continue
+    }
+
+    HWND GetMainWindowHandle(DWORD pid)
+    {
+        EnumData data{pid, nullptr};
+        EnumWindows(EnumWindowsProc, reinterpret_cast<LPARAM>(&data));
+        return data.hwnd;
+    }
+}
+
 
 int Screenshot::GetEncoderClsid(const WCHAR* format, CLSID* pClsid)
 {
@@ -82,9 +113,7 @@ bool Screenshot::CreateScreenshotEx(std::string* pszData, char* szError)
     }
 
     /// Find FiveM window
-    HWND hWndGame = FindWindowW(NULL, L"FiveM");            // Window title
-    if (!hWndGame)
-        hWndGame = FindWindowW(L"grcWindow", NULL);            // Class name fallback
+    HWND hWndGame = GetMainWindowHandle(SharedUtil::GetFivemProcessID());
 
     if (!hWndGame)
     {

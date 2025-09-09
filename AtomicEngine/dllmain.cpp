@@ -71,19 +71,17 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
         "=====================================\n");
     SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 1);
 
-    CLatencyEvaluator::SetupServerEndPoint([](std::string strBestEndPoint) -> void
-        { 
-            //strBestEndPoint += ":8002";
+    CLatencyEvaluator::SetupServerEndPoint(
+        [](std::string strBestEndPoint) -> void
+        {
+            strBestEndPoint += ":8002";
             g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint);
-        }, false);
+        },
+        false);
 
-    if (g_pAtomicAntiCheat->Initialize())
-    {
-        EnableDebugPrivilege();
-        SharedUtil::AddDebugLog("Starting Basic Checks...");
-        g_pAtomicAntiCheat->StartBasicChecks();
-        SharedUtil::AddDebugLog("End Basic Checks");
-    }
+    EnableDebugPrivilege();
+    g_pAtomicAntiCheat->Initialize();
+
     _beginthread((_beginthread_proc_type)CAtomicAntiCheat::StaticPulse, NULL, g_pAtomicAntiCheat);
 }
 
