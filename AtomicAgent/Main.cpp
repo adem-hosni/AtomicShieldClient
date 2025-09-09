@@ -65,7 +65,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
         }
     }
 
-    CLatencyEvaluator::SetupServerEndPoint();
+    CLatencyEvaluator::SetupServerEndPoint([](std::string strBestEndPoint) -> void { g_pAtomicAPI->SetServerEndPoint(strBestEndPoint); }, true);
 
     std::string processName = StartupManager::GetCurrentProcessName();
     bool        isStartup = false;

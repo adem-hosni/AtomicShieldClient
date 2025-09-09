@@ -546,8 +546,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             }
 
                             ImGui::SetCursorPos(ImVec2(212, 314));
+                            static const char* szLoadButtonText = SharedUtil::GetProcessID(skCrypt("AtomicSvc.exe")) ? "Restart" : "Start Now";
 
-                            if (ImGui::ButtonLogins("Start Now", ImVec2(238, 40)))
+                            if (ImGui::ButtonLogins(szLoadButtonText, ImVec2(238, 40)))
                             {
                                 if (!bDownloadFinish && !bDownloadStarted)
                                 {
