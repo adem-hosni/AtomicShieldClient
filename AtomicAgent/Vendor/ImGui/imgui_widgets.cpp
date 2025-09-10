@@ -1222,22 +1222,22 @@ bool ImGui::Button_Login(const char* label, ImTextureID image, const ImVec2& siz
     /*
     ImDrawList* draw_list = ImGui::GetWindowDrawList();
 
-    // Параметры закругления
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
     float radius = 10.0f;
 
-    // Точки для создания дуги
+    // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     ImVec2 center = ImVec2(100, 100);
     ImVec2 start_angle = ImVec2(center.x + radius, center.y);
     ImVec2 end_angle = ImVec2(center.x - radius, center.y);
 
-    // Добавляем закругленную форму
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
     draw_list->PathArcTo(center, radius, start_angle, end_angle, 4);
     draw_list->PathArcTo(center, radius, end_angle, start_angle, 4);
 
-    // Добавляем тень
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     draw_list->AddShadowRect(center - ImVec2(radius, radius), center + ImVec2(radius, radius));
 
-    // Заполняем закругленную форму цветом тени
+    // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     draw_list->AddConvexPolyFilled(draw_list->PathGetLast(), IM_COL32(0, 0, 0, 128));
 
     */
@@ -1436,25 +1436,25 @@ bool ImGui::SelectButton(ImTextureID image, ImColor condition, ImColor text_colo
     GetWindowDrawList()->AddText(ImVec2(bb.Min.x + 122, bb.Min.y + 46), ImColor(text_color), text);
 
     bool   topHalf = true;
-    ImVec2 center(bb.Min.x + 559, bb.Min.y + 43);            // Центр круга
-    float  radius = 27.f;                                    // Радиус
+    ImVec2 center(bb.Min.x + 559, bb.Min.y + 43);            // пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    float  radius = 27.f;                                    // пїЅпїЅпїЅпїЅпїЅпїЅ
 
     percent_circle = ImClamp(percent_circle, 0.0f, 1.0f);
 
-    const int   numSegments = 360;                                // Количество сегментов для округлой линии
-    const float angleStep = IM_PI * 2.f / numSegments;            // Половина PI для половинного круга
-    float       startAngle = topHalf ? 0.0f : IM_PI;              // Начальный угол, зависит от верхней или нижней половины
+    const int   numSegments = 360;                                // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    const float angleStep = IM_PI * 2.f / numSegments;            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ PI пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+    float       startAngle = topHalf ? 0.0f : IM_PI;              // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-    draw->PathClear();            // Очищаем путь
+    draw->PathClear();            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
     for (int i = 0; i <= numSegments * percent_circle; i++)
     {
         float angle = startAngle + (i * angleStep);
-        float x = center.x + radius * cosf(angle);            // Вычисляем координату X
-        float y = center.y + radius * sinf(angle);            // Вычисляем координату Y
-        draw->PathLineTo(ImVec2(x, y));                       // Добавляем точку в путь
+        float x = center.x + radius * cosf(angle);            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ X
+        float y = center.y + radius * sinf(angle);            // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Y
+        draw->PathLineTo(ImVec2(x, y));                       // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ
     }
 
-    draw->PathStroke(GetColorU32(c::circle), false, 3.0f);            // Рисуем полученный путь (закрашиваем линию)
+    draw->PathStroke(GetColorU32(c::circle), false, 3.0f);            // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ)
 
     draw->AddCircle(ImVec2(bb.Min.x + 559, bb.Min.y + 43), 27.f, GetColorU32(c::circle_in), 0, 3.6f);
 
@@ -1983,10 +1983,9 @@ bool ImGui::Cirlce_icon(const char* label, ImTextureID image, const ImVec2& size
     const ImVec2      label_size = CalcTextSize(label, NULL, true);
 
     ImVec2 pos = window->DC.CursorPos;
-    if ((flags & ImGuiButtonFlags_AlignTextBaseLine) &&
-        style.FramePadding.y < window->DC.CurrLineTextBaseOffset)            // Try to vertically align buttons that are smaller/have no padding so that text
-                                                                             // baseline matches (bit hacky, since it shouldn't be a flag)
+    if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset)
         pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+
     ImVec2       size = CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
     ImDrawList*  draw = GetWindowDrawList();
     const ImRect bb(pos, pos + size);
@@ -1994,15 +1993,12 @@ bool ImGui::Cirlce_icon(const char* label, ImTextureID image, const ImVec2& size
     if (!ItemAdd(bb, id))
         return false;
 
-    if (g.LastItemData.InFlags & ImGuiItemFlags_ButtonRepeat)
-        flags |= ImGuiButtonFlags_Repeat;
-
     bool hovered, held;
     bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
 
+    // Background animation (optional, keeps hover effect)
     static std::map<ImGuiID, button_state> anim;
     auto                                   it_anim = anim.find(id);
-
     if (it_anim == anim.end())
     {
         anim.insert({id, button_state()});
@@ -2012,20 +2008,19 @@ bool ImGui::Cirlce_icon(const char* label, ImTextureID image, const ImVec2& size
     it_anim->second.background =
         ImLerp(it_anim->second.background, IsItemActive() || hovered ? ImColor(255, 246, 180) : ImColor(255, 246, 180), g.IO.DeltaTime * 10.f);
 
-    it_anim->second.text =
-        ImLerp(it_anim->second.text, IsItemActive() || hovered ? ImColor(180, 218, 255, 195) : ImColor(180, 218, 255, 255), g.IO.DeltaTime * 10.f);
+    // Fixed gold color for icon
+    const ImU32 icon_color = ImGui::GetColorU32(ImVec4(1.f, 0.843f, 0.f, 1.f));            // Gold
 
-    const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
     RenderNavHighlight(bb, id);
 
-    GetWindowDrawList()->AddRectFilled(bb.Min, bb.Max, GetColorU32(c::bg_icon_button), 100.f);
+    draw->AddRectFilled(bb.Min, bb.Max, GetColorU32(c::bg_icon_button), 100.f);
 
-    GetWindowDrawList()->AddImage(image, bb.Min + ImVec2(7, 9), bb.Min + ImVec2(24, 22), ImVec2(0, 0), ImVec2(1, 1), GetColorU32(it_anim->second.text));
+    draw->AddImage(image, bb.Min + ImVec2(7, 9), bb.Min + ImVec2(24, 22), ImVec2(0, 0), ImVec2(1, 1), icon_color);
 
     if (g.LogEnabled)
         LogSetNextTextDecoration("[", "]");
-
     IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
+
     return pressed;
 }
 struct button_statess
@@ -2112,10 +2107,9 @@ bool ImGui::Exit_icon(const char* label, ImTextureID image, const ImVec2& size_a
     const ImVec2      label_size = CalcTextSize(label, NULL, true);
 
     ImVec2 pos = window->DC.CursorPos;
-    if ((flags & ImGuiButtonFlags_AlignTextBaseLine) &&
-        style.FramePadding.y < window->DC.CurrLineTextBaseOffset)            // Try to vertically align buttons that are smaller/have no padding so that text
-                                                                             // baseline matches (bit hacky, since it shouldn't be a flag)
+    if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset)
         pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+
     ImVec2       size = CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
     ImDrawList*  draw = GetWindowDrawList();
     const ImRect bb(pos, pos + size);
@@ -2123,40 +2117,22 @@ bool ImGui::Exit_icon(const char* label, ImTextureID image, const ImVec2& size_a
     if (!ItemAdd(bb, id))
         return false;
 
-    if (g.LastItemData.InFlags & ImGuiItemFlags_ButtonRepeat)
-        flags |= ImGuiButtonFlags_Repeat;
-
     bool hovered, held;
     bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
 
-    static std::map<ImGuiID, button_state> anim;
-    auto                                   it_anim = anim.find(id);
+    const ImU32 icon_color = ImGui::GetColorU32(ImVec4(1.f, 0.843f, 0.f, 1.f));            // Gold
 
-    if (it_anim == anim.end())
-    {
-        anim.insert({id, button_state()});
-        it_anim = anim.find(id);
-    }
-
-    it_anim->second.background =
-        ImLerp(it_anim->second.background, IsItemActive() || hovered ? ImColor(255, 246, 180) : ImColor(255, 246, 180), g.IO.DeltaTime * 10.f);
-
-    it_anim->second.text =
-        ImLerp(it_anim->second.text, IsItemActive() || hovered ? ImColor(180, 218, 255, 255) : ImColor(180, 218, 255, 120), g.IO.DeltaTime * 10.f);
-
-    const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
     RenderNavHighlight(bb, id);
 
-    GetWindowDrawList()->AddRect(bb.Min - ImVec2(1, 1), bb.Max + ImVec2(1, 1), GetColorU32(c::rect_icon_profile), 8.f);
+    draw->AddRect(bb.Min - ImVec2(1, 1), bb.Max + ImVec2(1, 1), GetColorU32(c::rect_icon_profile), 8.f);
+    draw->AddRectFilled(bb.Min, bb.Max, GetColorU32(c::bg_icon_profile), 8.f);
 
-    GetWindowDrawList()->AddRectFilled(bb.Min, bb.Max, GetColorU32(c::bg_icon_profile), 8.f);
-
-    GetWindowDrawList()->AddImage(image, bb.Min + ImVec2(9, 9), bb.Min + ImVec2(18, 18), ImVec2(0, 0), ImVec2(1, 1), GetColorU32(it_anim->second.text));
+    draw->AddImage(image, bb.Min + ImVec2(9, 9), bb.Min + ImVec2(18, 18), ImVec2(0, 0), ImVec2(1, 1), icon_color);
 
     if (g.LogEnabled)
         LogSetNextTextDecoration("[", "]");
-
     IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
+
     return pressed;
 }
 bool ImGui::Minimize_icon(const char* label, ImTextureID image, const ImVec2& size_arg, ImGuiButtonFlags flags)
@@ -2171,10 +2147,9 @@ bool ImGui::Minimize_icon(const char* label, ImTextureID image, const ImVec2& si
     const ImVec2      label_size = CalcTextSize(label, NULL, true);
 
     ImVec2 pos = window->DC.CursorPos;
-    if ((flags & ImGuiButtonFlags_AlignTextBaseLine) &&
-        style.FramePadding.y < window->DC.CurrLineTextBaseOffset)            // Try to vertically align buttons that are smaller/have no padding so that text
-                                                                             // baseline matches (bit hacky, since it shouldn't be a flag)
+    if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset)
         pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
+
     ImVec2       size = CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
     ImDrawList*  draw = GetWindowDrawList();
     const ImRect bb(pos, pos + size);
@@ -2182,40 +2157,22 @@ bool ImGui::Minimize_icon(const char* label, ImTextureID image, const ImVec2& si
     if (!ItemAdd(bb, id))
         return false;
 
-    if (g.LastItemData.InFlags & ImGuiItemFlags_ButtonRepeat)
-        flags |= ImGuiButtonFlags_Repeat;
-
     bool hovered, held;
     bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
 
-    static std::map<ImGuiID, button_state> anim;
-    auto                                   it_anim = anim.find(id);
+    const ImU32 icon_color = ImGui::GetColorU32(ImVec4(1.f, 0.843f, 0.f, 1.f));            // Gold
 
-    if (it_anim == anim.end())
-    {
-        anim.insert({id, button_state()});
-        it_anim = anim.find(id);
-    }
-
-    it_anim->second.background =
-        ImLerp(it_anim->second.background, IsItemActive() || hovered ? ImColor(255, 246, 180) : ImColor(255, 246, 180), g.IO.DeltaTime * 10.f);
-
-    it_anim->second.text =
-        ImLerp(it_anim->second.text, IsItemActive() || hovered ? ImColor(180, 218, 255, 255) : ImColor(180, 218, 255, 120), g.IO.DeltaTime * 10.f);
-
-    const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
     RenderNavHighlight(bb, id);
 
-    GetWindowDrawList()->AddRect(bb.Min - ImVec2(1, 1), bb.Max + ImVec2(1, 1), GetColorU32(c::rect_icon_profile), 8.f);
+    draw->AddRect(bb.Min - ImVec2(1, 1), bb.Max + ImVec2(1, 1), GetColorU32(c::rect_icon_profile), 8.f);
+    draw->AddRectFilled(bb.Min, bb.Max, GetColorU32(c::bg_icon_profile), 8.f);
 
-    GetWindowDrawList()->AddRectFilled(bb.Min, bb.Max, GetColorU32(c::bg_icon_profile), 8.f);
-
-    GetWindowDrawList()->AddImage(image, bb.Min + ImVec2(7, 12), bb.Min + ImVec2(20, 15), ImVec2(0, 0), ImVec2(1, 1), GetColorU32(it_anim->second.text));
+    draw->AddImage(image, bb.Min + ImVec2(7, 12), bb.Min + ImVec2(20, 15), ImVec2(0, 0), ImVec2(1, 1), icon_color);
 
     if (g.LogEnabled)
         LogSetNextTextDecoration("[", "]");
-
     IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
+
     return pressed;
 }
 struct checkbox_state12

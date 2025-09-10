@@ -60,6 +60,16 @@ struct easingv2_state
     ImVec2              current_vec;
 };
 
+// Debug options for CashLine text
+struct CashLineDebug
+{
+    float  textSize = 72.345f;
+    ImVec4 textColor = ImVec4(0.0f, 0.5f, 1.0f, 1.0f);
+    ImVec2 positionOffset = ImVec2(-66.0f, 0.0f);
+    ImVec2 boundingBoxSize = ImVec2(200.0f, 50.0f);
+} cashlineDebug;
+
+
 inline void EasingAnimationV2(std::string anim_name, ImVec2* current_vec, ImVec2 target_vec, float duration, imanim::EasingCurve::Type type, int loop)
 {
     ImGuiWindow*  window = ImGui::GetCurrentWindow();
@@ -362,10 +372,15 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
             CustomStyleColor();
             ImGui::SetNextWindowSize(ImVec2(WIDTH, HEIGHT));
             ImGui::SetNextWindowPos({0, 0});
+            // Debug window
+          
+
 
             ImGui::Begin("General", nullptr,
                          ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoScrollbar);
             {
+
+
                 auto draw = ImGui::GetWindowDrawList();
 
                 const auto& p = ImGui::GetWindowPos();
@@ -477,7 +492,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         if (ImGui::ButtonLogins("Accept", ImVec2(120, 35)))
                         {
                             bTosAccepted = true;
-                            SharedUtil::SetRegistryIntValue("CashLine_TOS","CashLine_TOS", 1);
+                            SharedUtil::SetRegistryIntValue("AtomicShield_TOS","AtomicShield_TOS", 1);
 
                             ImGui::CloseCurrentPopup();
                         }
@@ -523,15 +538,18 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         ImGui::GetWindowDrawList()->AddImageRounded(image::Logo, posmin, posmax, ImVec2(0, 0),
                                                                     ImVec2(1, 1), ImGui::GetColorU32(c::icon_welcome) /*color*/, 0 /*rounding*/);
 
-                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 160, p.y + 101), ImGui::GetColorU32(c::text_blue),
-                                                            "CASH LINE");
+                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium,
+                                                            cashlineDebug.textSize,            // <-- Replace with cashlineDebug.textSize
+                                                            ImVec2(p.x + 250 + cashlineDebug.positionOffset.x, p.y + 101 + cashlineDebug.positionOffset.y),
+                                                            ImGui::GetColorU32(c::text_blue), "CASH LINE");
+
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 380, p.y + 101), ImGui::GetColorU32(c::text_checkbox_active_on),
-                                                            "Agent");
+                                                            "");
 
                         if (bNoErrors)
                         {
                             ImGui::SetCursorPos(ImVec2(185, 285));
-                            if (Custom_Checkbox("lbl", "Enable Startup Mode", &bEnableStartup, ImVec2(270, -1)))
+                            if (Custom_Checkbox("lbl", "Aktivera Startläge", &bEnableStartup, ImVec2(270, -1)))
                             {
                                 if (bEnableStartup)
                                     StartupManager::AddAppToRegistry();
@@ -549,7 +567,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             }
 
                             ImGui::SetCursorPos(ImVec2(212, 314));
-                            static const char* szLoadButtonText = SharedUtil::GetProcessID(skCrypt("AtomicSvc.exe")) ? "Restart" : "Start Now";
+                            static const char* szLoadButtonText = SharedUtil::GetProcessID(skCrypt("AtomicSvc.exe")) ? "Starta Om" : "Starta Nu";
 
                             if (ImGui::ButtonLogins(szLoadButtonText, ImVec2(238, 40)))
                             {
@@ -607,16 +625,16 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                                                   15.f);
 
                         ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 262, p.y + 377), ImGui::GetColorU32(c::text_button),
-                                                            "Join our social");
-                        ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 347, p.y + 377), ImGui::GetColorU32(c::text_blue),
-                                                            "networks");
+                                                            "Gå med i våra sociala");
+                        ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 390, p.y + 377), ImGui::GetColorU32(c::text_blue),
+                                                            "nätverk");
 
                         ImGui::SetCursorPos(ImVec2(287, 431));
                         ImGui::BeginGroup();
                         {
                             if (ImGui::Cirlce_icon("discord", image::discord, ImVec2(31, 31), 0))
                             {
-                                OpenURL(skCrypt("https://discord.gg/YFCRffsZKK"));
+                                OpenURL(skCrypt("https://discord.gg/3bpRDXBEZc"));
                             }
 
                             ImGui::SameLine(0, 26);
@@ -718,7 +736,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                                 {
                                                     time_t injected_time = time(NULL);
                                                     bool   bFailure = false;
-                                                    while (!CheckIfLoaded("CashLine"))
+                                                    while (!CheckIfLoaded("AtomicShield"))
                                                     {
                                                         // Wait 5 seconds if the 0 value didnt changed to 1, so the injection faileds
                                                         bFailure = time(NULL) - injected_time > 5;
@@ -735,9 +753,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                                     }
                                                     else
                                                     {
-                                                        SharedUtil::SetRegistryIntValue("CashLine","CashLine", 0);
+                                                        SharedUtil::SetRegistryIntValue("AtomicShield","AtomicShield", 0);
                                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                                        strcat(szLoadingMessage, skCrypt("Have Fun! (You can close now)"));
+                                                        strcat(szLoadingMessage, skCrypt("Agent Aktiverad! [Du kan stänga nu]"));
                                                         page = 2;
                                                         active_anim_1 = true;
                                                     }
