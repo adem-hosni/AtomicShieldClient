@@ -116,7 +116,7 @@ namespace c
     inline ImVec4 rect_armor = ImColor(115, 151, 244, 255);
 
     inline ImVec4 text_button = ImColor(170, 145, 80, 205);             // Gold
-    inline ImVec4 text_blue = ImColor(255, 215, 0, 255);                // Gold (replacing blue)
+    inline ImVec4 text_blue = ImColor(255, 228, 80, 255);                // Gold (replacing blue)
     inline ImVec4 text_blue_1 = ImColor(255, 215, 0, 105);              // Gold with alpha
     inline ImVec4 bg_icon_button = ImColor(40, 35, 25, 255);            // Dark gold/brown
 
