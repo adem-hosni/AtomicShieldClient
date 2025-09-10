@@ -2609,7 +2609,7 @@ bool ImGui::Custom_Checkbox(const char* text, const char* label, bool* v, const 
                                     g.IO.DeltaTime * 12.f);
 
     it_anim->second.move = ImLerp(it_anim->second.move, *v ? 15.f : 0.f, g.IO.DeltaTime * 12.f);
-    it_anim->second.shadow = ImLerp(it_anim->second.shadow, *v ? ImColor(0, 132, 255, 200) : ImColor(0, 132, 255, 0), g.IO.DeltaTime * 12.f);
+    it_anim->second.shadow = ImLerp(it_anim->second.shadow, *v ? c::text_blue : c::text_blue, g.IO.DeltaTime * 12.f);
     const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
 
     // ImGui::SetCursorPos(ImVec2(check_bb.Min.x, check_bb.Min.y));

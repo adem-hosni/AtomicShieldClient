@@ -52,6 +52,7 @@ namespace image
     IDirect3DTexture9* minimize = nullptr;
     IDirect3DTexture9* discord = nullptr;
     IDirect3DTexture9* youtube = nullptr;
+    IDirect3DTexture9* tiktok = nullptr;
 }            // namespace image
 
 struct easingv2_state
@@ -308,6 +309,10 @@ bool GUI::Initialize()
         D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, youtube_icon, sizeof(youtube_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
                                             D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::youtube);
 
+    if (image::tiktok == nullptr)
+        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, tiktok_icon, sizeof(tiktok_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
+                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::tiktok);
+
     // CustomStyleColor();
 
     return true;
@@ -413,7 +418,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                 {
                     if (!bTosPopupOpened)
                     {
-                        ImGui::OpenPopup("Disclaimer & Legal Notice");
+                        ImGui::OpenPopup("Friskrivningsklausul och juridiskt meddelande");
                         bTosPopupOpened = true;
                     }
 
@@ -426,7 +431,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 40);
                     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
                     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.95f));
-                    bool popupShown = ImGui::BeginPopupModal("Disclaimer & Legal Notice", nullptr,
+                    bool popupShown = ImGui::BeginPopupModal("Friskrivningsklausul och juridiskt meddelande", nullptr,
                                                              ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |
                                                                  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
 
@@ -437,9 +442,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
 
                         ImGui::PushFont(Tektur_Medium);
-                        ImGui::SetCursorPosX((popupWidth - ImGui::CalcTextSize("Disclaimer & Legal Notice").x) * 0.5f);
+                        ImGui::SetCursorPosX((popupWidth - ImGui::CalcTextSize("Friskrivningsklausul och juridiskt meddelande").x) * 0.5f);
                         ImGui::PushStyleColor(ImGuiCol_Text, blue_color);
-                        ImGui::Text("Disclaimer & Legal Notice");
+                        ImGui::Text("Friskrivningsklausul och juridiskt meddelande");
                         ImGui::PopFont();
                         ImGui::PopStyleColor();
 
@@ -450,15 +455,14 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
 // First disclaimer line
                         ImGui::TextWrapped(
-                            "This software is an independent tool designed for private use only. It has no affiliation with any third-party services or "
-                            "platforms.");
+                            "Denna programvara är ett oberoende verktyg som endast är avsett för privat bruk. Den har ingen koppling till några tredjepartstjänster eller plattformar.");
 
                         // Manual layout — no TextWrapped
-                        ImGui::Text("By clicking 'Accept', you agree to our");
+                        ImGui::Text("Genom att klicka på 'Acceptera' godkänner du våra");
                         ImGui::SameLine();
 
                         ImGui::PushStyleColor(ImGuiCol_Text, blue_color);
-                        ImGui::Text("Terms of Service");
+                        ImGui::Text("Användarvillkor");
                         if (ImGui::IsItemHovered())
                             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
                         if (ImGui::IsItemClicked())
@@ -477,10 +481,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             OpenURL(skCrypt("https://atomic-shield.com/privacy/"));
                         ImGui::PopStyleColor();
 
-                        ImGui::TextWrapped("The developer & seller assumes no responsibility for any misuse.");
-
-
-
+                        ImGui::TextWrapped("Varken utvecklaren eller säljaren tar ansvar för eventuellt missbruk.");
 
                         ImGui::PopFont();
                         ImGui::PopStyleColor();
@@ -489,10 +490,10 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
                         ImGui::SetCursorPosX((popupWidth - 120) * 0.5f);
-                        if (ImGui::ButtonLogins("Accept", ImVec2(120, 35)))
+                        if (ImGui::ButtonLogins("Acceptera", ImVec2(120, 35)))
                         {
                             bTosAccepted = true;
-                            SharedUtil::SetRegistryIntValue("AtomicShield_TOS","AtomicShield_TOS", 1);
+                            SharedUtil::SetRegistryIntValue("CashLine_TOS", "CashLine_TOS", 1);
 
                             ImGui::CloseCurrentPopup();
                         }
@@ -561,7 +562,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             {
                                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 10));
                                 ImGui::BeginTooltip();
-                                ImGui::Text("Runs automatically on pc startup\nNo need to open the agent each time");
+                                ImGui::Text("Körs automatiskt vid datorstart\nInget behov av att öppna agenten varje gång");
                                 ImGui::EndTooltip();
                                 ImGui::PopStyleVar();
                             }
@@ -639,9 +640,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
                             ImGui::SameLine(0, 26);
 
-                            if (ImGui::Cirlce_icon("youtube", image::youtube, ImVec2(31, 31), 0))
+                            if (ImGui::Cirlce_icon("tiktok", image::tiktok, ImVec2(31, 31), 0))
                             {
-                                OpenURL(skCrypt("https://www.youtube.com/@atomic-shield"));
+                                OpenURL(skCrypt("https://www.tiktok.com/@cashlinerp"));
                             }
                         }
                         ImGui::EndGroup();

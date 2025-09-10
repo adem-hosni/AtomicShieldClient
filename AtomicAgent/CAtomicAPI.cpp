@@ -96,7 +96,7 @@ std::string CAtomicAPI::PostRequest(std::string strURL, jsoncons::json Data, SUs
 
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, WriteCallback);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_buffer);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, "CashLine");
+        curl_easy_setopt(curl, CURLOPT_USERAGENT, "AtomicShield");
 
         curl_easy_setopt(curl, CURLOPT_NOPROGRESS, 0L);
         curl_easy_setopt(curl, CURLOPT_XFERINFOFUNCTION, ProgressCallback);
