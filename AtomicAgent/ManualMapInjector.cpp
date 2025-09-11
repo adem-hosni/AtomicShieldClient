@@ -11,14 +11,14 @@ bool CheckIfLoaded(const char* ss)
     DWORD dwValue = 0;
 
 
-    if (RuntimeImportResolver::RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    if (RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
     {
-        if (RuntimeImportResolver::RegQueryValueExA(hKey, ss, 0, &dwType, (LPBYTE)&dwValue, &dwSize) == ERROR_SUCCESS)
+        if (RegQueryValueExA(hKey, ss, 0, &dwType, (LPBYTE)&dwValue, &dwSize) == ERROR_SUCCESS)
         {
-            RuntimeImportResolver::RegCloseKey(hKey);
+            RegCloseKey(hKey);
             return dwValue == 1;
         }
-        RuntimeImportResolver::RegCloseKey(hKey);
+        RegCloseKey(hKey);
     }
     return false;
 }
