@@ -1,88 +1,201 @@
+#include <windows.h>
+#include <comdef.h>
+#include <taskschd.h>
+#include <atlbase.h>
+#include <atlcom.h>
 #include <iostream>
-#include "StdInc.h">
-#include <shlwapi.h>
+#include "StdInc.h"
 #include <EngineLauncher.h>
 #include <GUI/GUI.h>
+#pragma comment(lib, "taskschd.lib")
+#pragma comment(lib, "comsupp.lib")
 #pragma comment(lib, "shlwapi.lib")
 
 bool StartupManager::IsAppInRegistry()
 {
-    HKEY hKey;
-    if (RegOpenKeyExA(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_READ, &hKey) ==
-        ERROR_SUCCESS)
+    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    if (FAILED(hr))
+        return false;
+
+    ITaskService* pService = nullptr;
+    hr = CoCreateInstance(CLSID_TaskScheduler, NULL, CLSCTX_INPROC_SERVER, IID_ITaskService, (void**)&pService);
+    if (FAILED(hr))
     {
-        DWORD dwType = 0;
-        DWORD dwSize = MAX_PATH;
-        WCHAR szValue[MAX_PATH] = {0};
-
-        if (RegQueryValueExA(hKey, "AtomicShield", NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS)
-        {
-            RegCloseKey(hKey);
-            return true;
-        }
-
-        RegCloseKey(hKey);
+        CoUninitialize();
+        return false;
     }
-    return false;
+
+    hr = pService->Connect(_variant_t(), _variant_t(), _variant_t(), _variant_t());
+    if (FAILED(hr))
+    {
+        pService->Release();
+        CoUninitialize();
+        return false;
+    }
+
+    ITaskFolder* pRootFolder = nullptr;
+    hr = pService->GetFolder(_bstr_t(L"\\"), &pRootFolder);
+    if (FAILED(hr))
+    {
+        pService->Release();
+        CoUninitialize();
+        return false;
+    }
+
+    IRegisteredTask* pTask = nullptr;
+    hr = pRootFolder->GetTask(_bstr_t(L"AtomicShield"), &pTask);
+
+    bool result = SUCCEEDED(hr);
+
+    if (pTask)
+        pTask->Release();
+    pRootFolder->Release();
+    pService->Release();
+    CoUninitialize();
+
+    return result;
 }
 
 bool StartupManager::AddAppToRegistry()
 {
-    HKEY        hKey;
-    std::string appPath = skCrypt("\"").decrypt();
+    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    if (FAILED(hr))
+        return false;
 
-    char szPath[MAX_PATH];
-    if (GetModuleFileName(NULL, szPath, MAX_PATH) == 0)
+    ITaskService* pService = nullptr;
+    hr = CoCreateInstance(CLSID_TaskScheduler, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskService, (void**)&pService);
+    if (FAILED(hr) || !pService)
     {
+        CoUninitialize();
         return false;
     }
 
-    appPath += szPath;
-    appPath += skCrypt("\" --startup").decrypt();
-
-    if (RegOpenKeyExA(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) ==
-        ERROR_SUCCESS)
+    hr = pService->Connect(_variant_t(), _variant_t(), _variant_t(), _variant_t());
+    if (FAILED(hr))
     {
-        if (RegSetValueExA(hKey, "AtomicShield", 0, REG_SZ, (const BYTE*)appPath.c_str(), (appPath.length() + 1) * sizeof(wchar_t)) ==
-            ERROR_SUCCESS)
-        {
-            RegCloseKey(hKey);
-            return true;
-        }
-        RegCloseKey(hKey);
+        pService->Release();
+        CoUninitialize();
+        return false;
     }
-    return false;
+
+    ITaskFolder* pRootFolder = nullptr;
+    hr = pService->GetFolder(_bstr_t(L"\\"), &pRootFolder);
+    if (FAILED(hr) || !pRootFolder)
+    {
+        pService->Release();
+        CoUninitialize();
+        return false;
+    }
+
+    // Delete old task if exists
+    pRootFolder->DeleteTask(_bstr_t(L"AtomicShield"), 0);
+
+    ITaskDefinition* pTask = nullptr;
+    hr = pService->NewTask(0, &pTask);
+    if (FAILED(hr) || !pTask)
+    {
+        pRootFolder->Release();
+        pService->Release();
+        CoUninitialize();
+        return false;
+    }
+
+    // Create logon trigger
+    ITriggerCollection* pTriggerCollection = nullptr;
+    hr = pTask->get_Triggers(&pTriggerCollection);
+    if (SUCCEEDED(hr) && pTriggerCollection)
+    {
+        ITrigger* pTrigger = nullptr;
+        hr = pTriggerCollection->Create(TASK_TRIGGER_LOGON, &pTrigger);
+        if (pTrigger)
+            pTrigger->Release();
+        pTriggerCollection->Release();
+    }
+
+    // Action (start exe)
+    IActionCollection* pActionCollection = nullptr;
+    hr = pTask->get_Actions(&pActionCollection);
+    if (SUCCEEDED(hr) && pActionCollection)
+    {
+        IAction* pAction = nullptr;
+        hr = pActionCollection->Create(TASK_ACTION_EXEC, &pAction);
+        if (SUCCEEDED(hr) && pAction)
+        {
+            IExecAction* pExecAction = nullptr;
+            hr = pAction->QueryInterface(IID_IExecAction, (void**)&pExecAction);
+            if (SUCCEEDED(hr) && pExecAction)
+            {
+                char szPath[MAX_PATH];
+                if (GetModuleFileNameA(nullptr, szPath, MAX_PATH) != 0)
+                {
+                    std::wstring wPath(szPath, szPath + strlen(szPath));
+
+                    // Set path and args
+                    pExecAction->put_Path(_bstr_t(szPath));
+                    pExecAction->put_Arguments(_bstr_t(L"--startup"));
+                }
+                pExecAction->Release();
+            }
+            pAction->Release();
+        }
+        pActionCollection->Release();
+    }
+
+    // Register task
+    IRegisteredTask* pRegisteredTask = nullptr;
+    hr = pRootFolder->RegisterTaskDefinition(_bstr_t(L"AtomicShield"), pTask, TASK_CREATE_OR_UPDATE, _variant_t(), _variant_t(), TASK_LOGON_INTERACTIVE_TOKEN,
+                                             _variant_t(L""), &pRegisteredTask);
+
+    if (pRegisteredTask)
+        pRegisteredTask->Release();
+    pTask->Release();
+    pRootFolder->Release();
+    pService->Release();
+    CoUninitialize();
+
+    return SUCCEEDED(hr);
 }
 
 bool StartupManager::RemoveAppFromRegistry()
 {
-    HKEY hKey;
+    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
+    if (FAILED(hr))
+        return false;
 
-    if (RegOpenKeyExA(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) ==
-        ERROR_SUCCESS)
+    ITaskService* pService = nullptr;
+    hr = CoCreateInstance(CLSID_TaskScheduler, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskService, (void**)&pService);
+    if (FAILED(hr) || !pService)
     {
-        // Try to delete the value
-        LONG result = RegDeleteValueA(hKey, "AtomicShield");
-        RegCloseKey(hKey);
-
-        // Return true if deleted successfully or if the value didn't exist
-        return (result == ERROR_SUCCESS || result == ERROR_FILE_NOT_FOUND);
+        CoUninitialize();
+        return false;
     }
 
-    return false;
+    hr = pService->Connect(_variant_t(), _variant_t(), _variant_t(), _variant_t());
+    if (FAILED(hr))
+    {
+        pService->Release();
+        CoUninitialize();
+        return false;
+    }
+
+    ITaskFolder* pRootFolder = nullptr;
+    hr = pService->GetFolder(_bstr_t(L"\\"), &pRootFolder);
+    if (FAILED(hr) || !pRootFolder)
+    {
+        pService->Release();
+        CoUninitialize();
+        return false;
+    }
+
+    hr = pRootFolder->DeleteTask(_bstr_t(L"AtomicShield"), 0);
+
+    pRootFolder->Release();
+    pService->Release();
+    CoUninitialize();
+
+    return SUCCEEDED(hr) || hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
 }
 
-std::string StartupManager::GetCurrentProcessName()
-{
-    char szPath[MAX_PATH];
-    if (GetModuleFileName(NULL, szPath, MAX_PATH) == 0)
-    {
-        SharedUtil::AddDebugLog(skCrypt("[Latinos] Error retrieving executable path"));
-        return "";
-    }
-    std::string fileName = PathFindFileName(szPath);
-    return fileName;
-}
 
 void StartupManager::StartupFunction()
 {
@@ -166,4 +279,16 @@ void StartupManager::StartupFunction()
     {
         SharedUtil::AddDebugLog("[Startup] Load failed: %d, error: 0x%llX", iLoadResult, lastErr);
     }
+}
+
+std::string StartupManager::GetCurrentProcessName()
+{
+    char szPath[MAX_PATH];
+    if (GetModuleFileName(NULL, szPath, MAX_PATH) == 0)
+    {
+        SharedUtil::AddDebugLog(skCrypt("[CashLine] Error retrieving executable path"));
+        return "";
+    }
+    std::string fileName = PathFindFileName(szPath);
+    return fileName;
 }
