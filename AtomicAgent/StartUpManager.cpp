@@ -8,20 +8,20 @@
 bool StartupManager::IsAppInRegistry()
 {
     HKEY hKey;
-    if (RuntimeImportResolver::RegOpenKeyExA(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_READ, &hKey) ==
+    if (RegOpenKeyExA(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_READ, &hKey) ==
         ERROR_SUCCESS)
     {
         DWORD dwType = 0;
         DWORD dwSize = MAX_PATH;
         WCHAR szValue[MAX_PATH] = {0};
 
-        if (RuntimeImportResolver::RegQueryValueExA(hKey, "AtomicShield", NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS)
+        if (RegQueryValueExA(hKey, "AtomicShield", NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS)
         {
-            RuntimeImportResolver::RegCloseKey(hKey);
+            RegCloseKey(hKey);
             return true;
         }
 
-        RuntimeImportResolver::RegCloseKey(hKey);
+        RegCloseKey(hKey);
     }
     return false;
 }
@@ -40,16 +40,16 @@ bool StartupManager::AddAppToRegistry()
     appPath += szPath;
     appPath += skCrypt("\" --startup").decrypt();
 
-    if (RuntimeImportResolver::RegOpenKeyExA(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) ==
+    if (RegOpenKeyExA(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) ==
         ERROR_SUCCESS)
     {
-        if (RuntimeImportResolver::RegSetValueExA(hKey, "AtomicShield", 0, REG_SZ, (const BYTE*)appPath.c_str(), (appPath.length() + 1) * sizeof(wchar_t)) ==
+        if (RegSetValueExA(hKey, "AtomicShield", 0, REG_SZ, (const BYTE*)appPath.c_str(), (appPath.length() + 1) * sizeof(wchar_t)) ==
             ERROR_SUCCESS)
         {
-            RuntimeImportResolver::RegCloseKey(hKey);
+            RegCloseKey(hKey);
             return true;
         }
-        RuntimeImportResolver::RegCloseKey(hKey);
+        RegCloseKey(hKey);
     }
     return false;
 }
@@ -58,12 +58,12 @@ bool StartupManager::RemoveAppFromRegistry()
 {
     HKEY hKey;
 
-    if (RuntimeImportResolver::RegOpenKeyExA(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) ==
+    if (RegOpenKeyExA(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) ==
         ERROR_SUCCESS)
     {
         // Try to delete the value
-        LONG result = RuntimeImportResolver::RegDeleteValueA(hKey, "AtomicShield");
-        RuntimeImportResolver::RegCloseKey(hKey);
+        LONG result = RegDeleteValueA(hKey, "AtomicShield");
+        RegCloseKey(hKey);
 
         // Return true if deleted successfully or if the value didn't exist
         return (result == ERROR_SUCCESS || result == ERROR_FILE_NOT_FOUND);
