@@ -1,15 +1,14 @@
 ﻿#include "LiteRegedit.h"
-#include "RuntimeImportResolver.h"
 
 CLiteRegedit::CLiteRegedit(HKEY hKey, LPCSTR lpSubKey)
 {
     _hKey = 0;
-    RegCreateKeyExA(hKey, lpSubKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &_hKey, NULL);
+    RegCreateKeyExA(hKey, lpSubKey, 0, NULL, REG_OPTION_NON_VOLATILE, KEY_READ, NULL, &_hKey, NULL);
 }
 CLiteRegedit::~CLiteRegedit()
 {
     if (_hKey != NULL)
-        RuntimeImportResolver::RegCloseKey(_hKey);
+        RegCloseKey(_hKey);
 }
 
 bool CLiteRegedit::GetRegister(LPCSTR lpName, DWORD dwType, void* outBuf, DWORD maxSize)
@@ -32,7 +31,7 @@ bool CLiteRegedit::SetRegister(LPCSTR lpName, DWORD dwType, void* inBuf, DWORD s
     if (!AutoSizeWrite(dwType, inBuf, size))
         return false;
 
-    return !RuntimeImportResolver::RegSetValueExA(_hKey, lpName, 0, dwType, (byte*)inBuf, size);
+    return !RegSetValueExA(_hKey, lpName, 0, dwType, (byte*)inBuf, size);
 }
 
 bool CLiteRegedit::GetRegisterDefault(LPSTR outBuf, LONG maxSize)
@@ -40,14 +39,14 @@ bool CLiteRegedit::GetRegisterDefault(LPSTR outBuf, LONG maxSize)
     if (outBuf == nullptr || _hKey == NULL)
         return false;
 
-    return !RuntimeImportResolver::RegQueryValueA(_hKey, NULL, (LPSTR)outBuf, &maxSize);
+    return !RegQueryValueA(_hKey, NULL, (LPSTR)outBuf, &maxSize);
 }
 bool CLiteRegedit::SetRegisterDefault(LPCSTR inBuf)
 {
     if (inBuf == nullptr || _hKey == NULL)
         return false;
 
-    return !RuntimeImportResolver::RegSetValueA(_hKey, NULL, REG_SZ, inBuf, strlen(inBuf));
+    return !RegSetValueA(_hKey, NULL, REG_SZ, inBuf, strlen(inBuf));
 }
 
 bool CLiteRegedit::DeleteRegister(LPCSTR lpName)
@@ -57,7 +56,7 @@ bool CLiteRegedit::DeleteRegister(LPCSTR lpName)
     if (!strlen(lpName))
         return false;
 
-    return !RuntimeImportResolver::RegDeleteKeyValueA(_hKey, NULL, lpName);
+    return !RegDeleteKeyValueA(_hKey, NULL, lpName);
 }
 bool CLiteRegedit::AutoSizeWrite(DWORD dwType, void* inBuf, DWORD& size)
 {

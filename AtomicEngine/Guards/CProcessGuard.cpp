@@ -116,6 +116,9 @@ void CProcessGuard::DoPulse()
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
     while (g_pAtomicAntiCheat->RunScanners())
     {
+        while (!g_pAtomicAntiCheat->IsValidProcessHandle())
+            std::this_thread::sleep_for(std::chrono::seconds(1));
+
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));

@@ -54,6 +54,7 @@ void CHeuristicGuard::DoPulse()
 
     while (g_pAtomicAntiCheat->RunScanners())
     {
+        HANDLE hProcess = g_pAtomicAntiCheat->GetProcessHandle();
         while (!g_pAtomicAntiCheat->IsValidProcessHandle())
             std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -64,7 +65,6 @@ void CHeuristicGuard::DoPulse()
         std::vector<RegionInfo>  regions;
         MEMORY_BASIC_INFORMATION MemoryRegion{};
         GetSystemInfo(&sysInfo);
-        HANDLE hProcess = g_pAtomicAntiCheat->GetProcessHandle();
 
         for (LPVOID addr = sysInfo.lpMinimumApplicationAddress; addr < sysInfo.lpMaximumApplicationAddress;
              addr = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + MemoryRegion.RegionSize)
@@ -74,7 +74,10 @@ void CHeuristicGuard::DoPulse()
             SIZE_T returnLength = 0;
 
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, rSize, &returnLength)))
+            {
+                //SharedUtil::AddDebugLog("Failed to query vm at 0x%x", baseAddress);
                 continue;
+            }
 
             if (MemoryRegion.RegionSize < 400 * 1024)
                 continue;
@@ -144,11 +147,15 @@ void CHeuristicGuard::DoPulse()
                 PVOID       buffer = nullptr;
 
                 if (!NT_SUCCESS(SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE)))
+                {
+                    SharedUtil::AddDebugLog("Failed to allocate vm in 0x%p", buffer);
                     continue;
+                }
 
                 SIZE_T bytesRead = 0;
                 if (!NT_SUCCESS(SysNtReadVirtualMemory(hProcess, region.mbi.BaseAddress, buffer, allocationSize, &bytesRead)) || bytesRead == 0)
                 {
+                    SharedUtil::AddDebugLog("Failed to read vm in 0x%x with size 0x%x", region.mbi.BaseAddress, allocationSize);
                     SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
                     continue;
                 }

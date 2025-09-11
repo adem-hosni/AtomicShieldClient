@@ -427,11 +427,11 @@ void SharedUtil::SetRegistryIntValue(const char* ss,const char* szKey, int iValu
 {
     HKEY hKey;
 
-    if (RuntimeImportResolver::RegCreateKeyExA(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) ==
+    if (RegCreateKeyExA(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) ==
         ERROR_SUCCESS)
     {
-        RuntimeImportResolver::RegSetValueExA(hKey, szKey, 0, REG_DWORD, (const BYTE*)&iValue, sizeof(iValue));
-        RuntimeImportResolver::RegCloseKey(hKey);
+        RegSetValueExA(hKey, szKey, 0, REG_DWORD, (const BYTE*)&iValue, sizeof(iValue));
+        RegCloseKey(hKey);
     }
     else
     {

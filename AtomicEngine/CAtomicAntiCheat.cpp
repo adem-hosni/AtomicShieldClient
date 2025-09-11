@@ -81,7 +81,9 @@ void CAtomicAntiCheat::DoPulse()
             continue;
         }
 
-        if (m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
+        DWORD dwProcessHandleFlags;
+
+        if (!GetHandleInformation(m_hProcess, &dwProcessHandleFlags) || m_hProcess == NULL || m_hProcess == INVALID_HANDLE_VALUE)
         {
             m_ClientId.UniqueProcess = reinterpret_cast<HANDLE>(static_cast<ULONG_PTR>(m_iTargetProcessID));
             NTSTATUS status = SysNtOpenProcess(&m_hProcess, PROCESS_ALL_ACCESS, &m_ObjAttr, &m_ClientId);
@@ -141,7 +143,6 @@ void CAtomicAntiCheat::DoPulse()
         {
             RunScanners(false);
         }
-
     }
 }
 
