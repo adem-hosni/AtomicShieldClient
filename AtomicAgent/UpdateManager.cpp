@@ -6,7 +6,7 @@ void UpdateManager::InstallAgent(std::string& AgentBuffer, std::string& strTitle
     {
         SharedUtil::AddDebugLog(skCrypt("Failed to download agent, buffer is empty."));
         strTitleStatus = skCrypt("Agent Installation Failed");
-        strMessageStatus = skCrypt("The CashLine Agent could not be downloaded. Please check your internet connection and try again.");
+        strMessageStatus = skCrypt("The Latinos Agent could not be downloaded. Please check your internet connection and try again.");
         return;
     }
 
@@ -17,7 +17,7 @@ void UpdateManager::InstallAgent(std::string& AgentBuffer, std::string& strTitle
     {
         SharedUtil::AddDebugLog(skCrypt("Failed to get module file name, error code: %d"), GetLastError());
         strTitleStatus = skCrypt("Agent Installation Failed");
-        strMessageStatus = skCrypt("Failed to determine the installation path for the CashLine Agent. Please try again.");
+        strMessageStatus = skCrypt("Failed to determine the installation path for the Latinos Agent. Please try again.");
         return;
     }
 
@@ -31,7 +31,7 @@ void UpdateManager::InstallAgent(std::string& AgentBuffer, std::string& strTitle
     {
         SharedUtil::AddDebugLog(skCrypt("Failed to rename existing agent file, error code: %d"), GetLastError());
         strTitleStatus = skCrypt("Agent Installation Failed");
-        strMessageStatus = skCrypt("Failed to rename the existing CashLine Agent file. Please check your permissions and try again.");
+        strMessageStatus = skCrypt("Failed to rename the existing Latinos Agent file. Please check your permissions and try again.");
         return;
     }
 
@@ -40,16 +40,16 @@ void UpdateManager::InstallAgent(std::string& AgentBuffer, std::string& strTitle
     {
         SharedUtil::AddDebugLog(skCrypt("Failed to open file for writing: %s, error code: %d"), szAgentPath, GetLastError());
         strTitleStatus = skCrypt("Agent Installation Failed");
-        strMessageStatus = skCrypt("Failed to open the installation file for the CashLine Agent. Please check your permissions and try again.");
+        strMessageStatus = skCrypt("Failed to open the installation file for the Latinos Agent. Please check your permissions and try again.");
         return;
     }
     size_t written = fwrite(AgentBuffer.data(), 1, AgentBuffer.length(), pFile);
     fclose(pFile);
     
-    SharedUtil::AddDebugLog(skCrypt("Successfully installed CashLine Agent to %s"), szAgentPath);
+    SharedUtil::AddDebugLog(skCrypt("Successfully installed Latinos Agent to %s"), szAgentPath);
     
-    strTitleStatus = skCrypt("CashLine Agent Installed");
-    strMessageStatus = skCrypt("The CashLine Agent has been successfully installed. Please restart the application to apply changes.");
+    strTitleStatus = skCrypt("Latinos Agent Installed");
+    strMessageStatus = skCrypt("The Latinos Agent has been successfully installed. Please restart the application to apply changes.");
 
     // Open the agent executable as admin and pass the old agent path as an argument
     ShellExecute(NULL, "runas", szAgentPath, (std::string("--old ") + std::string(szAgentPath) + ".old").c_str(), NULL, SW_SHOWNORMAL);

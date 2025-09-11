@@ -10,6 +10,7 @@ bool CheckIfLoaded(const char* ss)
     DWORD dwSize = sizeof(DWORD);
     DWORD dwValue = 0;
 
+
     if (RuntimeImportResolver::RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
     {
         if (RuntimeImportResolver::RegQueryValueExA(hKey, ss, 0, &dwType, (LPBYTE)&dwValue, &dwSize) == ERROR_SUCCESS)

@@ -186,7 +186,7 @@ void SharedUtil::AddDebugLog(const char* szLog, ...)
 
     char szLogDirectory[MAX_PATH];
     memset(szLogDirectory, 0, MAX_PATH);
-    sprintf(szLogDirectory, "%s\\CashLine", localAppDataPath);
+    sprintf(szLogDirectory, "%s\\Latinos", localAppDataPath);
 
     CreateDirectory(szLogDirectory, NULL);
 
@@ -233,7 +233,7 @@ bool SharedUtil::GetDebugLogs(std::string& szLog)
         return false;
     char szLogDirectory[MAX_PATH];
     memset(szLogDirectory, 0, MAX_PATH);
-    sprintf(szLogDirectory, "%s\\CashLine", localAppDataPath);
+    sprintf(szLogDirectory, "%s\\Latinos", localAppDataPath);
     char szNewFile[600];
     memset(szNewFile, 0, sizeof(szNewFile));
     sprintf(szNewFile, "%s\\Trace.logs", szLogDirectory);

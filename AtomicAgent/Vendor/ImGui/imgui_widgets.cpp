@@ -2009,7 +2009,7 @@ bool ImGui::Cirlce_icon(const char* label, ImTextureID image, const ImVec2& size
         ImLerp(it_anim->second.background, IsItemActive() || hovered ? ImColor(255, 246, 180) : ImColor(255, 246, 180), g.IO.DeltaTime * 10.f);
 
     // Fixed gold color for icon
-    const ImU32 icon_color = ImGui::GetColorU32(ImVec4(1.f, 0.843f, 0.f, 1.f));            // Gold
+    const ImU32 icon_color = ImGui::GetColorU32(ImVec4(0.051f, 0.051f, 0.051f, 1.0f));            // #0D0D0D
 
     RenderNavHighlight(bb, id);
 
@@ -2120,7 +2120,7 @@ bool ImGui::Exit_icon(const char* label, ImTextureID image, const ImVec2& size_a
     bool hovered, held;
     bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
 
-    const ImU32 icon_color = ImGui::GetColorU32(ImVec4(1.f, 0.843f, 0.f, 1.f));            // Gold
+const ImU32 icon_color = ImGui::GetColorU32(ImVec4(115.0f / 255.0f, 115.0f / 255.0f, 115.0f / 255.0f, 1.0f));            // #737373
 
     RenderNavHighlight(bb, id);
 
@@ -2160,7 +2160,7 @@ bool ImGui::Minimize_icon(const char* label, ImTextureID image, const ImVec2& si
     bool hovered, held;
     bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
 
-    const ImU32 icon_color = ImGui::GetColorU32(ImVec4(1.f, 0.843f, 0.f, 1.f));            // Gold
+const ImU32 icon_color = ImGui::GetColorU32(ImVec4(115.0f / 255.0f, 115.0f / 255.0f, 115.0f / 255.0f, 1.0f));            // #737373
 
     RenderNavHighlight(bb, id);
 
