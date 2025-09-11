@@ -17,6 +17,18 @@ namespace RuntimeImportResolver
                                                IN PVOID StartRoutine, IN PVOID Argument, IN ULONG CreateFlags, IN SIZE_T ZeroBits, IN SIZE_T StackSize,
                                                IN SIZE_T MaximumStackSize, IN PVOID AttributeList);
 
+    typedef LSTATUS (*pRegQueryValueExA)(HKEY, LPCSTR, LPDWORD, LPDWORD, LPBYTE, LPDWORD);
+    typedef LSTATUS (*pRegCloseKey)(HKEY hKey);
+    typedef LSTATUS (*pRegSetValueExA)(HKEY, LPCSTR, DWORD, DWORD, const BYTE*, DWORD);
+    typedef LSTATUS (*pRegCreateKeyExA)(HKEY, LPCSTR, DWORD, LPSTR, DWORD, REGSAM, CONST LPSECURITY_ATTRIBUTES, PHKEY, LPDWORD);
+    typedef LSTATUS (*pRegOpenKeyExA)(HKEY, LPCSTR, DWORD, REGSAM, PHKEY);
+
+    typedef LSTATUS (*pRegQueryValueA)(HKEY hKey, LPCSTR lpSubKey, LPSTR lpData, PLONG lpcbData);
+    typedef LSTATUS (*pRegSetValueA)(HKEY hKey, LPCSTR lpSubKey, DWORD dwType, LPCSTR lpData, DWORD cbData);
+
+    typedef LSTATUS (*pRegDeleteKeyValueA)(HKEY hKey, LPCSTR lpSubKey, LPCSTR lpValueName);
+    typedef LSTATUS (*pRegDeleteValueA)(HKEY hKey, LPCSTR lpValueName);
+
     inline f_VirtualAllocEx      VirtualAllocEx = nullptr;
     inline f_VirtualFreeEx       VirtualFreeEx = nullptr;
     inline f_VirtualProtectEx    VirtualProtectEx = nullptr;
@@ -27,6 +39,17 @@ namespace RuntimeImportResolver
     inline f_gethostname         gethostname = nullptr;
     inline f_ShellExecuteExW     ShellExecuteExW = nullptr;
     inline pNtCreateThreadEx     NtCreateThreadEx = nullptr;
+
+    inline pRegQueryValueExA RegQueryValueExA = nullptr;
+    inline pRegCloseKey      RegCloseKey = nullptr;
+    inline pRegSetValueExA   RegSetValueExA = nullptr;
+    inline pRegCreateKeyExA  RegCreateKeyExA = nullptr;
+    inline pRegOpenKeyExA    RegOpenKeyExA = nullptr;
+
+    inline pRegQueryValueA     RegQueryValueA = nullptr;
+    inline pRegSetValueA       RegSetValueA = nullptr;
+    inline pRegDeleteKeyValueA RegDeleteKeyValueA = nullptr;
+    inline pRegDeleteValueA    RegDeleteValueA = nullptr;
 
     static LPVOID ResolveFunction(const char* szLibrary, const char* szFunctionName)
     {
@@ -52,16 +75,31 @@ namespace RuntimeImportResolver
 
     static void ResolveCurrentImports()
     {
-        RuntimeImportResolver::VirtualAllocEx = (f_VirtualAllocEx)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("VirtualAllocEx"));
-        RuntimeImportResolver::VirtualFreeEx = (f_VirtualFreeEx)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("VirtualFreeEx"));
-        RuntimeImportResolver::VirtualProtectEx = (f_VirtualProtectEx)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("VirtualProtectEx"));
-        RuntimeImportResolver::VirtualQueryEx = (f_VirtualQueryEx)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("VirtualQueryEx"));
-        RuntimeImportResolver::WriteProcessMemory = (f_WriteProcessMemory)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("WriteProcessMemory"));
-        RuntimeImportResolver::ReadProcessMemory = (f_ReadProcessMemory)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("ReadProcessMemory"));
-        RuntimeImportResolver::RtlAddFunctionTable = (f_RtlAddFunctionTable)ResolveFunction(skCrypt("ntdll.dll"), skCrypt("RtlAddFunctionTable"));
-        RuntimeImportResolver::gethostname = (f_gethostname)ResolveFunction(skCrypt("Ws2_32.dll"), skCrypt("gethostname"));
-        RuntimeImportResolver::ShellExecuteExW = (f_ShellExecuteExW)ResolveFunction(skCrypt("shell32.dll"), skCrypt("ShellExecuteExW"));
-        RuntimeImportResolver::NtCreateThreadEx = (pNtCreateThreadEx)ResolveFunction(skCrypt("ntdll.dll"), skCrypt("NtCreateThreadEx"));
+        VirtualAllocEx = (f_VirtualAllocEx)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("VirtualAllocEx"));
+        VirtualFreeEx = (f_VirtualFreeEx)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("VirtualFreeEx"));
+        VirtualProtectEx = (f_VirtualProtectEx)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("VirtualProtectEx"));
+        VirtualQueryEx = (f_VirtualQueryEx)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("VirtualQueryEx"));
+        WriteProcessMemory = (f_WriteProcessMemory)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("WriteProcessMemory"));
+        ReadProcessMemory = (f_ReadProcessMemory)ResolveFunction(skCrypt("kernel32.dll"), skCrypt("ReadProcessMemory"));
+        RtlAddFunctionTable = (f_RtlAddFunctionTable)ResolveFunction(skCrypt("ntdll.dll"), skCrypt("RtlAddFunctionTable"));
+        gethostname = (f_gethostname)ResolveFunction(skCrypt("Ws2_32.dll"), skCrypt("gethostname"));
+        ShellExecuteExW = (f_ShellExecuteExW)ResolveFunction(skCrypt("shell32.dll"), skCrypt("ShellExecuteExW"));
+        NtCreateThreadEx = (pNtCreateThreadEx)ResolveFunction(skCrypt("ntdll.dll"), skCrypt("NtCreateThreadEx"));
+
+    }
+
+    static void ResolveStage1()
+    {
+        RegQueryValueExA = (pRegQueryValueExA)ResolveFunction(skCrypt("advapi32.dll"), skCrypt("RegQueryValueExA"));
+        RegCloseKey = (pRegCloseKey)ResolveFunction(skCrypt("advapi32.dll"), skCrypt("RegCloseKey"));
+        RegSetValueExA = (pRegSetValueExA)ResolveFunction(skCrypt("advapi32.dll"), skCrypt("RegSetValueExA"));
+        RegCreateKeyExA = (pRegCreateKeyExA)ResolveFunction(skCrypt("advapi32.dll"), skCrypt("RegCreateKeyExA"));
+        RegOpenKeyExA = (pRegOpenKeyExA)ResolveFunction(skCrypt("advapi32.dll"), skCrypt("RegOpenKeyExA"));
+
+        RegQueryValueA = (pRegQueryValueA)ResolveFunction(skCrypt("advapi32.dll"), skCrypt("RegQueryValueA"));
+        RegSetValueA = (pRegSetValueA)ResolveFunction(skCrypt("advapi32.dll"), skCrypt("RegSetValueA"));
+        RegDeleteKeyValueA = (pRegDeleteKeyValueA)ResolveFunction(skCrypt("advapi32.dll"), skCrypt("RegDeleteKeyValueA"));
+        RegDeleteValueA = (pRegDeleteValueA)ResolveFunction(skCrypt("advapi32.dll"), skCrypt("RegDeleteValueA"));
     }
 
 }            // namespace RuntimeImportResolver

@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include <windows.h>
 #include <string>
-#pragma comment (lib, "advapi32")
+//#pragma comment (lib, "advapi32")
 
 /* 
     resource: https://www.blast.hk/threads/13855/

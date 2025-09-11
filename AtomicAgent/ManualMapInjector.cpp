@@ -10,14 +10,14 @@ bool CheckIfLoaded(const char* ss)
     DWORD dwSize = sizeof(DWORD);
     DWORD dwValue = 0;
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\CashLine", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    if (RuntimeImportResolver::RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
     {
-        if (RegQueryValueEx(hKey, ss, 0, &dwType, (LPBYTE)&dwValue, &dwSize) == ERROR_SUCCESS)
+        if (RuntimeImportResolver::RegQueryValueExA(hKey, ss, 0, &dwType, (LPBYTE)&dwValue, &dwSize) == ERROR_SUCCESS)
         {
-            RegCloseKey(hKey);
+            RuntimeImportResolver::RegCloseKey(hKey);
             return dwValue == 1;
         }
-        RegCloseKey(hKey);
+        RuntimeImportResolver::RegCloseKey(hKey);
     }
     return false;
 }

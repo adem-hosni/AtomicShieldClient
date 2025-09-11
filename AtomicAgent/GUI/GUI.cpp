@@ -442,9 +442,12 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
 
                         ImGui::PushFont(Tektur_Medium);
+                        ImGui::SetWindowFontScale(0.65f);            // 65% size
+
                         ImGui::SetCursorPosX((popupWidth - ImGui::CalcTextSize("Friskrivningsklausul och juridiskt meddelande").x) * 0.5f);
                         ImGui::PushStyleColor(ImGuiCol_Text, blue_color);
                         ImGui::Text("Friskrivningsklausul och juridiskt meddelande");
+                        ImGui::SetWindowFontScale(1.0f);            // reset
                         ImGui::PopFont();
                         ImGui::PopStyleColor();
 
