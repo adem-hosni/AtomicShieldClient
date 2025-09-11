@@ -8,19 +8,20 @@
 bool StartupManager::IsAppInRegistry()
 {
     HKEY hKey;
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    if (RuntimeImportResolver::RegOpenKeyExA(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_READ, &hKey) ==
+        ERROR_SUCCESS)
     {
         DWORD dwType = 0;
         DWORD dwSize = MAX_PATH;
         WCHAR szValue[MAX_PATH] = {0};
 
-        if (RegQueryValueEx(hKey, "AtomicShield", NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS)
+        if (RuntimeImportResolver::RegQueryValueExA(hKey, "AtomicShield", NULL, &dwType, (LPBYTE)szValue, &dwSize) == ERROR_SUCCESS)
         {
-            RegCloseKey(hKey);
+            RuntimeImportResolver::RegCloseKey(hKey);
             return true;
         }
 
-        RegCloseKey(hKey);
+        RuntimeImportResolver::RegCloseKey(hKey);
     }
     return false;
 }
@@ -39,14 +40,16 @@ bool StartupManager::AddAppToRegistry()
     appPath += szPath;
     appPath += skCrypt("\" --startup").decrypt();
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) == ERROR_SUCCESS)
+    if (RuntimeImportResolver::RegOpenKeyExA(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) ==
+        ERROR_SUCCESS)
     {
-        if (RegSetValueEx(hKey, "AtomicShield", 0, REG_SZ, (const BYTE*)appPath.c_str(), (appPath.length() + 1) * sizeof(wchar_t)) == ERROR_SUCCESS)
+        if (RuntimeImportResolver::RegSetValueExA(hKey, "AtomicShield", 0, REG_SZ, (const BYTE*)appPath.c_str(), (appPath.length() + 1) * sizeof(wchar_t)) ==
+            ERROR_SUCCESS)
         {
-            RegCloseKey(hKey);
+            RuntimeImportResolver::RegCloseKey(hKey);
             return true;
         }
-        RegCloseKey(hKey);
+        RuntimeImportResolver::RegCloseKey(hKey);
     }
     return false;
 }
@@ -55,11 +58,12 @@ bool StartupManager::RemoveAppFromRegistry()
 {
     HKEY hKey;
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) == ERROR_SUCCESS)
+    if (RuntimeImportResolver::RegOpenKeyExA(HKEY_CURRENT_USER, skCrypt("Software\\Microsoft\\Windows\\CurrentVersion\\Run").decrypt(), 0, KEY_WRITE, &hKey) ==
+        ERROR_SUCCESS)
     {
         // Try to delete the value
-        LONG result = RegDeleteValue(hKey, "AtomicShield");
-        RegCloseKey(hKey);
+        LONG result = RuntimeImportResolver::RegDeleteValueA(hKey, "AtomicShield");
+        RuntimeImportResolver::RegCloseKey(hKey);
 
         // Return true if deleted successfully or if the value didn't exist
         return (result == ERROR_SUCCESS || result == ERROR_FILE_NOT_FOUND);
@@ -92,7 +96,7 @@ void StartupManager::StartupFunction()
     std::thread downloader(
         []()
         {
-            bDownloadStarted = true;        
+            bDownloadStarted = true;
             g_pAtomicAPI->DownloadEngine(&strEngineBuffer, &DownloadData);
             bDownloadFinished = true;
         });
@@ -129,7 +133,7 @@ void StartupManager::StartupFunction()
     }
 
     int iLoadResult = EngineLauncher::LoadEngineIntoLauncher(EnginePath, hLauncher, reinterpret_cast<BYTE*>(const_cast<char*>(strEngineBuffer.c_str())),
-                                                                    strEngineBuffer.size());
+                                                             strEngineBuffer.size());
 
     DWORD lastErr = GetLastError();
     SharedUtil::AddDebugLog("[Startup] Loading result: %d, LastError: 0x%llX", iLoadResult, lastErr);
@@ -155,7 +159,7 @@ void StartupManager::StartupFunction()
         else
         {
             SharedUtil::AddDebugLog("[Startup] Engine loaded successfully.");
-            SharedUtil::SetRegistryIntValue("AtomicShield","AtomicShield", 0);
+            SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 0);
         }
     }
     else

@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <random>
 #include "SharedUtil.h"
+#include "RuntimeImportResolver.h"
 #include <TlHelp32.h>
 
 bool SharedUtil::TerminateProcess(DWORD dwPID)
@@ -426,10 +427,12 @@ void SharedUtil::SetRegistryIntValue(const char* ss,const char* szKey, int iValu
 {
     HKEY hKey;
 
-    if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\Latinos", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) == ERROR_SUCCESS)
+
+    if (RuntimeImportResolver::RegCreateKeyExA(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) ==
+        ERROR_SUCCESS)
     {
-        RegSetValueEx(hKey, szKey, 0, REG_DWORD, (const BYTE*)&iValue, sizeof(iValue));
-        RegCloseKey(hKey);
+        RuntimeImportResolver::RegSetValueExA(hKey, szKey, 0, REG_DWORD, (const BYTE*)&iValue, sizeof(iValue));
+        RuntimeImportResolver::RegCloseKey(hKey);
     }
     else
     {

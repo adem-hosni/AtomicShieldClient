@@ -465,6 +465,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         ImGui::SetCursorPosX((popupWidth - ImGui::CalcTextSize("Disclaimer and Legal Notice").x) * 0.5f);
                         ImGui::PushStyleColor(ImGuiCol_Text, blue_color);
                         ImGui::Text("Disclaimer and Legal Notice");
+
                         ImGui::PopFont();
                         ImGui::PopStyleColor();
 
