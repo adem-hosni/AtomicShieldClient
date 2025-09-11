@@ -185,7 +185,7 @@ void SharedUtil::AddDebugLog(const char* szLog, ...)
 
     char szLogDirectory[MAX_PATH];
     memset(szLogDirectory, 0, MAX_PATH);
-    sprintf(szLogDirectory, "%s\\CashLine", localAppDataPath);
+    sprintf(szLogDirectory, "%s\\Latinos", localAppDataPath);
 
     CreateDirectory(szLogDirectory, NULL);
 
@@ -232,7 +232,7 @@ bool SharedUtil::GetDebugLogs(std::string& szLog)
         return false;
     char szLogDirectory[MAX_PATH];
     memset(szLogDirectory, 0, MAX_PATH);
-    sprintf(szLogDirectory, "%s\\CashLine", localAppDataPath);
+    sprintf(szLogDirectory, "%s\\Latinos", localAppDataPath);
     char szNewFile[600];
     memset(szNewFile, 0, sizeof(szNewFile));
     sprintf(szNewFile, "%s\\Trace.logs", szLogDirectory);
@@ -426,7 +426,7 @@ void SharedUtil::SetRegistryIntValue(const char* ss,const char* szKey, int iValu
 {
     HKEY hKey;
 
-    if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\CashLine", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) == ERROR_SUCCESS)
+    if (RegCreateKeyEx(HKEY_CURRENT_USER, "Software\\Latinos", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) == ERROR_SUCCESS)
     {
         RegSetValueEx(hKey, szKey, 0, REG_DWORD, (const BYTE*)&iValue, sizeof(iValue));
         RegCloseKey(hKey);

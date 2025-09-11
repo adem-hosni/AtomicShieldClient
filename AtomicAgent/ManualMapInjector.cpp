@@ -10,7 +10,7 @@ bool CheckIfLoaded(const char* ss)
     DWORD dwSize = sizeof(DWORD);
     DWORD dwValue = 0;
 
-    if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\CashLine", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    if (RegOpenKeyEx(HKEY_CURRENT_USER, "Software\\Latinos", 0, KEY_READ, &hKey) == ERROR_SUCCESS)
     {
         if (RegQueryValueEx(hKey, ss, 0, &dwType, (LPBYTE)&dwValue, &dwSize) == ERROR_SUCCESS)
         {
