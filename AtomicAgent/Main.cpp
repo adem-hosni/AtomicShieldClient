@@ -61,7 +61,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
         {
             5 + 8;
             8 + 9;
-            Sleep(1000);
+            std::this_thread::sleep_for(std::chrono::seconds(1));
         }
     }
 

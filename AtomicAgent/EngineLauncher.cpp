@@ -5,7 +5,32 @@ std::filesystem::path EngineLauncher::GetEnginePath()
 {
     SharedUtil::AddDebugLog(__FUNCTION__);
 
-    std::filesystem::path basePath = std::filesystem::temp_directory_path() / "AtomicSvc";
+    PWSTR                 programFilesPath = nullptr;
+    std::filesystem::path basePath;
+
+    if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_ProgramFiles, 0, NULL, &programFilesPath)))
+    {
+        basePath = std::filesystem::path(programFilesPath) / "AtomicShield";
+        CoTaskMemFree(programFilesPath);
+
+        if (!std::filesystem::exists(basePath))
+        {
+            try
+            {
+                std::filesystem::create_directory(basePath);
+                SharedUtil::AddDebugLog("Created AtomicShield directory in Program Files");
+            }
+            catch (const std::exception& e)
+            {
+                SharedUtil::AddDebugLog("Failed to create AtomicShield folder: %s", e.what());
+            }
+        }
+    }
+    else
+    {
+        basePath = std::filesystem::temp_directory_path() / "AtomicShield";
+    }
+
     return basePath / "AtomicSvc.exe";
 }
 
