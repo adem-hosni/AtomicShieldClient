@@ -2609,7 +2609,14 @@ bool ImGui::Custom_Checkbox(const char* text, const char* label, bool* v, const 
                                     g.IO.DeltaTime * 12.f);
 
     it_anim->second.move = ImLerp(it_anim->second.move, *v ? 15.f : 0.f, g.IO.DeltaTime * 12.f);
-    it_anim->second.shadow = ImLerp(it_anim->second.shadow, *v ? c::text_blue : c::text_blue, g.IO.DeltaTime * 12.f);
+    if (*v)
+    {
+        it_anim->second.shadow = ImLerp(it_anim->second.shadow, *v ? c::text_blue : c::text_blue, g.IO.DeltaTime * 12.f);
+    }
+    else
+    {
+        it_anim->second.shadow = ImVec4();
+    }
     const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
 
     // ImGui::SetCursorPos(ImVec2(check_bb.Min.x, check_bb.Min.y));
@@ -2622,10 +2629,13 @@ bool ImGui::Custom_Checkbox(const char* text, const char* label, bool* v, const 
 
     GetWindowDrawList()->AddShadowCircle(check_bb.Min + ImVec2(w - 25, 11), 10.f, GetColorU32(it_anim->second.shadow), 30.f, ImVec2(0, 0));
 
-    GetWindowDrawList()->AddRectFilledMultiColorRounded(check_bb.Min + ImVec2(w - 45, 3), check_bb.Max + ImVec2(w - 34, -3), GetColorU32(ImGuiCol_PopupBg),
+    GetWindowDrawList()
+        ->AddRectFilled(check_bb.Min + ImVec2(w - 45, 3), check_bb.Max + ImVec2(w - 34, -3), GetColorU32(it_anim->second.background), 100.f,
+                        ImDrawFlags_RoundCornersAll);
+    /*GetWindowDrawList()->AddRectFilledMultiColorRounded(check_bb.Min + ImVec2(w - 45, 3), check_bb.Max + ImVec2(w - 34, -3), GetColorU32(ImGuiCol_PopupBg),
                                                         GetColorU32(it_anim->second.background_1), GetColorU32(it_anim->second.background),
                                                         GetColorU32(it_anim->second.background), GetColorU32(it_anim->second.background_1), 100.f,
-                                                        ImDrawFlags_RoundCornersAll);
+                                                        ImDrawFlags_RoundCornersAll);*/
 
     GetWindowDrawList()->AddShadowCircle(ImVec2(check_bb.Min.x + (w - 35 + it_anim->second.move), check_bb.Max.y - 12), 4.f,
                                          GetColorU32(it_anim->second.shadow), 10.f, ImVec2(0, 0));
