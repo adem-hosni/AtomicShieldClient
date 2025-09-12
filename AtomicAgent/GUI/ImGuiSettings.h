@@ -76,11 +76,12 @@ namespace c
     inline ImVec4 shadow_tab_active = ImColor(200, 200, 200, 255);            // brighter
     inline ImVec4 shadow_tab_inactive = ImColor(0, 0, 0, 0);
 
-    inline ImVec4 circle_icon = ImColor(200, 200, 200, 255);                     // brighter
-    inline ImVec4 multi_checkbox_blue = ImColor(64, 64, 64, 255);                // #404040
-    inline ImVec4 multi_checkbox_black = ImColor(38, 38, 38, 140);               // #262626 alpha
-    inline ImVec4 multi_checkbox_in = ImColor(26, 26, 26, 255);                  // #262626
-    inline ImVec4 multi_checkbox_hover = ImColor(200, 200, 200, 255);            // brighter
+    static ImVec4 circle_icon = ImColor(115, 115, 115, 255);                     // #737373, subtle gray
+    static ImVec4 multi_checkbox_blue = ImColor(64, 64, 64, 255);                // #404040, dark base
+    static ImVec4 multi_checkbox_black = ImColor(220, 220, 220, 40);               // #262626 with alpha
+    static ImVec4 multi_checkbox_in = ImColor(13, 13, 13, 255);                  // #0D0D0D, deepest
+    static ImVec4 multi_checkbox_hover = ImColor(255, 255, 255, 50);            // #FFFFFF, strong hover
+
 
     inline ImVec4 circle_active = ImColor(0, 0, 0, 255);
     inline ImVec4 circle_inactive = ImColor(64, 64, 64, 255);            // #404040
