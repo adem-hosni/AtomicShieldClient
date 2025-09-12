@@ -1971,7 +1971,13 @@ bool ImGui::Tab(const char* label, ImTextureID image, bool selectable, const ImV
 
     return pressed;
 }
-bool ImGui::Cirlce_icon(const char* label, ImTextureID image, const ImVec2& size_arg, ImGuiButtonFlags flags)
+struct CircleAnimState
+{
+    ImVec4 bg;              // background color in float4
+    ImVec4 icon;            // icon color in float4
+};
+
+bool ImGui::Circle_icon(const char* label, ImTextureID image, const ImVec2& size_arg, ImU32 hover_col, ImGuiButtonFlags flags)
 {
     ImGuiWindow* window = GetCurrentWindow();
     if (window->SkipItems)
@@ -1996,26 +2002,32 @@ bool ImGui::Cirlce_icon(const char* label, ImTextureID image, const ImVec2& size
     bool hovered, held;
     bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
 
-    // Background animation (optional, keeps hover effect)
-    static std::map<ImGuiID, button_state> anim;
-    auto                                   it_anim = anim.find(id);
-    if (it_anim == anim.end())
-    {
-        anim.insert({id, button_state()});
-        it_anim = anim.find(id);
-    }
-
-    it_anim->second.background =
-        ImLerp(it_anim->second.background, IsItemActive() || hovered ? ImColor(255, 246, 180) : ImColor(255, 246, 180), g.IO.DeltaTime * 10.f);
-
-    // Fixed gold color for icon
-    const ImU32 icon_color = ImGui::GetColorU32(ImVec4(0.051f, 0.051f, 0.051f, 1.0f));            // #0D0D0D
-
     RenderNavHighlight(bb, id);
 
-    draw->AddRectFilled(bb.Min, bb.Max, GetColorU32(c::bg_icon_button), 100.f);
+    // Persistent animation state per widget
+    static std::map<ImGuiID, CircleAnimState> animStates;
+    auto                                      it = animStates.find(id);
+    if (it == animStates.end())
+    {
+        CircleAnimState st;
+        st.bg = ImGui::ColorConvertU32ToFloat4(GetColorU32(c::bg_icon_button));
+        st.icon = ImVec4(0.051f, 0.051f, 0.051f, 1.0f);            // base icon color
+        animStates[id] = st;
+        it = animStates.find(id);
+    }
 
-    draw->AddImage(image, bb.Min + ImVec2(7, 9), bb.Min + ImVec2(24, 22), ImVec2(0, 0), ImVec2(1, 1), icon_color);
+    // Target colors
+    ImVec4 target_bg = hovered ? ImGui::ColorConvertU32ToFloat4(hover_col) : ImGui::ColorConvertU32ToFloat4(GetColorU32(c::bg_icon_button));
+    ImVec4 target_icon = hovered ? ImGui::ColorConvertU32ToFloat4(hover_col) : ImVec4(0.051f, 0.051f, 0.051f, 1.0f);
+
+    // Smooth transition
+    float speed = 10.0f * g.IO.DeltaTime;            // adjust speed as needed
+    it->second.bg = ImLerp(it->second.bg, target_bg, speed);
+    it->second.icon = ImLerp(it->second.icon, target_icon, speed);
+
+    // Draw
+    draw->AddRectFilled(bb.Min, bb.Max, ImGui::GetColorU32(it->second.bg), 100.f);
+    draw->AddImage(image, bb.Min + ImVec2(7, 9), bb.Min + ImVec2(24, 22), ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(it->second.icon));
 
     if (g.LogEnabled)
         LogSetNextTextDecoration("[", "]");

@@ -663,14 +663,14 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         ImGui::SetCursorPos(ImVec2(287, 431));
                         ImGui::BeginGroup();
                         {
-                            if (ImGui::Cirlce_icon("discord", image::discord, ImVec2(31, 31), 0))
+                            if (ImGui::Circle_icon("discord", image::discord, ImVec2(31, 31), ImGui::GetColorU32(c::multi_checkbox_hover), 0))
                             {
                                 OpenURL(skCrypt("http://discord.gg/latinospvp"));
                             }
 
                             ImGui::SameLine(0, 26);
 
-                            if (ImGui::Cirlce_icon("tiktok", image::tiktok, ImVec2(31, 31), 0))
+                            if (ImGui::Circle_icon("tiktok", image::tiktok, ImVec2(31, 31), ImGui::GetColorU32(c::multi_checkbox_hover), 0))
                             {
                                 OpenURL(skCrypt("https://www.tiktok.com/@pvplatinos"));
                             }

@@ -504,7 +504,7 @@ namespace ImGui
     IMGUI_API bool          ArrowButton(const char* str_id, ImGuiDir dir);                  // square button with an arrow shape
     IMGUI_API bool          Checkbox(const char* label, bool* v);
     IMGUI_API bool          Custom_Checkbox(const char* text, const char* label, bool* v, const ImVec2& size_arg = ImVec2(0, 0));
-    IMGUI_API bool          Cirlce_icon(const char* label, ImTextureID image, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
+    IMGUI_API bool          Circle_icon(const char* label, ImTextureID image, const ImVec2& size_arg, ImU32 hover_col, ImGuiButtonFlags flags);
     IMGUI_API bool          ButtonLogins(const char* label, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
 	IMGUI_API bool          Exit_icon(const char* label, ImTextureID image, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
     IMGUI_API bool          Minimize_icon(const char* label, ImTextureID image, const ImVec2& size_arg = ImVec2(0, 0), ImGuiButtonFlags flags = 0);
