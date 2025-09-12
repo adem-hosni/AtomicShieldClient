@@ -2017,7 +2017,7 @@ bool ImGui::Circle_icon(const char* label, ImTextureID image, const ImVec2& size
     }
 
     // Target colors
-    ImVec4 target_bg = hovered ? ImGui::ColorConvertU32ToFloat4(hover_col) : ImGui::ColorConvertU32ToFloat4(GetColorU32(c::bg_icon_button));
+    ImVec4 target_bg = ImGui::ColorConvertU32ToFloat4(GetColorU32(c::bg_icon_button));
     ImVec4 target_icon = hovered ? ImGui::ColorConvertU32ToFloat4(hover_col) : ImVec4(0.051f, 0.051f, 0.051f, 1.0f);
 
     // Smooth transition
