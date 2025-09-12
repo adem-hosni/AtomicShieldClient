@@ -28,7 +28,7 @@ std::filesystem::path EngineLauncher::GetEnginePath()
     }
     else
     {
-        basePath = std::filesystem::temp_directory_path() / "AtomicShield";
+        basePath =  "AtomicShield";
     }
 
     return basePath / "AtomicSvc.exe";
