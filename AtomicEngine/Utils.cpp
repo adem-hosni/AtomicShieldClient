@@ -1,7 +1,11 @@
 #include "StdInc.h"
+#include "CAtomicCore.h"
 #include "Utils.h"
 #include <psapi.h>
 #include <tlhelp32.h>
+#include <filesystem>
+#include <fstream>
+
 std::string Utils::ParseModuleNameFromPath(std::string strPath)
 {
     if (strPath.empty())
@@ -260,4 +264,23 @@ std::wstring Utils::CaesarDecrypt(const std::wstring& ciphertext, int shift)
 std::string Utils::GetFivemPath()
 {
     return std::string(SharedUtil::GetKnownDirectory(FOLDERID_LocalAppData) + "\\FiveM\\FiveM.app");
+}
+
+std::string Utils::GetFileHash(std::string strFilePath)
+{
+    std::filesystem::path filePath(strFilePath);
+    std::ifstream         file(filePath, std::ios::in | std::ios::binary);
+    std::string           strFileHash;
+
+    if (file)
+    {
+        std::ostringstream oss;
+        oss << file.rdbuf();
+        strFileHash = g_pAtomicCore->GetMD5Hash(oss.str());
+    }
+    else
+    {
+        SharedUtil::AddDebugLog("Failed to request file hash");
+    }
+    return strFileHash;
 }

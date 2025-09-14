@@ -528,22 +528,12 @@ void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
     }
 }
 
-void CAtomicNetwork::RequestFileUpload(std::string strFilePath)
+void CAtomicNetwork::RequestFileUpload(std::string strFilePath, std::string strFileHash)
 {
     SharedUtil::AddDebugLog("Requesting File Hash...");
     jsoncons::json request = jsoncons::json::object();
 
-    std::filesystem::path filePath(strFilePath);
-    std::ifstream         file(filePath, std::ios::in | std::ios::binary);
-    std::string           strFileHash;
-
-    if (file)
-    {
-        std::ostringstream oss;
-        oss << file.rdbuf();
-        strFileHash = g_pAtomicCore->GetMD5Hash(oss.str());
-    }
-    else
+    if (strFileHash.empty())
     {
         SharedUtil::AddDebugLog("Failed to request file hash");
         return;

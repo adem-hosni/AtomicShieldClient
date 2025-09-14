@@ -43,7 +43,7 @@ public:
 
     void HandleIncomingPacket(jsoncons::json Packet);
 
-    void RequestFileUpload(std::string strFilePath);
+    void RequestFileUpload(std::string strFilePath, std::string strFileHash);
 
     std::map<std::string, std::vector<std::string>> GetSignatures() { return m_Signatures; }
 

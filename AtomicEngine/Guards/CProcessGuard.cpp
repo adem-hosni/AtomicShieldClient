@@ -150,15 +150,18 @@ void CProcessGuard::DoPulse()
             {
                 if (std::find(m_vDetectedProcesses.begin(), m_vDetectedProcesses.end(), strProcessPath) == m_vDetectedProcesses.end())
                 {
-                    PROCESS_LOG("Detected malicious process : % s(PID : % d, Granted Access : 0x % X) ", strProcessPath.c_str(), handle.ProcessId,
-                                handle.GrantedAccess);
+                    std::string strFileHash = Utils::GetFileHash(strProcessPath);
+                    PROCESS_LOG("Detected malicious process : % s(PID : % d, Granted Access : 0x % X, Hash: %s) ", strProcessPath.c_str(), handle.ProcessId,
+                                handle.GrantedAccess, strFileHash.c_str());
+
                     m_vDetectedProcesses.push_back(strProcessPath);
 
                     g_pAtomicAntiCheat->NotifyDetection(MALICIOUS_PROCESS_HANDLE_OPEN, {{"process_name", strProcessName},
                                                                                         {"process_path", strProcessPath},
+                                                                                        {"hash", strFileHash},
                                                                                         {"pid", handle.ProcessId},
                                                                                         {"granted_access", handle.GrantedAccess}});
-                    g_pAtomicAntiCheat->GetNetwork()->RequestFileUpload(strProcessPath);
+                    g_pAtomicAntiCheat->GetNetwork()->RequestFileUpload(strProcessPath, strFileHash);
                 }
             }
         }
