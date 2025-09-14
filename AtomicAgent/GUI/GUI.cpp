@@ -672,7 +672,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         if (!strEngineBuffer.empty() && !bInjected)
                         {
                             memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                            strcpy(szLoadingMessage, "Loading AntiCheat...");
+                            strcpy(szLoadingMessage, "Laddar AntiCheat...");
 
                             bInjected = true;
                             std::filesystem::path EnginePath = EngineLauncher::GetEnginePath();
@@ -681,7 +681,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             {
                                 SharedUtil::AddDebugLog("Engine detected, reloading...");
                                 memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                strcat(szLoadingMessage, skCrypt("CashLine is already running! Reloading"));
+                                strcat(szLoadingMessage, skCrypt("CashLine är redan igång! Laddar om"));
                                 goto LOAD_ENGINE;
                             }
                             else
@@ -695,7 +695,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                         case EngineLauncher::eLaunchResult::UAC_CANCELLED:
                                             SharedUtil::AddDebugLog("UAC Cancelled");
                                             memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                            strcat(szLoadingMessage, skCrypt("Operation aborted, Please accept to continue"));
+                                            strcat(szLoadingMessage, skCrypt("Åtgärden avbröts. Vänligen acceptera för att fortsätta."));
                                             break;
                                         case EngineLauncher::eLaunchResult::LAUNCH_ELEVATION_FAILED:
                                             SharedUtil::AddDebugLog("Launch Elevation Failed");
