@@ -221,8 +221,8 @@ bool GUI::Initialize()
     GUI::wc.cbWndExtra = NULL;
     GUI::wc.hCursor = LoadCursor(0, IDC_ARROW);
     GUI::wc.hbrBackground = nullptr;
-    GUI::wc.lpszMenuName = L"CashLine";
-    GUI::wc.lpszClassName = L"CashLine";
+    GUI::wc.lpszMenuName = L"Ceylon";
+    GUI::wc.lpszClassName = L"Ceylon";
     GUI::wc.hInstance = GetModuleHandleW(NULL);
     GUI::wc.hIcon = LoadIcon(GUI::wc.hInstance, MAKEINTRESOURCE(ico4));
     GUI::wc.hIconSm = LoadIcon(GUI::wc.hInstance, MAKEINTRESOURCE(ico4));
@@ -413,7 +413,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                 {
                     if (!bTosPopupOpened)
                     {
-                        ImGui::OpenPopup("Friskrivningsklausul och juridiskt meddelande");
+                        ImGui::OpenPopup("Disclaimer and Legal Notice");
                         bTosPopupOpened = true;
                     }
 
@@ -426,7 +426,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                     ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 40);
                     ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
                     ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.0f, 0.0f, 0.0f, 0.95f));
-                    bool popupShown = ImGui::BeginPopupModal("Friskrivningsklausul och juridiskt meddelande", nullptr,
+                    bool popupShown = ImGui::BeginPopupModal("Disclaimer and Legal Notice", nullptr,
                                                              ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoCollapse | ImGuiWindowFlags_NoMove |
                                                                  ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoScrollbar);
 
@@ -437,9 +437,9 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         ImGui::PushFont(Tektur_Medium);
                         ImGui::SetWindowFontScale(0.65f);            // 65% size
 
-                        ImGui::SetCursorPosX((popupWidth - ImGui::CalcTextSize("Friskrivningsklausul och juridiskt meddelande").x) * 0.5f);
+                        ImGui::SetCursorPosX((popupWidth - ImGui::CalcTextSize("Disclaimer and Legal Notice").x) * 0.5f);
                         ImGui::PushStyleColor(ImGuiCol_Text, blue_color);
-                        ImGui::Text("Friskrivningsklausul och juridiskt meddelande");
+                        ImGui::Text("Disclaimer and Legal Notice");
                         ImGui::SetWindowFontScale(1.0f);            // reset
                         ImGui::PopFont();
                         ImGui::PopStyleColor();
@@ -451,15 +451,15 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
                         // First disclaimer line
                         ImGui::TextWrapped(
-                            "Denna programvara är ett oberoende verktyg som endast är avsett för privat bruk. Den har ingen koppling till några "
-                            "tredjepartstjänster eller plattformar.");
+                            "This software is an independent tool intended for private use only. It is not affiliated with any"
+                            "third-party services or platforms.");
 
                         // Manual layout — no TextWrapped
-                        ImGui::Text("Genom att klicka på 'Acceptera' godkänner du våra");
+                        ImGui::Text("By clicking 'Accept' you agree to our");
                         ImGui::SameLine();
 
                         ImGui::PushStyleColor(ImGuiCol_Text, blue_color);
-                        ImGui::Text("Användarvillkor");
+                        ImGui::Text("Terms of Use");
                         if (ImGui::IsItemHovered())
                             ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
                         if (ImGui::IsItemClicked())
@@ -478,7 +478,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             OpenURL(skCrypt("https://atomic-shield.com/privacy/"));
                         ImGui::PopStyleColor();
 
-                        ImGui::TextWrapped("Varken utvecklaren eller säljaren tar ansvar för eventuellt missbruk.");
+                        ImGui::TextWrapped("Neither the developer nor the seller takes responsibility for any misuse.");
 
                         ImGui::PopFont();
                         ImGui::PopStyleColor();
@@ -487,10 +487,10 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         ImGui::Dummy(ImVec2(0.0f, 10.0f));
 
                         ImGui::SetCursorPosX((popupWidth - 120) * 0.5f);
-                        if (ImGui::ButtonLogins("Acceptera", ImVec2(120, 35)))
+                        if (ImGui::ButtonLogins("Accept", ImVec2(120, 35)))
                         {
                             bTosAccepted = true;
-                            SharedUtil::SetRegistryIntValue("CashLine_TOS", "CashLine_TOS", 1);
+                            SharedUtil::SetRegistryIntValue("AtomicShield_TOS", "AtomicShield_TOS", 1);
 
                             ImGui::CloseCurrentPopup();
                         }
@@ -523,8 +523,8 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                     g_pd3dDevice->Present(NULL, NULL, NULL, NULL);
                     continue;            // Restart frame loop
                 }
-                static ImVec2 posmin(p.x + 50, p.y + 60);
-                static ImVec2 posmax(p.x + 630, p.y + 290);
+                static ImVec2 posmin(p.x + 105.54, p.y);
+                static ImVec2 posmax(p.x + 573.18, p.y + 284.35);
 
                 ImGui::PushStyleVar(ImGuiStyleVar_Alpha, 1.0f);
                 {
@@ -539,7 +539,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium,
                                                             cashlineDebug.textSize,            // <-- Replace with cashlineDebug.textSize
                                                             ImVec2(p.x + 250 + cashlineDebug.positionOffset.x, p.y + 101 + cashlineDebug.positionOffset.y),
-                                                            ImGui::GetColorU32(c::text_blue), "CASH LINE");
+                                                            ImGui::GetColorU32(c::text_blue), "CEYLON RP");
 
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 380, p.y + 101), ImGui::GetColorU32(c::text_checkbox_active_on),
                                                             "");
@@ -547,7 +547,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         if (bNoErrors)
                         {
                             ImGui::SetCursorPos(ImVec2(185, 285));
-                            if (Custom_Checkbox("lbl", "Aktivera Startläge", &bEnableStartup, ImVec2(270, -1)))
+                            if (Custom_Checkbox("lbl", "Enable Startup Mode", &bEnableStartup, ImVec2(270, -1)))
                             {
                                 if (bEnableStartup)
                                     StartupManager::AddAppToRegistry();
@@ -559,13 +559,13 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             {
                                 ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(10, 10));
                                 ImGui::BeginTooltip();
-                                ImGui::Text("Körs automatiskt vid datorstart\nInget behov av att öppna agenten varje gång");
+                                ImGui::Text("Runs automatically at computer startup\nNo need to open the agent every time");
                                 ImGui::EndTooltip();
                                 ImGui::PopStyleVar();
                             }
 
                             ImGui::SetCursorPos(ImVec2(212, 314));
-                            static const char* szLoadButtonText = SharedUtil::GetProcessID(skCrypt("AtomicSvc.exe")) ? "Starta Om" : "Starta Nu";
+                            static const char* szLoadButtonText = SharedUtil::GetProcessID(skCrypt("AtomicSvc.exe")) ? "Restart" : "Start Now";
 
                             if (ImGui::ButtonLogins(szLoadButtonText, ImVec2(238, 40)))
                             {
@@ -623,23 +623,23 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                                                   15.f);
 
                         ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 262, p.y + 377), ImGui::GetColorU32(c::text_button),
-                                                            "Gå med i våra sociala");
-                        ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 390, p.y + 377), ImGui::GetColorU32(c::text_blue),
-                                                            "nätverk");
+                                                            "Join our socials");
+                        ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 360, p.y + 377), ImGui::GetColorU32(c::text_blue),
+                                                            "network");
 
                         ImGui::SetCursorPos(ImVec2(287, 431));
                         ImGui::BeginGroup();
                         {
                             if (ImGui::Circle_icon("discord", image::discord, ImVec2(31, 31), ImGui::GetColorU32(c::multi_checkbox_blue), 0))
                             {
-                                OpenURL(skCrypt("https://discord.gg/3bpRDXBEZc"));
+                                OpenURL(skCrypt("https://discord.ceylonroleplay.com/"));
                             }
 
                             ImGui::SameLine(0, 26);
 
-                            if (ImGui::Circle_icon("tiktok", image::tiktok, ImVec2(31, 31), ImGui::GetColorU32(c::multi_checkbox_blue), 0))
+                            if (ImGui::Circle_icon("youtube", image::youtube, ImVec2(31, 31), ImGui::GetColorU32(c::multi_checkbox_blue), 0))
                             {
-                                OpenURL(skCrypt("https://www.tiktok.com/@cashlinerp"));
+                                OpenURL(skCrypt("https://www.youtube.com/@ceylonrpofficial"));
                             }
                         }
                         ImGui::EndGroup();
