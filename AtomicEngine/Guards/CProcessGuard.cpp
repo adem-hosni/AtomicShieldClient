@@ -5,6 +5,7 @@
 CProcessGuard::CProcessGuard()
 {
     m_vDetectedProcesses = {};
+    m_tLastHeartbeat = NULL;
 }
 
 CProcessGuard::~CProcessGuard()
@@ -130,6 +131,7 @@ void CProcessGuard::DoPulse()
 
         std::vector<Handles::SYSTEM_HANDLE> handles = Handles::DetectOpenHandlesToFiveM();
 
+        m_tLastHeartbeat = time(NULL);
         for (auto& handle : handles)
         {
             std::string strProcessPath = GetProcessPath(handle.ProcessId);

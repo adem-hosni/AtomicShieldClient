@@ -7,6 +7,7 @@
 CHeuristicGuard::CHeuristicGuard()
 {
     m_bFound = false;
+    m_tLastHeartbeat = NULL;
 }
 
 CHeuristicGuard::~CHeuristicGuard()
@@ -203,6 +204,7 @@ void CHeuristicGuard::DoPulse()
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
         SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());
+        m_tLastHeartbeat = time(NULL);
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 

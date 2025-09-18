@@ -20,7 +20,7 @@ void CGuardManager::InitializeGuards()
     m_pManualMappingGuard->Initialize();
 }
 
-void CGuardManager::StartPulse()
+void CGuardManager::StartGuards()
 {
     SharedUtil::AddDebugLog("Starting threads");
     m_bPulseStarted = true;
@@ -29,7 +29,18 @@ void CGuardManager::StartPulse()
     // m_vThreads.push_back(CAtomicThread::Create(CManualMappingGuard::StaticPulse, m_pManualMappingGuard));
 }
 
-void CGuardManager::StopPulse()
+void CGuardManager::DoPulse()
+{
+    if (!m_pProcessGuard->IsHeartbeatActive() || !m_pHeuristicGuard->IsHeartbeatActive())
+    {
+        SharedUtil::AddDebugLog("One of the guards heartbeat timed out, restarting all guards...");
+        g_pAtomicAntiCheat->ForceHardKick(eHardKickReason::GUARD_TIMEDOUT);
+        StopGuards();
+        StartGuards();
+    }
+}
+
+void CGuardManager::StopGuards()
 {
     SharedUtil::AddDebugLog("Stopping threads");
     m_bPulseStarted = false;

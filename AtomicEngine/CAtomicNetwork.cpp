@@ -549,7 +549,7 @@ void CAtomicNetwork::RequestFileUpload(std::string strFilePath, std::string strF
 
 void CAtomicNetwork::Disconnect(std::string strReason)
 {
-    if (m_pWebSocket->getReadyState() != ix::ReadyState::Closed)
+    if (m_pWebSocket->getReadyState() == ix::ReadyState::Open)
     {
         m_pWebSocket->stop(ix::WebSocketCloseConstants::kNormalClosureCode, strReason);
         m_bNetworkJoined = false;

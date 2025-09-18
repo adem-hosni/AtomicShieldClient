@@ -12,6 +12,12 @@ struct SMemoryDetectionReport
     DWORD   RegionSize;
 };
 
+enum class eHardKickReason
+{
+    GUARD_TIMEDOUT = 1
+};
+
+
 using ArgType = std::variant<int, DWORD64, std::string, std::wstring, bool>;
 
 enum eDetectionType
@@ -55,6 +61,8 @@ public:
     void RunScanners(bool bRun) { m_bRunScanners = bRun; }
 
     void NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs = {});
+
+    void ForceHardKick(eHardKickReason KickReason);
 
     void Shutdown();
 

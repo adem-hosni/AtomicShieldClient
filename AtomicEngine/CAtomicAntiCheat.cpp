@@ -61,7 +61,7 @@ void CAtomicAntiCheat::DoPulse()
             SharedUtil::AddDebugLog("FiveM closed - stopping scanners!");
 
             if (m_pGuardManager->IsPulseStarted())
-                m_pGuardManager->StopPulse();
+                m_pGuardManager->StopGuards();
 
             RunScanners(false);
 
@@ -125,13 +125,14 @@ void CAtomicAntiCheat::DoPulse()
 
         if (m_pAtomicNetwork->IsJoinedNetwork() && !m_pGuardManager->IsPulseStarted())
         {
-            m_pGuardManager->StartPulse();
+            m_pGuardManager->StartGuards();
             SharedUtil::AddDebugLog("Starting Basic Checks...");
             g_pAtomicAntiCheat->StartBasicChecks();
             SharedUtil::AddDebugLog("End Basic Checks");
         }
 
         m_pAtomicNetwork->DoPulse();
+        m_pGuardManager->DoPulse();
 
         if (m_iTargetProcessID == NULL)
         {
@@ -151,7 +152,7 @@ void CAtomicAntiCheat::StartPulse()
     // if (m_pGuardManager->IsPulseStarted())
     //     return;
 
-    m_pGuardManager->StartPulse();
+    m_pGuardManager->StartGuards();
 }
 
 void CAtomicAntiCheat::StartBasicChecks()
@@ -218,6 +219,14 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
     m_pAtomicNetwork->SendPacket(eAtomicPacket::CHEAT_DETECTION, RequestData);
 }
 
+void CAtomicAntiCheat::ForceHardKick(eHardKickReason KickReason)
+{
+    jsoncons::json RequestData = jsoncons::json::object();
+    RequestData["reason"] = (int)KickReason;
+    m_pAtomicNetwork->SendPacket(eAtomicPacket::GUARD_TIMEDOUT, RequestData, true);
+    SharedUtil::AddDebugLog("Force Hard Kick issued for reason: %d", KickReason);
+}
+
 void CAtomicAntiCheat::Shutdown()
 {
     SharedUtil::AddDebugLog("Shutting down Atomic AntiCheat...");
@@ -229,7 +238,7 @@ void CAtomicAntiCheat::Shutdown()
         m_hProcess = NULL;
     }
 
-    m_pGuardManager->StopPulse();
+    m_pGuardManager->StopGuards();
     m_pAtomicNetwork->Disconnect("AntiCheat Shutdown");
     m_bAlive = false;
 

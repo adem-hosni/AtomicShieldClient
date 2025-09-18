@@ -45,16 +45,12 @@ namespace Handles
     bool                       DoesProcessHaveOpenHandleTous(DWORD pid, std::vector<Handles::SYSTEM_HANDLE> handleList);
 
     static const char* Whitelisted[] = {"conhost.exe", "scn.tmp",      "FiveM.exe",        "_DumpServer",  "MONOPOLY.exe",
-                                        "steam.exe",
-                                        "WerFault.exe", "Lunar Client.exe", "Overwolf.exe", "MedalEncoder.exe"};
+                                        "steam.exe",   "WerFault.exe", "Lunar Client.exe", "Overwolf.exe", "MedalEncoder.exe"};
 
 };            // namespace Handles
 
 class CProcessGuard final : public CGuardBase
 {
-private:
-    std::vector<std::string> m_vDetectedProcesses;
-
 public:
     CProcessGuard();
     ~CProcessGuard();
@@ -62,5 +58,11 @@ public:
     static void StaticPulse(void* pContext) { reinterpret_cast<CProcessGuard*>(pContext)->DoPulse(); }
     void        DoPulse() override;
 
+    bool IsHeartbeatActive() { return m_tLastHeartbeat == NULL || time(NULL) - m_tLastHeartbeat < 8; }
+
     void ClearDetections() override { m_vDetectedProcesses.clear(); }
+
+private:
+    std::vector<std::string> m_vDetectedProcesses;
+    time_t                   m_tLastHeartbeat;
 };

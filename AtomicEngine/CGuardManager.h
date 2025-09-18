@@ -12,8 +12,9 @@ public:
     ~CGuardManager();
 
     void InitializeGuards();
-    void StartPulse();
-    void StopPulse();
+    void StartGuards();
+    void DoPulse();
+    void StopGuards();
 
     void ClearDetections();
 
