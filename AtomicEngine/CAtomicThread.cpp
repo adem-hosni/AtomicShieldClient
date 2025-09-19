@@ -36,11 +36,13 @@ bool CAtomicThread::Create()
                        THREAD_CREATE_FLAGS_BYPASS_PROCESS_FREEZE | THREAD_CREATE_FLAGS_HIDE_FROM_DEBUGGER, 0, 0, 0, nullptr);
     SharedUtil::SetPrivilege(SE_DEBUG_NAME);
 
-    if (!m_hThread)
+    if (!m_hThread || m_hThread == INVALID_HANDLE_VALUE)
     {
         SharedUtil::AddDebugLog("Failed to create thread handle on 0x%x Error code: 0x%x", (DWORD64)m_lpStartAddress, GetLastError());
         return false;
     }
+
+    g_pAtomicAntiCheat->GetAtomicThreads().push_back(this);
     return true;
 
     ULONG    ulEnable = true;
@@ -49,7 +51,6 @@ bool CAtomicThread::Create()
     {
         SharedUtil::AddDebugLog("Unable to set thread protection! status: 0x%llx last error: 0x%llx", NTThreadBreakOnTermination, GetLastError());
     }
-    g_pAtomicAntiCheat->GetAtomicThreads().push_back(this);
     return true;
 }
 

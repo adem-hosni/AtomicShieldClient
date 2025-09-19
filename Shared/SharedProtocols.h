@@ -6,5 +6,6 @@ namespace SharedProtocols
 {
     // Interesting technique which uses the loader & system to block certain types of attacks, such as unsigned modules being injected
     void EnableProcessMitigations();
+    void DisableProcessMitigations();
     void CheckLauncherProcess();
 };            // namespace SharedProtocols

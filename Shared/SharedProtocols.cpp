@@ -56,6 +56,47 @@ void SharedProtocols::EnableProcessMitigations()
     }
 }
 
+void SharedProtocols::DisableProcessMitigations()
+{
+    PROCESS_MITIGATION_DYNAMIC_CODE_POLICY dynamicCodePolicy = {
+        0};            // Dynamic Code Policy
+    dynamicCodePolicy.ProhibitDynamicCode = 0;
+    if (!SetProcessMitigationPolicy(ProcessDynamicCodePolicy, &dynamicCodePolicy, sizeof(dynamicCodePolicy)))
+    {
+        SharedUtil::AddDebugLog("Failed to disable dynamic code policy @ DisableProcessMitigations: 0x%x", GetLastError());
+    }
+
+    PROCESS_MITIGATION_STRICT_HANDLE_CHECK_POLICY handlePolicy = {0};            // Strict Handle Check Policy
+    handlePolicy.RaiseExceptionOnInvalidHandleReference = 0;
+    handlePolicy.HandleExceptionsPermanentlyEnabled = 0;
+    if (!SetProcessMitigationPolicy(ProcessStrictHandleCheckPolicy, &handlePolicy, sizeof(handlePolicy)))
+    {
+        SharedUtil::AddDebugLog("Failed to disable strict handle check policy @DisableProcessMitigations: 0x%x", GetLastError());
+    }
+
+    PROCESS_MITIGATION_SYSTEM_CALL_DISABLE_POLICY syscallPolicy = {0};            // System Call Disable Policy
+    syscallPolicy.DisallowWin32kSystemCalls = 0;
+    if (!SetProcessMitigationPolicy(ProcessSystemCallDisablePolicy, &syscallPolicy, sizeof(syscallPolicy)))
+    {
+        SharedUtil::AddDebugLog("Failed to disable system call disable policy @DisableProcessMitigations: 0x%x", GetLastError());
+    }
+
+    PROCESS_MITIGATION_BINARY_SIGNATURE_POLICY sp = {};
+    sp.MicrosoftSignedOnly = 0;
+    if (!SetProcessMitigationPolicy(ProcessSignaturePolicy, &sp, sizeof(sp)))
+    {
+        SharedUtil::AddDebugLog("Failed to disable process signature policy @DisableProcessMitigations: 0x%x", GetLastError());
+    }
+
+    PROCESS_MITIGATION_DEP_POLICY depPolicy = {0};            // DEP Policy
+    depPolicy.Enable = 0;
+    depPolicy.Permanent = 0;
+    if (!SetProcessMitigationPolicy(ProcessDEPPolicy, &depPolicy, sizeof(depPolicy)))
+    {
+        SharedUtil::AddDebugLog("Failed to disable DEP policy @ DisableProcessMitigations: 0x%x", GetLastError());
+    }
+}
+
 void SharedProtocols::CheckLauncherProcess()
 {
     std::string strLauncherName = SharedUtil::GetParentProcessName();

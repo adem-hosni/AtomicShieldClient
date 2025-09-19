@@ -217,4 +217,5 @@ void CHeuristicGuard::ClearDetections()
     m_bFound.store(false);
     m_vScannedRegions.clear();
     m_vSignatures.clear();
+    m_tLastHeartbeat = NULL;
 }

@@ -176,3 +176,9 @@ void CProcessGuard::DoPulse()
 
     _endthreadex(0);
 }
+
+void CProcessGuard::ClearDetections()
+{
+    m_vDetectedProcesses.clear();
+    m_tLastHeartbeat = NULL;
+}

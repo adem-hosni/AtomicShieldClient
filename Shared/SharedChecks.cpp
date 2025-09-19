@@ -11,7 +11,8 @@ BOOL CALLBACK WindowNameFilter(HWND hWnd, LPARAM lParam)
     memset(szWindowTitle, 0, sizeof(szWindowTitle));
     std::vector<const char*> vBlacklistWindowsNames = {
         XorStr("HTTP Debugger Pro").c_str(), XorStr("x32dbg").c_str(),    XorStr("x64dbg").c_str(),  XorStr("x96dbg").c_str(),
-        XorStr("Cheat Engine").c_str(),      XorStr("Wireshark").c_str(), XorStr("procmon").c_str(), XorStr("Process Monitor").c_str()};
+        XorStr("Cheat Engine").c_str(),      XorStr("Wireshark").c_str(), XorStr("procmon").c_str(), XorStr("Process Monitor").c_str(),
+        XorStr("Process Explorer").c_str()};
     if (GetWindowTextA(hWnd, szWindowTitle, sizeof(szWindowTitle)))
     {
         std::string windowTitle(szWindowTitle);
