@@ -49,7 +49,7 @@ std::string CHWID::GetSteamID()
     std::string steamPath = Utils::GetSteamPath();
     if (steamPath.empty())
     {
-        std::cerr << "Failed to find Steam installation path." << std::endl;
+        SharedUtil::AddDebugLog("Failed to find Steam installation path");
     }
 
 
@@ -74,21 +74,25 @@ std::string CHWID::GetSteamID()
     std::string   configPath = steamPath + "\\config\\config.vdf";
     std::ifstream configFile(configPath);
 
+    configFile.open(configPath);
+    
     if (configFile.is_open())
     {
         std::stringstream buffer;
+        configFile.seekg(0, std::ios::end);
         buffer << configFile.rdbuf();
-        std::string content = buffer.str();
+
         configFile.close();
+        std::string content = buffer.str();
 
         std::string steamID = Utils::ExtractSteamIDFromConfig(content);
         if (!steamID.empty())
         {
             std::string steamHex = Utils::DecimalToSteamHex(steamID);
             return steamHex;
-
         }
     }
+    return "";
 }
 
 std::string CHWID::GetMotherBoardSerial()

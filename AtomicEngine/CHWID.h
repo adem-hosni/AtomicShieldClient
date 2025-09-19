@@ -7,7 +7,6 @@ public:
     CHWID();
     ~CHWID();
 
-    std::string    GetMTASerial();
     jsoncons::json GetExtraData();
     jsoncons::json GetMonitorSerial();
     std::string    GetWindowsUsername();
