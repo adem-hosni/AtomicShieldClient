@@ -21,6 +21,10 @@ namespace Utils
     DWORD                     GenerateCRC32(const std::string& filePath, DWORD* FileSize);
     DWORD                     GenerateCRC32(const std::wstring& filePath, DWORD* FileSize);
     std::vector<ModuleInfo>   BuildModuledMemoryMap(HANDLE hProcess);
+    std::string               GetSteamPath();
+    std::string               ExtractSteamIDFromLoginUsers(const std::string& content);
+    std::string               ExtractSteamIDFromConfig(const std::string& content);
+    std::string               DecimalToSteamHex(const std::string& decimalSteamID);
     int*                      GetModuleMemoryInfo(HANDLE hProcess, HMODULE Addr);
     DWORD64                   GetModuleBaseAddress(int iProcessID, std::string strModuleName);
     bool                   IsAddressInModuledRange(DWORD64 address, const std::vector<ModuleInfo>& memoryMap);
