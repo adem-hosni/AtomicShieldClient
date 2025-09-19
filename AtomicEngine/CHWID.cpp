@@ -53,8 +53,8 @@ std::string CHWID::GetSteamID()
     }
 
 
-    std::string   loginUsersPath = steamPath + "\\config\\loginusers.vdf";
-    std::ifstream loginUsersFile(loginUsersPath);
+    std::string   loginUsersPath = steamPath + "/config/loginusers.vdf";
+    std::ifstream loginUsersFile(loginUsersPath, std::ios::binary | std::ios::in);
 
     if (loginUsersFile.is_open())
     {
@@ -71,11 +71,9 @@ std::string CHWID::GetSteamID()
         }
     }
 
-    std::string   configPath = steamPath + "\\config\\config.vdf";
+    std::string   configPath = steamPath + "/config/config.vdf";
     std::ifstream configFile(configPath);
 
-    configFile.open(configPath);
-    
     if (configFile.is_open())
     {
         std::stringstream buffer;
