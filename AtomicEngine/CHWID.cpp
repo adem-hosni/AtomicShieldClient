@@ -41,6 +41,179 @@ std::string CHWID::GetWindowsUsername()
     return "<unkown>";
 }
 
+
+
+
+
+std::string GetSteamPath()
+{
+    HKEY   hKey;
+    LPCSTR regPath = "Software\\Valve\\Steam";
+    LPCSTR valueName = "SteamPath";
+    CHAR   path[MAX_PATH];
+    DWORD  pathLength = sizeof(path);
+
+    if (RegOpenKeyExA(HKEY_CURRENT_USER, regPath, 0, KEY_READ, &hKey) == ERROR_SUCCESS)
+    {
+        if (RegQueryValueExA(hKey, valueName, NULL, NULL, (LPBYTE)path, &pathLength) == ERROR_SUCCESS)
+        {
+            RegCloseKey(hKey);
+            return std::string(path);
+        }
+        RegCloseKey(hKey);
+    }
+    return "";
+}
+
+std::string ExtractSteamIDFromLoginUsers(const std::string& content)
+{
+    std::istringstream stream(content);
+    std::string        line;
+    std::string        lastKey;
+    bool               mostRecentFound = false;
+
+    while (std::getline(stream, line))
+    {
+        // trim spaces
+        line.erase(0, line.find_first_not_of(" \t\r\n"));
+        if (line.empty())
+            continue;
+
+        if (line[0] == '\"')
+        {
+            size_t end = line.find('\"', 1);
+            if (end != std::string::npos)
+            {
+                std::string key = line.substr(1, end - 1);
+
+                // Remember last key (SteamID is a numeric-only key)
+                if (key.find_first_not_of("0123456789") == std::string::npos)
+                {
+                    lastKey = key;
+                }
+
+                // If we hit MostRecent = 1, return lastKey
+                if (key == "MostRecent" && line.find("\"1\"") != std::string::npos && !lastKey.empty())
+                {
+                    return lastKey;
+                }
+            }
+        }
+    }
+    return "";
+}
+
+std::string ExtractSteamIDFromConfig(const std::string& content)
+{
+    std::istringstream stream(content);
+    std::string        line;
+    std::string        steamID;
+    bool               inUsersSection = false;
+    int                braceCount = 0;
+
+    while (std::getline(stream, line))
+    {
+        if (line.find("\"Users\"") != std::string::npos)
+        {
+            inUsersSection = true;
+            continue;
+        }
+
+        if (inUsersSection)
+        {
+            if (line.find('{') != std::string::npos)
+                braceCount++;
+            if (line.find('}') != std::string::npos)
+                braceCount--;
+
+            if (braceCount == 0)
+            {
+                inUsersSection = false;
+                continue;
+            }
+
+            size_t start = line.find('\"');
+            if (start != std::string::npos)
+            {
+                size_t end = line.find('\"', start + 1);
+                if (end != std::string::npos)
+                {
+                    steamID = line.substr(start + 1, end - start - 1);
+                    if (!steamID.empty() && steamID.find_first_not_of("0123456789") == std::string::npos)
+                    {
+                        return steamID;
+                    }
+                }
+            }
+        }
+    }
+
+    return "";
+}
+std::string DecimalToSteamHex(const std::string& decimalSteamID)
+{
+    try
+    {
+        uint64_t          steam64 = std::stoull(decimalSteamID);
+        std::stringstream ss;
+        ss << "steam:" << std::hex << std::nouppercase << steam64;
+        return ss.str();
+    }
+    catch (...)
+    {
+        return "";         
+    }
+}
+std::string CHWID::GetSteamID()
+{
+    std::string steamPath = GetSteamPath();
+    if (steamPath.empty())
+    {
+        std::cerr << "Failed to find Steam installation path." << std::endl;
+    }
+
+    std::cout << "Steam path: " << steamPath << std::endl;
+
+    std::string   loginUsersPath = steamPath + "\\config\\loginusers.vdf";
+    std::ifstream loginUsersFile(loginUsersPath);
+
+    if (loginUsersFile.is_open())
+    {
+        std::stringstream buffer;
+        buffer << loginUsersFile.rdbuf();
+        std::string content = buffer.str();
+        loginUsersFile.close();
+
+        std::string steamID = ExtractSteamIDFromLoginUsers(content);
+        if (!steamID.empty())
+        {
+            std::string steamHex = DecimalToSteamHex(steamID);
+            std::cout << "Steam ID from loginusers.vdf: " << steamHex << std::endl;
+            return steamHex;
+        }
+    }
+
+    std::string   configPath = steamPath + "\\config\\config.vdf";
+    std::ifstream configFile(configPath);
+
+    if (configFile.is_open())
+    {
+        std::stringstream buffer;
+        buffer << configFile.rdbuf();
+        std::string content = buffer.str();
+        configFile.close();
+
+        std::string steamID = ExtractSteamIDFromConfig(content);
+        if (!steamID.empty())
+        {
+            std::string steamHex = DecimalToSteamHex(steamID);
+            std::cout << "Steam ID from loginusers.vdf: " << steamHex << std::endl;
+            return steamHex;
+
+        }
+    }
+}
+
 std::string CHWID::GetMotherBoardSerial()
 {
     HRESULT hr;
