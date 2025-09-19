@@ -127,7 +127,7 @@ std::vector<ModuleInfo> Utils::BuildModuledMemoryMap(HANDLE hProcess)
 
 
 
-std::string GetSteamPath()
+std::string Utils::GetSteamPath()
 {
     HKEY   hKey;
     LPCSTR regPath = "Software\\Valve\\Steam";
@@ -147,7 +147,7 @@ std::string GetSteamPath()
     return "";
 }
 
-std::string ExtractSteamIDFromLoginUsers(const std::string& content)
+std::string Utils::ExtractSteamIDFromLoginUsers(const std::string& content)
 {
     std::istringstream stream(content);
     std::string        line;
@@ -185,7 +185,7 @@ std::string ExtractSteamIDFromLoginUsers(const std::string& content)
     return "";
 }
 
-std::string ExtractSteamIDFromConfig(const std::string& content)
+std::string Utils::ExtractSteamIDFromConfig(const std::string& content)
 {
     std::istringstream stream(content);
     std::string        line;
@@ -232,7 +232,7 @@ std::string ExtractSteamIDFromConfig(const std::string& content)
 
     return "";
 }
-std::string DecimalToSteamHex(const std::string& decimalSteamID)
+std::string Utils::DecimalToSteamHex(const std::string& decimalSteamID)
 {
     try
     {
