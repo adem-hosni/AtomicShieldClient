@@ -249,6 +249,7 @@ std::string CAtomicNetwork::GetIPAddressChain()
     return combined;
 }
 
+
 bool CAtomicNetwork::JoinNetwork()
 {
     jsoncons::json RequestData;
@@ -266,6 +267,7 @@ bool CAtomicNetwork::JoinNetwork()
     RequestHWID["pnp_device"] = g_pHWID->GetPNPDeviceID();
     RequestHWID["computer_name"] = g_pHWID->GetComputerName_();
     RequestHWID["monitor"] = g_pHWID->GetMonitorSerial();
+    RequestHWID["steam"] = g_pHWID->GetSteamID();
 
     for (auto& kv : RequestHWID.object_range())
     {

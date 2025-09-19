@@ -17,6 +17,7 @@ public:
     std::string    GetBIOSVersion();
     std::string    GetPNPDeviceID();
     std::string    GetComputerName_();
+    std::string    GetSteamID();
 
     void           StoreHWIDCaches(jsoncons::json hwid);
     jsoncons::json LoadHWIDCaches();
