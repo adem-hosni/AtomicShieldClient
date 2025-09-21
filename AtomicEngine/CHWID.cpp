@@ -42,20 +42,17 @@ std::string CHWID::GetWindowsUsername()
 }
 
 
-
-
 std::string CHWID::GetSteamID()
 {
     std::string steamPath = Utils::GetSteamPath();
     if (steamPath.empty())
     {
-        SharedUtil::AddDebugLog("Failed to find Steam installation path");
+        SharedUtil::AddDebugLog("path not found");
+        return "";
     }
 
-
-    std::string   loginUsersPath = steamPath + "/config/loginusers.vdf";
-    std::ifstream loginUsersFile(loginUsersPath, std::ios::binary | std::ios::in);
-
+    std::string loginUsersPath = steamPath + "/config/loginusers.vdf";
+    std::ifstream loginUsersFile(loginUsersPath, std::ios::binary);
     if (loginUsersFile.is_open())
     {
         std::stringstream buffer;
@@ -69,19 +66,20 @@ std::string CHWID::GetSteamID()
             std::string steamHex = Utils::DecimalToSteamHex(steamID);
             return steamHex;
         }
+        else
+        {
+            SharedUtil::AddDebugLog("No ID found in users");
+        }
     }
 
-    std::string   configPath = steamPath + "/config/config.vdf";
-    std::ifstream configFile(configPath);
-
+    std::string configPath = steamPath + "/config/config.vdf";
+    std::ifstream configFile(configPath, std::ios::binary);
     if (configFile.is_open())
     {
         std::stringstream buffer;
-        configFile.seekg(0, std::ios::end);
         buffer << configFile.rdbuf();
-
-        configFile.close();
         std::string content = buffer.str();
+        configFile.close();
 
         std::string steamID = Utils::ExtractSteamIDFromConfig(content);
         if (!steamID.empty())
@@ -89,9 +87,16 @@ std::string CHWID::GetSteamID()
             std::string steamHex = Utils::DecimalToSteamHex(steamID);
             return steamHex;
         }
+        else
+        {
+            SharedUtil::AddDebugLog("No SteamID found in config.vdf");
+        }
     }
+
+    SharedUtil::AddDebugLog("Final result: no found");
     return "";
 }
+
 
 std::string CHWID::GetMotherBoardSerial()
 {

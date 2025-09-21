@@ -624,7 +624,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
                         ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 262, p.y + 377), ImGui::GetColorU32(c::text_button),
                                                             "Join our socials");
-                        ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 360, p.y + 377), ImGui::GetColorU32(c::text_blue),
+                        ImGui::GetWindowDrawList()->AddText(Instrument_Medium_2, 15.f, ImVec2(p.x + 355, p.y + 377), ImGui::GetColorU32(c::text_blue),
                                                             "network");
 
                         ImGui::SetCursorPos(ImVec2(287, 431));
@@ -753,7 +753,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                                     {
                                                         SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 0);
                                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                                        strcat(szLoadingMessage, skCrypt("Agent Aktiverad! [Du kan stänga nu]"));
+                                                        strcat(szLoadingMessage, skCrypt("Have Fun! [You can close now]"));
                                                         page = 2;
                                                         active_anim_1 = true;
                                                     }
