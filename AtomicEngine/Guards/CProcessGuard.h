@@ -58,11 +58,8 @@ public:
     static void StaticPulse(void* pContext) { reinterpret_cast<CProcessGuard*>(pContext)->DoPulse(); }
     void        DoPulse() override;
 
-    bool IsHeartbeatActive() { return m_tLastHeartbeat == NULL || time(NULL) - m_tLastHeartbeat < 19; }
-
     void ClearDetections() override;
 
 private:
     std::vector<std::string> m_vDetectedProcesses;
-    time_t                   m_tLastHeartbeat;
 };

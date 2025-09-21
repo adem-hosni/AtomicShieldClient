@@ -201,6 +201,9 @@ void CHeuristicGuard::DoPulse()
         scanFunc(0, regions.size());
 
         QueryPerformanceCounter(&end);
+
+        g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::HEURISTIC_GUARD);
+
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
         SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());

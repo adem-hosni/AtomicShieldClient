@@ -9,9 +9,16 @@
 #include <map>
 #include <queue>
 
+enum class eHeartbeatType
+{
+    HEURISTIC_GUARD = 1,
+    PROCESS_GUARD = 2,
+};
+
 class CAtomicNetwork
 {
 public:
+
     CAtomicNetwork();
     ~CAtomicNetwork();
 
@@ -26,6 +33,7 @@ public:
     static void OnConnect();
     static void StaticPulse(void* pContext);
     void        DoPulse();
+    void        Ping(eHeartbeatType HeartbeatType);
 
     ix::WebSocket* GetWebSocket() { return m_pWebSocket; }
 

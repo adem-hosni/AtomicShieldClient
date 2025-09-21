@@ -31,13 +31,6 @@ void CGuardManager::StartGuards()
 
 void CGuardManager::DoPulse()
 {
-    if (!m_pProcessGuard->IsHeartbeatActive() || !m_pHeuristicGuard->IsHeartbeatActive())
-    {
-        SharedUtil::AddDebugLog("One of the guards heartbeat timed out, restarting all guards...");
-        g_pAtomicAntiCheat->ForceHardKick(eHardKickReason::GUARD_TIMEDOUT);
-        StopGuards();
-        StartGuards();
-    }
 }
 
 void CGuardManager::StopGuards()

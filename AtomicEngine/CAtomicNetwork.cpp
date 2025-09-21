@@ -438,6 +438,18 @@ void CAtomicNetwork::HandleRunScanners(jsoncons::json& Packet)
 {
 }
 
+void CAtomicNetwork::Ping(eHeartbeatType HeartbeatType)
+{
+    if (m_pWebSocket->getReadyState() == ix::ReadyState::Open)
+    {
+        jsoncons::json body = jsoncons::json::object();
+        body["heartbeat_type"] = (unsigned short)HeartbeatType;
+
+        SendPacket(HEARTBEAT, body);
+        m_ullLastPingTime = time(NULL);
+    }
+}
+
 void CAtomicNetwork::DoPulse()
 {
     if (!m_vPendingPackets.empty())

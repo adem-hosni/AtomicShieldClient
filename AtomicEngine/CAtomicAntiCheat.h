@@ -14,7 +14,8 @@ struct SMemoryDetectionReport
 
 enum class eHardKickReason
 {
-    GUARD_TIMEDOUT = 1
+    GUARD_TIMEDOUT = 1,
+    PROCESS_TERMINATED,
 };
 
 
@@ -64,7 +65,7 @@ public:
 
     void ForceHardKick(eHardKickReason KickReason);
 
-    void Shutdown();
+    void Shutdown(std::string strReason = "AntiCheat Shutdown");
 
     HANDLE GetProcessHandle() { return m_hProcess; }
     int    GetProcessID() { return m_iTargetProcessID; }
@@ -75,6 +76,10 @@ public:
     std::vector<CAtomicThread*>& GetAtomicThreads() { return m_vAtomicThreads; }
 
 private:
+    void        SetupExitHandlers();
+    static void TerminateSignalHandler(int signal);
+    static BOOL ConsoleHandler(DWORD dwSignal);
+
     bool    m_bAlive;
     int     m_iTargetProcessID;
     HANDLE  m_hProcess;

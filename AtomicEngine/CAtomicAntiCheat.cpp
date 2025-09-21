@@ -20,10 +20,39 @@ CAtomicAntiCheat::~CAtomicAntiCheat()
         delete m_pAtomicNetwork;
 }
 
+void CAtomicAntiCheat::TerminateSignalHandler(int signal)
+{
+    g_pAtomicAntiCheat->ForceHardKick(eHardKickReason::PROCESS_TERMINATED);
+    g_pAtomicAntiCheat->Shutdown("Process Terminated");
+}
+
+BOOL CAtomicAntiCheat::ConsoleHandler(DWORD dwSignal)
+{
+    if (dwSignal == CTRL_CLOSE_EVENT || dwSignal == CTRL_LOGOFF_EVENT || dwSignal == CTRL_SHUTDOWN_EVENT || dwSignal == CTRL_C_EVENT)
+    {
+        g_pAtomicAntiCheat->ForceHardKick(eHardKickReason::PROCESS_TERMINATED);
+        g_pAtomicAntiCheat->Shutdown();
+        return TRUE;
+    }
+    return FALSE;
+}
+
+void CAtomicAntiCheat::SetupExitHandlers()
+{
+    signal(SIGINT, TerminateSignalHandler);
+    signal(SIGTERM, TerminateSignalHandler);
+    signal(SIGABRT, TerminateSignalHandler);
+    signal(SIGBREAK, TerminateSignalHandler);
+
+    std::atexit([] { TerminateSignalHandler(0); });
+    SetConsoleCtrlHandler((PHANDLER_ROUTINE)ConsoleHandler, TRUE);
+}
+
 bool CAtomicAntiCheat::Initialize()
 {
     SharedUtil::AddDebugLog("Initializing Atomic AntiCheat...");
     CCrashHandler::Initialize();
+    SetupExitHandlers();
 
     RtlSecureZeroMemory(&m_ObjAttr, sizeof(m_ObjAttr));
     m_ObjAttr.Length = sizeof(m_ObjAttr);
@@ -71,7 +100,7 @@ void CAtomicAntiCheat::DoPulse()
 
             if (m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Closed && m_pAtomicNetwork->GetReadyState() != ix::ReadyState::Closing)
             {
-                m_pAtomicNetwork->Disconnect("FiveM Closed");
+                m_pAtomicNetwork->Disconnect("FiveM closed");
             }
 
             SysNtClose(m_hProcess);
@@ -227,9 +256,9 @@ void CAtomicAntiCheat::ForceHardKick(eHardKickReason KickReason)
     SharedUtil::AddDebugLog("Force Hard Kick issued for reason: %d", KickReason);
 }
 
-void CAtomicAntiCheat::Shutdown()
+void CAtomicAntiCheat::Shutdown(std::string strReason)
 {
-    SharedUtil::AddDebugLog("Shutting down Atomic AntiCheat...");
+    SharedUtil::AddDebugLog("Shutting down Atomic AntiCheat: %s", strReason.c_str());
 
     RunScanners(false);
     if (m_hProcess != NULL && m_hProcess != INVALID_HANDLE_VALUE)
@@ -239,7 +268,7 @@ void CAtomicAntiCheat::Shutdown()
     }
 
     m_pGuardManager->StopGuards();
-    m_pAtomicNetwork->Disconnect("AntiCheat Shutdown");
+    m_pAtomicNetwork->Disconnect(strReason);
     m_bAlive = false;
 
     // TODO: Unload engine from memory

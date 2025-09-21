@@ -5,6 +5,7 @@
 #include <variant>
 #include <vector>
 #include <eh.h>
+#include <csignal>
 // Third Parties
 // Jsoncons
 #include "jsoncons/json.hpp"

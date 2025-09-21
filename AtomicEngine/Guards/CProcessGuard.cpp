@@ -5,7 +5,6 @@
 CProcessGuard::CProcessGuard()
 {
     m_vDetectedProcesses = {};
-    m_tLastHeartbeat = NULL;
 }
 
 CProcessGuard::~CProcessGuard()
@@ -131,7 +130,6 @@ void CProcessGuard::DoPulse()
 
         std::vector<Handles::SYSTEM_HANDLE> handles = Handles::DetectOpenHandlesToFiveM();
 
-        m_tLastHeartbeat = time(NULL);
         for (auto& handle : handles)
         {
             std::string strProcessPath = GetProcessPath(handle.ProcessId);
@@ -168,6 +166,9 @@ void CProcessGuard::DoPulse()
             }
         }
         QueryPerformanceCounter(&end);
+
+        g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::PROCESS_GUARD);
+
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
         PROCESS_LOG("Process Guard Pulse completed in %.5f seconds", fElapsedTime);
 
@@ -180,5 +181,4 @@ void CProcessGuard::DoPulse()
 void CProcessGuard::ClearDetections()
 {
     m_vDetectedProcesses.clear();
-    m_tLastHeartbeat = NULL;
 }

@@ -37,7 +37,7 @@ CServerEndPoint* CLatencyEvaluator::GetBestServer()
 
 void CLatencyEvaluator::CacheEndPoint(std::string strEndPoint)
 {
-    CLiteRegeditEasy* pRegistry = new CLiteRegeditEasy(HKEY_CURRENT_USER, "Software\\Latinos");
+    CLiteRegeditEasy* pRegistry = new CLiteRegeditEasy(HKEY_CURRENT_USER, "Software\\AtomicShield");
 
     std::string strEncrytedEndPoint = SharedUtil::Base64Encode(g_pAtomicCore->Encrypt(strEndPoint));
     
@@ -46,7 +46,7 @@ void CLatencyEvaluator::CacheEndPoint(std::string strEndPoint)
 
 std::string CLatencyEvaluator::GetCachedEndPoint()
 {
-    CLiteRegeditEasy* pRegistry = new CLiteRegeditEasy(HKEY_CURRENT_USER, "Software\\Latinos");
+    CLiteRegeditEasy* pRegistry = new CLiteRegeditEasy(HKEY_CURRENT_USER, "Software\\AtomicShield");
     std::string       strEncryptedEndPoint = pRegistry->ReadString("CachedEndPoint");
     
     if (pRegistry->IsError() || strEncryptedEndPoint.length() < 5)
