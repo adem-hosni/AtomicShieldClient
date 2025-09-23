@@ -25,16 +25,7 @@ void ApiChecks(LPVOID lpThreadParameter)
     }
     else
     {
-        if (g_pAtomicAPI->IsValidVersion(PROJECT_VERSION) || true)
-        {
-            if (g_pAtomicAPI->IsAlreadyConnected())
-            {
-                result->bSuccess = false;
-                result->strTitle = skCrypt("ALREADY CONNECTED");
-                result->strMessage = skCrypt("You are already connected to the network.");
-            }
-        }
-        else
+        if (!g_pAtomicAPI->IsValidVersion(PROJECT_VERSION) || true)
         {
             result->bSuccess = false;
             result->strTitle = skCrypt("ATOMICSHIELD UPDATE IN PROGRESS");
@@ -44,6 +35,7 @@ void ApiChecks(LPVOID lpThreadParameter)
             g_pAtomicAPI->DownloadLatestAgent(&AgentBuffer);
             UpdateManager::InstallAgent(AgentBuffer, result->strTitle, result->strMessage);
         }
+
     }
     result->bInitialized = true;
 
