@@ -61,3 +61,27 @@ CAtomicThread* CAtomicThread::Create(LPVOID lpStartAddress, LPVOID lpParameter)
 
     return pAtomicThread;
 }
+
+bool CAtomicThread::IsHandleValid()
+{
+    if (!m_hThread || m_hThread == INVALID_HANDLE_VALUE)
+        return false;
+
+    DWORD  dup = 0;
+    HANDLE hTemp = NULL;
+    BOOL   bOk = DuplicateHandle(GetCurrentProcess(), m_hThread, GetCurrentProcess(), &hTemp, 0, FALSE, DUPLICATE_SAME_ACCESS);
+    if (bOk)
+    {
+        CloseHandle(hTemp);
+        return true;
+    }
+    return false;
+}
+
+bool CAtomicThread::IsTerminated()
+{
+    if (!m_hThread)
+        return true;
+    DWORD dwResult = WaitForSingleObject(m_hThread, 0);
+    return (dwResult == WAIT_OBJECT_0);
+}

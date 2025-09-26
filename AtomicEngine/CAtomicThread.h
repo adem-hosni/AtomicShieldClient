@@ -20,6 +20,9 @@ public:
     static CAtomicThread* Create(LPVOID lpStartAddress, LPVOID lpParameter = nullptr);
     HANDLE GetHandle() { return m_hThread; }
 
+    bool IsHandleValid();
+    bool IsTerminated();
+
 private:
     PVOID m_lpStartAddress;
     PVOID m_lpParameter;

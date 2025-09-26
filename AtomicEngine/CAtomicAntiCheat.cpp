@@ -173,6 +173,22 @@ void CAtomicAntiCheat::DoPulse()
         {
             RunScanners(false);
         }
+
+        if (m_pGuardManager->IsPulseStarted())
+        {
+            for (CAtomicThread* thread : m_pGuardManager->GetThreads())
+            {
+                if (!thread->IsHandleValid() || thread->IsTerminated())
+                {
+                    SharedUtil::AddDebugLog("A guard thread has exited unexpectedly, restarting all guards...");
+                    m_pGuardManager->StopGuards();
+                    RunScanners(false);
+                    std::this_thread::sleep_for(std::chrono::seconds(2));
+                    StartPulse();
+                    break;
+                }
+            }
+        }
     }
 }
 

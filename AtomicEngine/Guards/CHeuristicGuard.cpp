@@ -76,7 +76,7 @@ void CHeuristicGuard::DoPulse()
 
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, rSize, &returnLength)))
             {
-                //SharedUtil::AddDebugLog("Failed to query vm at 0x%x", baseAddress);
+                // SharedUtil::AddDebugLog("Failed to query vm at 0x%x", baseAddress);
                 continue;
             }
 
@@ -141,6 +141,8 @@ void CHeuristicGuard::DoPulse()
         {
             SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 
+            g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::HEURISTIC_GUARD);
+
             for (size_t i = startIdx; i < endIdx && !m_bFound.load(); ++i)
             {
                 const auto& region = regions[i];
@@ -201,9 +203,6 @@ void CHeuristicGuard::DoPulse()
         scanFunc(0, regions.size());
 
         QueryPerformanceCounter(&end);
-
-        g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::HEURISTIC_GUARD);
-
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
         SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());
