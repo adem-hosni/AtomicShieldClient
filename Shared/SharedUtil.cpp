@@ -186,7 +186,7 @@ void SharedUtil::AddDebugLog(const char* szLog, ...)
 
     char szLogDirectory[MAX_PATH];
     memset(szLogDirectory, 0, MAX_PATH);
-    sprintf(szLogDirectory, "%s\\AtomicShield", localAppDataPath);
+    sprintf(szLogDirectory, "%s\\Ceylon", localAppDataPath);
 
     CreateDirectory(szLogDirectory, NULL);
 
@@ -233,7 +233,7 @@ bool SharedUtil::GetDebugLogs(std::string& szLog)
         return false;
     char szLogDirectory[MAX_PATH];
     memset(szLogDirectory, 0, MAX_PATH);
-    sprintf(szLogDirectory, "%s\\AtomicShield", localAppDataPath);
+    sprintf(szLogDirectory, "%s\\Ceylon", localAppDataPath);
     char szNewFile[600];
     memset(szNewFile, 0, sizeof(szNewFile));
     sprintf(szNewFile, "%s\\Trace.logs", szLogDirectory);
@@ -427,7 +427,7 @@ void SharedUtil::SetRegistryIntValue(const char* ss,const char* szKey, int iValu
 {
     HKEY hKey;
 
-    if (RegCreateKeyExA(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) ==
+    if (RegCreateKeyExA(HKEY_CURRENT_USER, "Software\\Ceylon", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) ==
         ERROR_SUCCESS)
     {
         RegSetValueExA(hKey, szKey, 0, REG_DWORD, (const BYTE*)&iValue, sizeof(iValue));

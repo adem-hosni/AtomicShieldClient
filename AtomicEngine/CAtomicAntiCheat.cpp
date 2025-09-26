@@ -252,7 +252,7 @@ void CAtomicAntiCheat::ForceHardKick(eHardKickReason KickReason)
 {
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["reason"] = (int)KickReason;
-    m_pAtomicNetwork->SendPacket(eAtomicPacket::GUARD_TIMEDOUT, RequestData, true);
+    m_pAtomicNetwork->SendPacket(eAtomicPacket::FORCE_HARDKICK, RequestData, true);
     SharedUtil::AddDebugLog("Force Hard Kick issued for reason: %d", KickReason);
 }
 

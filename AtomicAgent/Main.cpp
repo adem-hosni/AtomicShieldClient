@@ -25,7 +25,7 @@ void ApiChecks(LPVOID lpThreadParameter)
     }
     else
     {
-        if (!g_pAtomicAPI->IsValidVersion(PROJECT_VERSION) || true)
+        if (!g_pAtomicAPI->IsValidVersion(PROJECT_VERSION) && false)
         {
             result->bSuccess = false;
             result->strTitle = skCrypt("ATOMICSHIELD UPDATE IN PROGRESS");
