@@ -85,3 +85,29 @@ bool CAtomicThread::IsTerminated()
     DWORD dwResult = WaitForSingleObject(m_hThread, 0);
     return (dwResult == WAIT_OBJECT_0);
 }
+
+bool CAtomicThread::IsSuspended()
+{
+    if (!m_hThread)
+        return false;
+
+    static PFNNTQUERYINFORMATIONTHREAD NtQueryInformationThreadFn =
+        (PFNNTQUERYINFORMATIONTHREAD)GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "NtQueryInformationThread");
+
+    if (!NtQueryInformationThreadFn)
+    {
+        SharedUtil::AddDebugLog("IsSuspended: Failed to resolve NtQueryInformationThread");
+        return false;
+    }
+
+    THREAD_BASIC_INFORMATION tbi = {0};
+    NTSTATUS                 status = NtQueryInformationThreadFn(m_hThread, ThreadBasicInformation, &tbi, sizeof(tbi), nullptr);
+
+    if (status < 0)
+    {
+        SharedUtil::AddDebugLog("IsSuspended: NtQueryInformationThread failed (0x%X)", status);
+        return false;
+    }
+
+    return (tbi.SuspendCount > 0);
+}

