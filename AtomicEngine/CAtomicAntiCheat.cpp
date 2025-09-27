@@ -174,7 +174,7 @@ void CAtomicAntiCheat::DoPulse()
             RunScanners(false);
         }
 
-        if (m_pGuardManager->IsPulseStarted())
+        if (m_pGuardManager->IsPulseStarted() && m_bRunScanners)
         {
             for (CAtomicThread* thread : m_pGuardManager->GetThreads())
             {
