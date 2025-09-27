@@ -2,10 +2,10 @@
 #include "StdInc.h"
 #include "KernelCalls.hpp"
 
-typedef enum _THREADINFOCLASS
+typedef enum _LocalTHREADINFOCLASS
 {
     ThreadBasicInformation = 0
-} THREADINFOCLASS;
+} LocalTHREADINFOCLASS;
 
 typedef void*(NTAPI* PFNNTCREATETHREADEX)(PHANDLE hThread, ACCESS_MASK DesiredAccess, PVOID ObjectAttributes, HANDLE ProcessHandle, PVOID lpStartAddress,
                                           PVOID lpParameter, ULONG Flags, SIZE_T StackZeroBits, SIZE_T SizeOfStackCommit, SIZE_T SizeOfStackReserve,
@@ -13,7 +13,7 @@ typedef void*(NTAPI* PFNNTCREATETHREADEX)(PHANDLE hThread, ACCESS_MASK DesiredAc
 
 typedef void*(NTAPI* PFNNTSETINFORMATIONTHREAD)(HANDLE ThreadHandle, void* ThreadInformationClass, PVOID ThreadInformation, ULONG ThreadInformationLength);
 
-typedef NTSTATUS(NTAPI* PFNNTQUERYINFORMATIONTHREAD)(HANDLE ThreadHandle, THREADINFOCLASS ThreadInformationClass, PVOID ThreadInformation,
+typedef NTSTATUS(NTAPI* PFNNTQUERYINFORMATIONTHREAD)(HANDLE ThreadHandle, LocalTHREADINFOCLASS ThreadInformationClass, PVOID ThreadInformation,
                                                      ULONG ThreadInformationLength, PULONG ReturnLength);
 
 typedef struct _THREAD_BASIC_INFORMATION
