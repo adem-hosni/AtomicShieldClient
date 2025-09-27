@@ -25,7 +25,7 @@ typedef struct _THREAD_BASIC_INFORMATION
     ULONG_PTR             AffinityMask;
     LONG                  Priority;
     LONG                  BasePriority;
-    ULONG                 SuspendCount;
+    //ULONG                 SuspendCount;
 } THREAD_BASIC_INFORMATION, *PTHREAD_BASIC_INFORMATION;
 
 class CAtomicThread

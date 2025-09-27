@@ -91,24 +91,20 @@ bool CAtomicThread::IsSuspended()
     if (!m_hThread)
         return false;
 
-    static PFNNTQUERYINFORMATIONTHREAD NtQueryInformationThreadFn =
-        (PFNNTQUERYINFORMATIONTHREAD)GetProcAddress(GetModuleHandleW(L"ntdll.dll"), "NtQueryInformationThread");
-
-    if (!NtQueryInformationThreadFn)
+    DWORD prev = SuspendThread(m_hThread);
+    if (prev == (DWORD)-1)
     {
-        SharedUtil::AddDebugLog("IsSuspended: Failed to resolve NtQueryInformationThread");
+        SharedUtil::AddDebugLog("IsSuspended: SuspendThread failed (err=%u)", GetLastError());
         return false;
     }
 
-    THREAD_BASIC_INFORMATION tbi = {0};
-    ULONG                    returnLength = 0;
-    NTSTATUS                 status = NtQueryInformationThreadFn(m_hThread, ThreadBasicInformation, &tbi, sizeof(tbi), &returnLength);
-
-    if (status < 0)
+    DWORD now = ResumeThread(m_hThread);
+    if (now == (DWORD)-1)
     {
-        SharedUtil::AddDebugLog("IsSuspended: NtQueryInformationThread failed (0x%X)", status);
+        SharedUtil::AddDebugLog("IsSuspended: ResumeThread failed (err=%u)", GetLastError());
         return false;
     }
 
-    return (tbi.SuspendCount > 0);
+    // if prev > 0 ? thread was suspended already
+    return (prev > 0);
 }
