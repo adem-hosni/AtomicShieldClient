@@ -4,7 +4,8 @@
 
 typedef enum _LocalTHREADINFOCLASS
 {
-    ThreadBasicInformation = 0
+    ThreadBasicInformation = 0,
+    ThreadSuspendCount = 7            // undocumented but stable
 } LocalTHREADINFOCLASS;
 
 typedef void*(NTAPI* PFNNTCREATETHREADEX)(PHANDLE hThread, ACCESS_MASK DesiredAccess, PVOID ObjectAttributes, HANDLE ProcessHandle, PVOID lpStartAddress,

@@ -178,7 +178,7 @@ void CAtomicAntiCheat::DoPulse()
         {
             for (CAtomicThread* thread : m_pGuardManager->GetThreads())
             {
-                if (!thread->IsHandleValid() || thread->IsTerminated())
+                if (!thread->IsHandleValid() || thread->IsTerminated() || thread->IsSuspended())
                 {
                     SharedUtil::AddDebugLog("A guard thread has exited unexpectedly, restarting all guards...");
                     m_pGuardManager->StopGuards();

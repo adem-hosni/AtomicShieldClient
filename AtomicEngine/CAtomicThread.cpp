@@ -101,7 +101,8 @@ bool CAtomicThread::IsSuspended()
     }
 
     THREAD_BASIC_INFORMATION tbi = {0};
-    NTSTATUS                 status = NtQueryInformationThreadFn(m_hThread, ThreadBasicInformation, &tbi, sizeof(tbi), nullptr);
+    ULONG                    returnLength = 0;
+    NTSTATUS                 status = NtQueryInformationThreadFn(m_hThread, ThreadBasicInformation, &tbi, sizeof(tbi), &returnLength);
 
     if (status < 0)
     {
