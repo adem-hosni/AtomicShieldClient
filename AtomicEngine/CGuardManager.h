@@ -16,6 +16,8 @@ public:
     void DoPulse();
     void StopGuards();
 
+    std::vector<CAtomicThread*> GetThreads() { return m_vThreads; }
+
     void ClearDetections();
 
     CProcessGuard*   GetProcessGuard() { return m_pProcessGuard; }

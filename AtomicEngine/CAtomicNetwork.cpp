@@ -514,6 +514,7 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
                                     Message->errorInfo.decompressionError);
             m_pWebSocket->close();
             m_bNetworkJoined = false;
+            g_pAtomicAntiCheat->GetGuardManager()->StopGuards();
             // Reconnect();
             break;
     }

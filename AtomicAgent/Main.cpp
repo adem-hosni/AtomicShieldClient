@@ -25,7 +25,7 @@ void ApiChecks(LPVOID lpThreadParameter)
     }
     else
     {
-        if (!g_pAtomicAPI->IsValidVersion(PROJECT_VERSION) || true)
+        if (!g_pAtomicAPI->IsValidVersion(PROJECT_VERSION) && false)
         {
             /*
             if (g_pAtomicAPI->IsAlreadyConnected())
