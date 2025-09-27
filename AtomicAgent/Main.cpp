@@ -27,6 +27,17 @@ void ApiChecks(LPVOID lpThreadParameter)
     {
         if (!g_pAtomicAPI->IsValidVersion(PROJECT_VERSION) || true)
         {
+            /*
+            if (g_pAtomicAPI->IsAlreadyConnected())
+            {
+                result->bSuccess = false;
+                result->strTitle = skCrypt("ALREADY CONNECTED");
+                result->strMessage = skCrypt("You are already connected to the network.");
+            }
+            */
+        }
+        else
+        {
             result->bSuccess = false;
             result->strTitle = skCrypt("ATOMICSHIELD UPDATE IN PROGRESS");
             result->strMessage = skCrypt("This version of Ceylon is no longer supported. Please update to the latest version to continue.");
@@ -35,7 +46,6 @@ void ApiChecks(LPVOID lpThreadParameter)
             g_pAtomicAPI->DownloadLatestAgent(&AgentBuffer);
             UpdateManager::InstallAgent(AgentBuffer, result->strTitle, result->strMessage);
         }
-
     }
     result->bInitialized = true;
 

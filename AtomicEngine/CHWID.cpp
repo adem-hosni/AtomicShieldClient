@@ -44,59 +44,41 @@ std::string CHWID::GetWindowsUsername()
 
 std::string CHWID::GetSteamID()
 {
-    std::string steamPath = Utils::GetSteamPath();
-    if (steamPath.empty())
+    HKEY           hKey = nullptr;
+    const wchar_t* subKey = L"Software\\Valve\\Steam\\ActiveProcess";
+
+    if (RegOpenKeyExW(HKEY_CURRENT_USER, subKey, 0, KEY_QUERY_VALUE, &hKey) != ERROR_SUCCESS)
     {
-        SharedUtil::AddDebugLog("path not found");
+        SharedUtil::AddDebugLog("Registry open failed");
         return "";
     }
 
-    std::string loginUsersPath = steamPath + "/config/loginusers.vdf";
-    std::ifstream loginUsersFile(loginUsersPath, std::ios::binary);
-    if (loginUsersFile.is_open())
-    {
-        std::stringstream buffer;
-        buffer << loginUsersFile.rdbuf();
-        std::string content = buffer.str();
-        loginUsersFile.close();
+    DWORD activeUser = 0;
+    DWORD type = 0;
+    DWORD size = sizeof(activeUser);
 
-        std::string steamID = Utils::ExtractSteamIDFromLoginUsers(content);
-        if (!steamID.empty())
-        {
-            std::string steamHex = Utils::DecimalToSteamHex(steamID);
-            return steamHex;
-        }
-        else
-        {
-            SharedUtil::AddDebugLog("No ID found in users");
-        }
+    if (RegQueryValueExW(hKey, L"ActiveUser", nullptr, &type, reinterpret_cast<LPBYTE>(&activeUser), &size) != ERROR_SUCCESS || type != REG_DWORD)
+    {
+        RegCloseKey(hKey);
+        SharedUtil::AddDebugLog("ActiveUser not found in registry");
+        return "";
     }
 
-    std::string configPath = steamPath + "/config/config.vdf";
-    std::ifstream configFile(configPath, std::ios::binary);
-    if (configFile.is_open())
-    {
-        std::stringstream buffer;
-        buffer << configFile.rdbuf();
-        std::string content = buffer.str();
-        configFile.close();
+    RegCloseKey(hKey);
 
-        std::string steamID = Utils::ExtractSteamIDFromConfig(content);
-        if (!steamID.empty())
-        {
-            std::string steamHex = Utils::DecimalToSteamHex(steamID);
-            return steamHex;
-        }
-        else
-        {
-            SharedUtil::AddDebugLog("No SteamID found in config.vdf");
-        }
+    if (activeUser == 0)
+    {
+        SharedUtil::AddDebugLog("ActiveUser = 0 (Steam not running?)");
+        return "";
     }
 
-    SharedUtil::AddDebugLog("Final result: no found");
-    return "";
+    unsigned long long steam64 = 76561197960265728ULL + static_cast<unsigned long long>(activeUser);
+
+    std::ostringstream oss;
+    oss << "steam:" << std::hex << std::nouppercase << steam64;
+
+    return oss.str();
 }
-
 
 std::string CHWID::GetMotherBoardSerial()
 {
