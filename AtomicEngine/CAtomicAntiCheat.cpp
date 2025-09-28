@@ -181,8 +181,8 @@ void CAtomicAntiCheat::DoPulse()
                 if (m_bRunScanners && (!thread->IsHandleValid() || thread->IsTerminated() || thread->IsSuspended()))
                 {
                     SharedUtil::AddDebugLog("A guard thread has exited unexpectedly, restarting all guards...");
-                    m_pGuardManager->StopGuards();
                     ForceHardKick(eHardKickReason::GUARD_TIMEDOUT);
+                    m_pGuardManager->StopGuards();
                     std::this_thread::sleep_for(std::chrono::seconds(2));
                     StartPulse();
                     break;
