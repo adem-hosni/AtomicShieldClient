@@ -141,7 +141,7 @@ void CAtomicAntiCheat::DoPulse()
 
         if (m_pAtomicNetwork->GetReadyState() == ix::ReadyState::Closed)
         {
-            SharedUtil::AddDebugLog("Target Process ID: %d", m_iTargetProcessID);
+            SharedUtil::AddDebugLog("Connecting to Atomic AntiCheat server...");
             if (!m_pAtomicNetwork->Connect())
             {
                 SharedUtil::AddDebugLog("Failed to connect to server!");

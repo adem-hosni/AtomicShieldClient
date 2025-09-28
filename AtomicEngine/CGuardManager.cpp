@@ -22,7 +22,7 @@ void CGuardManager::InitializeGuards()
 
 void CGuardManager::StartGuards()
 {
-    SharedUtil::AddDebugLog("Starting threads");
+    SharedUtil::AddDebugLog("Starting guards");
     m_bPulseStarted = true;
     m_vThreads.push_back(CAtomicThread::Create(CProcessGuard::StaticPulse, m_pProcessGuard));
     m_vThreads.push_back(CAtomicThread::Create(CHeuristicGuard::StaticPulse, m_pHeuristicGuard));
@@ -35,7 +35,7 @@ void CGuardManager::DoPulse()
 
 void CGuardManager::StopGuards()
 {
-    SharedUtil::AddDebugLog("Stopping threads");
+    SharedUtil::AddDebugLog("Stopping guards");
     m_bPulseStarted = false;
 
     for (const auto& thread : m_vThreads)
