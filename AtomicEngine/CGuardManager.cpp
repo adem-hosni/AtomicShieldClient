@@ -42,6 +42,7 @@ void CGuardManager::StopGuards()
     {
         thread->Terminate();
     }
+    m_vThreads.clear();
 }
 
 void CGuardManager::ClearDetections()
