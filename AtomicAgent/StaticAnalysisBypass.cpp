@@ -181,14 +181,14 @@ bool StaticAnalysisBypass::IsAnalysisVM()
         }
     }
 
-    for (const auto& bannedMac : blacklisted_macs)
+    /*for (const auto& bannedMac : blacklisted_macs)
     {
         if (mac_address.find(bannedMac) != std::string::npos)
         {
             SharedUtil::AddDebugLog("Detected 4");
             return true;
         }
-    }
+    }*/
 
     for (const auto& bannedUser : blacklistUsers)
     {
