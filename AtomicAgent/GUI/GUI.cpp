@@ -221,8 +221,8 @@ bool GUI::Initialize()
     GUI::wc.cbWndExtra = NULL;
     GUI::wc.hCursor = LoadCursor(0, IDC_ARROW);
     GUI::wc.hbrBackground = nullptr;
-    GUI::wc.lpszMenuName = L"Ceylon";
-    GUI::wc.lpszClassName = L"Ceylon";
+    GUI::wc.lpszMenuName = L"AtomicShield";
+    GUI::wc.lpszClassName = L"AtomicShield";
     GUI::wc.hInstance = GetModuleHandleW(NULL);
     GUI::wc.hIcon = LoadIcon(GUI::wc.hInstance, MAKEINTRESOURCE(ico4));
     GUI::wc.hIconSm = LoadIcon(GUI::wc.hInstance, MAKEINTRESOURCE(ico4));
@@ -539,7 +539,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium,
                                                             cashlineDebug.textSize,            // <-- Replace with cashlineDebug.textSize
                                                             ImVec2(p.x + 250 + cashlineDebug.positionOffset.x, p.y + 101 + cashlineDebug.positionOffset.y),
-                                                            ImGui::GetColorU32(c::text_blue), "CEYLON RP");
+                                                            ImGui::GetColorU32(c::text_blue), "AtomicShield RP");
 
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 380, p.y + 101), ImGui::GetColorU32(c::text_checkbox_active_on),
                                                             "");
@@ -632,14 +632,14 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         {
                             if (ImGui::Circle_icon("discord", image::discord, ImVec2(31, 31), ImGui::GetColorU32(c::multi_checkbox_blue), 0))
                             {
-                                OpenURL(skCrypt("https://discord.ceylonroleplay.com/"));
+                                OpenURL(skCrypt("https://discord.AtomicShieldroleplay.com/"));
                             }
 
                             ImGui::SameLine(0, 26);
 
                             if (ImGui::Circle_icon("youtube", image::youtube, ImVec2(31, 31), ImGui::GetColorU32(c::multi_checkbox_blue), 0))
                             {
-                                OpenURL(skCrypt("https://www.youtube.com/@ceylonrpofficial"));
+                                OpenURL(skCrypt("https://www.youtube.com/@AtomicShieldrpofficial"));
                             }
                         }
                         ImGui::EndGroup();

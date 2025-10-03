@@ -37,6 +37,19 @@ BOOL CAtomicAntiCheat::ConsoleHandler(DWORD dwSignal)
     return FALSE;
 }
 
+void CAtomicAntiCheat::TerminateInternalThreads()
+{
+    for (CAtomicThread* thread : m_vAtomicThreads)
+    {
+        if (thread->IsHandleValid() && !thread->IsTerminated())
+        {
+            thread->Terminate();
+        }
+        delete thread;
+    }
+    m_vAtomicThreads.clear();
+}
+
 void CAtomicAntiCheat::SetupExitHandlers()
 {
     signal(SIGINT, TerminateSignalHandler);
@@ -178,7 +191,7 @@ void CAtomicAntiCheat::DoPulse()
         {
             for (CAtomicThread* thread : m_pGuardManager->GetThreads())
             {
-                if (m_bRunScanners && (!thread->IsHandleValid() || thread->IsTerminated() || thread->IsSuspended()))
+                if (m_bRunScanners && (!thread->IsHandleValid() || thread->IsTerminated() /*|| thread->IsSuspended()*/))
                 {
                     SharedUtil::AddDebugLog("A guard thread has exited unexpectedly, restarting all guards...");
                     ForceHardKick(eHardKickReason::GUARD_TIMEDOUT);
