@@ -58,10 +58,12 @@ std::string CLatencyEvaluator::GetCachedEndPoint()
 
 void CLatencyEvaluator::SetupServerEndPoint(void(__stdcall* EndPointCallback)(std::string), bool bUseCachedEndPoint)
 {
+
+
+
     CLatencyEvaluator* pLatencyEvaluator = new CLatencyEvaluator();
     std::string        strCachedEndPoint = pLatencyEvaluator->GetCachedEndPoint();
     std::string        strBestEndPoint;
-    
     if (!bUseCachedEndPoint || strCachedEndPoint.empty())
     {
         pLatencyEvaluator->AddServer("31.97.180.157");
