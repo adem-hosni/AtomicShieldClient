@@ -18,7 +18,6 @@ enum class eHardKickReason
     PROCESS_TERMINATED,
 };
 
-
 using ArgType = std::variant<int, DWORD64, std::string, std::wstring, bool>;
 
 enum eDetectionType
@@ -43,7 +42,7 @@ public:
     CAtomicAntiCheat();
     ~CAtomicAntiCheat();
 
-    void SetAntiCheatModuleBase(LPVOID lpModuleBase) { m_lpAntiCheatModuleBase = lpModuleBase; };
+    void   SetAntiCheatModuleBase(LPVOID lpModuleBase) { m_lpAntiCheatModuleBase = lpModuleBase; };
     LPVOID GetAntiCheatModuleBase() { return m_lpAntiCheatModuleBase; }
 
     bool Initialize();
@@ -79,10 +78,11 @@ private:
     void        SetupExitHandlers();
     static void TerminateSignalHandler(int signal);
     static BOOL ConsoleHandler(DWORD dwSignal);
+    void        TerminateInternalThreads();
 
-    bool    m_bAlive;
-    int     m_iTargetProcessID;
-    HANDLE  m_hProcess;
+    bool   m_bAlive;
+    int    m_iTargetProcessID;
+    HANDLE m_hProcess;
 
     jsoncons::json m_HWIDCache;
 

@@ -286,7 +286,7 @@ std::string StartupManager::GetCurrentProcessName()
     char szPath[MAX_PATH];
     if (GetModuleFileName(NULL, szPath, MAX_PATH) == 0)
     {
-        SharedUtil::AddDebugLog(skCrypt("[Ceylon] Error retrieving executable path"));
+        SharedUtil::AddDebugLog(skCrypt("[AtomicShield] Error retrieving executable path"));
         return "";
     }
     std::string fileName = PathFindFileName(szPath);
