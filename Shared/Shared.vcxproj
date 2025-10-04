@@ -131,7 +131,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>true</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;_CONSOLE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <AdditionalIncludeDirectories>../EagleAgentPE/;Vendor\;$(ProjectDir);$(DXSDK_DIR)Include;Vendor\misc\;Vendor\ImGui\;Vendor\freetype\include\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
@@ -158,6 +158,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClCompile Include="AntiDebugging.cpp" />
     <ClCompile Include="CAtomicCore.cpp" />
     <ClCompile Include="CLatencyEvaluator.cpp" />
     <ClCompile Include="CServerEndPoint.cpp" />
@@ -169,6 +170,7 @@
     <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="CAntiDebugging.h" />
     <ClInclude Include="CAtomicCore.h" />
     <ClInclude Include="CLatencyEvaluator.h" />
     <ClInclude Include="CServerEndPoint.h" />

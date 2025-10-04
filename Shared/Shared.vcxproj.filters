@@ -42,6 +42,9 @@
     <ClCompile Include="CLatencyEvaluator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="AntiDebugging.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SharedChecks.h">
@@ -1119,6 +1122,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CLatencyEvaluator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAntiDebugging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
