@@ -148,7 +148,7 @@
       <FunctionLevelLinking>true</FunctionLevelLinking>
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <SDLCheck>false</SDLCheck>
-      <PreprocessorDefinitions>NDEBUG;ATOMICENGINE_EXPORTS;_WINDOWS;_USRDLL;IXWEBSOCKET_USE_ZLIB;_ATOMIC_ENGINE;_CRT_SECURE_NO_WARNINGS;WIN32_LEAN_AND_MEAN</PreprocessorDefinitions>
+      <PreprocessorDefinitions>NDEBUG;ATOMICENGINE_EXPORTS;_WINDOWS;_USRDLL;IXWEBSOCKET_USE_ZLIB;_ATOMIC_ENGINE;_CRT_SECURE_NO_WARNINGS</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <PrecompiledHeader>NotUsing</PrecompiledHeader>
       <PrecompiledHeaderFile>StdInc.h</PrecompiledHeaderFile>
@@ -178,10 +178,6 @@
       <EnableUAC>false</EnableUAC>
       <AdditionalDependencies>$(OutputPath)Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;winhttp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
-    <PostBuildEvent>
-      <Command>xcopy /Y "$(TargetPath)" "C:\Users\hosni\OneDrive\Documentos\Virtual Machines\Windows 10 x64\Shared\"
-</Command>
-    </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BasicChecks.cpp" />

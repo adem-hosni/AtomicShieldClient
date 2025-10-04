@@ -18,7 +18,7 @@ CAtomicAPI::~CAtomicAPI()
 jsoncons::json CAtomicAPI::GetStatus()
 {
     auto        sk_title = skCrypt("Connection Error");
-    auto        sk_message = skCrypt("Failed to connect to AtomicShield Server");
+    auto        sk_message = skCrypt("Failed to connect to Ceylon Server");
     std::string end = m_strServerEndPoint + std::string(skCrypt("/anticheat/status/agent").decrypt());
     std::string buffer = PostRequest(end.c_str(), jsoncons::json());
     if (buffer.empty())

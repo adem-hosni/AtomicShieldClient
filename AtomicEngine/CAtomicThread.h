@@ -2,17 +2,22 @@
 #include "StdInc.h"
 #include "KernelCalls.hpp"
 
+typedef enum _LocalTHREADINFOCLASS
+{
+    ThreadBasicInformation = 0,
+    ThreadSuspendCount = 7            // undocumented but stable
+} LocalTHREADINFOCLASS;
+
 typedef void*(NTAPI* PFNNTCREATETHREADEX)(PHANDLE hThread, ACCESS_MASK DesiredAccess, PVOID ObjectAttributes, HANDLE ProcessHandle, PVOID lpStartAddress,
                                           PVOID lpParameter, ULONG Flags, SIZE_T StackZeroBits, SIZE_T SizeOfStackCommit, SIZE_T SizeOfStackReserve,
                                           PVOID lpBytesBuffer);
 
 typedef void*(NTAPI* PFNNTSETINFORMATIONTHREAD)(HANDLE ThreadHandle, void* ThreadInformationClass, PVOID ThreadInformation, ULONG ThreadInformationLength);
 
-typedef NTSTATUS(NTAPI* PFNNTQUERYINFORMATIONTHREAD)(HANDLE ThreadHandle, int ThreadInformationClass, PVOID ThreadInformation, ULONG ThreadInformationLength,
-                                                     PULONG ReturnLength);
-typedef NTSTATUS(NTAPI* PFNNTTERMINATETHREAD)(HANDLE ThreadHandle, NTSTATUS ExitStatus);
+typedef NTSTATUS(NTAPI* PFNNTQUERYINFORMATIONTHREAD)(HANDLE ThreadHandle, LocalTHREADINFOCLASS ThreadInformationClass, PVOID ThreadInformation,
+                                                     ULONG ThreadInformationLength, PULONG ReturnLength);
 
-typedef struct _THREAD_BASIC_INFORMATION_NT
+typedef struct _THREAD_BASIC_INFORMATION
 {
     NTSTATUS              ExitStatus;
     PVOID                 TebBaseAddress;
@@ -20,7 +25,8 @@ typedef struct _THREAD_BASIC_INFORMATION_NT
     ULONG_PTR             AffinityMask;
     LONG                  Priority;
     LONG                  BasePriority;
-} THREAD_BASIC_INFORMATION_NT, *PTHREAD_BASIC_INFORMATION_NT;
+    //ULONG                 SuspendCount;
+} THREAD_BASIC_INFORMATION, *PTHREAD_BASIC_INFORMATION;
 
 class CAtomicThread
 {
@@ -29,7 +35,7 @@ public:
     ~CAtomicThread();
 
     bool Create();
-    bool Terminate();
+    bool Terminate() { return TerminateThread(m_hThread, NULL); }
 
     static CAtomicThread* Create(LPVOID lpStartAddress, LPVOID lpParameter = nullptr);
     HANDLE                GetHandle() { return m_hThread; }
@@ -42,10 +48,7 @@ private:
     PVOID m_lpStartAddress;
     PVOID m_lpParameter;
 
-    PFNNTCREATETHREADEX         m_NtCreateThreadEx;
-    PFNNTSETINFORMATIONTHREAD   m_NtSetInformationThread;
-    PFNNTQUERYINFORMATIONTHREAD m_NtQueryInformationThread;
-    PFNNTTERMINATETHREAD        m_NtTerminateThread;
-    HANDLE                      m_hThread;
-    int                         m_iThreadID;
+    PFNNTCREATETHREADEX       m_NtCreateThreadEx;
+    PFNNTSETINFORMATIONTHREAD m_NtSetInformationThread;
+    HANDLE                    m_hThread;
 };

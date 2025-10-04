@@ -15,20 +15,12 @@ CAtomicThread::CAtomicThread(PVOID lpStartAddress, PVOID lpParameter)
     HMODULE hModule = LoadLibrary("ntdll.dll");
     m_NtCreateThreadEx = (PFNNTCREATETHREADEX)GetProcAddress(hModule, "NtCreateThreadEx");
     m_NtSetInformationThread = (PFNNTSETINFORMATIONTHREAD)GetProcAddress(hModule, "NtSetInformationThread");
-    m_NtQueryInformationThread = (PFNNTQUERYINFORMATIONTHREAD)GetProcAddress(hModule, "NtQueryInformationThread");
-    m_NtTerminateThread = (PFNNTTERMINATETHREAD)GetProcAddress(hModule, "NtTerminateThread");
     m_lpStartAddress = lpStartAddress;
     m_lpParameter = lpParameter;
-    m_iThreadID = NULL;
 }
 
 CAtomicThread::~CAtomicThread()
 {
-    if (m_hThread && m_hThread != INVALID_HANDLE_VALUE)
-    {
-        Terminate();
-    }
-    m_iThreadID = NULL;
 }
 
 bool CAtomicThread::Create()
@@ -49,9 +41,9 @@ bool CAtomicThread::Create()
         SharedUtil::AddDebugLog("Failed to create thread handle on 0x%x Error code: 0x%x", (DWORD64)m_lpStartAddress, GetLastError());
         return false;
     }
-    m_iThreadID = GetThreadId(m_hThread);
 
-    SharedUtil::AddDebugLog("Thread created at 0x%x with TID %d", (DWORD64)m_lpStartAddress, m_iThreadID);
+    g_pAtomicAntiCheat->GetAtomicThreads().push_back(this);
+    return true;
 
     ULONG    ulEnable = true;
     NTSTATUS NTThreadBreakOnTermination = (NTSTATUS)m_NtSetInformationThread(m_hThread, (void*)18, &ulEnable, sizeof(ulEnable));
@@ -59,8 +51,6 @@ bool CAtomicThread::Create()
     {
         SharedUtil::AddDebugLog("Unable to set thread protection! status: 0x%llx last error: 0x%llx", NTThreadBreakOnTermination, GetLastError());
     }
-
-    g_pAtomicAntiCheat->GetAtomicThreads().push_back(this);
     return true;
 }
 
@@ -70,23 +60,6 @@ CAtomicThread* CAtomicThread::Create(LPVOID lpStartAddress, LPVOID lpParameter)
     pAtomicThread->Create();
 
     return pAtomicThread;
-}
-
-bool CAtomicThread::Terminate()
-{
-    if (!m_NtTerminateThread || !m_hThread || m_hThread == INVALID_HANDLE_VALUE)
-        return false;
-    NTSTATUS status = m_NtTerminateThread(m_hThread, 0);
-    if (!NT_SUCCESS(status))
-    {
-        SharedUtil::AddDebugLog("Failed to terminate thread! status: 0x%llx last error: 0x%llx", (unsigned long long)status, GetLastError());
-        return false;
-    }
-    else
-        SharedUtil::AddDebugLog("Thread at 0x%x terminated successfuly", m_lpStartAddress);
-    CloseHandle(m_hThread);
-    m_hThread = NULL;
-    return true;
 }
 
 bool CAtomicThread::IsHandleValid()
@@ -115,37 +88,23 @@ bool CAtomicThread::IsTerminated()
 
 bool CAtomicThread::IsSuspended()
 {
-    if (!m_hThread || m_hThread == INVALID_HANDLE_VALUE)
+    if (!m_hThread)
         return false;
 
-    DWORD exitCode = 0;
-    if (GetExitCodeThread(m_hThread, &exitCode) && exitCode != STILL_ACTIVE)
-        return false;
-
-    if (m_NtQueryInformationThread)
+    DWORD prev = SuspendThread(m_hThread);
+    if (prev == (DWORD)-1)
     {
-        ULONG suspendCount = 0;
-        ULONG retLen = 0;
-
-        NTSTATUS status = m_NtQueryInformationThread(m_hThread,
-                                                     0x11,            // ThreadSuspendCount
-                                                     &suspendCount,
-                                                     sizeof(suspendCount),            // MUST be 4
-                                                     &retLen);
-
-        if (NT_SUCCESS(status))
-        {
-            bool suspended = (suspendCount > 0);
-            SharedUtil::AddDebugLog("[IsSuspended] SuspendCount=%u => suspended=%d", suspendCount, suspended ? 1 : 0);
-            return suspended;
-        }
-        else
-        {
-            SharedUtil::AddDebugLog("[IsSuspended] NtQueryInformationThread(ThreadSuspendCount) failed (0x%llx 0x%x).", (unsigned long long)status,
-                                    GetLastError());
-        }
+        SharedUtil::AddDebugLog("IsSuspended: SuspendThread failed (err=%u)", GetLastError());
+        return false;
     }
 
-    SharedUtil::AddDebugLog("[IsSuspended] Could not determine state; assuming not suspended.");
-    return false;
+    DWORD now = ResumeThread(m_hThread);
+    if (now == (DWORD)-1)
+    {
+        SharedUtil::AddDebugLog("IsSuspended: ResumeThread failed (err=%u)", GetLastError());
+        return false;
+    }
+
+    // if prev > 0 ? thread was suspended already
+    return (prev > 0);
 }

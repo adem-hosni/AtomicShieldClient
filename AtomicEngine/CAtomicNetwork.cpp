@@ -482,9 +482,8 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
     {
         case ix::WebSocketMessageType::Open:
         {
-            /*std::thread t(&CAtomicNetwork::OnConnect);
-            t.detach();*/
-            CAtomicThread::Create(&CAtomicNetwork::OnConnect, this);
+            std::thread t(&CAtomicNetwork::OnConnect);
+            t.detach();
             break;
         }
 
