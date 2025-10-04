@@ -185,6 +185,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="BasicChecks.cpp" />
+    <ClCompile Include="cAntiDebugging.cpp" />
     <ClCompile Include="CAtomicAntiCheat.cpp" />
     <ClCompile Include="CAtomicHook.cpp" />
     <ClCompile Include="CAtomicNetwork.cpp" />
@@ -247,6 +248,7 @@
   <ItemGroup>
     <ClInclude Include="AtomicPacket.h" />
     <ClInclude Include="BasicChecks.h" />
+    <ClInclude Include="cAntiDebugging.hpp" />
     <ClInclude Include="CAtomicAntiCheat.h" />
     <ClInclude Include="CAtomicHook.h" />
     <ClInclude Include="CAtomicNetwork.h" />

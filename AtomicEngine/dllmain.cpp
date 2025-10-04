@@ -3,6 +3,7 @@
 #include <winternl.h>
 #include "SharedProtocols.h"
 #include "CLatencyEvaluator.h"
+#include <cAntiDebugging.hpp>
 
 BOOL AdjustTokenPrivilege(const HANDLE hproc)
 {
@@ -72,16 +73,12 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
         "=====================================\n");
     SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 1);
 
-    //SharedProtocols::EnableProcessMitigations();
+    // SharedProtocols::EnableProcessMitigations();
 
-    CLatencyEvaluator::SetupServerEndPoint(
-        [](std::string strBestEndPoint) -> void
-        {
-            g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint);
-        },
-        false);
-
+    CLatencyEvaluator::SetupServerEndPoint([](std::string strBestEndPoint) -> void { g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint); },
+                                           false);
     EnableDebugPrivilege();
+
     g_pAtomicAntiCheat->Initialize();
 
     _beginthread((_beginthread_proc_type)CAtomicAntiCheat::StaticPulse, NULL, g_pAtomicAntiCheat);
@@ -93,6 +90,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
         case DLL_PROCESS_ATTACH:
         {
+            g_AntiDebug.StartAntiDebugMonitoring();
             _beginthread((_beginthread_proc_type)EntryPoint, NULL, hModule);
         }
         case DLL_THREAD_ATTACH:
