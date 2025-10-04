@@ -21,7 +21,9 @@ public:
 
     CAtomicNetwork();
     ~CAtomicNetwork();
+    bool m_bTimeoutOccurred = false;
 
+    bool HasTimeoutOccurred() const { return m_bTimeoutOccurred; }
     void SetServerEndPoint(std::string& strServerEndPoint) { m_strServerEndPoint = strServerEndPoint; }
 
     bool           Connect();
