@@ -505,16 +505,7 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         {
             m_bNetworkJoined = false;
             m_bConnected = false;
-            if (Message->closeInfo.code == 1011)
-            {
-                m_bTimeoutOccurred = true;
-                SharedUtil::AddDebugLog("WebSocket closed due to timeout (1011)");
-            }
-            else
-            {
-                m_bTimeoutOccurred = false;
-                SharedUtil::AddDebugLog("WebSocket Closed: %s (%d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code);
-            }
+            SharedUtil::AddDebugLog("WebSocket Closed: %s (%d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code);
             break;
         }
 

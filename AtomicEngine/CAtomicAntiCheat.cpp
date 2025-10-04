@@ -191,8 +191,7 @@ void CAtomicAntiCheat::DoPulse()
         {
             for (CAtomicThread* thread : m_pGuardManager->GetThreads())
             {
-                if (m_bRunScanners && (!thread->IsHandleValid() || (thread->IsTerminated() && !g_pAtomicAntiCheat->GetNetwork()->HasTimeoutOccurred())))
-                
+                if (m_bRunScanners && (!thread->IsHandleValid() || thread->IsTerminated() /*|| thread->IsSuspended()*/))
                 {
                     SharedUtil::AddDebugLog("A guard thread has exited unexpectedly, restarting all guards...");
                     ForceHardKick(eHardKickReason::GUARD_TIMEDOUT);

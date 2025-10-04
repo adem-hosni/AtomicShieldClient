@@ -88,7 +88,6 @@
     <LibraryPath>C:\vcpkg\installed\x64-windows-static\lib;$(ProjectDir)Vendor;$(LibraryPath)</LibraryPath>
     <ExternalIncludePath>C:\vcpkg\installed\x64-windows-static\include;$(SolutionDir)Shared;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Vendor</ExternalIncludePath>
     <LinkIncremental>false</LinkIncremental>
-    <PostBuildEventUseInBuild>false</PostBuildEventUseInBuild>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -180,7 +179,8 @@
       <AdditionalDependencies>$(OutputPath)Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;winhttp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <PostBuildEvent>
-      <Command>=</Command>
+      <Command>xcopy /Y "$(TargetPath)" "C:\Users\hosni\OneDrive\Documentos\Virtual Machines\Windows 10 x64\Shared\"
+</Command>
     </PostBuildEvent>
   </ItemDefinitionGroup>
   <ItemGroup>
