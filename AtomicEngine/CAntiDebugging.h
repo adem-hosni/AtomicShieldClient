@@ -24,7 +24,7 @@ enum eDebugDetectionFlags
 class CAntiDebugging
 {
 public:
-    CAntiDebugging(void* (*DetectionCallback)(eDebugDetectionFlags));
+    CAntiDebugging(void* (*DetectionCallback)(eDebugDetectionFlags, std::string));
 
     void StartPulse();
     static void StaticPulse(void* pContext) { ((CAntiDebugging*)pContext)->DoPulse(); }
@@ -42,12 +42,12 @@ public:
     eDebugDetectionFlags _IsDebuggerPresent_ProcessDebugFlags();
     eDebugDetectionFlags _IsKernelDebuggerPresent();
     eDebugDetectionFlags _IsKernelDebuggerPresent_SharedKData();
-    eDebugDetectionFlags _ExitCommonDebuggers();            // call ExitProcess in a remote thread on common debuggers
+    eDebugDetectionFlags _ExitCommonDebuggers(std::string* strReason);            // call ExitProcess in a remote thread on common debuggers
 
     void DoPulse();
 
 private:
-    void* (*m_DetectionCallback)(eDebugDetectionFlags);
+    void* (*m_DetectionCallback)(eDebugDetectionFlags, std::string);
 
     std::vector<std::string> m_vCommonDebuggerProcesses = {"ollydbg.exe",
                                                            "x64dbg.exe",

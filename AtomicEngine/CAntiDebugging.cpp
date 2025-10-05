@@ -1,6 +1,6 @@
 #include "StdInc.h"
 
-CAntiDebugging::CAntiDebugging(void* (*DetectionCallback)(eDebugDetectionFlags))
+CAntiDebugging::CAntiDebugging(void* (*DetectionCallback)(eDebugDetectionFlags, std::string))
 {
     m_DetectionCallback = DetectionCallback;
 }
@@ -40,7 +40,7 @@ void CAntiDebugging::_IsHardwareDebuggerPresent()
                         if (ctx.Dr0 || ctx.Dr1 || ctx.Dr2 || ctx.Dr3 || ctx.Dr6 || ctx.Dr7)
                         {
                             SharedUtil::AddDebugLog("[ANTIDEBUGGING] Hardware breakpoint detected in thread ID: %d", te32.th32ThreadID);
-                            m_DetectionCallback(eDebugDetectionFlags::DEBUG_HARDWARE_REGISTERS);
+                            m_DetectionCallback(eDebugDetectionFlags::DEBUG_HARDWARE_REGISTERS, "Debugger Detected");
                         }
                     }
                     else
@@ -445,7 +445,7 @@ eDebugDetectionFlags CAntiDebugging::_IsDebuggerPresent_ProcessDebugFlags()
     _ExitCommonDebuggers - create remote thread on `ExitProcess` in any common debugger processes
     This can of course be bypassed with a simple process name change, preferrably we would use a combination of artifacts to find these processes
 */
-eDebugDetectionFlags CAntiDebugging::_ExitCommonDebuggers()
+eDebugDetectionFlags CAntiDebugging::_ExitCommonDebuggers(std::string* strReason)
 {
     bool triedEndDebugger = false;
 
@@ -481,6 +481,7 @@ eDebugDetectionFlags CAntiDebugging::_ExitCommonDebuggers()
                 HANDLE    RemoteThread = CreateRemoteThread(remoteProcHandle, 0, 0, (LPTHREAD_START_ROUTINE)FunctionAddr_ExitProcess, 0, 0, 0);
                 triedEndDebugger = true;
                 CloseHandle(remoteProcHandle);
+                *strReason = "Debugger Process Detected: " + debugger;
                 SharedUtil::AddDebugLog("[ANTIDEBUGGING] Attempting to terminate debugger process %s with pid %d @ _ExitCommonDebuggers", debugger.c_str(),
                                         pid);
                 SharedUtil::AddDebugLog("[ANTIDEBUGGING] Created remote thread at %llX address", FunctionAddr_ExitProcess);
@@ -506,40 +507,42 @@ void CAntiDebugging::DoPulse()
             continue;
         }
 
+        std::string strReason;
+
         _IsHardwareDebuggerPresent();
         eDebugDetectionFlags dbgFlag = _IsDebuggerPresent();
         if (dbgFlag != NONE)
-            m_DetectionCallback(dbgFlag);
+            m_DetectionCallback(dbgFlag, "Debugging behaviour detected");
         dbgFlag = _IsDebuggerPresent_HeapFlags();
         if (dbgFlag != NONE)
-            m_DetectionCallback(dbgFlag);
+            m_DetectionCallback(dbgFlag, "Memory debugging activity detected");
         dbgFlag = _IsDebuggerPresent_CloseHandle();
         if (dbgFlag != NONE)
-            m_DetectionCallback(dbgFlag);
+            m_DetectionCallback(dbgFlag, "Debugging activity detected");
         dbgFlag = _IsDebuggerPresent_RemoteDebugger();
         if (dbgFlag != NONE)
-            m_DetectionCallback(dbgFlag);
+            m_DetectionCallback(dbgFlag, "Remote debugger detected");
         dbgFlag = _IsDebuggerPresent_VEH();
         if (dbgFlag != NONE)
-            m_DetectionCallback(dbgFlag);
+            m_DetectionCallback(dbgFlag, "Debugging behaviour detected");
         dbgFlag = _IsDebuggerPresent_PEB();
         if (dbgFlag != NONE)
-            m_DetectionCallback(dbgFlag);
+            m_DetectionCallback(dbgFlag, "Debugging behaviour detected");
         dbgFlag = _IsDebuggerPresent_DebugPort();
         if (dbgFlag != NONE)
-            m_DetectionCallback(dbgFlag);
+            m_DetectionCallback(dbgFlag, "Debugging behaviour detected");
         dbgFlag = _IsDebuggerPresent_ProcessDebugFlags();
         if (dbgFlag != NONE)
-            m_DetectionCallback(dbgFlag);
+            m_DetectionCallback(dbgFlag, "Debugger Detected");
         dbgFlag = _IsKernelDebuggerPresent();
         if (dbgFlag != NONE)
-            m_DetectionCallback(dbgFlag);
+            m_DetectionCallback(dbgFlag, "Kernel Debugger Detected");
         dbgFlag = _IsKernelDebuggerPresent_SharedKData();
         if (dbgFlag != NONE)
-            m_DetectionCallback(dbgFlag);
-        dbgFlag = _ExitCommonDebuggers();
+            m_DetectionCallback(dbgFlag, "Kernel debugging activity");
+        dbgFlag = _ExitCommonDebuggers(&strReason);
         if (dbgFlag != NONE)
-            m_DetectionCallback(dbgFlag);
+            m_DetectionCallback(dbgFlag, strReason);
         Sleep(2000);            // pulse every 2 seconds
     }
 }

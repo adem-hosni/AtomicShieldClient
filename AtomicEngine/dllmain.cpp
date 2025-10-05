@@ -74,11 +74,14 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
     SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 1);
 
     CAntiDebugging* pAntiDebugging = new CAntiDebugging(
-        [](eDebugDetectionFlags DetectionFlag) -> void*
+        [](eDebugDetectionFlags DetectionFlag, std::string strReason) -> void*
         {
             if (DetectionFlag == eDebugDetectionFlags::NONE || DetectionFlag == eDebugDetectionFlags::EXECUTION_ERROR)
                 return nullptr;
-            g_pAtomicAntiCheat->Shutdown(std::string("Debugger Detected ") + std::to_string((int)DetectionFlag));
+            char szReason[256];
+            memset(szReason, 0, sizeof(szReason));
+            sprintf(szReason, "%s (%d)", strReason.c_str(), (int)DetectionFlag);
+            g_pAtomicAntiCheat->Shutdown(szReason);
             return nullptr;
         });
     pAntiDebugging->StartPulse();
