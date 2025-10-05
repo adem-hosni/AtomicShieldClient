@@ -6,6 +6,8 @@
 #include <vector>
 #include <eh.h>
 #include <csignal>
+#include <intrin.h>
+#include <functional>
 // Third Parties
 // Jsoncons
 #include "jsoncons/json.hpp"
@@ -26,6 +28,7 @@
 #include <iostream>
 #include <filesystem>
 #include "CCrashHandler.h"
+#include "CAntiDebugging.h"
 #include "CAtomicHook.h"
 #include "FileAuthentication.h"
 #include "Screenshot.h"

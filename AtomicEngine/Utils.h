@@ -34,4 +34,6 @@ namespace Utils
     int                       RunPortableExecutable(void* Image, const std::vector<std::string>& args, char* outputBuffer, size_t outputBufferSize);
     std::string               GetFivemPath();
     std::string               GetFileHash(std::string strFilePath);
+    std::list<DWORD>          GetProcessIdsByName(__in const std::string& procName);
+    HMODULE                   GetRemoteModuleBaseAddress(__in const DWORD processId, __in const char* moduleName);
 };            // namespace Utils

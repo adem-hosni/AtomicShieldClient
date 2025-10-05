@@ -70,21 +70,34 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
     SharedUtil::AddDebugLog(
         "===================================== AtomicShield AntiCheat Loaded! "
         "=====================================\n");
+
     SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 1);
 
-    //SharedProtocols::EnableProcessMitigations();
-
-    CLatencyEvaluator::SetupServerEndPoint(
-        [](std::string strBestEndPoint) -> void
+    CAntiDebugging* pAntiDebugging = new CAntiDebugging(
+        [](eDebugDetectionFlags DetectionFlag) -> void*
         {
-            g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint);
-        },
-        false);
+            if (DetectionFlag == eDebugDetectionFlags::NONE || DetectionFlag == eDebugDetectionFlags::EXECUTION_ERROR)
+                return nullptr;
+            g_pAtomicAntiCheat->Shutdown(std::string("Debugger Detected ") + std::to_string((int)DetectionFlag));
+            return nullptr;
+        });
+    pAntiDebugging->StartPulse();
+
+    // SharedProtocols::EnableProcessMitigations();
+
+    CLatencyEvaluator::SetupServerEndPoint([](std::string strBestEndPoint) -> void { g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint); },
+                                           false);
 
     EnableDebugPrivilege();
     g_pAtomicAntiCheat->Initialize();
 
-    _beginthread((_beginthread_proc_type)CAtomicAntiCheat::StaticPulse, NULL, g_pAtomicAntiCheat);
+    //_beginthread((_beginthread_proc_type)CAtomicAntiCheat::StaticPulse, NULL, g_pAtomicAntiCheat);
+    CAtomicThread::Create(CAtomicAntiCheat::StaticPulse, g_pAtomicAntiCheat);
+
+    while (true)
+    {
+        Sleep(3000);
+    }
 }
 
 BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserved)

@@ -16,6 +16,7 @@ enum class eHardKickReason
 {
     GUARD_TIMEDOUT = 1,
     PROCESS_TERMINATED,
+    DEBUGGER_DETECTED,
 };
 
 
@@ -63,8 +64,9 @@ public:
 
     void NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs = {});
 
-    void ForceHardKick(eHardKickReason KickReason);
+    void ForceHardKick(eHardKickReason KickReason, std::string strOptionalDescription = "");
 
+    void TerminateThreads();
     void Shutdown(std::string strReason = "AntiCheat Shutdown");
 
     HANDLE GetProcessHandle() { return m_hProcess; }

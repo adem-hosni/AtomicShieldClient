@@ -178,7 +178,7 @@ void CAtomicAntiCheat::DoPulse()
         {
             for (CAtomicThread* thread : m_pGuardManager->GetThreads())
             {
-                if (m_bRunScanners && (!thread->IsHandleValid() || thread->IsTerminated() || thread->IsSuspended()))
+                if (m_bRunScanners && (!thread->IsHandleValid() || thread->IsTerminated() /*|| thread->IsSuspended()*/))
                 {
                     SharedUtil::AddDebugLog("A guard thread has exited unexpectedly, restarting all guards...");
                     ForceHardKick(eHardKickReason::GUARD_TIMEDOUT);
@@ -264,12 +264,27 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
     m_pAtomicNetwork->SendPacket(eAtomicPacket::CHEAT_DETECTION, RequestData);
 }
 
-void CAtomicAntiCheat::ForceHardKick(eHardKickReason KickReason)
+void CAtomicAntiCheat::ForceHardKick(eHardKickReason KickReason, std::string strOptionalDescription)
 {
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["reason"] = (int)KickReason;
+    RequestData["description"] = strOptionalDescription;
+    
     m_pAtomicNetwork->SendPacket(eAtomicPacket::FORCE_HARDKICK, RequestData, true);
-    SharedUtil::AddDebugLog("Force Hard Kick issued for reason: %d", KickReason);
+    
+    SharedUtil::AddDebugLog("Force Hard Kick issued for reason: %d (%s)", KickReason, strOptionalDescription.c_str());
+}
+
+void CAtomicAntiCheat::TerminateThreads()
+{
+    for (CAtomicThread* pThread : m_vAtomicThreads)
+    {
+        if (pThread)
+        {
+            pThread->Terminate();
+            delete pThread;
+        }
+    }
 }
 
 void CAtomicAntiCheat::Shutdown(std::string strReason)
@@ -287,7 +302,9 @@ void CAtomicAntiCheat::Shutdown(std::string strReason)
     m_pAtomicNetwork->Disconnect(strReason);
     m_bAlive = false;
 
-    // TODO: Unload engine from memory
+    TerminateThreads();
+
+    __fastfail(0);
 }
 
 bool CAtomicAntiCheat::IsAtomicThread(HANDLE hThread)

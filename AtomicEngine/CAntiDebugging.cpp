@@ -1,9 +1,13 @@
-#include "SharedUtil.h"
-#include "CAntiDebugging.h"
+#include "StdInc.h"
 
 CAntiDebugging::CAntiDebugging(void* (*DetectionCallback)(eDebugDetectionFlags))
 {
     m_DetectionCallback = DetectionCallback;
+}
+
+void CAntiDebugging::StartPulse()
+{
+    CAtomicThread::Create(&CAntiDebugging::StaticPulse, this);
 }
 
 void CAntiDebugging::_IsHardwareDebuggerPresent()
@@ -305,20 +309,61 @@ eDebugDetectionFlags CAntiDebugging::_IsDebuggerPresent_VEH()
 */
 eDebugDetectionFlags CAntiDebugging::_IsDebuggerPresent_PEB()
 {
-#ifdef _M_IX86
-    MYPEB* _PEB = (MYPEB*)__readfsdword(0x30);
-#else
-    MYPEB* _PEB = (MYPEB*)__readgsqword(0x60);
-#endif
-
-    bool bDebuggerPresent = false;
-
-    if (_PEB != nullptr && _PEB->BeingDebugged)
+    HMODULE hNtdll = GetModuleHandleA("ntdll.dll");
+    if (!hNtdll)
     {
-        bDebuggerPresent = true;
+        SharedUtil::AddDebugLog("[AntiDebug] ntdll.dll not found; can't query PEB.");
+        return eDebugDetectionFlags::EXECUTION_ERROR;
     }
 
-    return (bDebuggerPresent ? DEBUG_PEB : NONE);
+    auto NtQueryInformationProcess = (NtQueryInformationProcess_t)GetProcAddress(hNtdll, "NtQueryInformationProcess");
+    if (!NtQueryInformationProcess)
+    {
+        SharedUtil::AddDebugLog("[AntiDebug] NtQueryInformationProcess not found in ntdll.dll.");
+        return eDebugDetectionFlags::EXECUTION_ERROR;
+    }
+
+    PROCESS_BASIC_INFORMATION_INTERNAL pbi = {0};
+    ULONG                              returnedLength = 0;
+    NTSTATUS status = NtQueryInformationProcess(GetCurrentProcess(), 0 /* ProcessBasicInformation */, &pbi, sizeof(pbi), &returnedLength);
+
+    if (status < 0)
+    {
+        SharedUtil::AddDebugLog("[AntiDebug] NtQueryInformationProcess failed (status=0x%08X).", status);
+        return eDebugDetectionFlags::EXECUTION_ERROR;
+    }
+
+    // pbi.PebBaseAddress points to the PEB in our process.
+    volatile BYTE* pebBeingDebugged = nullptr;
+    if (pbi.PebBaseAddress == nullptr)
+    {
+        SharedUtil::AddDebugLog("[AntiDebug] PEB base address was NULL.");
+        return eDebugDetectionFlags::EXECUTION_ERROR;
+    }
+
+    // The BeingDebugged byte is at offset 2 in the PEB on supported Windows versions.
+    // We'll read it via direct memory access (we're in the same process).
+    // To be defensive, copy into a local variable.
+    bool detected = false;
+    __try
+    {
+        // safe direct access (we are in the same process)
+        BYTE beingDebugged = *(volatile BYTE*)((BYTE*)pbi.PebBaseAddress + 2);
+        detected = (beingDebugged != 0);
+    }
+    __except (EXCEPTION_EXECUTE_HANDLER)
+    {
+        SharedUtil::AddDebugLog("[AntiDebug] Exception while reading PEB->BeingDebugged.");
+        return eDebugDetectionFlags::EXECUTION_ERROR;
+    }
+
+    if (detected)
+    {
+        SharedUtil::AddDebugLog("[AntiDebug] Debugger detected via PEB->BeingDebugged (value != 0).");
+        return DEBUG_PEB;
+    }
+
+    return eDebugDetectionFlags::NONE;
 }
 
 /*
@@ -404,9 +449,9 @@ eDebugDetectionFlags CAntiDebugging::_ExitCommonDebuggers()
 {
     bool triedEndDebugger = false;
 
-    for (const std::wstring& debugger : this->CommonDebuggerProcesses)
+    for (const std::string& debugger : m_vCommonDebuggerProcesses)
     {
-        std::list<DWORD> pids = Process::GetProcessIdsByName(debugger);
+        std::list<DWORD> pids = Utils::GetProcessIdsByName(debugger);
 
         for (const auto pid : pids)
         {
@@ -432,10 +477,12 @@ eDebugDetectionFlags CAntiDebugging::_ExitCommonDebuggers()
 
             if (remoteProcHandle)
             {
-                uintptr_t FunctionAddr_ExitProcess = (uintptr_t)Process::GetRemoteModuleBaseAddress(pid, L"kernel32.dll") + ExitProcessOffset;
+                uintptr_t FunctionAddr_ExitProcess = (uintptr_t)Utils::GetRemoteModuleBaseAddress(pid, "kernel32.dll") + ExitProcessOffset;
                 HANDLE    RemoteThread = CreateRemoteThread(remoteProcHandle, 0, 0, (LPTHREAD_START_ROUTINE)FunctionAddr_ExitProcess, 0, 0, 0);
                 triedEndDebugger = true;
                 CloseHandle(remoteProcHandle);
+                SharedUtil::AddDebugLog("[ANTIDEBUGGING] Attempting to terminate debugger process %s with pid %d @ _ExitCommonDebuggers", debugger.c_str(),
+                                        pid);
                 SharedUtil::AddDebugLog("[ANTIDEBUGGING] Created remote thread at %llX address", FunctionAddr_ExitProcess);
             }
             else
@@ -446,4 +493,53 @@ eDebugDetectionFlags CAntiDebugging::_ExitCommonDebuggers()
     }
 
     return (triedEndDebugger ? DEBUG_KNOWN_DEBUGGER_PROCESS : NONE);
+}
+
+
+void CAntiDebugging::DoPulse()
+{
+    while (true)
+    {
+        if (m_DetectionCallback == nullptr)
+        {
+            std::this_thread::sleep_for(std::chrono::milliseconds(1000));
+            continue;
+        }
+
+        _IsHardwareDebuggerPresent();
+        eDebugDetectionFlags dbgFlag = _IsDebuggerPresent();
+        if (dbgFlag != NONE)
+            m_DetectionCallback(dbgFlag);
+        dbgFlag = _IsDebuggerPresent_HeapFlags();
+        if (dbgFlag != NONE)
+            m_DetectionCallback(dbgFlag);
+        dbgFlag = _IsDebuggerPresent_CloseHandle();
+        if (dbgFlag != NONE)
+            m_DetectionCallback(dbgFlag);
+        dbgFlag = _IsDebuggerPresent_RemoteDebugger();
+        if (dbgFlag != NONE)
+            m_DetectionCallback(dbgFlag);
+        dbgFlag = _IsDebuggerPresent_VEH();
+        if (dbgFlag != NONE)
+            m_DetectionCallback(dbgFlag);
+        dbgFlag = _IsDebuggerPresent_PEB();
+        if (dbgFlag != NONE)
+            m_DetectionCallback(dbgFlag);
+        dbgFlag = _IsDebuggerPresent_DebugPort();
+        if (dbgFlag != NONE)
+            m_DetectionCallback(dbgFlag);
+        dbgFlag = _IsDebuggerPresent_ProcessDebugFlags();
+        if (dbgFlag != NONE)
+            m_DetectionCallback(dbgFlag);
+        dbgFlag = _IsKernelDebuggerPresent();
+        if (dbgFlag != NONE)
+            m_DetectionCallback(dbgFlag);
+        dbgFlag = _IsKernelDebuggerPresent_SharedKData();
+        if (dbgFlag != NONE)
+            m_DetectionCallback(dbgFlag);
+        dbgFlag = _ExitCommonDebuggers();
+        if (dbgFlag != NONE)
+            m_DetectionCallback(dbgFlag);
+        Sleep(2000);            // pulse every 2 seconds
+    }
 }

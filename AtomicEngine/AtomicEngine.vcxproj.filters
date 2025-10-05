@@ -192,6 +192,9 @@
     <ClCompile Include="Vendor\xxHash\xxhash.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CAntiDebugging.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Guards\CGuardBase.h">
@@ -429,6 +432,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Vendor\xxHash\xxhash.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CAntiDebugging.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

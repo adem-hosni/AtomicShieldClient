@@ -1,8 +1,6 @@
 #pragma once
-#include <Windows.h>
-#include "SharedUtil.h"
-#include <intrin.h>
-#include <functional>
+#include "StdInc.h"
+#include "KernelCalls.h"
 
 #define USER_SHARED_DATA ((KUSER_SHARED_DATA* const)0x7FFE0000)
 
@@ -28,6 +26,9 @@ class CAntiDebugging
 public:
     CAntiDebugging(void* (*DetectionCallback)(eDebugDetectionFlags));
 
+    void StartPulse();
+    static void StaticPulse(void* pContext) { ((CAntiDebugging*)pContext)->DoPulse(); }
+
     void _IsHardwareDebuggerPresent();
     bool PreventWindowsDebuggers();
 
@@ -43,10 +44,38 @@ public:
     eDebugDetectionFlags _IsKernelDebuggerPresent_SharedKData();
     eDebugDetectionFlags _ExitCommonDebuggers();            // call ExitProcess in a remote thread on common debuggers
 
+    void DoPulse();
+
 private:
     void* (*m_DetectionCallback)(eDebugDetectionFlags);
-};
 
+    std::vector<std::string> m_vCommonDebuggerProcesses = {"ollydbg.exe",
+                                                           "x64dbg.exe",
+                                                           "x32dbg.exe",
+                                                           "idaq.exe",
+                                                           "idaq64.exe",
+                                                           "idag.exe",
+                                                           "idag64.exe",
+                                                           "idaw.exe",
+                                                           "idaw64.exe",
+                                                           "ida64.exe",
+                                                           "ImmunityDebugger.exe",
+                                                           "Wireshark.exe",
+                                                           "Fiddler.exe",
+                                                           "HTTPDebuggerUI.exe",
+                                                           "HTTPDebuggerSvc.exe",
+                                                           "ProcessHacker.exe",
+                                                           "ProcessHacker2.exe",
+                                                           "ProcessHacker3.exe",
+                                                           "procexp.exe",
+                                                           "procexp64.exe",
+                                                           "Cheat Engine.exe",
+                                                           "CheatEngine-x86_64-SSE4-AVX2.exe",
+                                                           "CheatEngine-i386-SSE4-AVX2.exe",
+                                                           "CheatEngine-i386-SSE4-AVX2-32bit.exe",
+                                                           "dbgview.exe",
+                                                           "DebugView64.exe"};
+};
 
 typedef struct _KSYSTEM_TIME
 {
@@ -208,3 +237,18 @@ typedef struct _KUSER_SHARED_DATA            // https://learn.microsoft.com/en-u
     XSTATE_CONFIGURATION XStateArm64;
     ULONG                Reserved10[210];
 } KUSER_SHARED_DATA, *PKUSER_SHARED_DATA;
+
+#ifndef _PROCESS_BASIC_INFORMATION_DEFINED
+typedef struct _PROCESS_BASIC_INFORMATION_INTERNAL
+{
+    PVOID     Reserved1;
+    PVOID     PebBaseAddress;
+    PVOID     Reserved2[2];
+    ULONG_PTR UniqueProcessId;
+    PVOID     Reserved3;
+} PROCESS_BASIC_INFORMATION_INTERNAL;
+#define _PROCESS_BASIC_INFORMATION_DEFINED
+#endif
+
+typedef NTSTATUS(NTAPI* NtQueryInformationProcess_t)(HANDLE ProcessHandle, UINT ProcessInformationClass, PVOID ProcessInformation,
+                                                     ULONG ProcessInformationLength, PULONG ReturnLength);

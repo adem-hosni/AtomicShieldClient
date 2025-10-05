@@ -408,3 +408,51 @@ std::string Utils::GetFileHash(std::string strFilePath)
     }
     return strFileHash;
 }
+
+std::list<DWORD> Utils::GetProcessIdsByName(__in const std::string& procName)
+{
+    if (procName.size() == 0)
+        return {};
+
+    std::list<DWORD> pids;
+    PROCESSENTRY32   entry;
+    entry.dwSize = sizeof(PROCESSENTRY32);
+    DWORD pid = 0;
+
+    HANDLE snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, NULL);
+
+    if (Process32First(snapshot, &entry) == TRUE)
+    {
+        while (Process32Next(snapshot, &entry) == TRUE)
+            if (stricmp(entry.szExeFile, procName.c_str()) == 0)
+                pids.push_back(entry.th32ProcessID);
+    }
+
+    CloseHandle(snapshot);
+    return pids;
+}
+
+
+HMODULE Utils::GetRemoteModuleBaseAddress(__in const DWORD processId, __in const char* moduleName)
+{
+    HMODULE hModule = NULL;
+    HANDLE  hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPMODULE | TH32CS_SNAPMODULE32, processId);
+    if (hSnapshot != INVALID_HANDLE_VALUE)
+    {
+        MODULEENTRY32 moduleEntry = {0};
+        moduleEntry.dwSize = sizeof(MODULEENTRY32);
+        if (Module32First(hSnapshot, &moduleEntry))
+        {
+            do
+            {
+                if (stricmp(moduleEntry.szModule, moduleName) == 0)
+                {
+                    hModule = moduleEntry.hModule;
+                    break;
+                }
+            } while (Module32Next(hSnapshot, &moduleEntry));
+        }
+        CloseHandle(hSnapshot);
+    }
+    return hModule;
+}
