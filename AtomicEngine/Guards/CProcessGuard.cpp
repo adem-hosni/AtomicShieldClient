@@ -168,6 +168,7 @@ void CProcessGuard::DoPulse()
         QueryPerformanceCounter(&end);
 
         g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::PROCESS_GUARD);
+        SharedUtil::AddDebugLog("[PING] Process guard heartbeat sent");
 
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
         PROCESS_LOG("Process Guard Pulse completed in %.5f seconds", fElapsedTime);

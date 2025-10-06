@@ -143,6 +143,7 @@ void CHeuristicGuard::DoPulse()
             SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 
             g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::HEURISTIC_GUARD);
+            SharedUtil::AddDebugLog("[PING] Heuristic guard heartbeat sent");
 
             for (size_t i = startIdx; i < endIdx && !m_bFound.load(); ++i)
             {

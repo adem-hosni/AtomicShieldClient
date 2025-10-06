@@ -33,6 +33,7 @@ public:
 
     static CAtomicThread* Create(LPVOID lpStartAddress, LPVOID lpParameter = nullptr);
     HANDLE                GetHandle() { return m_hThread; }
+    int                   GetThreadID() { return m_iThreadID; }
 
     bool IsHandleValid();
     bool IsTerminated();

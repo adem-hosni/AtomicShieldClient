@@ -180,7 +180,7 @@ void CAtomicAntiCheat::DoPulse()
             {
                 if (m_bRunScanners && (!thread->IsHandleValid() || thread->IsTerminated() /*|| thread->IsSuspended()*/))
                 {
-                    SharedUtil::AddDebugLog("A guard thread has exited unexpectedly, restarting all guards...");
+                    SharedUtil::AddDebugLog("Guard thread %d is not valid anymore! Forcing hard kick...", thread->GetThreadID());
                     ForceHardKick(eHardKickReason::GUARD_TIMEDOUT);
                     m_pGuardManager->StopGuards();
                     std::this_thread::sleep_for(std::chrono::seconds(2));
