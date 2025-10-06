@@ -19,6 +19,7 @@ enum eDebugDetectionFlags
     DEBUG_HEAP_FLAG,
     DEBUG_CLOSEHANDLE,
     DEBUG_DEBUG_PORT,
+    DEBUG_KNOWN_DEBUGGER_WINDOW
 };
 
 class CAntiDebugging
@@ -42,7 +43,10 @@ public:
     eDebugDetectionFlags _IsDebuggerPresent_ProcessDebugFlags();
     eDebugDetectionFlags _IsKernelDebuggerPresent();
     eDebugDetectionFlags _IsKernelDebuggerPresent_SharedKData();
-    eDebugDetectionFlags _ExitCommonDebuggers(std::string* strReason);            // call ExitProcess in a remote thread on common debuggers
+    eDebugDetectionFlags _ExitCommonDebuggers(std::string* strReason);     
+    eDebugDetectionFlags _ExitCommonDebuggerWindows(std::string* strReason);     
+
+    // call ExitProcess in a remote thread on common debuggers
 
     void DoPulse();
 
@@ -75,6 +79,9 @@ private:
                                                            "CheatEngine-i386-SSE4-AVX2-32bit.exe",
                                                            "dbgview.exe",
                                                            "DebugView64.exe"};
+    std::vector<std::string> vCommonDebuggerWindows = {"x64dbg",           "x32dbg",    "OllyDbg", "IDA",           "Immunity Debugger",
+                                                       "Cheat Engine",     "Wireshark", "Fiddler", "HTTP Debugger", "Process Hacker",
+                                                       "Process Explorer", "DebugView"};
 };
 
 typedef struct _KSYSTEM_TIME

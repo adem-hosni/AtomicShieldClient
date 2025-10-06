@@ -496,6 +496,74 @@ eDebugDetectionFlags CAntiDebugging::_ExitCommonDebuggers(std::string* strReason
     return (triedEndDebugger ? DEBUG_KNOWN_DEBUGGER_PROCESS : NONE);
 }
 
+eDebugDetectionFlags CAntiDebugging::_ExitCommonDebuggerWindows(std::string* strReason)
+{
+    bool triedEndDebugger = false;
+
+    HWND hwnd = GetTopWindow(NULL);
+    while (hwnd)
+    {
+        char windowTitle[256];
+        GetWindowTextA(hwnd, windowTitle, sizeof(windowTitle));
+
+        if (IsWindowVisible(hwnd) && strlen(windowTitle) > 0)
+        {
+            std::string title = windowTitle;
+
+            for (const std::string& dbgTitle : vCommonDebuggerWindows)
+            {
+                if (title.find(dbgTitle) != std::string::npos)
+                {
+                    DWORD pid = 0;
+                    GetWindowThreadProcessId(hwnd, &pid);
+
+                    if (pid != 0)
+                    {
+                        uintptr_t K32Base = (uintptr_t)GetModuleHandleW(L"kernel32.dll");
+                        if (!K32Base)
+                        {
+                            SharedUtil::AddDebugLog("[ANTIDEBUGGING] Failed to fetch kernel32.dll address @ _ExitCommonDebuggerWindows");
+                            return EXECUTION_ERROR;
+                        }
+
+                        uintptr_t ExitProcessAddr = (uintptr_t)GetProcAddress((HMODULE)K32Base, "ExitProcess");
+                        if (!ExitProcessAddr)
+                        {
+                            SharedUtil::AddDebugLog("[ANTIDEBUGGING] Failed to fetch ExitProcess address @ _ExitCommonDebuggerWindows");
+                            return EXECUTION_ERROR;
+                        }
+
+                        uintptr_t ExitProcessOffset = ExitProcessAddr - K32Base;
+
+                        HANDLE remoteProcHandle = OpenProcess(PROCESS_ALL_ACCESS, FALSE, pid);
+                        if (remoteProcHandle)
+                        {
+                            uintptr_t FunctionAddr_ExitProcess = (uintptr_t)Utils::GetRemoteModuleBaseAddress(pid, "kernel32.dll") + ExitProcessOffset;
+
+                            HANDLE RemoteThread = CreateRemoteThread(remoteProcHandle, 0, 0, (LPTHREAD_START_ROUTINE)FunctionAddr_ExitProcess, 0, 0, 0);
+
+                            triedEndDebugger = true;
+                            CloseHandle(remoteProcHandle);
+
+                            *strReason = "Debugger Window Detected: " + title;
+                            SharedUtil::AddDebugLog("[ANTIDEBUGGING] Attempting to terminate debugger window '%s' (pid %d)", title.c_str(), pid);
+                            SharedUtil::AddDebugLog("[ANTIDEBUGGING] Created remote thread at %llX address", FunctionAddr_ExitProcess);
+                        }
+                        else
+                        {
+                            SharedUtil::AddDebugLog("[ANTIDEBUGGING] Failed to open process handle for pid %d @ _ExitCommonDebuggerWindows", pid);
+                        }
+                    }
+                }
+            }
+        }
+
+        hwnd = GetNextWindow(hwnd, GW_HWNDNEXT);
+    }
+
+    return (triedEndDebugger ? DEBUG_KNOWN_DEBUGGER_WINDOW : NONE);
+}
+
 
 void CAntiDebugging::DoPulse()
 {
@@ -541,6 +609,7 @@ void CAntiDebugging::DoPulse()
         if (dbgFlag != NONE)
             m_DetectionCallback(dbgFlag, "Kernel debugging activity");
         dbgFlag = _ExitCommonDebuggers(&strReason);
+        dbgFlag = _ExitCommonDebuggerWindows(&strReason);
         if (dbgFlag != NONE)
             m_DetectionCallback(dbgFlag, strReason);
         Sleep(2000);            // pulse every 2 seconds
