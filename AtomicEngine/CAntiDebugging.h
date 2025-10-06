@@ -72,6 +72,7 @@ private:
                                                            "ProcessHacker2.exe",
                                                            "ProcessHacker3.exe",
                                                            "procexp.exe",
+                                                           "SystemInformer.exe",
                                                            "procexp64.exe",
                                                            "Cheat Engine.exe",
                                                            "CheatEngine-x86_64-SSE4-AVX2.exe",
@@ -79,9 +80,10 @@ private:
                                                            "CheatEngine-i386-SSE4-AVX2-32bit.exe",
                                                            "dbgview.exe",
                                                            "DebugView64.exe"};
-    std::vector<std::string> vCommonDebuggerWindows = {"x64dbg",           "x32dbg",    "OllyDbg", "IDA",           "Immunity Debugger",
-                                                       "Cheat Engine",     "Wireshark", "Fiddler", "HTTP Debugger", "Process Hacker",
-                                                       "Process Explorer", "DebugView"};
+    std::vector<std::string> vCommonDebuggerWindows = {
+        "x64dbg",        "x32dbg",         "OllyDbg",          "IDA",       "Immunity Debugger", "Cheat Engine", "Wireshark", "Fiddler",
+        "HTTP Debugger", "Process Hacker", "Process Explorer", "DebugView",
+           "System Informer"};
 };
 
 typedef struct _KSYSTEM_TIME
