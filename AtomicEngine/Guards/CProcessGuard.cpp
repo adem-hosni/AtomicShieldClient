@@ -113,7 +113,6 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::DetectOpenHandlesToFiveM()
 
 void CProcessGuard::DoPulse()
 {
-    time_t tStart = time(NULL);
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
     while (g_pAtomicAntiCheat->RunScanners())
     {
@@ -123,13 +122,6 @@ void CProcessGuard::DoPulse()
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
         {
             std::this_thread::sleep_for(std::chrono::seconds(1));
-        }
-
-        if (time(NULL) - tStart > 5)
-        {
-            g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::PROCESS_GUARD);
-            tStart = time(NULL);
-            SharedUtil::AddDebugLog("Process guard from heartbeat ping");
         }
 
         LARGE_INTEGER frequency, start, end;
@@ -174,6 +166,8 @@ void CProcessGuard::DoPulse()
             }
         }
         QueryPerformanceCounter(&end);
+
+        g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::PROCESS_GUARD);
 
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
         PROCESS_LOG("Process Guard Pulse completed in %.5f seconds", fElapsedTime);
