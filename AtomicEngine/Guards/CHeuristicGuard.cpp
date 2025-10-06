@@ -160,7 +160,7 @@ void CHeuristicGuard::DoPulse()
                 SIZE_T bytesRead = 0;
                 if (!NT_SUCCESS(SysNtReadVirtualMemory(hProcess, region.mbi.BaseAddress, buffer, allocationSize, &bytesRead)) || bytesRead == 0)
                 {
-                    SharedUtil::AddDebugLog("Failed to read vm in 0x%x with size 0x%x", region.mbi.BaseAddress, allocationSize);
+                  //  SharedUtil::AddDebugLog("Failed to read vm in 0x%x with size 0x%x", region.mbi.BaseAddress, allocationSize);
                     SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
                     continue;
                 }
