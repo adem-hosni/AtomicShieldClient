@@ -215,7 +215,7 @@ void CAtomicAntiCheat::StartBasicChecks()
     CAtomicThread::Create(&BasicChecks::CheckBlacklistedDrivers);
 }
 
-void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs)
+void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs, bool bTakeScreenshot)
 {
     jsoncons::json Report = jsoncons::json::object();
 
@@ -250,16 +250,19 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
     };
     AddToReport(kwargs);
 
-    std::string strScreenshotBuffer;
-    char        szError[256];
-    memset(szError, 0, sizeof(szError));
-    Screenshot::CreateScreenshot(&strScreenshotBuffer, szError);
-
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["detection_type"] = (int)DetectionType;
     RequestData["report"] = Report;
-    RequestData["ss"] = SharedUtil::Base64Encode(strScreenshotBuffer);
-    RequestData["error"] = std::string(szError);
+
+    if (bTakeScreenshot)
+    {
+        std::string strScreenshotBuffer;
+        char        szError[256];
+        memset(szError, 0, sizeof(szError));
+        Screenshot::CreateScreenshot(&strScreenshotBuffer, szError);
+        RequestData["ss"] = SharedUtil::Base64Encode(strScreenshotBuffer);
+        RequestData["error"] = std::string(szError);
+    }
 
     m_pAtomicNetwork->SendPacket(eAtomicPacket::CHEAT_DETECTION, RequestData, true);
 }
@@ -269,9 +272,9 @@ void CAtomicAntiCheat::ForceHardKick(eHardKickReason KickReason, std::string str
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["reason"] = (int)KickReason;
     RequestData["description"] = strOptionalDescription;
-    
+
     m_pAtomicNetwork->SendPacket(eAtomicPacket::FORCE_HARDKICK, RequestData, true);
-    
+
     SharedUtil::AddDebugLog("Force Hard Kick issued for reason: %d (%s)", KickReason, strOptionalDescription.c_str());
 }
 
