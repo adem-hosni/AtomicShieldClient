@@ -261,7 +261,7 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
     RequestData["ss"] = SharedUtil::Base64Encode(strScreenshotBuffer);
     RequestData["error"] = std::string(szError);
 
-    m_pAtomicNetwork->SendPacket(eAtomicPacket::CHEAT_DETECTION, RequestData);
+    m_pAtomicNetwork->SendPacket(eAtomicPacket::CHEAT_DETECTION, RequestData, true);
 }
 
 void CAtomicAntiCheat::ForceHardKick(eHardKickReason KickReason, std::string strOptionalDescription)
