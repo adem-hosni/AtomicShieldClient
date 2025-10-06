@@ -54,11 +54,20 @@ void CHeuristicGuard::DoPulse()
 
     NTSTATUS status;
 
+    time_t tStart = time(NULL);
+
     while (g_pAtomicAntiCheat->RunScanners())
     {
         HANDLE hProcess = g_pAtomicAntiCheat->GetProcessHandle();
         while (!g_pAtomicAntiCheat->IsValidProcessHandle())
             std::this_thread::sleep_for(std::chrono::seconds(1));
+
+        if (time(NULL) - tStart > 5)
+        {
+            g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::HEURISTIC_GUARD);
+            tStart = time(NULL);
+            SharedUtil::AddDebugLog("Pinging heartbeat from heuristic guard");
+        }
 
         LARGE_INTEGER frequency, start, end;
         QueryPerformanceFrequency(&frequency);
@@ -141,8 +150,6 @@ void CHeuristicGuard::DoPulse()
         auto scanFunc = [&](size_t startIdx, size_t endIdx)
         {
             SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
-
-            g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::HEURISTIC_GUARD);
 
             for (size_t i = startIdx; i < endIdx && !m_bFound.load(); ++i)
             {
