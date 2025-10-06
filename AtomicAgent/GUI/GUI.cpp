@@ -221,8 +221,8 @@ bool GUI::Initialize()
     GUI::wc.cbWndExtra = NULL;
     GUI::wc.hCursor = LoadCursor(0, IDC_ARROW);
     GUI::wc.hbrBackground = nullptr;
-    GUI::wc.lpszMenuName = L"Ceylon";
-    GUI::wc.lpszClassName = L"Ceylon";
+    GUI::wc.lpszMenuName = L"AtomicShield";
+    GUI::wc.lpszClassName = L"AtomicShield";
     GUI::wc.hInstance = GetModuleHandleW(NULL);
     GUI::wc.hIcon = LoadIcon(GUI::wc.hInstance, MAKEINTRESOURCE(ico4));
     GUI::wc.hIconSm = LoadIcon(GUI::wc.hInstance, MAKEINTRESOURCE(ico4));
