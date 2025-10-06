@@ -62,7 +62,7 @@ public:
     bool RunScanners() { return m_bRunScanners; }
     void RunScanners(bool bRun) { m_bRunScanners = bRun; }
 
-    void NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs = {});
+    void NotifyDetection(eDetectionType DetectionType, std::unordered_map<std::string, ArgType> kwargs = {}, bool bTakeScreenshot = true);
 
     void ForceHardKick(eHardKickReason KickReason, std::string strOptionalDescription = "");
 

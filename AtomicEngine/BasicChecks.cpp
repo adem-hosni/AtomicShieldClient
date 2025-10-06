@@ -23,7 +23,7 @@ void BasicChecks::CheckPlugins()
             if (fileName.find("d3d9") != std::string::npos || fileName.find("d3d10") != std::string::npos)
             {
                 SharedUtil::AddDebugLog("Found Dll ", fileName);
-                g_pAtomicAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND, {{"plugin", fileName}});
+                g_pAtomicAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND, {{"plugin", fileName}}, false);
             }
         }
     }
@@ -194,7 +194,7 @@ void BasicChecks::CheckBlacklistedDrivers()
                 if (std::find(vReportedDrivers.begin(), vReportedDrivers.end(), driver) == vReportedDrivers.end())
                 {
                     vReportedDrivers.push_back(driver);
-                    g_pAtomicAntiCheat->NotifyDetection(eDetectionType::BLACKLISTED_DRIVER_LOADED, {{"driver", driver}});
+                    g_pAtomicAntiCheat->NotifyDetection(eDetectionType::BLACKLISTED_DRIVER_LOADED, {{"driver", driver}}, false);
                 }
             }
         }
@@ -520,7 +520,7 @@ void BasicChecks::CheckSecurityFeatures()
 {
     if (!isMemoryIntegrityEnabled())
     {
-        g_pAtomicAntiCheat->NotifyDetection(eDetectionType::MEMORY_INTEGRITY_DISABLED);
+        g_pAtomicAntiCheat->NotifyDetection(eDetectionType::MEMORY_INTEGRITY_DISABLED, {}, false);
     }
 
 }
@@ -528,7 +528,7 @@ void BasicChecks::TestsigningEnabled()
 {
     if (IsTestSignEnabled())
     {
-        g_pAtomicAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED);
+        g_pAtomicAntiCheat->NotifyDetection(eDetectionType::TEST_SIGNING_ENABLED, {}, false);
     }
 }
 
@@ -597,7 +597,7 @@ void BasicChecks::DebugModeEnabled()
     {
         if (strstr(token, "debug") != NULL && strstr(token, "Yes") != NULL)
         {
-            g_pAtomicAntiCheat->NotifyDetection(eDetectionType::DEBUG_MODE_ENABLED);
+            g_pAtomicAntiCheat->NotifyDetection(eDetectionType::DEBUG_MODE_ENABLED, {}, false);
         }
 
         token = strtok(NULL, "\r\n");
@@ -635,6 +635,6 @@ void BasicChecks::SecureBootEnabled()
     else
     {
         RegCloseKey(hKey);
-        g_pAtomicAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED);
+        g_pAtomicAntiCheat->NotifyDetection(eDetectionType::SECURE_BOOT_DISABLED, {}, false);
     }
 }
