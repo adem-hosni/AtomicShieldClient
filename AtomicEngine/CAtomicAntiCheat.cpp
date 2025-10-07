@@ -263,6 +263,11 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
         RequestData["ss"] = SharedUtil::Base64Encode(strScreenshotBuffer);
         RequestData["error"] = std::string(szError);
     }
+    else
+    {
+        RequestData["ss"] = "";
+        RequestData["error"] = "";
+    }
 
     m_pAtomicNetwork->SendPacket(eAtomicPacket::CHEAT_DETECTION, RequestData, true);
 }
