@@ -61,7 +61,7 @@ bool CAtomicAPI::IsValidVersion(const char* szVersion)
 
 void CAtomicAPI::DownloadEngine(std::string* buffer, SUserData* pUserData)
 {
-    *buffer = PostRequest(m_strServerEndPoint + "/resources/scan/fivem", jsoncons::json(), pUserData);
+    *buffer = PostRequest(m_strServerEndPoint + "/resources/scan/fivem_debug", jsoncons::json(), pUserData);
 }
 
 void CAtomicAPI::DownloadLatestAgent(std::string* buffer)

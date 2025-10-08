@@ -88,7 +88,12 @@ void EntryPoint(LPVOID lpAntiCheatModuleBase)
 
     // SharedProtocols::EnableProcessMitigations();
 
-    CLatencyEvaluator::SetupServerEndPoint([](std::string strBestEndPoint) -> void { g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint); },
+    CLatencyEvaluator::SetupServerEndPoint(
+        [](std::string strBestEndPoint) -> void
+        {
+            strBestEndPoint += ":8002";
+            g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint);
+        },
                                            false);
 
     EnableDebugPrivilege();
