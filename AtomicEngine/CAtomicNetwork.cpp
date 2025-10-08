@@ -505,7 +505,9 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         {
             m_bNetworkJoined = false;
             m_bConnected = false;
-            SharedUtil::AddDebugLog("WebSocket Closed: %s (%d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code);
+            SharedUtil::AddDebugLog("WebSocket Closed: %s | Remote: %s (%d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code,
+                                    Message->closeInfo.remote ? "true" : "false");
+            g_pAtomicAntiCheat->GetGuardManager()->StopGuards();
             break;
         }
 
