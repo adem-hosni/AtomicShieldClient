@@ -27,23 +27,33 @@ bool CAtomicNetwork::Connect()
     m_pWebSocket = new ix::WebSocket();
 
     m_bNetworkJoined = false;
+
+    SharedUtil::AddDebugLog("Initializing network system...");
     ix::initNetSystem();
 
     m_pWebSocket->setUrl(m_strServerEndPoint + "/c/atomicshieldagent/");
 
+    SharedUtil::AddDebugLog("Setting up websocket callbacks...");
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
     m_pWebSocket->setPingInterval(10);
     m_pWebSocket->enablePerMessageDeflate();
     m_pWebSocket->enablePong();
     m_pWebSocket->disableAutomaticReconnection();
 
+    SharedUtil::AddDebugLog("Performing connection to %s", m_strServerEndPoint.c_str());
     ix::WebSocketInitResult result = m_pWebSocket->connect(32);
+
+    SharedUtil::AddDebugLog("Starting websocket thread...");
     m_pWebSocket->start();
 
     if (result.success)
     {
         while (!m_bNetworkJoined)
+        {
+            SharedUtil::AddDebugLog("Waiting to join the AtomicShield Network...");
             std::this_thread::sleep_for(std::chrono::seconds(2));
+        }
+        SharedUtil::AddDebugLog("Successfully joined the AtomicShield Network!");
     }
     else
     {
@@ -79,8 +89,10 @@ void CAtomicNetwork::SendPacket(eAtomicPacket PacketID, jsoncons::json Data, boo
 
 void CAtomicNetwork::OnConnect()
 {
+    SharedUtil::AddDebugLog("Connected to the AtomicShield Server!");
     if (!g_pAtomicAntiCheat->GetNetwork()->JoinNetwork())
     {
+        SharedUtil::AddDebugLog("Failed to join the AtomicShield Network, shutting down the engine...");
         FreeModule(GetModuleHandle(NULL));
         return;
     }
@@ -269,6 +281,8 @@ bool CAtomicNetwork::JoinNetwork()
     RequestHWID["monitor"] = g_pHWID->GetMonitorSerial();
     RequestHWID["steam"] = g_pHWID->GetSteamID();
 
+    SharedUtil::AddDebugLog("Encoding HWID data...");
+
     for (auto& kv : RequestHWID.object_range())
     {
         const std::string& key = kv.key();
@@ -300,6 +314,7 @@ bool CAtomicNetwork::JoinNetwork()
 
     SendPacket(eAtomicPacket::NETWORK_JOIN, RequestData, true);
 
+    SharedUtil::AddDebugLog("Waiting for network join response...");
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
 
     m_bNetworkJoined = Response["success"].as_bool();
@@ -478,6 +493,8 @@ void CAtomicNetwork::DoPulse()
 
 void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
 {
+    SharedUtil::AddDebugLog("Websocket Message callback triggered with type %d", (int)Message->type);
+
     switch (Message->type)
     {
         case ix::WebSocketMessageType::Open:
