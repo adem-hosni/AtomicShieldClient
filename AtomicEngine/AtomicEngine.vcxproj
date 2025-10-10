@@ -327,7 +327,6 @@
     <MASM Include="KernelCalls.x64.asm">
       <FileType>Document</FileType>
     </MASM>
-    <None Include="Trace.logs" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

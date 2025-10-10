@@ -115,6 +115,7 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
         case DLL_PROCESS_ATTACH:
         {
             _beginthread((_beginthread_proc_type)EntryPoint, NULL, hModule);
+            break;
         }
         case DLL_THREAD_ATTACH:
         case DLL_THREAD_DETACH:

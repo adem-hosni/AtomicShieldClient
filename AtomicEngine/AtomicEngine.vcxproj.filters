@@ -439,9 +439,6 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <None Include="Trace.logs" />
-  </ItemGroup>
-  <ItemGroup>
     <MASM Include="KernelCalls.x64.asm">
       <Filter>Source Files</Filter>
     </MASM>
