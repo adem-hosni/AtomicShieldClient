@@ -522,16 +522,16 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         {
             m_bNetworkJoined = false;
             m_bConnected = false;
-            SharedUtil::AddDebugLog("WebSocket Closed: %s | Remote: %s (%d)", Message->closeInfo.reason.c_str(), Message->closeInfo.code,
-                                    Message->closeInfo.remote ? "true" : "false");
+            SharedUtil::AddDebugLog("WebSocket Closed: %s | Remote: %d (%d)", Message->closeInfo.reason.empty() ? "<empty>" : Message->closeInfo.reason.c_str(),
+                                    Message->closeInfo.remote ? 1 : 0, Message->closeInfo.code);
             g_pAtomicAntiCheat->GetGuardManager()->StopGuards();
             break;
         }
 
         case ix::WebSocketMessageType::Error:
-            SharedUtil::AddDebugLog("WebSocket Error: %s (\"%s\", %d | Decompression Error: %d)", Message->errorInfo.reason.c_str(), Message->str.c_str(),
-                                    Message->errorInfo.http_status,
-                                    Message->errorInfo.decompressionError);
+            SharedUtil::AddDebugLog(
+                "WebSocket Error: %s (\"%s\", %d | Decompression Error: %d)", Message->errorInfo.reason.empty() ? "<empty>" : Message->errorInfo.reason.c_str(),
+                Message->str.empty() ? "<empty>" : Message->str.c_str(), Message->errorInfo.http_status, Message->errorInfo.decompressionError);
             m_pWebSocket->close();
             m_bNetworkJoined = false;
             g_pAtomicAntiCheat->GetGuardManager()->StopGuards();
