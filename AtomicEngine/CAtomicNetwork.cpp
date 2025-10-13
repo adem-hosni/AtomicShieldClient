@@ -529,9 +529,8 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         }
 
         case ix::WebSocketMessageType::Error:
-            SharedUtil::AddDebugLog(
-                "WebSocket Error: %s (\"%s\", %d | Decompression Error: %d)", Message->errorInfo.reason.empty() ? "<empty>" : Message->errorInfo.reason.c_str(),
-                Message->str.empty() ? "<empty>" : Message->str.c_str(), Message->errorInfo.http_status, Message->errorInfo.decompressionError);
+            SharedUtil::AddDebugLog("WebSocket Error: %s (\"%s\", %d | Decompression Error: %d)", Message->errorInfo.reason.c_str(), Message->str.c_str(),
+                                    Message->errorInfo.http_status, Message->errorInfo.decompressionError);
             m_pWebSocket->close();
             m_bNetworkJoined = false;
             g_pAtomicAntiCheat->GetGuardManager()->StopGuards();
