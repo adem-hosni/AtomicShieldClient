@@ -14,17 +14,22 @@
 
 CAtomicNetwork::CAtomicNetwork() : m_bConnected(false), m_bNetworkJoined(false), m_ullLastPingTime(NULL)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::CAtomicNetwork - ctor entered");
     m_pWebSocket = new ix::WebSocket();
+    SharedUtil::AddDebugLog("CAtomicNetwork::CAtomicNetwork - WebSocket created");
 }
 
 CAtomicNetwork::~CAtomicNetwork()
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::~CAtomicNetwork - dtor entered");
 }
 
 bool CAtomicNetwork::Connect()
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::Connect - entered");
     delete m_pWebSocket;
     m_pWebSocket = new ix::WebSocket();
+    SharedUtil::AddDebugLog("CAtomicNetwork::Connect - WebSocket reset");
 
     m_bNetworkJoined = false;
 
@@ -32,6 +37,7 @@ bool CAtomicNetwork::Connect()
     ix::initNetSystem();
 
     m_pWebSocket->setUrl(m_strServerEndPoint + "/c/atomicshieldagent/");
+    SharedUtil::AddDebugLog("CAtomicNetwork::Connect - setUrl to %s", m_strServerEndPoint.c_str());
 
     SharedUtil::AddDebugLog("Setting up websocket callbacks...");
     m_pWebSocket->setOnMessageCallback(std::bind(&CAtomicNetwork::OnReceivePacket, this, std::placeholders::_1));
@@ -60,11 +66,13 @@ bool CAtomicNetwork::Connect()
         SharedUtil::AddDebugLog("Couldn't connect to the websocket due to %s", result.errorStr.c_str());
     }
 
+    SharedUtil::AddDebugLog("CAtomicNetwork::Connect - returning %d", result.success);
     return result.success;
 }
 
 void CAtomicNetwork::SendPacket(eAtomicPacket PacketID, jsoncons::json Data, bool bHighPriority)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::SendPacket - entered PacketID=%d HighPriority=%d", (int)PacketID, bHighPriority);
     // Allocate new json object
     jsoncons::json PacketJson = jsoncons::json::object();
 
@@ -78,17 +86,21 @@ void CAtomicNetwork::SendPacket(eAtomicPacket PacketID, jsoncons::json Data, boo
 
     // Send the packet to master server
     std::string buffer = g_pAtomicCore->Encrypt(PacketJson.to_string());
+    SharedUtil::AddDebugLog("CAtomicNetwork::SendPacket - encrypted buffer length=%zu", buffer.size());
 
     if (bHighPriority)
     {
         m_pWebSocket->send(SharedUtil::Base64Encode(buffer));
+        SharedUtil::AddDebugLog("CAtomicNetwork::SendPacket - sent high priority packet");
         return;
     }
     m_vPendingPackets.push(SharedUtil::Base64Encode(buffer));
+    SharedUtil::AddDebugLog("CAtomicNetwork::SendPacket - queued packet");
 }
 
 void CAtomicNetwork::OnConnect()
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::OnConnect - entered");
     SharedUtil::AddDebugLog("Connected to the AtomicShield Server!");
     if (!g_pAtomicAntiCheat->GetNetwork()->JoinNetwork())
     {
@@ -96,43 +108,41 @@ void CAtomicNetwork::OnConnect()
         FreeModule(GetModuleHandle(NULL));
         return;
     }
+    SharedUtil::AddDebugLog("CAtomicNetwork::OnConnect - joined network");
 }
 
 void CAtomicNetwork::StaticPulse(void* pContext)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::StaticPulse - entered");
     CAtomicNetwork* pNetwork = reinterpret_cast<CAtomicNetwork*>(pContext);
     pNetwork->DoPulse();
+    SharedUtil::AddDebugLog("CAtomicNetwork::StaticPulse - pulse done");
 }
 
 jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::WaitReponse - entered PacketID=%d", (int)PacketID);
     while (m_PendingResponses.find(PacketID) == m_PendingResponses.end())
     {
         std::this_thread::sleep_for(std::chrono::milliseconds(10));
     }
 
     jsoncons::json Response = m_PendingResponses[PacketID];
-
-    // Check if the unix timestamp received is tampered
-    // if (time(NULL) - Response["ut"].as<DWORD>() >= 20)
-    //{
-    //    __fastfail(0);
-    //    // Return an empty data to crash the engine if the __fastfail was tampered
-    //    jsoncons::json j;
-    //    return j;
-    //}
+    SharedUtil::AddDebugLog("CAtomicNetwork::WaitReponse - got response");
 
     m_PendingResponses.erase(PacketID);
+    SharedUtil::AddDebugLog("CAtomicNetwork::WaitReponse - erased response");
     return Response;
 }
 
 std::string CAtomicNetwork::GetIPAddressChain()
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::GetIPAddressChain - entered");
     struct IPApi
     {
         std::wstring host;
         std::wstring path;
-        bool         json;            // if true, extract "ip" from {"ip": "..."}
+        bool         json;            // if true, extract "ip" from {"ip": "..."]
     };
 
     std::vector<IPApi> apis = {
@@ -207,6 +217,7 @@ std::string CAtomicNetwork::GetIPAddressChain()
 
         if (response.empty())
         {
+            SharedUtil::AddDebugLog("CAtomicNetwork::GetIPAddressChain - empty response from %ws", api.host.c_str());
             continue;
         }
 
@@ -216,8 +227,8 @@ std::string CAtomicNetwork::GetIPAddressChain()
             size_t ipKey = response.find("\"ip\"");
             if (ipKey != std::string::npos)
             {
-                size_t quote1 = response.find('\"', ipKey + 4);
-                size_t quote2 = response.find('\"', quote1 + 1);
+                size_t quote1 = response.find('"', ipKey + 4);
+                size_t quote2 = response.find('"', quote1 + 1);
                 if (quote1 != std::string::npos && quote2 != std::string::npos)
                     extractedIp = response.substr(quote1 + 1, quote2 - quote1 - 1);
             }
@@ -233,11 +244,12 @@ std::string CAtomicNetwork::GetIPAddressChain()
 
         if (!extractedIp.empty())
         {
+            SharedUtil::AddDebugLog("CAtomicNetwork::GetIPAddressChain - extracted IP %s", extractedIp.c_str());
             collectedIPs.push_back(extractedIp);
         }
         else
         {
-            // SharedUtil::AddDebugLog("[HTTP] Failed to parse IP from %ws response: %s", api.host.c_str(), response.c_str());
+            SharedUtil::AddDebugLog("CAtomicNetwork::GetIPAddressChain - failed to parse IP from %ws response: %s", api.host.c_str(), response.c_str());
         }
     }
 
@@ -257,13 +269,14 @@ std::string CAtomicNetwork::GetIPAddressChain()
             combined += "-";
         combined += collectedIPs[i];
     }
-
+    SharedUtil::AddDebugLog("CAtomicNetwork::GetIPAddressChain - returning '%s'", combined.c_str());
     return combined;
 }
 
 
 bool CAtomicNetwork::JoinNetwork()
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::JoinNetwork - entered");
     jsoncons::json RequestData;
     RequestData["ip"] = GetIPAddressChain();
     SharedUtil::AddDebugLog("Connecting With %s", RequestData["ip"].as_string().c_str());
@@ -318,6 +331,7 @@ bool CAtomicNetwork::JoinNetwork()
     jsoncons::json Response = WaitReponse(NETWORK_JOIN);
 
     m_bNetworkJoined = Response["success"].as_bool();
+    SharedUtil::AddDebugLog("CAtomicNetwork::JoinNetwork - network join response success=%d", m_bNetworkJoined);
 
     if (m_bNetworkJoined)
     {
@@ -337,6 +351,7 @@ bool CAtomicNetwork::JoinNetwork()
 
 bool CAtomicNetwork::SyncMaliciousSignatures(jsoncons::json& Signatures)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::SyncMaliciousSignatures - entered");
     for (const auto& Item : Signatures.object_range())
     {
         const std::string&    SignatureTitle = Item.key();
@@ -358,11 +373,13 @@ bool CAtomicNetwork::SyncMaliciousSignatures(jsoncons::json& Signatures)
     Signatures.clear();
     m_Signatures.clear();
 
+    SharedUtil::AddDebugLog("CAtomicNetwork::SyncMaliciousSignatures - completed");
     return true;
 }
 
 void CAtomicNetwork::HandleRequestScreenshot(jsoncons::json& Packet)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::HandleRequestScreenshot - entered");
     jsoncons::json response = jsoncons::json::object();
     response["request_id"] = Packet.contains("request_id") ? Packet["request_id"].as_string() : SharedUtil::GenerateRandomString(8);
 
@@ -377,13 +394,16 @@ void CAtomicNetwork::HandleRequestScreenshot(jsoncons::json& Packet)
     response["buffer"] = SharedUtil::Base64Encode(strScreenshotBuffer);
 
     SendPacket(REQUEST_SCREENSHOT, response);
+    SharedUtil::AddDebugLog("CAtomicNetwork::HandleRequestScreenshot - sent screenshot response");
 }
 
 void CAtomicNetwork::HandleEngineShutdown()
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::HandleEngineShutdown - entered");
     if (m_bNetworkJoined)
     {
         g_pAtomicAntiCheat->Shutdown();
+        SharedUtil::AddDebugLog("CAtomicNetwork::HandleEngineShutdown - shutdown called");
     }
     else
     {
@@ -393,6 +413,7 @@ void CAtomicNetwork::HandleEngineShutdown()
 
 void CAtomicNetwork::HandleUploadDebugLogs(jsoncons::json& Packet)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::HandleUploadDebugLogs - entered");
     jsoncons::json response = jsoncons::json::object();
     response["request_id"] = Packet.contains("request_id") ? Packet["request_id"].as_string() : SharedUtil::GenerateRandomString(8);
 
@@ -402,10 +423,12 @@ void CAtomicNetwork::HandleUploadDebugLogs(jsoncons::json& Packet)
     response["logs"] = strLogs;
 
     SendPacket(REQUEST_DEBUG_LOGS, response);
+    SharedUtil::AddDebugLog("CAtomicNetwork::HandleUploadDebugLogs - sent debug logs response");
 }
 
 void CAtomicNetwork::HandleFileUpload(jsoncons::json& Packet)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::HandleFileUpload - entered");
     jsoncons::json response = jsoncons::json::object();
 
     response["request_id"] = Packet.contains("request_id") ? Packet["request_id"].as_string() : SharedUtil::GenerateRandomString(8);
@@ -415,6 +438,7 @@ void CAtomicNetwork::HandleFileUpload(jsoncons::json& Packet)
     {
         response["success"] = false;
         response["message"] = "File path is empty!";
+        SharedUtil::AddDebugLog("CAtomicNetwork::HandleFileUpload - file path empty");
     }
     else
     {
@@ -433,28 +457,34 @@ void CAtomicNetwork::HandleFileUpload(jsoncons::json& Packet)
                 std::string strEncodedFile = SharedUtil::Base64Encode(strFileContent);
                 response["success"] = true;
                 response["buffer"] = strEncodedFile;
+                SharedUtil::AddDebugLog("CAtomicNetwork::HandleFileUpload - file uploaded successfully");
             }
             else
             {
                 response["success"] = false;
                 response["message"] = "Failed to open file!";
+                SharedUtil::AddDebugLog("CAtomicNetwork::HandleFileUpload - failed to open file");
             }
         }
         else
         {
             response["success"] = false;
             response["message"] = "File not found!";
+            SharedUtil::AddDebugLog("CAtomicNetwork::HandleFileUpload - file not found");
         }
     }
     SendPacket(REQUEST_FILE_UPLOAD, response);
+    SharedUtil::AddDebugLog("CAtomicNetwork::HandleFileUpload - sent file upload response");
 }
 
 void CAtomicNetwork::HandleRunScanners(jsoncons::json& Packet)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::HandleRunScanners - entered");
 }
 
 void CAtomicNetwork::Ping(eHeartbeatType HeartbeatType)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::Ping - entered HeartbeatType=%d", (int)HeartbeatType);
     if (m_pWebSocket->getReadyState() == ix::ReadyState::Open)
     {
         jsoncons::json body = jsoncons::json::object();
@@ -462,6 +492,11 @@ void CAtomicNetwork::Ping(eHeartbeatType HeartbeatType)
 
         SendPacket(HEARTBEAT, body);
         m_ullLastPingTime = time(NULL);
+        SharedUtil::AddDebugLog("CAtomicNetwork::Ping - sent heartbeat");
+    }
+    else
+    {
+        SharedUtil::AddDebugLog("CAtomicNetwork::Ping - websocket not open");
     }
 }
 
@@ -479,6 +514,7 @@ void CAtomicNetwork::DoPulse()
                                    return true;
                                });
             m_vPendingPackets.pop();
+            SharedUtil::AddDebugLog("CAtomicNetwork::DoPulse - sent packet");
         }
     }
 
@@ -493,6 +529,7 @@ void CAtomicNetwork::DoPulse()
 
 void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::OnReceivePacket - entered type=%d", (int)Message->type);
     SharedUtil::AddDebugLog("Websocket Message callback triggered with type %d", (int)Message->type);
 
     switch (Message->type)
@@ -501,12 +538,14 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         {
             /*std::thread t(&CAtomicNetwork::OnConnect);
             t.detach();*/
+            SharedUtil::AddDebugLog("CAtomicNetwork::OnReceivePacket - Open");
             CAtomicThread::Create(&CAtomicNetwork::OnConnect, this);
             break;
         }
 
         case ix::WebSocketMessageType::Message:
         {
+            SharedUtil::AddDebugLog("CAtomicNetwork::OnReceivePacket - Message");
             if (Message->type == ix::WebSocketMessageType::Message)
             {
                 std::string    message_buffer = Message->str;
@@ -514,12 +553,14 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
                 jsoncons::json json = jsoncons::json::parse(decrypted_buffer);
                 HandleIncomingPacket(json);
                 m_PendingResponses.insert_or_assign((eAtomicPacket)json["type"].as<int>(), json);
+                SharedUtil::AddDebugLog("CAtomicNetwork::OnReceivePacket - handled incoming packet type=%d", json["type"].as<int>());
             }
             break;
         }
 
         case ix::WebSocketMessageType::Close:
         {
+            SharedUtil::AddDebugLog("CAtomicNetwork::OnReceivePacket - Close");
             m_bNetworkJoined = false;
             m_bConnected = false;
             SharedUtil::AddDebugLog("WebSocket Closed: %s | Remote: %d (%d)", Message->closeInfo.reason.empty() ? "<empty>" : Message->closeInfo.reason.c_str(),
@@ -529,6 +570,7 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
         }
 
         case ix::WebSocketMessageType::Error:
+            SharedUtil::AddDebugLog("CAtomicNetwork::OnReceivePacket - Error");
             SharedUtil::AddDebugLog("WebSocket Error: %s (\"%s\", %d | Decompression Error: %d)", Message->errorInfo.reason.c_str(), Message->str.c_str(),
                                     Message->errorInfo.http_status, Message->errorInfo.decompressionError);
             m_pWebSocket->close();
@@ -537,33 +579,45 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
             // Reconnect();
             break;
     }
+    SharedUtil::AddDebugLog("CAtomicNetwork::OnReceivePacket - exit");
 }
 
 void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::HandleIncomingPacket - entered");
     if (!Packet.contains("type"))
+    {
+        SharedUtil::AddDebugLog("CAtomicNetwork::HandleIncomingPacket - no type field");
         return;
+    }
 
     int iPacketID = Packet["type"].as<int>();
+    SharedUtil::AddDebugLog("CAtomicNetwork::HandleIncomingPacket - type=%d", iPacketID);
     switch ((eAtomicPacket)iPacketID)
     {
         case eAtomicPacket::REQUEST_SCREENSHOT:
             HandleRequestScreenshot(Packet);
+            SharedUtil::AddDebugLog("CAtomicNetwork::HandleIncomingPacket - REQUEST_SCREENSHOT handled");
             break;
         case eAtomicPacket::ENGINE_SHUTDOWN:
             HandleEngineShutdown();
+            SharedUtil::AddDebugLog("CAtomicNetwork::HandleIncomingPacket - ENGINE_SHUTDOWN handled");
             break;
         case eAtomicPacket::REQUEST_DEBUG_LOGS:
             HandleUploadDebugLogs(Packet);
+            SharedUtil::AddDebugLog("CAtomicNetwork::HandleIncomingPacket - REQUEST_DEBUG_LOGS handled");
             break;
         case eAtomicPacket::REQUEST_FILE_UPLOAD:
             HandleFileUpload(Packet);
+            SharedUtil::AddDebugLog("CAtomicNetwork::HandleIncomingPacket - REQUEST_FILE_UPLOAD handled");
             break;
     }
+    SharedUtil::AddDebugLog("CAtomicNetwork::HandleIncomingPacket - exit");
 }
 
 void CAtomicNetwork::RequestFileUpload(std::string strFilePath, std::string strFileHash)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::RequestFileUpload - entered");
     SharedUtil::AddDebugLog("Requesting File Hash...");
     jsoncons::json request = jsoncons::json::object();
 
@@ -579,10 +633,12 @@ void CAtomicNetwork::RequestFileUpload(std::string strFilePath, std::string strF
     SharedUtil::AddDebugLog("File Hash Requested Successfuly");
 
     SendPacket(REQUEST_FILEHASH, request);
+    SharedUtil::AddDebugLog("CAtomicNetwork::RequestFileUpload - sent file hash request");
 }
 
 void CAtomicNetwork::Disconnect(std::string strReason)
 {
+    SharedUtil::AddDebugLog("CAtomicNetwork::Disconnect - entered reason='%s'", strReason.c_str());
     if (m_pWebSocket->getReadyState() == ix::ReadyState::Open)
     {
         m_pWebSocket->stop(ix::WebSocketCloseConstants::kNormalClosureCode, strReason);
@@ -590,4 +646,5 @@ void CAtomicNetwork::Disconnect(std::string strReason)
         m_PendingResponses.clear();
         SharedUtil::AddDebugLog("Disconnect - %s", strReason.c_str());
     }
+    SharedUtil::AddDebugLog("CAtomicNetwork::Disconnect - exit");
 }
