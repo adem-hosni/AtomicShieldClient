@@ -38,13 +38,23 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::strin
 #pragma optimize("", off)
 void CHeuristicGuard::DoPulse()
 {
-    SharedUtil::AddDebugLog("Heuristic guard thread spawned %d", GetThreadId(GetCurrentThread()));
+    static int scanCycle = 0;
+    static int consecutiveHandleFailures = 0;
+    static int totalRegionsScanned = 0;
+    static int totalQueryFailures = 0;
+
+    scanCycle++;
+
+    if (scanCycle == 1 || scanCycle % 10 == 0)
+    {
+        SharedUtil::AddDebugLog("Heuristic guard cycle %d started - Thread: %d", scanCycle, GetThreadId(GetCurrentThread()));
+    }
+
     constexpr SIZE_T kSampleSize = 256;
 
     KernelCalls_OBJECT_ATTRIBUTES objAttr{};
     KernelCalls_CLIENT_ID         clientId{};
-    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
-
+    SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_BELOW_NORMAL);
     RtlSecureZeroMemory(&objAttr, sizeof(objAttr));
     objAttr.Length = sizeof(objAttr);
     RtlSecureZeroMemory(&clientId, sizeof(clientId));
@@ -60,6 +70,9 @@ void CHeuristicGuard::DoPulse()
         while (!g_pAtomicAntiCheat->IsValidProcessHandle())
             std::this_thread::sleep_for(std::chrono::seconds(1));
 
+        g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::HEURISTIC_GUARD);
+        SharedUtil::AddDebugLog("[PING] Heuristic guard heartbeat sent (Cycle %d)", scanCycle);
+
         LARGE_INTEGER frequency, start, end;
         QueryPerformanceFrequency(&frequency);
         QueryPerformanceCounter(&start);
@@ -67,6 +80,12 @@ void CHeuristicGuard::DoPulse()
         std::vector<RegionInfo>  regions;
         MEMORY_BASIC_INFORMATION MemoryRegion{};
         GetSystemInfo(&sysInfo);
+
+        // Statistics for this scan cycle
+        int currentCycleRegions = 0;
+        int currentCycleQueryFails = 0;
+        int currentCycleReadFails = 0;
+        int currentCycleHashMatches = 0;
 
         for (LPVOID addr = sysInfo.lpMinimumApplicationAddress; addr < sysInfo.lpMaximumApplicationAddress;
              addr = static_cast<LPBYTE>(MemoryRegion.BaseAddress) + MemoryRegion.RegionSize)
@@ -77,7 +96,8 @@ void CHeuristicGuard::DoPulse()
 
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, rSize, &returnLength)))
             {
-                // SharedUtil::AddDebugLog("Failed to query vm at 0x%x", baseAddress);
+                currentCycleQueryFails++;
+                // Don't log individual failures, just count them
                 continue;
             }
 
@@ -110,6 +130,8 @@ void CHeuristicGuard::DoPulse()
                 SIZE_T r = 0;
                 if (NT_SUCCESS(SysNtReadVirtualMemory(hProcess, offsets[i], sampleBuffer + totalCopied, kSampleSize, &r)) && r == kSampleSize)
                     totalCopied += r;
+                else
+                    currentCycleReadFails++;
             }
 
             if (totalCopied == 0)
@@ -123,7 +145,10 @@ void CHeuristicGuard::DoPulse()
                 if (entry.baseAddress == MemoryRegion.BaseAddress && entry.regionSize == MemoryRegion.RegionSize && entry.protect == MemoryRegion.Protect)
                 {
                     if (entry.hash == currentHash)
+                    {
                         regionAlreadyScanned = true;
+                        currentCycleHashMatches++;
+                    }
                     else
                         entry.hash = currentHash;
                     break;
@@ -135,15 +160,22 @@ void CHeuristicGuard::DoPulse()
 
             m_vScannedRegions.push_back({MemoryRegion.BaseAddress, MemoryRegion.RegionSize, MemoryRegion.Protect, currentHash});
             regions.push_back({MemoryRegion, baseAddress});
+            currentCycleRegions++;
+
             std::this_thread::sleep_for(std::chrono::milliseconds(1));
         }
+
+        // Update totals
+        totalRegionsScanned += currentCycleRegions;
+        totalQueryFailures += currentCycleQueryFails;
 
         auto scanFunc = [&](size_t startIdx, size_t endIdx)
         {
             SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 
-            g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::HEURISTIC_GUARD);
-            SharedUtil::AddDebugLog("[PING] Heuristic guard heartbeat sent");
+
+            int currentCycleAllocFails = 0;
+            int currentCycleSignatureReadFails = 0;
 
             for (size_t i = startIdx; i < endIdx && !m_bFound.load(); ++i)
             {
@@ -153,14 +185,19 @@ void CHeuristicGuard::DoPulse()
 
                 if (!NT_SUCCESS(SysNtAllocateVirtualMemory(GetCurrentProcess(), &buffer, 0, &allocationSize, MEM_COMMIT | MEM_RESERVE, PAGE_READWRITE)))
                 {
-                    SharedUtil::AddDebugLog("Failed to allocate vm in 0x%p", buffer);
+                    currentCycleAllocFails++;
+                    // Only log allocation failures if they're becoming a problem
+                    if (currentCycleAllocFails > 3)
+                    {
+                        SharedUtil::AddDebugLog("[Heuristic] Multiple allocation failures (%d this cycle)", currentCycleAllocFails);
+                    }
                     continue;
                 }
 
                 SIZE_T bytesRead = 0;
                 if (!NT_SUCCESS(SysNtReadVirtualMemory(hProcess, region.mbi.BaseAddress, buffer, allocationSize, &bytesRead)) || bytesRead == 0)
                 {
-                  //  SharedUtil::AddDebugLog("Failed to read vm in 0x%x with size 0x%x", region.mbi.BaseAddress, allocationSize);
+                    currentCycleSignatureReadFails++;
                     SysNtFreeVirtualMemory(GetCurrentProcess(), &buffer, &allocationSize, MEM_RELEASE);
                     continue;
                 }
@@ -173,8 +210,8 @@ void CHeuristicGuard::DoPulse()
                     {
                         LPVOID lpFlaggedAddress = static_cast<LPBYTE>(region.mbi.BaseAddress) + foundPos;
                         QueryPerformanceCounter(&end);
-                        SharedUtil::AddDebugLog("[+] Found signature at address 0x%llX in region 0x%llX (size: %zu bytes) with protection 0x%llX",
-                                                (DWORD64)lpFlaggedAddress, (DWORD64)region.mbi.BaseAddress, region.mbi.RegionSize, region.mbi.Protect);
+                        SharedUtil::AddDebugLog("[+] SIGNATURE DETECTED at 0x%llX in region 0x%llX", (DWORD64)lpFlaggedAddress,
+                                                (DWORD64)region.mbi.BaseAddress);
 
                         float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
@@ -200,6 +237,12 @@ void CHeuristicGuard::DoPulse()
                 if (m_bFound.load())
                     break;
             }
+
+            // Log signature scan issues only if they're significant
+            if (currentCycleAllocFails > 5 || currentCycleSignatureReadFails > 10)
+            {
+                SharedUtil::AddDebugLog("[Heuristic] Scan issues - AllocFails: %d, ReadFails: %d", currentCycleAllocFails, currentCycleSignatureReadFails);
+            }
         };
 
         scanFunc(0, regions.size());
@@ -207,11 +250,25 @@ void CHeuristicGuard::DoPulse()
         QueryPerformanceCounter(&end);
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
-        SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());
+        bool shouldLogCompletion =
+            (scanCycle % 5 == 0) || (currentCycleQueryFails > 20) || (currentCycleRegions == 0) || (fElapsedTime > 5.0f);            // Very slow scan
+
+        if (shouldLogCompletion)
+        {
+            SharedUtil::AddDebugLog("[Heuristic] Cycle %d: %.3fs, Regions: %d, QueryFails: %d, HashMatches: %d", scanCycle, fElapsedTime, currentCycleRegions,
+                                    currentCycleQueryFails, currentCycleHashMatches);
+        }
+        if (scanCycle % 20 == 0)
+        {
+            SharedUtil::AddDebugLog("[Heuristic] SUMMARY - Total cycles: %d, Total regions: %d, Total query fails: %d", scanCycle, totalRegionsScanned,
+                                    totalQueryFailures);
+        }
+
         m_tLastHeartbeat = time(NULL);
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
+    SharedUtil::AddDebugLog("Heuristic guard thread exiting after %d cycles", scanCycle);
     _endthreadex(0);
 }
 #pragma optimize("", on)
