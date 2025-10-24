@@ -67,6 +67,7 @@ bool EnableDebugPrivilege()
 
 DWORD WINAPI EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
+    OutputDebugStringA("AtomicShield: Entering EntryPoint");
 
     SharedUtil::AddDebugLog(
         "===================================== AtomicShield AntiCheat Loaded! "
@@ -74,6 +75,7 @@ DWORD WINAPI EntryPoint(LPVOID lpAntiCheatModuleBase)
 
     SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 1);
 
+    SharedUtil::AddDebugLog("AtomicShield: After SetRegistryIntValue");
 
     CAntiDebugging* pAntiDebugging = new CAntiDebugging(
         [](eDebugDetectionFlags DetectionFlag, std::string strReason) -> void*
@@ -88,19 +90,31 @@ DWORD WINAPI EntryPoint(LPVOID lpAntiCheatModuleBase)
         });
     pAntiDebugging->StartPulse();
 
+    SharedUtil::AddDebugLog("AtomicShield: After AntiDebugging setup");
+
+    // SharedProtocols::EnableProcessMitigations();
+
     CLatencyEvaluator::SetupServerEndPoint([](std::string strBestEndPoint) -> void { g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint); },
                                            false);
 
+    SharedUtil::AddDebugLog("AtomicShield: After CLatencyEvaluator::SetupServerEndPoint");
 
     EnableDebugPrivilege();
     g_pAtomicAntiCheat->Initialize();
 
+    SharedUtil::AddDebugLog("AtomicShield: After g_pAtomicAntiCheat->Initialize");
 
+    //_beginthread((_beginthread_proc_type)CAtomicAntiCheat::StaticPulse, NULL, g_pAtomicAntiCheat);
     CAtomicThread::Create(CAtomicAntiCheat::StaticPulse, g_pAtomicAntiCheat);
 
+    SharedUtil::AddDebugLog("AtomicShield: After CAtomicThread::Create");
 
-    
+    while (true)
+    {
+        Sleep(3000);
+    }
 
+    SharedUtil::AddDebugLog("AtomicShield: Exiting EntryPoint");            // This will never be called, but for consistency.
     return 0;
 }
 
@@ -110,6 +124,8 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
         case DLL_PROCESS_ATTACH:
         {
+            SharedUtil::AddDebugLog("AtomicShield: DLL_PROCESS_ATTACH");
+            //_beginthread((_beginthread_proc_type)EntryPoint, NULL, hModule);
             CreateThread(nullptr, 0, EntryPoint, hModule, 0, nullptr);
             break;
         }
