@@ -114,14 +114,8 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::DetectOpenHandlesToFiveM()
 void CProcessGuard::DoPulse()
 {
     SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
-
-    // Add deduplication tracking
-    static std::unordered_set<DWORD> processedPIDsThisCycle;
-
     while (g_pAtomicAntiCheat->RunScanners())
     {
-        processedPIDsThisCycle.clear();
-
         while (!g_pAtomicAntiCheat->IsValidProcessHandle())
             std::this_thread::sleep_for(std::chrono::seconds(1));
 
@@ -136,37 +130,16 @@ void CProcessGuard::DoPulse()
 
         std::vector<Handles::SYSTEM_HANDLE> handles = Handles::DetectOpenHandlesToFiveM();
 
-        int totalHandles = handles.size();
-        int loggedHandles = 0;
-        int duplicateHandles = 0;
-
         for (auto& handle : handles)
         {
-            // Skip if we already processed this PID in current cycle
-            if (processedPIDsThisCycle.count(handle.ProcessId))
-            {
-                duplicateHandles++;
-                continue;
-            }
-
             std::string strProcessPath = GetProcessPath(handle.ProcessId);
             std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
 
             if (strProcessPath.empty())
                 continue;
 
-            // Skip Windows processes and known safe paths
-            if (strProcessPath.find("C:\\Windows") != std::string::npos || strProcessPath.find("WindowsApps") != std::string::npos ||
-                strProcessPath.find("HyperX") != std::string::npos)
-            {
-                processedPIDsThisCycle.insert(handle.ProcessId);
+            if (strProcessPath.find("C:\\Windows") != std::string::npos)
                 continue;
-            }
-
-            // Mark this PID as processed
-            processedPIDsThisCycle.insert(handle.ProcessId);
-            loggedHandles++;
-
             PROCESS_LOG("Handle opened: %s (PID: %d, Access: 0x%X)", strProcessPath.c_str(), handle.ProcessId, handle.GrantedAccess);
 
             if (!(handle.GrantedAccess & (PROCESS_ALL_ACCESS | PROCESS_VM_WRITE | PROCESS_VM_READ | PROCESS_SUSPEND_RESUME | PROCESS_SET_INFORMATION |
@@ -178,7 +151,7 @@ void CProcessGuard::DoPulse()
                 if (std::find(m_vDetectedProcesses.begin(), m_vDetectedProcesses.end(), strProcessPath) == m_vDetectedProcesses.end())
                 {
                     std::string strFileHash = Utils::GetFileHash(strProcessPath);
-                    PROCESS_LOG("Detected malicious process: %s (PID: %d, Granted Access: 0x%X, Hash: %s)", strProcessPath.c_str(), handle.ProcessId,
+                    PROCESS_LOG("Detected malicious process : % s(PID : % d, Granted Access : 0x % X, Hash: %s) ", strProcessPath.c_str(), handle.ProcessId,
                                 handle.GrantedAccess, strFileHash.c_str());
 
                     m_vDetectedProcesses.push_back(strProcessPath);
@@ -192,23 +165,20 @@ void CProcessGuard::DoPulse()
                 }
             }
         }
-
         QueryPerformanceCounter(&end);
 
         g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::PROCESS_GUARD);
         SharedUtil::AddDebugLog("[PING] Process guard heartbeat sent");
 
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
-
-        // Log summary instead of individual handles
-        PROCESS_LOG("Process Guard: %d handles scanned, %d logged, %d duplicates. Completed in %.3f seconds", totalHandles, loggedHandles, duplicateHandles,
-                    fElapsedTime);
+        PROCESS_LOG("Process Guard Pulse completed in %.5f seconds", fElapsedTime);
 
         std::this_thread::sleep_for(std::chrono::seconds(15));
     }
 
     _endthreadex(0);
 }
+
 void CProcessGuard::ClearDetections()
 {
     m_vDetectedProcesses.clear();
