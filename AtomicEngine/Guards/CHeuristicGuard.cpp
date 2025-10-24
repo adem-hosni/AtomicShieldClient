@@ -97,7 +97,7 @@ void CHeuristicGuard::DoPulse()
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, rSize, &returnLength)))
             {
                 currentCycleQueryFails++;
-                // Don't log individual failures, just count them
+                addr = (LPBYTE)addr + 0x1000;
                 continue;
             }
 
