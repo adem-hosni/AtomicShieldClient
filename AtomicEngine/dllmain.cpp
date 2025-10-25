@@ -67,10 +67,9 @@ bool EnableDebugPrivilege()
 
 DWORD WINAPI EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
-
     SharedUtil::AddDebugLog(
-        "===================================== AtomicShield AntiCheat Loaded! "
-        "=====================================\n");
+        "===================================== AtomicShield AntiCheat Loaded! " CLIENT_BUILD_TIMESTAMP 
+        " =====================================\n");
 
     SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 1);
 
