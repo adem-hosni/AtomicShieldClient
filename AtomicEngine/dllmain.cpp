@@ -67,14 +67,10 @@ bool EnableDebugPrivilege()
 
 DWORD WINAPI EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
-    __security_init_cookie();
 
-    SharedUtil::AddDebugLog("AtomicShield: DLL Loaded!");
-    g_pAtomicLogger->Initialize();
-
-    SharedLogger::LogInfo(
+    SharedUtil::AddDebugLog(
         "===================================== AtomicShield AntiCheat Loaded! "
-        "=====================================");
+        "=====================================\n");
 
     SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 1);
 
@@ -100,8 +96,6 @@ DWORD WINAPI EntryPoint(LPVOID lpAntiCheatModuleBase)
     CLatencyEvaluator::SetupServerEndPoint([](std::string strBestEndPoint) -> void { g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint); },
                                            false);
 
-    SharedUtil::AddDebugLog("AtomicShield: After CLatencyEvaluator::SetupServerEndPoint");
-
     EnableDebugPrivilege();
     g_pAtomicAntiCheat->Initialize();
 
@@ -109,6 +103,10 @@ DWORD WINAPI EntryPoint(LPVOID lpAntiCheatModuleBase)
 
     //_beginthread((_beginthread_proc_type)CAtomicAntiCheat::StaticPulse, NULL, g_pAtomicAntiCheat);
     CAtomicThread::Create(CAtomicAntiCheat::StaticPulse, g_pAtomicAntiCheat);
+
+
+    
+
     return 0;
 }
 

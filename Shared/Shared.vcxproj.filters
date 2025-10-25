@@ -42,12 +42,6 @@
     <ClCompile Include="CLatencyEvaluator.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CAtomicLogger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="SharedLogger.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="SharedChecks.h">
@@ -1125,12 +1119,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CLatencyEvaluator.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="CAtomicLogger.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SharedLogger.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

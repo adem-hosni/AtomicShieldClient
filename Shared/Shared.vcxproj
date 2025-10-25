@@ -164,8 +164,6 @@
     <ClCompile Include="Helpers\AES.cpp" />
     <ClCompile Include="SecurityChecks.cpp" />
     <ClCompile Include="SharedChecks.cpp" />
-    <ClCompile Include="CAtomicLogger.cpp" />
-    <ClCompile Include="SharedLogger.cpp" />
     <ClCompile Include="SharedProtocols.cpp" />
     <ClCompile Include="SharedUtil.cpp" />
     <ClCompile Include="Vendor\LiteRegedit\LiteRegedit.cpp" />
@@ -179,8 +177,6 @@
     <ClInclude Include="RuntimeImportResolver.h" />
     <ClInclude Include="SecurityChecks.h" />
     <ClInclude Include="SharedChecks.h" />
-    <ClInclude Include="CAtomicLogger.h" />
-    <ClInclude Include="SharedLogger.h" />
     <ClInclude Include="SharedProtocols.h" />
     <ClInclude Include="SharedUtil.h" />
     <ClInclude Include="skCrypter.h" />

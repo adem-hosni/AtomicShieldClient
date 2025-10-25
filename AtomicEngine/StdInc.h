@@ -40,7 +40,6 @@
 #include "CAtomicAntiCheat.h"
 #include "Common.h"
 #include "SharedUtil.h"
-#include "SharedLogger.h"
 #include "SharedProtocols.h"
 #include "Utils.h"
 #include "skCrypter.h"
