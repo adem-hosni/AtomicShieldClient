@@ -38,7 +38,7 @@ void CHeuristicGuard::AddSignatures(std::map<std::string, std::vector<std::strin
 #pragma optimize("", off)
 void CHeuristicGuard::DoPulse()
 {
-    SharedUtil::AddDebugLog("Heuristic guard thread spawned %d", GetThreadId(GetCurrentThread()));
+    SharedUtil::AddDebugLog("[HeuristicGuard] Heuristic guard thread spawned %d", GetThreadId(GetCurrentThread()));
     constexpr SIZE_T kSampleSize = 256;
 
     KernelCalls_OBJECT_ATTRIBUTES objAttr{};
@@ -80,6 +80,7 @@ void CHeuristicGuard::DoPulse()
                 addr = (LPBYTE)addr + 0x1000;
                 continue;
             }
+
 
             if (MemoryRegion.RegionSize < 400 * 1024)
                 continue;
@@ -173,7 +174,7 @@ void CHeuristicGuard::DoPulse()
                     {
                         LPVOID lpFlaggedAddress = static_cast<LPBYTE>(region.mbi.BaseAddress) + foundPos;
                         QueryPerformanceCounter(&end);
-                        SharedUtil::AddDebugLog("[+] Found signature at address 0x%llX in region 0x%llX (size: %zu bytes) with protection 0x%llX",
+                        SharedUtil::AddDebugLog("[HeuristicGuard] [+] Found signature at address 0x%llX in region 0x%llX (size: %zu bytes) with protection 0x%llX",
                                                 (DWORD64)lpFlaggedAddress, (DWORD64)region.mbi.BaseAddress, region.mbi.RegionSize, region.mbi.Protect);
 
                         float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
@@ -207,7 +208,7 @@ void CHeuristicGuard::DoPulse()
         QueryPerformanceCounter(&end);
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
-        SharedUtil::AddDebugLog("[+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());
+        SharedUtil::AddDebugLog("[HeuristicGuard] [+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());
         m_tLastHeartbeat = time(NULL);
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
