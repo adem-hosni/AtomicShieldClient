@@ -13,189 +13,68 @@
 
 bool StartupManager::IsAppInRegistry()
 {
-    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
-    if (FAILED(hr))
-        return false;
+    HKEY    hKey;
+    LSTATUS result = RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ, &hKey);
 
-    ITaskService* pService = nullptr;
-    hr = CoCreateInstance(CLSID_TaskScheduler, NULL, CLSCTX_INPROC_SERVER, IID_ITaskService, (void**)&pService);
-    if (FAILED(hr))
+    if (result == ERROR_SUCCESS)
     {
-        CoUninitialize();
-        return false;
+        char  value[1024];
+        DWORD size = sizeof(value);
+        result = RegQueryValueExA(hKey, "AtomicShield", nullptr, nullptr, (LPBYTE)value, &size);
+        RegCloseKey(hKey);
+
+        return result == ERROR_SUCCESS;
     }
 
-    hr = pService->Connect(_variant_t(), _variant_t(), _variant_t(), _variant_t());
-    if (FAILED(hr))
-    {
-        pService->Release();
-        CoUninitialize();
-        return false;
-    }
-
-    ITaskFolder* pRootFolder = nullptr;
-    hr = pService->GetFolder(_bstr_t(L"\\"), &pRootFolder);
-    if (FAILED(hr))
-    {
-        pService->Release();
-        CoUninitialize();
-        return false;
-    }
-
-    IRegisteredTask* pTask = nullptr;
-    hr = pRootFolder->GetTask(_bstr_t(L"AtomicShield"), &pTask);
-
-    bool result = SUCCEEDED(hr);
-
-    if (pTask)
-        pTask->Release();
-    pRootFolder->Release();
-    pService->Release();
-    CoUninitialize();
-
-    return result;
+    return false;
 }
-
 bool StartupManager::AddAppToRegistry()
 {
-    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
-    if (FAILED(hr))
-        return false;
+    HKEY    hKey;
+    LSTATUS result = RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &hKey);
 
-    ITaskService* pService = nullptr;
-    hr = CoCreateInstance(CLSID_TaskScheduler, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskService, (void**)&pService);
-    if (FAILED(hr) || !pService)
+    if (result == ERROR_SUCCESS)
     {
-        CoUninitialize();
-        return false;
-    }
+        char szPath[MAX_PATH];
+        GetModuleFileNameA(nullptr, szPath, MAX_PATH);
 
-    hr = pService->Connect(_variant_t(), _variant_t(), _variant_t(), _variant_t());
-    if (FAILED(hr))
-    {
-        pService->Release();
-        CoUninitialize();
-        return false;
-    }
+        // Add the --startup argument
+        std::string fullPath = std::string(szPath) + " --startup";
 
-    ITaskFolder* pRootFolder = nullptr;
-    hr = pService->GetFolder(_bstr_t(L"\\"), &pRootFolder);
-    if (FAILED(hr) || !pRootFolder)
-    {
-        pService->Release();
-        CoUninitialize();
-        return false;
-    }
+        result = RegSetValueExA(hKey, "AtomicShield", 0, REG_SZ, (const BYTE*)fullPath.c_str(), fullPath.length() + 1);
 
-    // Delete old task if exists
-    pRootFolder->DeleteTask(_bstr_t(L"AtomicShield"), 0);
+        RegCloseKey(hKey);
 
-    ITaskDefinition* pTask = nullptr;
-    hr = pService->NewTask(0, &pTask);
-    if (FAILED(hr) || !pTask)
-    {
-        pRootFolder->Release();
-        pService->Release();
-        CoUninitialize();
-        return false;
-    }
-
-    // Create logon trigger
-    ITriggerCollection* pTriggerCollection = nullptr;
-    hr = pTask->get_Triggers(&pTriggerCollection);
-    if (SUCCEEDED(hr) && pTriggerCollection)
-    {
-        ITrigger* pTrigger = nullptr;
-        hr = pTriggerCollection->Create(TASK_TRIGGER_LOGON, &pTrigger);
-        if (pTrigger)
-            pTrigger->Release();
-        pTriggerCollection->Release();
-    }
-
-    // Action (start exe)
-    IActionCollection* pActionCollection = nullptr;
-    hr = pTask->get_Actions(&pActionCollection);
-    if (SUCCEEDED(hr) && pActionCollection)
-    {
-        IAction* pAction = nullptr;
-        hr = pActionCollection->Create(TASK_ACTION_EXEC, &pAction);
-        if (SUCCEEDED(hr) && pAction)
+        if (result == ERROR_SUCCESS)
         {
-            IExecAction* pExecAction = nullptr;
-            hr = pAction->QueryInterface(IID_IExecAction, (void**)&pExecAction);
-            if (SUCCEEDED(hr) && pExecAction)
-            {
-                char szPath[MAX_PATH];
-                if (GetModuleFileNameA(nullptr, szPath, MAX_PATH) != 0)
-                {
-                    std::wstring wPath(szPath, szPath + strlen(szPath));
-
-                    // Set path and args
-                    pExecAction->put_Path(_bstr_t(szPath));
-                    pExecAction->put_Arguments(_bstr_t(L"--startup"));
-                }
-                pExecAction->Release();
-            }
-            pAction->Release();
+            SharedUtil::AddDebugLog("Startup added to registry successfully");
+            return true;
         }
-        pActionCollection->Release();
     }
 
-    // Register task
-    IRegisteredTask* pRegisteredTask = nullptr;
-    hr = pRootFolder->RegisterTaskDefinition(_bstr_t(L"AtomicShield"), pTask, TASK_CREATE_OR_UPDATE, _variant_t(), _variant_t(), TASK_LOGON_INTERACTIVE_TOKEN,
-                                             _variant_t(L""), &pRegisteredTask);
-
-    if (pRegisteredTask)
-        pRegisteredTask->Release();
-    pTask->Release();
-    pRootFolder->Release();
-    pService->Release();
-    CoUninitialize();
-
-    return SUCCEEDED(hr);
+    SharedUtil::AddDebugLog("Failed to add startup registry: %d", result);
+    return false;
 }
-
 bool StartupManager::RemoveAppFromRegistry()
 {
-    HRESULT hr = CoInitializeEx(NULL, COINIT_MULTITHREADED);
-    if (FAILED(hr))
-        return false;
+    HKEY    hKey;
+    LSTATUS result = RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &hKey);
 
-    ITaskService* pService = nullptr;
-    hr = CoCreateInstance(CLSID_TaskScheduler, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskService, (void**)&pService);
-    if (FAILED(hr) || !pService)
+    if (result == ERROR_SUCCESS)
     {
-        CoUninitialize();
-        return false;
+        result = RegDeleteValueA(hKey, "AtomicShield");
+        RegCloseKey(hKey);
+
+        if (result == ERROR_SUCCESS || result == ERROR_FILE_NOT_FOUND)
+        {
+            SharedUtil::AddDebugLog("Startup removed from registry");
+            return true;
+        }
     }
 
-    hr = pService->Connect(_variant_t(), _variant_t(), _variant_t(), _variant_t());
-    if (FAILED(hr))
-    {
-        pService->Release();
-        CoUninitialize();
-        return false;
-    }
-
-    ITaskFolder* pRootFolder = nullptr;
-    hr = pService->GetFolder(_bstr_t(L"\\"), &pRootFolder);
-    if (FAILED(hr) || !pRootFolder)
-    {
-        pService->Release();
-        CoUninitialize();
-        return false;
-    }
-
-    hr = pRootFolder->DeleteTask(_bstr_t(L"AtomicShield"), 0);
-
-    pRootFolder->Release();
-    pService->Release();
-    CoUninitialize();
-
-    return SUCCEEDED(hr) || hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND);
+    SharedUtil::AddDebugLog("Failed to remove startup registry: %d", result);
+    return false;
 }
-
 
 void StartupManager::StartupFunction()
 {

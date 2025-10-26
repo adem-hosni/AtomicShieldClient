@@ -96,14 +96,17 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     result.bInitialized = true;
 
     _beginthread((_beginthread_proc_type)ApiChecks, NULL, &result);
-
+    while (!result.bInitialized)
+    {
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
+    }
     tos = !CheckIfLoaded("AtomicShield_TOS");
 
     if (cmdLine.find(skCrypt("--startup")) != std::string::npos)
     {
         StartupManager::StartupFunction();
     }
-    else if (GUI::Initialize())
+    if (GUI::Initialize())
     {
         GUI::RenderUI(&bInitialized, result.bSuccess, &result.strTitle, &result.strMessage, processName, tos);
     }
