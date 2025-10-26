@@ -79,7 +79,10 @@ void CHeuristicGuard::DoPulse()
 
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, rSize, &returnLength)))
             {
-                addr = (LPBYTE)addr + 0x1000;
+                if (addr == NULL)
+                {
+                    break;
+                }
                 continue;
             }
 
@@ -143,8 +146,6 @@ void CHeuristicGuard::DoPulse()
 
         auto scanFunc = [&](size_t startIdx, size_t endIdx)
         {
-
-
             for (size_t i = startIdx; i < endIdx && !m_bFound.load(); ++i)
             {
                 const auto& region = regions[i];
