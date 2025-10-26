@@ -143,7 +143,6 @@ void CHeuristicGuard::DoPulse()
 
         auto scanFunc = [&](size_t startIdx, size_t endIdx)
         {
-            SetThreadPriority(GetCurrentThread(), THREAD_PRIORITY_LOWEST);
 
 
             for (size_t i = startIdx; i < endIdx && !m_bFound.load(); ++i)
