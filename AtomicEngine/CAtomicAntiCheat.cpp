@@ -8,6 +8,7 @@ CAtomicAntiCheat::CAtomicAntiCheat()
     m_iTargetProcessID = 0;
     m_pAtomicNetwork = new CAtomicNetwork();
     m_pGuardManager = new CGuardManager();
+    m_pAtomicHWID = new CAtomicHWID();
     m_vDetectedTypes = {};
     m_lpAntiCheatModuleBase = nullptr;
     m_bRunScanners = true;

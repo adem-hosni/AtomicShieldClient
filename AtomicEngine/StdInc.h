@@ -34,7 +34,7 @@
 #include "Screenshot.h"
 #include "BasicChecks.h"
 #include "AtomicPacket.h"
-#include "CHWID.h"
+#include "CAtomicHWID.h"
 #include "CAtomicNetwork.h"
 #include "CAtomicThread.h"
 #include "CAtomicAntiCheat.h"

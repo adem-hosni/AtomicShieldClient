@@ -165,7 +165,7 @@
     <ClCompile Include="CGuardManager.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="CHWID.cpp">
+    <ClCompile Include="CAtomicHWID.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="FileAuthentication.cpp">
@@ -395,7 +395,7 @@
     <ClInclude Include="CGuardManager.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="CHWID.h">
+    <ClInclude Include="CAtomicHWID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="FileAuthentication.h">
