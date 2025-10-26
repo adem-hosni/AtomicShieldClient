@@ -57,8 +57,6 @@ public:
     void        DoPulse();
     void        StartPulse();
 
-    CAtomicHWID* GetAtomicHWID() { return m_pAtomicHWID; }
-
     void StartBasicChecks();
 
     bool RunScanners() { return m_bRunScanners; }
@@ -88,7 +86,6 @@ private:
     int     m_iTargetProcessID;
     HANDLE  m_hProcess;
 
-    CAtomicHWID*   m_pAtomicHWID;
     jsoncons::json m_HWIDCache;
 
     CAtomicNetwork* m_pAtomicNetwork;

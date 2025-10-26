@@ -188,7 +188,7 @@
     <ClCompile Include="CAtomicThread.cpp" />
     <ClCompile Include="CCrashHandler.cpp" />
     <ClCompile Include="CGuardManager.cpp" />
-    <ClCompile Include="CAtomicHWID.cpp" />
+    <ClCompile Include="CHWID.cpp" />
     <ClCompile Include="Guards\CManualMappingGuard.cpp" />
     <ClCompile Include="dllmain.cpp" />
     <ClCompile Include="FileAuthentication.cpp" />
@@ -251,7 +251,7 @@
     <ClInclude Include="CAtomicThread.h" />
     <ClInclude Include="CCrashHandler.h" />
     <ClInclude Include="CGuardManager.h" />
-    <ClInclude Include="CAtomicHWID.h" />
+    <ClInclude Include="CHWID.h" />
     <ClInclude Include="Guards\CManualMappingGuard.h" />
     <ClInclude Include="FileAuthentication.h" />
     <ClInclude Include="Guards\CGuardBase.h" />
