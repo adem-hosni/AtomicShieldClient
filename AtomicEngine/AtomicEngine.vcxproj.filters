@@ -195,6 +195,9 @@
     <ClCompile Include="CAntiDebugging.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="SelfMapModule.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Guards\CGuardBase.h">
@@ -435,6 +438,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="CAntiDebugging.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SelfMapModule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

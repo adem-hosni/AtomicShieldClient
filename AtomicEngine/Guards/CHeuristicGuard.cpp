@@ -174,7 +174,7 @@ void CHeuristicGuard::DoPulse()
                     {
                         LPVOID lpFlaggedAddress = static_cast<LPBYTE>(region.mbi.BaseAddress) + foundPos;
                         QueryPerformanceCounter(&end);
-                        SharedUtil::AddDebugLog("[HeuristicGuard] [+] Found signature at address 0x%llX in region 0x%llX (size: %zu bytes) with protection 0x%llX",
+                        SharedUtil::AddDebugLog("[+][HeuristicGuard] Found signature at address 0x%llX in region 0x%llX (size: %zu bytes) with protection 0x%llX",
                                                 (DWORD64)lpFlaggedAddress, (DWORD64)region.mbi.BaseAddress, region.mbi.RegionSize, region.mbi.Protect);
 
                         float fScanTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;

@@ -100,12 +100,7 @@ DWORD WINAPI EntryPoint(LPVOID lpAntiCheatModuleBase)
 
     SharedUtil::AddDebugLog("AtomicShield: After g_pAtomicAntiCheat->Initialize");
 
-    //_beginthread((_beginthread_proc_type)CAtomicAntiCheat::StaticPulse, NULL, g_pAtomicAntiCheat);
     CAtomicThread::Create(CAtomicAntiCheat::StaticPulse, g_pAtomicAntiCheat);
-
-
-    
-
     return 0;
 }
 
@@ -115,19 +110,11 @@ BOOL APIENTRY DllMain(HMODULE hModule, DWORD ul_reason_for_call, LPVOID lpReserv
     {
         case DLL_PROCESS_ATTACH:
         {
-            SharedUtil::AddDebugLog("AtomicShield: DLL_PROCESS_ATTACH");
-            //_beginthread((_beginthread_proc_type)EntryPoint, NULL, hModule);
             CreateThread(nullptr, 0, EntryPoint, hModule, 0, nullptr);
-            break;
         }
         case DLL_THREAD_ATTACH:
-            SharedUtil::AddDebugLog("AtomicShield: DLL_THREAD_ATTACH");
-            break;
         case DLL_THREAD_DETACH:
-            SharedUtil::AddDebugLog("AtomicShield: DLL_THREAD_DETACH");
-            break;
         case DLL_PROCESS_DETACH:
-            SharedUtil::AddDebugLog("AtomicShield: DLL_PROCESS_DETACH");
             break;
     }
     return TRUE;

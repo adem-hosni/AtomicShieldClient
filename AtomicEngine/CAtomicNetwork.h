@@ -40,18 +40,19 @@ public:
     std::string GetIPAddressChain();
 
     bool JoinNetwork();
+    
     bool SyncMaliciousSignatures(jsoncons::json& Signatures);
+    void RequestFileUpload(std::string strFilePath, std::string strFileHash);
+
     void HandleRequestScreenshot(jsoncons::json& Packet);
     void HandleEngineShutdown();
     void HandleUploadDebugLogs(jsoncons::json& Packet);
     void HandleFileUpload(jsoncons::json& Packet);
     void HandleRunScanners(jsoncons::json& Packet);
+    void HandleIncomingPacket(jsoncons::json Packet);
+    void HandleReloadEngine(jsoncons::json& Packet);
 
     void OnReceivePacket(const ix::WebSocketMessagePtr& Message);
-
-    void HandleIncomingPacket(jsoncons::json Packet);
-
-    void RequestFileUpload(std::string strFilePath, std::string strFileHash);
 
     std::map<std::string, std::vector<std::string>> GetSignatures() { return m_Signatures; }
 

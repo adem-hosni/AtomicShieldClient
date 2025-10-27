@@ -15,4 +15,5 @@ enum eAtomicPacket
     REQUEST_FILE_UPLOAD,
     HEARTBEAT,
     FORCE_HARDKICK,
+    RELOAD_ENGINE,
 };

@@ -1,4 +1,5 @@
 #include "CAtomicAntiCheat.h"
+#include <ixwebsocket/IXHttpClient.h>
 #include "CAtomicCore.h"
 #include "Common.h"
 #include <winsock2.h>
@@ -9,6 +10,7 @@
 #include <filesystem>
 #include <fstream>
 #include <future>
+
 #pragma comment(lib, "ws2_32.lib")
 #pragma comment(lib, "iphlpapi.lib")
 
@@ -261,7 +263,6 @@ std::string CAtomicNetwork::GetIPAddressChain()
     return combined;
 }
 
-
 bool CAtomicNetwork::JoinNetwork()
 {
     jsoncons::json RequestData;
@@ -471,11 +472,12 @@ void CAtomicNetwork::DoPulse()
     {
         if (m_pWebSocket->getReadyState() == ix::ReadyState::Open)
         {
+            SharedUtil::AddDebugLog("Sending pending packet...");
             std::string strPacketBuffer = m_vPendingPackets.front();
             m_pWebSocket->send(strPacketBuffer.c_str(), false,
                                [&](int current, int total)
                                {
-                                   std::this_thread::sleep_for(std::chrono::milliseconds(5));
+                                   std::this_thread::sleep_for(std::chrono::milliseconds(1));
                                    return true;
                                });
             m_vPendingPackets.pop();
@@ -487,8 +489,6 @@ void CAtomicNetwork::DoPulse()
         m_pWebSocket->ping("Ping");
         m_ullLastPingTime = time(NULL);
     }
-
-    std::this_thread::sleep_for(std::chrono::milliseconds(50));
 }
 
 void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
@@ -499,8 +499,6 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
     {
         case ix::WebSocketMessageType::Open:
         {
-            /*std::thread t(&CAtomicNetwork::OnConnect);
-            t.detach();*/
             CAtomicThread::Create(&CAtomicNetwork::OnConnect, this);
             break;
         }
@@ -534,7 +532,6 @@ void CAtomicNetwork::OnReceivePacket(const ix::WebSocketMessagePtr& Message)
             m_pWebSocket->close();
             m_bNetworkJoined = false;
             g_pAtomicAntiCheat->GetGuardManager()->StopGuards();
-            // Reconnect();
             break;
     }
 }
@@ -545,6 +542,9 @@ void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
         return;
 
     int iPacketID = Packet["type"].as<int>();
+
+    SharedUtil::AddDebugLog("Handling incoming packet of type %d", iPacketID);
+
     switch ((eAtomicPacket)iPacketID)
     {
         case eAtomicPacket::REQUEST_SCREENSHOT:
@@ -559,7 +559,73 @@ void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
         case eAtomicPacket::REQUEST_FILE_UPLOAD:
             HandleFileUpload(Packet);
             break;
+        case eAtomicPacket::RELOAD_ENGINE:
+            HandleReloadEngine(Packet);
+            break;
     }
+}
+
+void CAtomicNetwork::HandleReloadEngine(jsoncons::json& Packet)
+{
+    SharedUtil::AddDebugLog("Handling engine reload request...");
+    jsoncons::json response = jsoncons::json::object();
+    response["request_id"] = Packet.contains("request_id") ? Packet["request_id"].as_string() : SharedUtil::GenerateRandomString(8);
+
+    response["success"] = false;
+    response["message"] = "";
+
+    SharedUtil::AddDebugLog("Allocating http client...");
+    ix::HttpClient client;
+
+    std::string            endpoint = m_strServerEndPoint + "/resources/scan/fivem";
+    std::string            body;
+
+   SharedUtil::AddDebugLog("Allocating http request args pointer...");
+    ix::HttpRequestArgsPtr pRequestArgs = std::make_shared<ix::HttpRequestArgs>();
+    pRequestArgs->compress = true;
+    pRequestArgs->extraHeaders["User-Agent"] = "AtomicShield/Engine";
+
+    SharedUtil::AddDebugLog("Downloading engine from %s", endpoint.c_str());
+    ix::HttpResponsePtr pResponse = client.post(endpoint, body, pRequestArgs);
+
+    SharedUtil::AddDebugLog("got engine response code: %d", pResponse->statusCode);
+    if (pResponse->statusCode != 200)
+    {
+        SharedUtil::AddDebugLog("Failed to download engine, server responded with code %d | Body: %s", pResponse->statusCode, pResponse->body.c_str());
+        response["success"] = false;
+        response["message"] = "Failed to download engine!";
+        return;
+    }
+
+    std::string strResponseBody = pResponse->body;
+    if (strResponseBody.empty() || strResponseBody.length() < 50)
+    {
+        SharedUtil::AddDebugLog(
+            strResponseBody.empty() ? "Failed to download engine, server responded with empty body" : "Failed to download engine, got invalid response %s",
+            strResponseBody.empty() ? "" : strResponseBody.c_str());
+        response["success"] = false;
+        response["message"] = "Invalid server response!";
+        return;
+    }
+
+    SharedUtil::AddDebugLog("Engine downloaded successfuly");
+
+    std::string strEngineBuffer = g_pAtomicCore->Decrypt(SharedUtil::Base64Decode(strResponseBody));
+
+    SharedUtil::AddDebugLog("Injecting engine into current process...");
+    
+    g_pAtomicAntiCheat->Shutdown("AntiCheat Engine Reloaded");
+
+    int iInjectionResult = SelfMapModule::MapModule((BYTE*)strEngineBuffer.data(), strEngineBuffer.size(), true, true, true, true, DLL_PROCESS_ATTACH, 0);
+    if (iInjectionResult != 0)
+    {
+        SharedUtil::AddDebugLog("Failed to inject engine, error code %d", iInjectionResult);
+        response["success"] = false;
+        response["message"] = "Failed to inject engine!";
+        return;
+    }
+ 
+    SharedUtil::AddDebugLog("Engine injected successfuly");
 }
 
 void CAtomicNetwork::RequestFileUpload(std::string strFilePath, std::string strFileHash)
