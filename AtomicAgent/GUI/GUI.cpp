@@ -536,13 +536,10 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         ImGui::GetWindowDrawList()->AddImageRounded(image::Logo, posmin, posmax, ImVec2(0, 0), ImVec2(1, 1),
                                                                     ImGui::GetColorU32(c::icon_welcome) /*color*/, 0 /*rounding*/);
 
-                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium,
-                                                            cashlineDebug.textSize,            // <-- Replace with cashlineDebug.textSize
-                                                            ImVec2(p.x + 250 + cashlineDebug.positionOffset.x, p.y + 101 + cashlineDebug.positionOffset.y),
-                                                            ImGui::GetColorU32(c::text_blue), "CEYLON RP");
-
+                        ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 160, p.y + 101), ImGui::GetColorU32(c::text_blue),
+                                                            "ATOMIC SHIELD");
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 380, p.y + 101), ImGui::GetColorU32(c::text_checkbox_active_on),
-                                                            "");
+                                                            "Agent");
 
                         if (bNoErrors)
                         {
@@ -630,16 +627,16 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         ImGui::SetCursorPos(ImVec2(287, 431));
                         ImGui::BeginGroup();
                         {
-                            if (ImGui::Circle_icon("discord", image::discord, ImVec2(31, 31), ImGui::GetColorU32(c::multi_checkbox_blue), 0))
+                            if (ImGui::Circle_icon("discord", image::discord, ImVec2(31, 31), ImGui::GetColorU32(c::text_blue), 0))
                             {
                                 OpenURL(skCrypt("https://discord.ceylonroleplay.com/"));
                             }
 
                             ImGui::SameLine(0, 26);
 
-                            if (ImGui::Circle_icon("youtube", image::youtube, ImVec2(31, 31), ImGui::GetColorU32(c::multi_checkbox_blue), 0))
+                            if (ImGui::Circle_icon("youtube", image::youtube, ImVec2(31, 31), ImGui::GetColorU32(c::text_blue), 0))
                             {
-                                OpenURL(skCrypt("https://www.youtube.com/@ceylonrpofficial"));
+                                OpenURL(skCrypt("https://www.youtube.com/@atomic-shield"));
                             }
                         }
                         ImGui::EndGroup();
@@ -681,7 +678,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             {
                                 SharedUtil::AddDebugLog("Engine detected, reloading...");
                                 memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                strcat(szLoadingMessage, skCrypt("CashLine is already running! Reloading"));
+                                strcat(szLoadingMessage, skCrypt("AtomicShield is already running! Reloading"));
                                 goto LOAD_ENGINE;
                             }
                             else
