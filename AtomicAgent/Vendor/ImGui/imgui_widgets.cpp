@@ -1989,9 +1989,10 @@ bool ImGui::Circle_icon(const char* label, ImTextureID image, const ImVec2& size
     const ImVec2      label_size = CalcTextSize(label, NULL, true);
 
     ImVec2 pos = window->DC.CursorPos;
-    if ((flags & ImGuiButtonFlags_AlignTextBaseLine) && style.FramePadding.y < window->DC.CurrLineTextBaseOffset)
+    if ((flags & ImGuiButtonFlags_AlignTextBaseLine) &&
+        style.FramePadding.y < window->DC.CurrLineTextBaseOffset)            // Try to vertically align buttons that are smaller/have no padding so that text
+                                                                             // baseline matches (bit hacky, since it shouldn't be a flag)
         pos.y += window->DC.CurrLineTextBaseOffset - style.FramePadding.y;
-
     ImVec2       size = CalcItemSize(size_arg, label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
     ImDrawList*  draw = GetWindowDrawList();
     const ImRect bb(pos, pos + size);
@@ -1999,41 +2000,38 @@ bool ImGui::Circle_icon(const char* label, ImTextureID image, const ImVec2& size
     if (!ItemAdd(bb, id))
         return false;
 
+    if (g.LastItemData.InFlags & ImGuiItemFlags_ButtonRepeat)
+        flags |= ImGuiButtonFlags_Repeat;
+
     bool hovered, held;
     bool pressed = ButtonBehavior(bb, id, &hovered, &held, flags);
 
-    RenderNavHighlight(bb, id);
+    static std::map<ImGuiID, button_state> anim;
+    auto                                   it_anim = anim.find(id);
 
-    // Persistent animation state per widget
-    static std::map<ImGuiID, CircleAnimState> animStates;
-    auto                                      it = animStates.find(id);
-    if (it == animStates.end())
+    if (it_anim == anim.end())
     {
-        CircleAnimState st;
-        st.bg = ImGui::ColorConvertU32ToFloat4(GetColorU32(c::bg_icon_button));
-        st.icon = ImVec4(0.051f, 0.051f, 0.051f, 1.0f);            // base icon color
-        animStates[id] = st;
-        it = animStates.find(id);
+        anim.insert({id, button_state()});
+        it_anim = anim.find(id);
     }
 
-    // Target colors
-    ImVec4 target_bg = ImGui::ColorConvertU32ToFloat4(GetColorU32(c::bg_icon_button));
-    ImVec4 target_icon =
-        hovered ? (hover_col ? ImGui::ColorConvertU32ToFloat4(hover_col) : ImVec4(0.0f, 162.0f / 255.0f, 1.0f, 1.0f)) : ImVec4(0.051f, 0.051f, 0.051f, 1.0f);
+    it_anim->second.background =
+        ImLerp(it_anim->second.background, IsItemActive() || hovered ? ImColor(255, 246, 180) : ImColor(255, 246, 180), g.IO.DeltaTime * 10.f);
 
-    // Smooth transition
-    float speed = 10.0f * g.IO.DeltaTime;            // adjust speed as needed
-    it->second.bg = ImLerp(it->second.bg, target_bg, speed);
-    it->second.icon = ImLerp(it->second.icon, target_icon, speed);
+    it_anim->second.text =
+        ImLerp(it_anim->second.text, IsItemActive() || hovered ? ImColor(180, 218, 255, 195) : ImColor(180, 218, 255, 255), g.IO.DeltaTime * 10.f);
 
-    // Draw
-    draw->AddRectFilled(bb.Min, bb.Max, ImGui::GetColorU32(it->second.bg), 100.f);
-    draw->AddImage(image, bb.Min + ImVec2(7, 9), bb.Min + ImVec2(24, 22), ImVec2(0, 0), ImVec2(1, 1), ImGui::GetColorU32(it->second.icon));
+    const ImU32 col = GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+    RenderNavHighlight(bb, id);
+
+    GetWindowDrawList()->AddRectFilled(bb.Min, bb.Max, GetColorU32(c::bg_icon_button), 100.f);
+
+    GetWindowDrawList()->AddImage(image, bb.Min + ImVec2(7, 9), bb.Min + ImVec2(24, 22), ImVec2(0, 0), ImVec2(1, 1), GetColorU32(it_anim->second.text));
 
     if (g.LogEnabled)
         LogSetNextTextDecoration("[", "]");
-    IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
 
+    IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
     return pressed;
 }
 struct button_statess
@@ -2599,10 +2597,11 @@ bool ImGui::Custom_Checkbox(const char* text, const char* label, bool* v, const 
         it_anim = anim.find(id);
     }
     it_anim->second.background = ImLerp(it_anim->second.background,
-                                        *v        ? c::multi_checkbox_blue
-                                        : hovered ? c::multi_checkbox_hover
+                                        *v        ? ImVec4(0.415f, 0.709f, 1.000f, 1.000f)
+                                        : hovered ? ImVec4(0.415f, 0.709f, 1.000f, 0.5f)
                                                   : c::multi_checkbox_in,
                                         g.IO.DeltaTime * 12.f);
+
     it_anim->second.background_1 = ImLerp(it_anim->second.background_1,
                                           *v        ? c::multi_checkbox_black
                                           : hovered ? c::multi_checkbox_hover
@@ -2623,13 +2622,10 @@ bool ImGui::Custom_Checkbox(const char* text, const char* label, bool* v, const 
 
     it_anim->second.move = ImLerp(it_anim->second.move, *v ? 15.f : 0.f, g.IO.DeltaTime * 12.f);
     if (*v)
-    {
-        it_anim->second.shadow = ImLerp(it_anim->second.shadow, *v ? c::text_blue : c::text_blue, g.IO.DeltaTime * 12.f);
-    }
+        it_anim->second.shadow = ImLerp(it_anim->second.shadow, ImVec4(0.415f, 0.709f, 1.000f, 1.000f), g.IO.DeltaTime * 12.f);
     else
-    {
         it_anim->second.shadow = ImVec4();
-    }
+
     const ImRect check_bb(pos, pos + ImVec2(square_sz, square_sz));
 
     // ImGui::SetCursorPos(ImVec2(check_bb.Min.x, check_bb.Min.y));

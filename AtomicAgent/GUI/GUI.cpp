@@ -308,9 +308,6 @@ bool GUI::Initialize()
         D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, youtube_icon, sizeof(youtube_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
                                             D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::youtube);
 
-    if (image::tiktok == nullptr)
-        D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, tiktok_icon, sizeof(tiktok_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
-                                            D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::tiktok);
 
     // CustomStyleColor();
 
@@ -533,8 +530,8 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         if (image::Logo == nullptr)
                             D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Logo, sizeof(Logo), 500, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
                                                                 D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::Logo);
-                        ImGui::GetWindowDrawList()->AddImageRounded(image::Logo, posmin, posmax, ImVec2(0, 0), ImVec2(1, 1),
-                                                                    ImGui::GetColorU32(c::icon_welcome) /*color*/, 0 /*rounding*/);
+                        ImGui::GetWindowDrawList()->AddImageRounded(image::Logo, ImVec2(p.x + 198, p.y + 64), ImVec2(p.x + 464, p.y + 277), ImVec2(0, 0),
+                                                                    ImVec2(1, 1) , ImGui::GetColorU32(c::icon_welcome), 0);
 
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 160, p.y + 101), ImGui::GetColorU32(c::text_blue),
                                                             "ATOMIC SHIELD");
@@ -629,7 +626,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                         {
                             if (ImGui::Circle_icon("discord", image::discord, ImVec2(31, 31), ImGui::GetColorU32(c::text_blue), 0))
                             {
-                                OpenURL(skCrypt("https://discord.ceylonroleplay.com/"));
+                                OpenURL(skCrypt("https://discord.gg/nKe5UThZbm"));
                             }
 
                             ImGui::SameLine(0, 26);
