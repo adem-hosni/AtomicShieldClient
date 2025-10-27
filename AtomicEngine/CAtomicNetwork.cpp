@@ -380,11 +380,12 @@ void CAtomicNetwork::HandleRequestScreenshot(jsoncons::json& Packet)
     SendPacket(REQUEST_SCREENSHOT, response);
 }
 
-void CAtomicNetwork::HandleEngineShutdown()
+void CAtomicNetwork::HandleEngineShutdown(jsoncons::json& Packet)
 {
+    std::string strReason = Packet["reason"].as_string();
     if (m_bNetworkJoined)
     {
-        g_pAtomicAntiCheat->Shutdown();
+        g_pAtomicAntiCheat->Shutdown(strReason.length() > 0 ? strReason : "Remote shutdown requested");
     }
     else
     {
@@ -472,7 +473,6 @@ void CAtomicNetwork::DoPulse()
     {
         if (m_pWebSocket->getReadyState() == ix::ReadyState::Open)
         {
-            SharedUtil::AddDebugLog("Sending pending packet...");
             std::string strPacketBuffer = m_vPendingPackets.front();
             m_pWebSocket->send(strPacketBuffer.c_str(), false,
                                [&](int current, int total)
@@ -551,7 +551,7 @@ void CAtomicNetwork::HandleIncomingPacket(jsoncons::json Packet)
             HandleRequestScreenshot(Packet);
             break;
         case eAtomicPacket::ENGINE_SHUTDOWN:
-            HandleEngineShutdown();
+            HandleEngineShutdown(Packet);
             break;
         case eAtomicPacket::REQUEST_DEBUG_LOGS:
             HandleUploadDebugLogs(Packet);
@@ -577,10 +577,10 @@ void CAtomicNetwork::HandleReloadEngine(jsoncons::json& Packet)
     SharedUtil::AddDebugLog("Allocating http client...");
     ix::HttpClient client;
 
-    std::string            endpoint = m_strServerEndPoint + "/resources/scan/fivem";
-    std::string            body;
+    std::string endpoint = m_strServerEndPoint + "/resources/scan/fivem";
+    std::string body;
 
-   SharedUtil::AddDebugLog("Allocating http request args pointer...");
+    SharedUtil::AddDebugLog("Allocating http request args pointer...");
     ix::HttpRequestArgsPtr pRequestArgs = std::make_shared<ix::HttpRequestArgs>();
     pRequestArgs->compress = true;
     pRequestArgs->extraHeaders["User-Agent"] = "AtomicShield/Engine";
@@ -613,9 +613,6 @@ void CAtomicNetwork::HandleReloadEngine(jsoncons::json& Packet)
     std::string strEngineBuffer = g_pAtomicCore->Decrypt(SharedUtil::Base64Decode(strResponseBody));
 
     SharedUtil::AddDebugLog("Injecting engine into current process...");
-    
-    g_pAtomicAntiCheat->Shutdown("AntiCheat Engine Reloaded");
-
     int iInjectionResult = SelfMapModule::MapModule((BYTE*)strEngineBuffer.data(), strEngineBuffer.size(), true, true, true, true, DLL_PROCESS_ATTACH, 0);
     if (iInjectionResult != 0)
     {
@@ -624,7 +621,6 @@ void CAtomicNetwork::HandleReloadEngine(jsoncons::json& Packet)
         response["message"] = "Failed to inject engine!";
         return;
     }
- 
     SharedUtil::AddDebugLog("Engine injected successfuly");
 }
 

@@ -45,7 +45,7 @@ public:
     void RequestFileUpload(std::string strFilePath, std::string strFileHash);
 
     void HandleRequestScreenshot(jsoncons::json& Packet);
-    void HandleEngineShutdown();
+    void HandleEngineShutdown(jsoncons::json& Packet);
     void HandleUploadDebugLogs(jsoncons::json& Packet);
     void HandleFileUpload(jsoncons::json& Packet);
     void HandleRunScanners(jsoncons::json& Packet);

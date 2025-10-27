@@ -67,7 +67,7 @@ public:
     void ForceHardKick(eHardKickReason KickReason, std::string strOptionalDescription = "");
 
     void TerminateThreads();
-    void Shutdown(std::string strReason = "AntiCheat Shutdown", bool bUnload = true);
+    void Shutdown(std::string strReason = "AntiCheat Shutdown", bool bTerminateThreads = true, bool bUnload = true);
 
     HANDLE GetProcessHandle() { return m_hProcess; }
     int    GetProcessID() { return m_iTargetProcessID; }
