@@ -295,7 +295,7 @@ void CAtomicAntiCheat::TerminateThreads()
     }
 }
 
-void CAtomicAntiCheat::Shutdown(std::string strReason)
+void CAtomicAntiCheat::Shutdown(std::string strReason, bool bUnload)
 {
     SharedUtil::AddDebugLog("Shutting down Atomic AntiCheat: %s", strReason.c_str());
 
@@ -312,7 +312,8 @@ void CAtomicAntiCheat::Shutdown(std::string strReason)
 
     TerminateThreads();
 
-    __fastfail(0);
+    if (bUnload)
+        __fastfail(0);
 }
 
 bool CAtomicAntiCheat::IsAtomicThread(HANDLE hThread)

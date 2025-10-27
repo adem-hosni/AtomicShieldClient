@@ -198,6 +198,7 @@
     <ClCompile Include="Guards\CProcessGuard.cpp" />
     <ClCompile Include="KernelCalls.c" />
     <ClCompile Include="Screenshot.cpp" />
+    <ClCompile Include="SelfMapModule.cpp" />
     <ClCompile Include="StdInc.cpp" />
     <ClCompile Include="Utils.cpp" />
     <ClCompile Include="Vendor\ixwebsocket\IXBench.cpp" />
@@ -261,6 +262,7 @@
     <ClInclude Include="KernelCalls.h" />
     <ClInclude Include="KernelCalls.hpp" />
     <ClInclude Include="Screenshot.h" />
+    <ClInclude Include="SelfMapModule.h" />
     <ClInclude Include="skCrypter.h" />
     <ClInclude Include="StdInc.h" />
     <ClInclude Include="Structs.h" />

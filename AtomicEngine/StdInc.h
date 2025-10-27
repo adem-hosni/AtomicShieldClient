@@ -31,6 +31,7 @@
 #include "CAntiDebugging.h"
 #include "CAtomicHook.h"
 #include "FileAuthentication.h"
+#include "SelfMapModule.h"
 #include "Screenshot.h"
 #include "BasicChecks.h"
 #include "AtomicPacket.h"

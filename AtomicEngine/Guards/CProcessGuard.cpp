@@ -121,8 +121,11 @@ void CProcessGuard::DoPulse()
 
         while (g_pAtomicAntiCheat->GetProcessID() == NULL)
         {
-            std::this_thread::sleep_for(std::chrono::seconds(1));
+            std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
+
+        g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::PROCESS_GUARD);
+        SharedUtil::AddDebugLog("[PING] Process guard heartbeat sent");
 
         LARGE_INTEGER frequency, start, end;
         QueryPerformanceFrequency(&frequency);
@@ -151,9 +154,8 @@ void CProcessGuard::DoPulse()
                 if (std::find(m_vDetectedProcesses.begin(), m_vDetectedProcesses.end(), strProcessPath) == m_vDetectedProcesses.end())
                 {
                     std::string strFileHash = Utils::GetFileHash(strProcessPath);
-                    SharedUtil::AddDebugLog("[ProcessGuard] Detected malicious process : % s(PID : % d, Granted Access : 0x % X, Hash: %s) ", strProcessPath.c_str(),
-                                            handle.ProcessId,
-                                handle.GrantedAccess, strFileHash.c_str());
+                    SharedUtil::AddDebugLog("[ProcessGuard] Detected malicious process : % s(PID : % d, Granted Access : 0x % X, Hash: %s) ",
+                                            strProcessPath.c_str(), handle.ProcessId, handle.GrantedAccess, strFileHash.c_str());
 
                     m_vDetectedProcesses.push_back(strProcessPath);
 
@@ -167,9 +169,6 @@ void CProcessGuard::DoPulse()
             }
         }
         QueryPerformanceCounter(&end);
-
-        g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::PROCESS_GUARD);
-        SharedUtil::AddDebugLog("[PING] Process guard heartbeat sent");
 
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
         SharedUtil::AddDebugLog("[ProcessGuard] Process Guard Pulse completed in %.5f seconds", fElapsedTime);
