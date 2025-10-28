@@ -165,10 +165,24 @@ void CAtomicAntiCheat::DoPulse()
         {
             ullGuardHeartbeatCheck = GetTickCount64();
             if (m_pGuardManager->GetHeuristicGuard()->IsHeartbeatActive())
+            {
+                SharedUtil::AddDebugLog("[PING] Heuristic Guard Heartbeat sent!");
                 m_pAtomicNetwork->Ping(eHeartbeatType::HEURISTIC_GUARD);
+            }
+            else
+            {
+                SharedUtil::AddDebugLog("[FAIL] Process Guard Heartbeat is inactive");
+            }
 
             if (m_pGuardManager->GetProcessGuard()->IsHeartbeatActive())
+            {
+                SharedUtil::AddDebugLog("[PING] Process Guard Heartbeat sent!");
                 m_pAtomicNetwork->Ping(eHeartbeatType::PROCESS_GUARD);
+            }
+            else
+            {
+                SharedUtil::AddDebugLog("[FAIL] Process Guard Heartbeat is inactive");
+            }
         }
 
         m_pAtomicNetwork->DoPulse();
