@@ -161,7 +161,7 @@ void CAtomicAntiCheat::DoPulse()
             SharedUtil::AddDebugLog("End Basic Checks");
         }
 
-        if (GetTickCount64() - ullGuardHeartbeatCheck > 5)
+        if (GetTickCount64() - ullGuardHeartbeatCheck > 4)
         {
             ullGuardHeartbeatCheck = GetTickCount64();
             if (m_pGuardManager->GetHeuristicGuard()->IsHeartbeatActive())
