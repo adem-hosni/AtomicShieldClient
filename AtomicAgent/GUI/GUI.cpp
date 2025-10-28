@@ -308,7 +308,6 @@ bool GUI::Initialize()
         D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, youtube_icon, sizeof(youtube_icon), 600, 600, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
                                             D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::youtube);
 
-
     // CustomStyleColor();
 
     return true;
@@ -531,7 +530,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             D3DXCreateTextureFromFileInMemoryEx(g_pd3dDevice, Logo, sizeof(Logo), 500, 500, D3DX_DEFAULT, 0, D3DFMT_UNKNOWN, D3DPOOL_MANAGED,
                                                                 D3DX_DEFAULT, D3DX_DEFAULT, 0, NULL, NULL, &image::Logo);
                         ImGui::GetWindowDrawList()->AddImageRounded(image::Logo, ImVec2(p.x + 198, p.y + 64), ImVec2(p.x + 464, p.y + 277), ImVec2(0, 0),
-                                                                    ImVec2(1, 1) , ImGui::GetColorU32(c::icon_welcome), 0);
+                                                                    ImVec2(1, 1), ImGui::GetColorU32(c::icon_welcome), 0);
 
                         ImGui::GetWindowDrawList()->AddText(Tektur_Medium, 36.f, ImVec2(p.x + 160, p.y + 101), ImGui::GetColorU32(c::text_blue),
                                                             "ATOMIC SHIELD");
@@ -671,14 +670,72 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                             bInjected = true;
                             std::filesystem::path EnginePath = EngineLauncher::GetEnginePath();
 
-                            if (SharedUtil::GetProcessID(skCrypt("AtomicSvc.exe")) != NULL)
+                            bool bCanProceed = true;
+
+                            DWORD dwPid = SharedUtil::GetProcessID(skCrypt("AtomicSvc.exe"));
+                            if (dwPid != NULL)
                             {
                                 SharedUtil::AddDebugLog("Engine detected, reloading...");
                                 memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
                                 strcat(szLoadingMessage, skCrypt("AtomicShield is already running! Reloading"));
-                                goto LOAD_ENGINE;
+
+                                HANDLE hProc = OpenProcess(PROCESS_TERMINATE | SYNCHRONIZE | PROCESS_QUERY_LIMITED_INFORMATION, FALSE, dwPid);
+                                if (hProc == NULL)
+                                {
+                                    SharedUtil::AddDebugLog("Failed to open AtomicSvc (PID %u) handle (err 0x%X)", dwPid, GetLastError());
+                                    memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                    strcat(szLoadingMessage, skCrypt("Failed to restart AtomicShield (open handle failed)"));
+                                    bCanProceed = false;
+                                }
+                                else
+                                {
+                                    if (!TerminateProcess(hProc, 0))
+                                    {
+                                        SharedUtil::AddDebugLog("TerminateProcess failed for PID %u (err 0x%X)", dwPid, GetLastError());
+                                        memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                        strcat(szLoadingMessage, skCrypt("Failed to restart AtomicShield (terminate failed)"));
+                                        bCanProceed = false;
+                                    }
+                                    else
+                                    {
+                                        SharedUtil::AddDebugLog("TerminateProcess sent to AtomicSvc (PID %u). Waiting for exit...", dwPid);
+
+                                        const time_t start = time(NULL);
+                                        bool         bStillRunning = true;
+                                        while (time(NULL) - start < 5)
+                                        {
+                                            if (SharedUtil::GetProcessID(skCrypt("AtomicSvc.exe")) == NULL)
+                                            {
+                                                bStillRunning = false;
+                                                break;
+                                            }
+                                            Sleep(100);
+                                        }
+
+                                        if (bStillRunning)
+                                        {
+                                            SharedUtil::AddDebugLog("AtomicSvc did not exit within timeout.");
+                                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                                            strcat(szLoadingMessage, skCrypt("Failed to restart AtomicShield (process didn't exit)"));
+                                            bCanProceed = false;
+                                        }
+                                        else
+                                        {
+                                            SharedUtil::AddDebugLog("AtomicSvc terminated successfully.");
+                                            Sleep(100);
+                                        }
+                                    }
+
+                                    CloseHandle(hProc);
+                                }
+
+                                if (!bCanProceed)
+                                {
+                                    bInjected = false;
+                                }
                             }
-                            else
+
+                            if (bCanProceed)
                             {
                                 if (EngineLauncher::DumpEngineProcess(EnginePath, EngineLauncher::pProcessBuffer, sizeof(EngineLauncher::pProcessBuffer)))
                                 {
@@ -710,9 +767,8 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                         strcat(szLoadingMessage, skCrypt("Failed to retreive anticheat launcher!"));
                                     }
 
-                                    if (result == EngineLauncher::eLaunchResult::SUCCESS)
+                                    if (result == EngineLauncher::eLaunchResult::SUCCESS && hLauncher != INVALID_HANDLE_VALUE && hLauncher != NULL)
                                     {
-                                    LOAD_ENGINE:
                                         int iInjectionResult = EngineLauncher::LoadEngineIntoLauncher(EnginePath, hLauncher, (BYTE*)strEngineBuffer.c_str(),
                                                                                                       strEngineBuffer.size());
 
