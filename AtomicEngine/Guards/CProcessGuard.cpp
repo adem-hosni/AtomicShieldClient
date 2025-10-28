@@ -5,6 +5,7 @@
 CProcessGuard::CProcessGuard()
 {
     m_vDetectedProcesses = {};
+    m_ullLastHeartbeat = NULL;
 }
 
 CProcessGuard::~CProcessGuard()
@@ -124,8 +125,7 @@ void CProcessGuard::DoPulse()
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
 
-        g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::PROCESS_GUARD);
-        SharedUtil::AddDebugLog("[PING] Process guard heartbeat sent");
+        m_ullLastHeartbeat = GetTickCount64();
 
         LARGE_INTEGER frequency, start, end;
         QueryPerformanceFrequency(&frequency);
@@ -170,6 +170,8 @@ void CProcessGuard::DoPulse()
         }
         QueryPerformanceCounter(&end);
 
+        m_ullLastHeartbeat = GetTickCount64();
+
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
         SharedUtil::AddDebugLog("[ProcessGuard] Process Guard Pulse completed in %.5f seconds", fElapsedTime);
 
@@ -182,4 +184,5 @@ void CProcessGuard::DoPulse()
 void CProcessGuard::ClearDetections()
 {
     m_vDetectedProcesses.clear();
+    m_ullLastHeartbeat = NULL;
 }

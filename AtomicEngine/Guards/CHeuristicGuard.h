@@ -24,7 +24,7 @@ public:
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
     void        ClearDetections() override;
 
-    bool IsHeartbeatActive() { return m_tLastHeartbeat == NULL || time(NULL) - m_tLastHeartbeat < 35; }
+    bool IsHeartbeatActive() { return m_ullLastHeartbeat == NULL || GetTickCount64() - m_ullLastHeartbeat < 2; }
 
 private:
     std::map<LPVOID, DWORD64>    m_WhitelistedRegions;
@@ -33,5 +33,5 @@ private:
     std::vector<std::string>     m_vSignatures;
     std::atomic<bool>            m_bFound;
     std::vector<RegionHashEntry> m_vScannedRegions;
-    time_t                       m_tLastHeartbeat;
+    ULONGLONG                    m_ullLastHeartbeat;
 };

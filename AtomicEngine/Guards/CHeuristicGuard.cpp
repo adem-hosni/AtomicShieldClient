@@ -7,7 +7,7 @@
 CHeuristicGuard::CHeuristicGuard()
 {
     m_bFound = false;
-    m_tLastHeartbeat = NULL;
+    m_ullLastHeartbeat = NULL;
 }
 
 CHeuristicGuard::~CHeuristicGuard()
@@ -60,8 +60,6 @@ void CHeuristicGuard::DoPulse()
         while (!g_pAtomicAntiCheat->IsValidProcessHandle())
             std::this_thread::sleep_for(std::chrono::seconds(1));
 
-        g_pAtomicAntiCheat->GetNetwork()->Ping(eHeartbeatType::HEURISTIC_GUARD);
-        SharedUtil::AddDebugLog("[PING] Heuristic guard heartbeat sent");
         LARGE_INTEGER frequency, start, end;
         QueryPerformanceFrequency(&frequency);
         QueryPerformanceCounter(&start);
@@ -76,6 +74,8 @@ void CHeuristicGuard::DoPulse()
             PVOID  baseAddress = addr;
             SIZE_T rSize = sizeof(MemoryRegion);
             SIZE_T returnLength = 0;
+            
+            m_ullLastHeartbeat = GetTickCount64();
 
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, rSize, &returnLength)))
             {
@@ -86,6 +86,7 @@ void CHeuristicGuard::DoPulse()
                 continue;
             }
 
+            m_ullLastHeartbeat = GetTickCount64();
 
             if (MemoryRegion.RegionSize < 400 * 1024)
                 continue;
@@ -107,6 +108,8 @@ void CHeuristicGuard::DoPulse()
             SIZE_T regionSize = MemoryRegion.RegionSize;
             LPVOID offsets[3] = {base, regionSize >= kSampleSize * 2 ? base + (regionSize / 2) : nullptr,
                                  regionSize >= kSampleSize * 3 ? base + (regionSize - kSampleSize) : nullptr};
+
+            m_ullLastHeartbeat = GetTickCount64();
 
             for (int i = 0; i < 3; ++i)
             {
@@ -158,6 +161,7 @@ void CHeuristicGuard::DoPulse()
                     continue;
                 }
 
+                m_ullLastHeartbeat = GetTickCount64();
                 SIZE_T bytesRead = 0;
                 if (!NT_SUCCESS(SysNtReadVirtualMemory(hProcess, region.mbi.BaseAddress, buffer, allocationSize, &bytesRead)) || bytesRead == 0)
                 {
@@ -208,8 +212,10 @@ void CHeuristicGuard::DoPulse()
         QueryPerformanceCounter(&end);
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
 
+        m_ullLastHeartbeat = GetTickCount64();
+
         SharedUtil::AddDebugLog("[HeuristicGuard] [+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());
-        m_tLastHeartbeat = time(NULL);
+        m_ullLastHeartbeat = time(NULL);
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 
@@ -222,5 +228,5 @@ void CHeuristicGuard::ClearDetections()
     m_bFound.store(false);
     m_vScannedRegions.clear();
     m_vSignatures.clear();
-    m_tLastHeartbeat = NULL;
+    m_ullLastHeartbeat = NULL;
 }

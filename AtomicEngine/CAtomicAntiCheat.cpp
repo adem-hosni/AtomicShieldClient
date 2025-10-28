@@ -74,14 +74,15 @@ void CAtomicAntiCheat::StaticPulse(void* pContext)
 
 void CAtomicAntiCheat::DoPulse()
 {
-    time_t tStart = time(NULL);
+    ULONGLONG ullStart = GetTickCount64();
+    ULONGLONG ullGuardHeartbeatCheck = GetTickCount64();
 
     m_iTargetProcessID = SharedUtil::GetFivemProcessID();
     while (m_bAlive)
     {
-        if (time(NULL) - tStart > 4)
+        if (GetTickCount64() - ullStart > 4)
         {
-            tStart = time(NULL);
+            ullStart = GetTickCount64();
             m_iTargetProcessID = SharedUtil::GetFivemProcessID();
         }
 
@@ -158,6 +159,16 @@ void CAtomicAntiCheat::DoPulse()
             SharedUtil::AddDebugLog("Starting Basic Checks...");
             g_pAtomicAntiCheat->StartBasicChecks();
             SharedUtil::AddDebugLog("End Basic Checks");
+        }
+
+        if (GetTickCount64() - ullGuardHeartbeatCheck > 5)
+        {
+            ullGuardHeartbeatCheck = GetTickCount64();
+            if (m_pGuardManager->GetHeuristicGuard()->IsHeartbeatActive())
+                m_pAtomicNetwork->Ping(eHeartbeatType::HEURISTIC_GUARD);
+
+            if (m_pGuardManager->GetProcessGuard()->IsHeartbeatActive())
+                m_pAtomicNetwork->Ping(eHeartbeatType::PROCESS_GUARD);
         }
 
         m_pAtomicNetwork->DoPulse();

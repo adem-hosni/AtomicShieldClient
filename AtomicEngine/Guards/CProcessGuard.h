@@ -59,7 +59,9 @@ public:
     void        DoPulse() override;
 
     void ClearDetections() override;
+    bool IsHeartbeatActive() { return m_ullLastHeartbeat == NULL || GetTickCount64() - m_ullLastHeartbeat < 2; }
 
 private:
     std::vector<std::string> m_vDetectedProcesses;
+    ULONGLONG                m_ullLastHeartbeat;
 };
