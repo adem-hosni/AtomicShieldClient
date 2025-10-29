@@ -24,7 +24,7 @@ public:
     static void StaticPulse(void* pContext) { reinterpret_cast<CHeuristicGuard*>(pContext)->DoPulse(); }
     void        ClearDetections() override;
 
-    bool IsHeartbeatActive() { return m_ullLastHeartbeat == NULL || time(NULL) - m_ullLastHeartbeat < 2; }
+    bool IsHeartbeatActive() { return m_ullLastHeartbeat == NULL || Utils::FastEpochSeconds() - m_ullLastHeartbeat < 2; }
 
 private:
     std::map<LPVOID, DWORD64>    m_WhitelistedRegions;

@@ -59,7 +59,7 @@ public:
     void        DoPulse() override;
 
     void ClearDetections() override;
-    bool IsHeartbeatActive() { return m_ullLastHeartbeat == NULL || time(NULL) - m_ullLastHeartbeat < 5; }
+    bool IsHeartbeatActive() { return m_ullLastHeartbeat == NULL || Utils::FastEpochSeconds() - m_ullLastHeartbeat < 5; }
 
 private:
     std::vector<std::string> m_vDetectedProcesses;

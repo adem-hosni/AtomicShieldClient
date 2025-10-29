@@ -72,7 +72,7 @@ void CAtomicNetwork::SendPacket(eAtomicPacket PacketID, jsoncons::json Data, boo
 
     // Set The Packet type and the unix timestamp
     PacketJson["type"] = (unsigned short)PacketID;
-    PacketJson["ut"] = time(NULL);
+    PacketJson["ut"] = Utils::FastEpochSeconds();
 
     // Fill the new json with the data items
     for (const auto& Iter : Data.object_range())
@@ -116,7 +116,7 @@ jsoncons::json CAtomicNetwork::WaitReponse(eAtomicPacket PacketID)
     jsoncons::json Response = m_PendingResponses[PacketID];
 
     // Check if the unix timestamp received is tampered
-    // if (time(NULL) - Response["ut"].as<DWORD>() >= 20)
+    // if (Utils::FastEpochSeconds() - Response["ut"].as<DWORD>() >= 20)
     //{
     //    __fastfail(0);
     //    // Return an empty data to crash the engine if the __fastfail was tampered
@@ -463,7 +463,7 @@ void CAtomicNetwork::Ping(eHeartbeatType HeartbeatType)
         body["heartbeat_type"] = (unsigned short)HeartbeatType;
 
         SendPacket(HEARTBEAT, body);
-        m_ullLastPingTime = time(NULL);
+        m_ullLastPingTime = Utils::FastEpochSeconds();
     }
 }
 
@@ -484,10 +484,10 @@ void CAtomicNetwork::DoPulse()
         }
     }
 
-    if (time(NULL) - m_ullLastPingTime > 5)
+    if (Utils::FastEpochSeconds() - m_ullLastPingTime > 5)
     {
         m_pWebSocket->ping("Ping");
-        m_ullLastPingTime = time(NULL);
+        m_ullLastPingTime = Utils::FastEpochSeconds();
     }
 }
 

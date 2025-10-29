@@ -74,15 +74,15 @@ void CAtomicAntiCheat::StaticPulse(void* pContext)
 
 void CAtomicAntiCheat::DoPulse()
 {
-    ULONGLONG ullStart = time(NULL);
-    ULONGLONG ullGuardHeartbeatCheck = time(NULL);
+    ULONGLONG ullStart = Utils::FastEpochSeconds();
+    ULONGLONG ullGuardHeartbeatCheck = Utils::FastEpochSeconds();
 
     m_iTargetProcessID = SharedUtil::GetFivemProcessID();
     while (m_bAlive)
     {
-        if (time(NULL) - ullStart > 4)
+        if (Utils::FastEpochSeconds() - ullStart > 4)
         {
-            ullStart = time(NULL);
+            ullStart = Utils::FastEpochSeconds();
             m_iTargetProcessID = SharedUtil::GetFivemProcessID();
         }
 
@@ -161,9 +161,9 @@ void CAtomicAntiCheat::DoPulse()
             SharedUtil::AddDebugLog("End Basic Checks");
         }
 
-        if (time(NULL) - ullGuardHeartbeatCheck > 4)
+        if (Utils::FastEpochSeconds() - ullGuardHeartbeatCheck > 4)
         {
-            ullGuardHeartbeatCheck = time(NULL);
+            ullGuardHeartbeatCheck = Utils::FastEpochSeconds();
             if (m_pGuardManager->GetHeuristicGuard()->IsHeartbeatActive())
             {
                 SharedUtil::AddDebugLog("[PING] Heuristic Guard Heartbeat sent!");

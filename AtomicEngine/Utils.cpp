@@ -456,3 +456,22 @@ HMODULE Utils::GetRemoteModuleBaseAddress(__in const DWORD processId, __in const
     }
     return hModule;
 }
+
+time_t Utils::FastEpochSeconds()
+{
+    static time_t    tBaseEpoch = 0;
+    static ULONGLONG ullBaseTick = 0;
+
+    if (tBaseEpoch == 0)
+    {
+        FILETIME ft;
+        GetSystemTimeAsFileTime(&ft);
+        ULONGLONG       ullTicks = ((ULONGLONG)ft.dwHighDateTime << 32) | ft.dwLowDateTime;
+        const ULONGLONG EPOCH_OFFSET = 116444736000000000ULL;            // 1601 -> 1970 offset
+        tBaseEpoch = (time_t)((ullTicks - EPOCH_OFFSET) / 10000000ULL);
+        ullBaseTick = GetTickCount64();
+    }
+
+    ULONGLONG nowTick = GetTickCount64();
+    return tBaseEpoch + static_cast<time_t>((nowTick - ullBaseTick) / 1000ULL);
+}

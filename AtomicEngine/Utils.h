@@ -36,4 +36,5 @@ namespace Utils
     std::string               GetFileHash(std::string strFilePath);
     std::list<DWORD>          GetProcessIdsByName(__in const std::string& procName);
     HMODULE                   GetRemoteModuleBaseAddress(__in const DWORD processId, __in const char* moduleName);
+    time_t                    FastEpochSeconds();
 };            // namespace Utils

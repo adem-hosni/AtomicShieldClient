@@ -75,7 +75,7 @@ void CHeuristicGuard::DoPulse()
             SIZE_T rSize = sizeof(MemoryRegion);
             SIZE_T returnLength = 0;
             
-            m_ullLastHeartbeat = time(NULL);
+            m_ullLastHeartbeat = Utils::FastEpochSeconds();
 
             if (!NT_SUCCESS(SysNtQueryVirtualMemory(hProcess, baseAddress, MemoryBasicInformation, &MemoryRegion, rSize, &returnLength)))
             {
@@ -86,7 +86,7 @@ void CHeuristicGuard::DoPulse()
                 continue;
             }
 
-            m_ullLastHeartbeat = time(NULL);
+            m_ullLastHeartbeat = Utils::FastEpochSeconds();
 
             if (MemoryRegion.RegionSize < 400 * 1024)
                 continue;
@@ -109,7 +109,7 @@ void CHeuristicGuard::DoPulse()
             LPVOID offsets[3] = {base, regionSize >= kSampleSize * 2 ? base + (regionSize / 2) : nullptr,
                                  regionSize >= kSampleSize * 3 ? base + (regionSize - kSampleSize) : nullptr};
 
-            m_ullLastHeartbeat = time(NULL);
+            m_ullLastHeartbeat = Utils::FastEpochSeconds();
 
             for (int i = 0; i < 3; ++i)
             {
@@ -161,7 +161,7 @@ void CHeuristicGuard::DoPulse()
                     continue;
                 }
 
-                m_ullLastHeartbeat = time(NULL);
+                m_ullLastHeartbeat = Utils::FastEpochSeconds();
                 SIZE_T bytesRead = 0;
                 if (!NT_SUCCESS(SysNtReadVirtualMemory(hProcess, region.mbi.BaseAddress, buffer, allocationSize, &bytesRead)) || bytesRead == 0)
                 {
@@ -214,7 +214,7 @@ void CHeuristicGuard::DoPulse()
 
 
         SharedUtil::AddDebugLog("[HeuristicGuard] [+] Scan completed in %.5fs | Scanned Regions: %zu", fElapsedTime, regions.size());
-        m_ullLastHeartbeat = time(NULL);
+        m_ullLastHeartbeat = Utils::FastEpochSeconds();
         std::this_thread::sleep_for(std::chrono::seconds(1));
     }
 

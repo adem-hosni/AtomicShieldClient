@@ -126,9 +126,9 @@ void CProcessGuard::DoPulse()
             std::this_thread::sleep_for(std::chrono::milliseconds(10));
         }
 
-        m_ullLastHeartbeat = time(NULL);
+        m_ullLastHeartbeat = Utils::FastEpochSeconds();
 
-        if (!(time(NULL) - m_ullLastPulse > 15 || m_ullLastPulse == NULL))
+        if (!(Utils::FastEpochSeconds() - m_ullLastPulse > 15 || m_ullLastPulse == NULL))
             continue;
 
         m_ullLastPulse = m_ullLastHeartbeat;
@@ -176,7 +176,7 @@ void CProcessGuard::DoPulse()
         }
         QueryPerformanceCounter(&end);
 
-        m_ullLastHeartbeat = time(NULL);
+        m_ullLastHeartbeat = Utils::FastEpochSeconds();
 
         float fElapsedTime = static_cast<float>(end.QuadPart - start.QuadPart) / frequency.QuadPart;
         SharedUtil::AddDebugLog("[ProcessGuard] Process Guard Pulse completed in %.5f seconds", fElapsedTime);

@@ -27,6 +27,7 @@
 #include <Psapi.h>
 #include <iostream>
 #include <filesystem>
+#include "Utils.h"
 #include "CCrashHandler.h"
 #include "CAntiDebugging.h"
 #include "CAtomicHook.h"
@@ -42,7 +43,6 @@
 #include "Common.h"
 #include "SharedUtil.h"
 #include "SharedProtocols.h"
-#include "Utils.h"
 #include "skCrypter.h"
 // Guards
 #include "Guards/CGuardBase.h"
