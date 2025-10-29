@@ -38,7 +38,7 @@ std::string GetProcessPath(DWORD pid)
     return strProcessPath;
 }
 
-std::vector<Handles::SYSTEM_HANDLE> Handles::GetHandles()
+std::vector<SYSTEM_HANDLE> CProcessGuard::GetHandles()
 {
     ULONG    bufferSize = 0x10000;
     PVOID    buffer = nullptr;
@@ -49,7 +49,7 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::GetHandles()
         buffer = malloc(bufferSize);
         if (!buffer)
         {
-            PROCESS_LOG("Memory allocation failed @ Handles::GetHandles");
+            PROCESS_LOG("Memory allocation failed @ GetHandles");
             return {};
         }
 
@@ -61,7 +61,7 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::GetHandles()
         }
         else if (!(((NTSTATUS)(status)) >= 0))
         {
-            PROCESS_LOG("NtQuerySystemInformation failed @ Handles::GetHandles");
+            PROCESS_LOG("NtQuerySystemInformation failed @ GetHandles");
             free(buffer);
             return {};
         }
@@ -73,11 +73,11 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::GetHandles()
     return handles;
 }
 
-std::vector<Handles::SYSTEM_HANDLE> Handles::DetectOpenHandlesToFiveM()
+std::vector<SYSTEM_HANDLE> CProcessGuard::DetectOpenHandlesToFiveM()
 {
     DWORD                               targetProcessId = g_pAtomicAntiCheat->GetProcessID();
     auto                                handles = GetHandles();
-    std::vector<Handles::SYSTEM_HANDLE> handlesToFiveM;
+    std::vector<SYSTEM_HANDLE> handlesToFiveM;
 
     for (auto& handle : handles)
     {
@@ -85,6 +85,8 @@ std::vector<Handles::SYSTEM_HANDLE> Handles::DetectOpenHandlesToFiveM()
         {
             continue;
         }
+
+        m_ullLastHeartbeat = Utils::FastEpochSeconds();
 
         HANDLE processHandle = OpenProcess(PROCESS_DUP_HANDLE, FALSE, handle.ProcessId);
         if (processHandle)
@@ -137,10 +139,11 @@ void CProcessGuard::DoPulse()
         QueryPerformanceFrequency(&frequency);
         QueryPerformanceCounter(&start);
 
-        std::vector<Handles::SYSTEM_HANDLE> handles = Handles::DetectOpenHandlesToFiveM();
+        std::vector<SYSTEM_HANDLE> handles = DetectOpenHandlesToFiveM();
 
         for (auto& handle : handles)
         {
+            m_ullLastHeartbeat = Utils::FastEpochSeconds();
             std::string strProcessPath = GetProcessPath(handle.ProcessId);
             std::string strProcessName = Utils::ParseModuleNameFromPath(strProcessPath);
 
@@ -149,6 +152,7 @@ void CProcessGuard::DoPulse()
 
             if (strProcessPath.find("C:\\Windows") != std::string::npos)
                 continue;
+
             SharedUtil::AddDebugLog("[ProcessGuard] Handle opened: %s (PID: %d, Access: 0x%X)", strProcessPath.c_str(), handle.ProcessId, handle.GrantedAccess);
 
             if (!(handle.GrantedAccess & (PROCESS_ALL_ACCESS | PROCESS_VM_WRITE | PROCESS_VM_READ | PROCESS_SUSPEND_RESUME | PROCESS_SET_INFORMATION |

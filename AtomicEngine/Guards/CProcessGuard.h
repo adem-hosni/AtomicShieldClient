@@ -9,46 +9,22 @@
     #define STATUS_INFO_LENGTH_MISMATCH ((NTSTATUS)0xC0000004L)
 #endif
 
-namespace Handles
+typedef struct _SYSTEM_HANDLE
 {
-    /*typedef enum _SYSTEM_INFORMATION_CLASS
-    {
-        SystemBasicInformation = 0,
-        SystemPerformanceInformation = 2,
-        SystemTimeOfDayInformation = 3,
-        SystemProcessInformation = 5,
-        SystemProcessorPerformanceInformation = 8,
-        SystemInterruptInformation = 23,
-        SystemExceptionInformation = 33,
-        SystemRegistryQuotaInformation = 37,
-        SystemLookasideInformation = 45
-    } SYSTEM_INFORMATION_CLASS;*/
+    ULONG       ProcessId;
+    BYTE        ObjectTypeNumber;
+    BYTE        Flags;
+    USHORT      Handle;
+    PVOID       Object;
+    ACCESS_MASK GrantedAccess;
+    BOOL        RefrencingFivem;
+} SYSTEM_HANDLE, *PSYSTEM_HANDLE;
 
-    typedef struct _SYSTEM_HANDLE
-    {
-        ULONG       ProcessId;
-        BYTE        ObjectTypeNumber;
-        BYTE        Flags;
-        USHORT      Handle;
-        PVOID       Object;
-        ACCESS_MASK GrantedAccess;
-        BOOL        RefrencingFivem;            // my own addition to the structure, we fill this member in ::DetectOpenHandlesToProcess
-    } SYSTEM_HANDLE, *PSYSTEM_HANDLE;
-
-    typedef struct _SYSTEM_HANDLE_INFORMATION
-    {
-        ULONG         HandleCount;
-        SYSTEM_HANDLE Handles[1];
-    } SYSTEM_HANDLE_INFORMATION, *PSYSTEM_HANDLE_INFORMATION;
-
-    std::vector<SYSTEM_HANDLE> GetHandles();
-    std::vector<SYSTEM_HANDLE> DetectOpenHandlesToFiveM();
-    bool                       DoesProcessHaveOpenHandleTous(DWORD pid, std::vector<Handles::SYSTEM_HANDLE> handleList);
-
-    static const char* Whitelisted[] = {"conhost.exe", "scn.tmp",      "FiveM.exe",        "_DumpServer",  "MONOPOLY.exe",
-                                        "steam.exe",   "WerFault.exe", "Lunar Client.exe", "Overwolf.exe", "MedalEncoder.exe"};
-
-};            // namespace Handles
+typedef struct _SYSTEM_HANDLE_INFORMATION
+{
+    ULONG         HandleCount;
+    SYSTEM_HANDLE Handles[1];
+} SYSTEM_HANDLE_INFORMATION, *PSYSTEM_HANDLE_INFORMATION;
 
 class CProcessGuard final : public CGuardBase
 {
@@ -61,6 +37,11 @@ public:
 
     void ClearDetections() override;
     bool IsHeartbeatActive() { return m_ullLastHeartbeat == NULL || Utils::FastEpochSeconds() - m_ullLastHeartbeat < 5; }
+
+    std::vector<SYSTEM_HANDLE> GetHandles();
+    std::vector<SYSTEM_HANDLE> DetectOpenHandlesToFiveM();
+    bool                       DoesProcessHaveOpenHandleTous(DWORD pid, std::vector<SYSTEM_HANDLE> handleList);
+
 
 private:
     std::vector<std::string> m_vDetectedProcesses;

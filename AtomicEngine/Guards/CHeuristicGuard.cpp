@@ -151,6 +151,7 @@ void CHeuristicGuard::DoPulse()
         {
             for (size_t i = startIdx; i < endIdx && !m_bFound.load(); ++i)
             {
+                m_ullLastHeartbeat = Utils::FastEpochSeconds();
                 const auto& region = regions[i];
                 SIZE_T      allocationSize = region.mbi.RegionSize;
                 PVOID       buffer = nullptr;
@@ -161,7 +162,6 @@ void CHeuristicGuard::DoPulse()
                     continue;
                 }
 
-                m_ullLastHeartbeat = Utils::FastEpochSeconds();
                 SIZE_T bytesRead = 0;
                 if (!NT_SUCCESS(SysNtReadVirtualMemory(hProcess, region.mbi.BaseAddress, buffer, allocationSize, &bytesRead)) || bytesRead == 0)
                 {
