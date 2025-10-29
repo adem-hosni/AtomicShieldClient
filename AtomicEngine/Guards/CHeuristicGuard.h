@@ -1,6 +1,7 @@
 #pragma once
 #include "StdInc.h"
 #include "CGuardBase.h"
+#include "Utils.h"
 
 class CHeuristicGuard final : public CGuardBase
 {

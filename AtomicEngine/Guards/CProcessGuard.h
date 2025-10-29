@@ -1,6 +1,7 @@
 #pragma once
 #include "StdInc.h"
 #include "CGuardBase.h"
+#include "Utils.h"
 
 #define PROCESS_LOG(fmt, ...) SharedUtil::AddDebugLog("[ProcessGuard]: " fmt, __VA_ARGS__)
 
