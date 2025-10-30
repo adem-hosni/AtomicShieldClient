@@ -83,6 +83,7 @@ DWORD WINAPI EntryPoint(LPVOID lpAntiCheatModuleBase)
             char szReason[256];
             memset(szReason, 0, sizeof(szReason));
             sprintf(szReason, "%s (%d)", strReason.c_str(), (int)DetectionFlag);
+            g_pAtomicAntiCheat->ForceHardKick(eHardKickReason::DEBUGGER_DETECTED, szReason);
             g_pAtomicAntiCheat->Shutdown(szReason);
             return nullptr;
         });
