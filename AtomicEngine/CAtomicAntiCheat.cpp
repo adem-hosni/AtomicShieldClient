@@ -299,13 +299,13 @@ void CAtomicAntiCheat::NotifyDetection(eDetectionType DetectionType, std::unorde
 
 void CAtomicAntiCheat::ForceHardKick(eHardKickReason KickReason, std::string strOptionalDescription)
 {
+    SharedUtil::AddDebugLog("Force Hard Kick issued for reason: %d (%s)", KickReason, strOptionalDescription.c_str());
+
     jsoncons::json RequestData = jsoncons::json::object();
     RequestData["reason"] = (int)KickReason;
     RequestData["description"] = strOptionalDescription;
 
     m_pAtomicNetwork->SendPacket(eAtomicPacket::FORCE_HARDKICK, RequestData, true);
-
-    SharedUtil::AddDebugLog("Force Hard Kick issued for reason: %d (%s)", KickReason, strOptionalDescription.c_str());
 }
 
 void CAtomicAntiCheat::TerminateThreads()

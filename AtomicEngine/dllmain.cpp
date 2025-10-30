@@ -79,10 +79,15 @@ DWORD WINAPI EntryPoint(LPVOID lpAntiCheatModuleBase)
         [](eDebugDetectionFlags DetectionFlag, std::string strReason) -> void*
         {
             if (DetectionFlag == eDebugDetectionFlags::NONE || DetectionFlag == eDebugDetectionFlags::EXECUTION_ERROR)
+            {
+                SharedUtil::AddDebugLog("AntiDebugging: DetectionCallback called with %s and reason: \"%s\"", DetectionFlag == eDebugDetectionFlags::NONE ? "NONE" : "EXECUTION_ERROR", strReason.c_str());
                 return nullptr;
+            }
+
             char szReason[256];
             memset(szReason, 0, sizeof(szReason));
             sprintf(szReason, "%s (%d)", strReason.c_str(), (int)DetectionFlag);
+
             g_pAtomicAntiCheat->ForceHardKick(eHardKickReason::DEBUGGER_DETECTED, szReason);
             g_pAtomicAntiCheat->Shutdown(szReason);
             return nullptr;

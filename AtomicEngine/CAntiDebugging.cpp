@@ -455,6 +455,9 @@ eDebugDetectionFlags CAntiDebugging::_ExitCommonDebuggers(std::string* strReason
 
         for (const auto pid : pids)
         {
+            triedEndDebugger = true;
+            *strReason = "Debugger Process Detected: " + debugger;
+
             uintptr_t K32Base = (uintptr_t)GetModuleHandleW(L"kernel32.dll");
 
             if (K32Base == NULL)
@@ -479,12 +482,12 @@ eDebugDetectionFlags CAntiDebugging::_ExitCommonDebuggers(std::string* strReason
             {
                 uintptr_t FunctionAddr_ExitProcess = (uintptr_t)Utils::GetRemoteModuleBaseAddress(pid, "kernel32.dll") + ExitProcessOffset;
                 HANDLE    RemoteThread = CreateRemoteThread(remoteProcHandle, 0, 0, (LPTHREAD_START_ROUTINE)FunctionAddr_ExitProcess, 0, 0, 0);
-                triedEndDebugger = true;
                 CloseHandle(remoteProcHandle);
-                *strReason = "Debugger Process Detected: " + debugger;
                 SharedUtil::AddDebugLog("[ANTIDEBUGGING] Attempting to terminate debugger process %s with pid %d @ _ExitCommonDebuggers", debugger.c_str(),
                                         pid);
                 SharedUtil::AddDebugLog("[ANTIDEBUGGING] Created remote thread at %llX address", FunctionAddr_ExitProcess);
+
+                return DEBUG_KNOWN_DEBUGGER_PROCESS;
             }
             else
             {
@@ -519,6 +522,10 @@ eDebugDetectionFlags CAntiDebugging::_ExitCommonDebuggerWindows(std::string* str
 
                     if (pid != 0)
                     {
+                        triedEndDebugger = true;
+                        *strReason = "Debugger Window Detected: " + title;
+
+
                         uintptr_t K32Base = (uintptr_t)GetModuleHandleW(L"kernel32.dll");
                         if (!K32Base)
                         {
@@ -542,10 +549,8 @@ eDebugDetectionFlags CAntiDebugging::_ExitCommonDebuggerWindows(std::string* str
 
                             HANDLE RemoteThread = CreateRemoteThread(remoteProcHandle, 0, 0, (LPTHREAD_START_ROUTINE)FunctionAddr_ExitProcess, 0, 0, 0);
 
-                            triedEndDebugger = true;
                             CloseHandle(remoteProcHandle);
 
-                            *strReason = "Debugger Window Detected: " + title;
                             SharedUtil::AddDebugLog("[ANTIDEBUGGING] Attempting to terminate debugger window '%s' (pid %d)", title.c_str(), pid);
                             SharedUtil::AddDebugLog("[ANTIDEBUGGING] Created remote thread at %llX address", FunctionAddr_ExitProcess);
                         }
@@ -609,6 +614,8 @@ void CAntiDebugging::DoPulse()
         if (dbgFlag != NONE)
             m_DetectionCallback(dbgFlag, "Kernel debugging activity");
         dbgFlag = _ExitCommonDebuggers(&strReason);
+        if (dbgFlag != NONE)
+            m_DetectionCallback(dbgFlag, strReason);
         dbgFlag = _ExitCommonDebuggerWindows(&strReason);
         if (dbgFlag != NONE)
             m_DetectionCallback(dbgFlag, strReason);
