@@ -106,7 +106,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR pCmdLine,
     {
         StartupManager::StartupFunction();
     }
-    if (GUI::Initialize())
+    else if (GUI::Initialize())
     {
         GUI::RenderUI(&bInitialized, result.bSuccess, &result.strTitle, &result.strMessage, processName, tos);
     }
