@@ -261,7 +261,7 @@ std::string SharedUtil::GetKnownDirectory(const KNOWNFOLDERID fid)
     if (!FAILED(result))
     {
         wcstombs(szProgramDataDir, path, MAX_PATH);
-        //CoTaskMemFree(path);
+        // CoTaskMemFree(path);
     }
     return std::string(szProgramDataDir);
 }
@@ -423,12 +423,17 @@ std::string SharedUtil::Base64Decode(std::string encoded_string)
     return decoded_string;
 }
 
-void SharedUtil::SetRegistryIntValue(const char* ss,const char* szKey, int iValue)
+std::wstring SharedUtil::GetModulePathW()
+{
+    wchar_t path[MAX_PATH];
+    GetModuleFileNameW(NULL, path, MAX_PATH);
+    return std::wstring(path);
+}
+void SharedUtil::SetRegistryIntValue(const char* ss, const char* szKey, int iValue)
 {
     HKEY hKey;
 
-    if (RegCreateKeyExA(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) ==
-        ERROR_SUCCESS)
+    if (RegCreateKeyExA(HKEY_CURRENT_USER, "Software\\AtomicShield", 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, NULL) == ERROR_SUCCESS)
     {
         RegSetValueExA(hKey, szKey, 0, REG_DWORD, (const BYTE*)&iValue, sizeof(iValue));
         RegCloseKey(hKey);

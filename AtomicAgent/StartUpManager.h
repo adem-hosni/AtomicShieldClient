@@ -3,8 +3,8 @@
 namespace StartupManager
 {
     void        StartupFunction();
-    bool        IsAppInRegistry();
-    bool        AddAppToRegistry();
-    bool        RemoveAppFromRegistry();
+    bool        IsAppInTaskScheduler();
+    bool        AddAppToTaskScheduler();
+    bool        RemoveAppFromTaskScheduler();
     std::string GetCurrentProcessName();
 }            // namespace StartUpManager

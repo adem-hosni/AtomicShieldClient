@@ -11,69 +11,346 @@
 #pragma comment(lib, "comsupp.lib")
 #pragma comment(lib, "shlwapi.lib")
 
-bool StartupManager::IsAppInRegistry()
+
+
+bool StartupManager::IsAppInTaskScheduler()
 {
-    HKEY    hKey;
-    LSTATUS result = RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_READ, &hKey);
+    HRESULT          hr = S_OK;
+    ITaskService*    pService = nullptr;
+    ITaskFolder*     pRootFolder = nullptr;
+    IRegisteredTask* pRegisteredTask = nullptr;
 
-    if (result == ERROR_SUCCESS)
+    hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    if (FAILED(hr))
     {
-        char  value[1024];
-        DWORD size = sizeof(value);
-        result = RegQueryValueExA(hKey, "AtomicShield", nullptr, nullptr, (LPBYTE)value, &size);
-        RegCloseKey(hKey);
-
-        return result == ERROR_SUCCESS;
+        SharedUtil::AddDebugLog("COM initialization failed: 0x%08X", hr);
+        return false;
     }
 
-    return false;
-}
-bool StartupManager::AddAppToRegistry()
-{
-    HKEY    hKey;
-    LSTATUS result = RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &hKey);
+    hr = CoCreateInstance(CLSID_TaskScheduler, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskService, (void**)&pService);
 
-    if (result == ERROR_SUCCESS)
+    if (FAILED(hr))
     {
-        char szPath[MAX_PATH];
-        GetModuleFileNameA(nullptr, szPath, MAX_PATH);
+        SharedUtil::AddDebugLog("Task Scheduler creation failed: 0x%08X", hr);
+        CoUninitialize();
+        return false;
+    }
 
-        // Add the --startup argument
-        std::string fullPath = std::string(szPath) + " --startup";
+    hr = pService->Connect(_variant_t(), _variant_t(), _variant_t(), _variant_t());
+    if (FAILED(hr))
+    {
+        SharedUtil::AddDebugLog("Task Scheduler connection failed: 0x%08X", hr);
+        pService->Release();
+        CoUninitialize();
+        return false;
+    }
 
-        result = RegSetValueExA(hKey, "AtomicShield", 0, REG_SZ, (const BYTE*)fullPath.c_str(), fullPath.length() + 1);
+    hr = pService->GetFolder(_bstr_t(L"\\"), &pRootFolder);
+    if (FAILED(hr))
+    {
+        SharedUtil::AddDebugLog("Getting root folder failed: 0x%08X", hr);
+        pService->Release();
+        CoUninitialize();
+        return false;
+    }
 
-        RegCloseKey(hKey);
+    hr = pRootFolder->GetTask(_bstr_t(L"AtomicShield"), &pRegisteredTask);
 
-        if (result == ERROR_SUCCESS)
+    bool exists = false;
+    if (SUCCEEDED(hr) && pRegisteredTask != nullptr)
+    {
+        TASK_STATE taskState;
+        hr = pRegisteredTask->get_State(&taskState);
+        if (SUCCEEDED(hr) && taskState != TASK_STATE_DISABLED)
         {
-            SharedUtil::AddDebugLog("Startup added to registry successfully");
-            return true;
+            exists = true;
         }
     }
 
-    SharedUtil::AddDebugLog("Failed to add startup registry: %d", result);
-    return false;
+    if (pRegisteredTask)
+        pRegisteredTask->Release();
+    if (pRootFolder)
+        pRootFolder->Release();
+    if (pService)
+        pService->Release();
+
+    CoUninitialize();
+
+    return exists;
 }
-bool StartupManager::RemoveAppFromRegistry()
+
+bool StartupManager::AddAppToTaskScheduler()
 {
-    HKEY    hKey;
-    LSTATUS result = RegOpenKeyExA(HKEY_CURRENT_USER, "Software\\Microsoft\\Windows\\CurrentVersion\\Run", 0, KEY_WRITE, &hKey);
+    HRESULT             hr = S_OK;
+    ITaskService*       pService = nullptr;
+    ITaskFolder*        pRootFolder = nullptr;
+    IRegisteredTask*    pRegisteredTask = nullptr;
+    ITaskDefinition*    pTask = nullptr;
+    IRegistrationInfo*  pRegInfo = nullptr;
+    IPrincipal*         pPrincipal = nullptr;
+    ITaskSettings*      pSettings = nullptr;
+    ITriggerCollection* pTriggerCollection = nullptr;
+    ITrigger*           pTrigger = nullptr;
+    ILogonTrigger*      pLogonTrigger = nullptr;
+    IActionCollection*  pActionCollection = nullptr;
+    IAction*            pAction = nullptr;
+    IExecAction*        pExecAction = nullptr;
 
-    if (result == ERROR_SUCCESS)
+    // Get the executable path and separate path from arguments
+    char szPath[MAX_PATH];
+    GetModuleFileNameA(nullptr, szPath, MAX_PATH);
+
+    // Path should be in quotes, arguments separate
+    std::string exePath = "\"" + std::string(szPath) + "\"";
+    std::string arguments = "--startup";
+
+    hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    if (FAILED(hr))
     {
-        result = RegDeleteValueA(hKey, "AtomicShield");
-        RegCloseKey(hKey);
-
-        if (result == ERROR_SUCCESS || result == ERROR_FILE_NOT_FOUND)
-        {
-            SharedUtil::AddDebugLog("Startup removed from registry");
-            return true;
-        }
+        SharedUtil::AddDebugLog("COM initialization failed: 0x%08X", hr);
+        return false;
     }
 
-    SharedUtil::AddDebugLog("Failed to remove startup registry: %d", result);
-    return false;
+    hr = CoCreateInstance(CLSID_TaskScheduler, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskService, (void**)&pService);
+
+    if (FAILED(hr))
+    {
+        SharedUtil::AddDebugLog("Task Scheduler creation failed: 0x%08X", hr);
+        CoUninitialize();
+        return false;
+    }
+
+    hr = pService->Connect(_variant_t(), _variant_t(), _variant_t(), _variant_t());
+    if (FAILED(hr))
+    {
+        SharedUtil::AddDebugLog("Task Scheduler connection failed: 0x%08X", hr);
+        pService->Release();
+        CoUninitialize();
+        return false;
+    }
+
+    hr = pService->GetFolder(_bstr_t(L"\\"), &pRootFolder);
+    if (FAILED(hr))
+    {
+        SharedUtil::AddDebugLog("Getting root folder failed: 0x%08X", hr);
+        pService->Release();
+        CoUninitialize();
+        return false;
+    }
+
+    // Check if task already exists and delete it first
+    hr = pRootFolder->GetTask(_bstr_t(L"AtomicShield"), &pRegisteredTask);
+    if (SUCCEEDED(hr) && pRegisteredTask != nullptr)
+    {
+        pRootFolder->DeleteTask(_bstr_t(L"AtomicShield"), 0);
+        pRegisteredTask->Release();
+        pRegisteredTask = nullptr;
+    }
+
+    // Create the task definition
+    hr = pService->NewTask(0, &pTask);
+    if (FAILED(hr))
+    {
+        SharedUtil::AddDebugLog("Creating new task failed: 0x%08X", hr);
+        goto cleanup;
+    }
+
+    // Registration info
+    hr = pTask->get_RegistrationInfo(&pRegInfo);
+    if (FAILED(hr))
+        goto cleanup;
+
+    hr = pRegInfo->put_Author(_bstr_t(L"AtomicShield"));
+    if (FAILED(hr))
+        goto cleanup;
+    hr = pRegInfo->put_Description(_bstr_t(L"AtomicShield startup task"));
+    if (FAILED(hr))
+        goto cleanup;
+
+    // Principal with highest privileges
+    hr = pTask->get_Principal(&pPrincipal);
+    if (FAILED(hr))
+        goto cleanup;
+
+    hr = pPrincipal->put_LogonType(TASK_LOGON_INTERACTIVE_TOKEN);
+    if (FAILED(hr))
+        goto cleanup;
+    hr = pPrincipal->put_RunLevel(TASK_RUNLEVEL_HIGHEST);
+    if (FAILED(hr))
+        goto cleanup;
+
+    // Settings
+    hr = pTask->get_Settings(&pSettings);
+    if (FAILED(hr))
+        goto cleanup;
+
+    hr = pSettings->put_StartWhenAvailable(VARIANT_TRUE);
+    if (FAILED(hr))
+        goto cleanup;
+    hr = pSettings->put_DisallowStartIfOnBatteries(VARIANT_FALSE);
+    if (FAILED(hr))
+        goto cleanup;
+    hr = pSettings->put_StopIfGoingOnBatteries(VARIANT_FALSE);
+    if (FAILED(hr))
+        goto cleanup;
+    hr = pSettings->put_ExecutionTimeLimit(_bstr_t(L"PT0S"));            // No time limit
+    if (FAILED(hr))
+        goto cleanup;
+    hr = pSettings->put_AllowHardTerminate(VARIANT_FALSE);
+    if (FAILED(hr))
+        goto cleanup;
+
+    // Trigger - run at logon
+    hr = pTask->get_Triggers(&pTriggerCollection);
+    if (FAILED(hr))
+        goto cleanup;
+
+    hr = pTriggerCollection->Create(TASK_TRIGGER_LOGON, &pTrigger);
+    if (FAILED(hr))
+        goto cleanup;
+
+    hr = pTrigger->QueryInterface(IID_ILogonTrigger, (void**)&pLogonTrigger);
+    if (FAILED(hr))
+        goto cleanup;
+
+    hr = pLogonTrigger->put_Id(_bstr_t(L"LogonTrigger"));
+    if (FAILED(hr))
+        goto cleanup;
+    hr = pLogonTrigger->put_Delay(_bstr_t(L"PT30S"));            // 30 second delay
+    if (FAILED(hr))
+        goto cleanup;
+
+    // Action - execute the application with separate path and arguments
+    hr = pTask->get_Actions(&pActionCollection);
+    if (FAILED(hr))
+        goto cleanup;
+
+    hr = pActionCollection->Create(TASK_ACTION_EXEC, &pAction);
+    if (FAILED(hr))
+        goto cleanup;
+
+    hr = pAction->QueryInterface(IID_IExecAction, (void**)&pExecAction);
+    if (FAILED(hr))
+        goto cleanup;
+
+    // Set path (in quotes) and arguments separately
+    hr = pExecAction->put_Path(_bstr_t(exePath.c_str()));
+    if (FAILED(hr))
+        goto cleanup;
+
+    hr = pExecAction->put_Arguments(_bstr_t(arguments.c_str()));
+    if (FAILED(hr))
+        goto cleanup;
+
+    // Register the task
+    hr = pRootFolder->RegisterTaskDefinition(_bstr_t(L"AtomicShield"), pTask, TASK_CREATE_OR_UPDATE, _variant_t(), _variant_t(), TASK_LOGON_INTERACTIVE_TOKEN,
+                                             _variant_t(L""), &pRegisteredTask);
+
+    if (FAILED(hr))
+    {
+        SharedUtil::AddDebugLog("Failed to register task: 0x%08X", hr);
+        goto cleanup;
+    }
+
+    SharedUtil::AddDebugLog("Startup added to Task Scheduler successfully");
+
+cleanup:
+    if (pExecAction)
+        pExecAction->Release();
+    if (pAction)
+        pAction->Release();
+    if (pActionCollection)
+        pActionCollection->Release();
+    if (pLogonTrigger)
+        pLogonTrigger->Release();
+    if (pTrigger)
+        pTrigger->Release();
+    if (pTriggerCollection)
+        pTriggerCollection->Release();
+    if (pSettings)
+        pSettings->Release();
+    if (pPrincipal)
+        pPrincipal->Release();
+    if (pRegInfo)
+        pRegInfo->Release();
+    if (pTask)
+        pTask->Release();
+    if (pRegisteredTask)
+        pRegisteredTask->Release();
+    if (pRootFolder)
+        pRootFolder->Release();
+    if (pService)
+        pService->Release();
+
+    CoUninitialize();
+
+    return SUCCEEDED(hr);
+}
+bool StartupManager::RemoveAppFromTaskScheduler()
+{
+    HRESULT       hr = S_OK;
+    ITaskService* pService = nullptr;
+    ITaskFolder*  pRootFolder = nullptr;
+
+    hr = CoInitializeEx(nullptr, COINIT_MULTITHREADED);
+    if (FAILED(hr))
+    {
+        SharedUtil::AddDebugLog("COM initialization failed: 0x%08X", hr);
+        return false;
+    }
+
+    hr = CoCreateInstance(CLSID_TaskScheduler, nullptr, CLSCTX_INPROC_SERVER, IID_ITaskService, (void**)&pService);
+
+    if (FAILED(hr))
+    {
+        SharedUtil::AddDebugLog("Task Scheduler creation failed: 0x%08X", hr);
+        CoUninitialize();
+        return false;
+    }
+
+    hr = pService->Connect(_variant_t(), _variant_t(), _variant_t(), _variant_t());
+    if (FAILED(hr))
+    {
+        SharedUtil::AddDebugLog("Task Scheduler connection failed: 0x%08X", hr);
+        pService->Release();
+        CoUninitialize();
+        return false;
+    }
+
+    hr = pService->GetFolder(_bstr_t(L"\\"), &pRootFolder);
+    if (FAILED(hr))
+    {
+        SharedUtil::AddDebugLog("Getting root folder failed: 0x%08X", hr);
+        pService->Release();
+        CoUninitialize();
+        return false;
+    }
+
+    hr = pRootFolder->DeleteTask(_bstr_t(L"AtomicShield"), 0);
+
+    bool success = SUCCEEDED(hr);
+    if (success)
+    {
+        SharedUtil::AddDebugLog("Startup removed from Task Scheduler");
+    }
+    else if (hr == HRESULT_FROM_WIN32(ERROR_FILE_NOT_FOUND))
+    {
+        SharedUtil::AddDebugLog("Task not found in Task Scheduler");
+        success = true;            // Consider task not found as successful removal
+    }
+    else
+    {
+        SharedUtil::AddDebugLog("Failed to remove task from Task Scheduler: 0x%08X", hr);
+    }
+
+    if (pRootFolder)
+        pRootFolder->Release();
+    if (pService)
+        pService->Release();
+
+    CoUninitialize();
+
+    return success;
 }
 
 void StartupManager::StartupFunction()
