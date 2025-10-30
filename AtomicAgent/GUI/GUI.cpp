@@ -331,6 +331,7 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
     static bool        bInjected = false;
     static char        szLoadingMessage[144];
     static SUserData   DownloadData{};
+    static time_t      injected_at = NULL;
 
     static bool s_bTosPopupOpen = tos;
     static bool bEnableStartup = StartupManager::IsAppInTaskScheduler();
@@ -801,9 +802,11 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
                                                     }
                                                     else
                                                     {
+                                                        if (injected_at == NULL)
+                                                            injected_at = time(NULL);
                                                         SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 0);
                                                         memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
-                                                        strcat(szLoadingMessage, skCrypt("Have Fun! [You can close now]"));
+                                                        strcat(szLoadingMessage, "Have Fun! [Closing in 6s]");
                                                         page = 2;
                                                         active_anim_1 = true;
                                                     }
@@ -828,6 +831,18 @@ void GUI::RenderUI(bool* bInitialized, bool& bNoErrors, std::string* pstrErrorTi
 
                     if (active_tab == 2)
                     {
+                        if (injected_at != NULL)
+                        {
+                            int elapsed = abs((time(NULL) - injected_at) - 6);
+                            memset(szLoadingMessage, 0, sizeof(szLoadingMessage));
+                            sprintf(szLoadingMessage, skCrypt("Have Fun! [Closing in %ds]"), elapsed);
+
+                            if (elapsed <= 0)
+                            {
+                                exit(0);
+                            }
+                        }
+
                         static ImVec2 product_offset_2(0.f, 550.f);
 
                         EasingAnimationV2("project_offset_2", &product_offset_2,
