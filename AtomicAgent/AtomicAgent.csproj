@@ -1,33 +1,55 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
-  <PropertyGroup>
-    <OutputType>Exe</OutputType>
-    <TargetFramework>net8.0-windows10.0.17763.0</TargetFramework>
-	  <UseWindowsForms>true</UseWindowsForms>
-	  <ImplicitUsings>enable</ImplicitUsings>
-	  <PublishTrimmed>false</PublishTrimmed>
-	  <Nullable>enable</Nullable>
-    <PublishAot>true</PublishAot>
-    <InvariantGlobalization>true</InvariantGlobalization>
-    <PlatformTarget>x64</PlatformTarget>
-    <BaseOutputPath>C:\AtomicShield\AtomicShieldClient\Build</BaseOutputPath>
-    <SignAssembly>False</SignAssembly>
-    <ApplicationManifest>app.manifest</ApplicationManifest>
-  </PropertyGroup>
+	<PropertyGroup>
+		<OutputType>WinExe</OutputType>
+		<TargetFramework>net8.0-windows10.0.26100.0</TargetFramework>
+		<UseWPF>false</UseWPF>
+		<UseWindowsForms>true</UseWindowsForms>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
 
-  <ItemGroup>
-    <COMReference Include="{215d64d2-031c-33c7-96e3-61794cd1ee61}">
-      <WrapperTool>tlbimp</WrapperTool>
-      <VersionMinor>4</VersionMinor>
-      <VersionMajor>2</VersionMajor>
-      <Guid>215d64d2-031c-33c7-96e3-61794cd1ee61</Guid>
-    </COMReference>
-  </ItemGroup>
+		<PlatformTarget>x64</PlatformTarget>
+		<BaseOutputPath>C:\AtomicShield\AtomicShieldClient\Build</BaseOutputPath>
+		<ApplicationManifest>app.manifest</ApplicationManifest>
 
-  <ItemGroup>
-    <PackageReference Include="Marshal" Version="25.10.16" />
-    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3537.50" />
-    <PackageReference Include="TaskScheduler" Version="2.12.2" />
-  </ItemGroup>
+		<!-- ✅ Single-file, self-contained build -->
+		<PublishSingleFile>true</PublishSingleFile>
+		<SelfContained>true</SelfContained>
+		<IncludeAllContentForSelfExtract>true</IncludeAllContentForSelfExtract>
+		<EnableCompressionInSingleFile>true</EnableCompressionInSingleFile>
+
+		<!-- ⚠️ Removed PublishAot (breaks WebView2) -->
+		<!-- ⚠️ Removed PublishTrimmed (causes runtime breakage) -->
+		<PublishTrimmed>false</PublishTrimmed>
+		<InvariantGlobalization>true</InvariantGlobalization>
+		<SupportedOSPlatformVersion>10.0.17763.0</SupportedOSPlatformVersion>
+		<StartupObject>AtomicAgent.Program</StartupObject>
+		<SignAssembly>False</SignAssembly>
+		<Product>AntiCheat</Product>
+		<Company>AtomicShield</Company>
+		<Authors>AtomicShield</Authors>
+		<Version>2.2</Version>
+		<Title>AtomicShield Agent</Title>
+		<Description>Fivem external anticheat</Description>
+		<Copyright>© 2025 AtomicShield. All rights reserved.</Copyright>
+		<PackageProjectUrl>https://atomic-shield.com</PackageProjectUrl>
+		<PackageIcon>bigger.png</PackageIcon>
+		<NeutralLanguage>en</NeutralLanguage>
+		<AssemblyVersion>2.2</AssemblyVersion>
+		<FileVersion>2.2</FileVersion>
+	</PropertyGroup>
+
+	<ItemGroup>
+	  <None Include="..\..\..\Users\hosni\OneDrive\Images\Logo\png\bigger.png">
+	    <Pack>True</Pack>
+	    <PackagePath>\</PackagePath>
+	  </None>
+	</ItemGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Marshal" Version="25.10.16" />
+		<PackageReference Include="Microsoft.Web.WebView2" Version="1.0.3595.46" />
+		<PackageReference Include="TaskScheduler" Version="2.12.2" />
+	</ItemGroup>
 
 </Project>

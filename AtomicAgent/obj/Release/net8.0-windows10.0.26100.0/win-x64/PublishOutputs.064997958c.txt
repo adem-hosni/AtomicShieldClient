@@ -1,0 +1,2 @@
+C:\AtomicShield\AtomicShieldClient\Build\Publish\AtomicAgent.pdb
+C:\AtomicShield\AtomicShieldClient\Build\Publish\AtomicAgent.exe

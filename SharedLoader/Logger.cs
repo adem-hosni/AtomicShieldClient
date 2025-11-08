@@ -8,15 +8,23 @@ namespace Shared.Utils
     public static class Logger
     {
         private static readonly object _lock = new object();
-        private static readonly string LogFolder;
-        private static readonly string LogFile;
+        private static string LogFolder;
+        private static string LogFile;
 
         static Logger()
         {
-            string appData = Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData);
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
             LogFolder = Path.Combine(appData, "AtomicShield");
             Directory.CreateDirectory(LogFolder);
             LogFile = Path.Combine(LogFolder, "AtomicAgent.log");
+        }
+
+        public static void SetFileName(string filename)
+        {
+            string appData = Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            LogFolder = Path.Combine(appData, "AtomicShield");
+            Directory.CreateDirectory(LogFolder);
+            LogFile = Path.Combine(LogFolder, filename);
         }
 
         /// <summary>

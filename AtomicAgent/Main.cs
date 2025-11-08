@@ -26,6 +26,7 @@ namespace AtomicAgent
         static async void LoadEngine()
         {
             string engineBuffer = await _atomicApi.DownloadEngineAsync();
+             await EngineLauncher.ConnectToPipeServer();
 
             if (!string.IsNullOrEmpty(engineBuffer))
             {
@@ -57,7 +58,7 @@ namespace AtomicAgent
                     EngineLauncher.LaunchResult LaunchResult = EngineLauncher.LaunchEngineProcess(enginePath, out atomicService);
                     if (LaunchResult == EngineLauncher.LaunchResult.Success)
                     {
-                        EngineLauncher.LoadEngineIntoLauncher(atomicService.Handle, enginePath, System.Text.Encoding.UTF8.GetBytes(engineBuffer));
+                        await EngineLauncher.LoadEngineIntoLauncher(System.Text.Encoding.UTF8.GetBytes(engineBuffer));
                     }
                     else
                     {

@@ -5,7 +5,7 @@
   },
   "projects": {
     "C:\\AtomicShield\\AtomicShieldClient\\AtomicAgent\\AtomicAgent.csproj": {
-      "version": "1.0.0",
+      "version": "2.2.0",
       "restore": {
         "projectUniqueName": "C:\\AtomicShield\\AtomicShieldClient\\AtomicAgent\\AtomicAgent.csproj",
         "projectName": "AtomicAgent",
@@ -22,15 +22,15 @@
           "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
         ],
         "originalTargetFrameworks": [
-          "net8.0-windows10.0.17763.0"
+          "net8.0-windows10.0.26100.0"
         ],
         "sources": {
           "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
-          "net8.0-windows10.0.17763": {
-            "targetAlias": "net8.0-windows10.0.17763.0",
+          "net8.0-windows10.0.26100": {
+            "targetAlias": "net8.0-windows10.0.26100.0",
             "projectReferences": {}
           }
         },
@@ -47,18 +47,12 @@
         "SdkAnalysisLevel": "9.0.300"
       },
       "frameworks": {
-        "net8.0-windows10.0.17763": {
-          "targetAlias": "net8.0-windows10.0.17763.0",
+        "net8.0-windows10.0.26100": {
+          "targetAlias": "net8.0-windows10.0.26100.0",
           "dependencies": {
             "Marshal": {
               "target": "Package",
               "version": "[25.10.16, )"
-            },
-            "Microsoft.DotNet.ILCompiler": {
-              "suppressParent": "All",
-              "target": "Package",
-              "version": "[8.0.21, )",
-              "autoReferenced": true
             },
             "Microsoft.NET.ILLink.Tasks": {
               "suppressParent": "All",
@@ -68,7 +62,7 @@
             },
             "Microsoft.Web.WebView2": {
               "target": "Package",
-              "version": "[1.0.3537.50, )"
+              "version": "[1.0.3595.46, )"
             },
             "TaskScheduler": {
               "target": "Package",
@@ -88,11 +82,19 @@
           "warn": true,
           "downloadDependencies": [
             {
-              "name": "Microsoft.Windows.SDK.NET.Ref",
-              "version": "[10.0.17763.57, 10.0.17763.57]"
+              "name": "Microsoft.AspNetCore.App.Runtime.win-x64",
+              "version": "[8.0.21, 8.0.21]"
             },
             {
-              "name": "runtime.win-x64.Microsoft.DotNet.ILCompiler",
+              "name": "Microsoft.NETCore.App.Runtime.win-x64",
+              "version": "[8.0.21, 8.0.21]"
+            },
+            {
+              "name": "Microsoft.Windows.SDK.NET.Ref",
+              "version": "[10.0.26100.57, 10.0.26100.57]"
+            },
+            {
+              "name": "Microsoft.WindowsDesktop.App.Runtime.win-x64",
               "version": "[8.0.21, 8.0.21]"
             }
           ],
@@ -108,6 +110,11 @@
             }
           },
           "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.306/PortableRuntimeIdentifierGraph.json"
+        }
+      },
+      "runtimes": {
+        "win-x64": {
+          "#import": []
         }
       }
     }

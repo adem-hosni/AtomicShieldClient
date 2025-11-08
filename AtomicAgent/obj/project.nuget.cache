@@ -1,6 +1,6 @@
 {
   "version": 2,
-  "dgSpecHash": "rVe4CVW38gM=",
+  "dgSpecHash": "DutaW9SInqw=",
   "success": true,
   "projectFilePath": "C:\\AtomicShield\\AtomicShieldClient\\AtomicAgent\\AtomicAgent.csproj",
   "expectedPackageFiles": [
@@ -13,10 +13,9 @@
     "C:\\Users\\hosni\\.nuget\\packages\\microsoft.codeanalysis.common\\4.14.0\\microsoft.codeanalysis.common.4.14.0.nupkg.sha512",
     "C:\\Users\\hosni\\.nuget\\packages\\microsoft.codeanalysis.csharp\\4.14.0\\microsoft.codeanalysis.csharp.4.14.0.nupkg.sha512",
     "C:\\Users\\hosni\\.nuget\\packages\\microsoft.csharp\\4.7.0\\microsoft.csharp.4.7.0.nupkg.sha512",
-    "C:\\Users\\hosni\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\8.0.21\\microsoft.dotnet.ilcompiler.8.0.21.nupkg.sha512",
     "C:\\Users\\hosni\\.nuget\\packages\\microsoft.extensions.logging.abstractions\\2.0.0\\microsoft.extensions.logging.abstractions.2.0.0.nupkg.sha512",
     "C:\\Users\\hosni\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.21\\microsoft.net.illink.tasks.8.0.21.nupkg.sha512",
-    "C:\\Users\\hosni\\.nuget\\packages\\microsoft.web.webview2\\1.0.3537.50\\microsoft.web.webview2.1.0.3537.50.nupkg.sha512",
+    "C:\\Users\\hosni\\.nuget\\packages\\microsoft.web.webview2\\1.0.3595.46\\microsoft.web.webview2.1.0.3595.46.nupkg.sha512",
     "C:\\Users\\hosni\\.nuget\\packages\\microsoft.win32.registry\\5.0.0\\microsoft.win32.registry.5.0.0.nupkg.sha512",
     "C:\\Users\\hosni\\.nuget\\packages\\microsoft.win32.systemevents\\9.0.9\\microsoft.win32.systemevents.9.0.9.nupkg.sha512",
     "C:\\Users\\hosni\\.nuget\\packages\\mongodb.bson\\2.30.0\\mongodb.bson.2.30.0.nupkg.sha512",
@@ -49,8 +48,10 @@
     "C:\\Users\\hosni\\.nuget\\packages\\system.text.json\\9.0.9\\system.text.json.9.0.9.nupkg.sha512",
     "C:\\Users\\hosni\\.nuget\\packages\\taskscheduler\\2.12.2\\taskscheduler.2.12.2.nupkg.sha512",
     "C:\\Users\\hosni\\.nuget\\packages\\zstdsharp.port\\0.7.3\\zstdsharp.port.0.7.3.nupkg.sha512",
-    "C:\\Users\\hosni\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.17763.57\\microsoft.windows.sdk.net.ref.10.0.17763.57.nupkg.sha512",
-    "C:\\Users\\hosni\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\8.0.21\\runtime.win-x64.microsoft.dotnet.ilcompiler.8.0.21.nupkg.sha512"
+    "C:\\Users\\hosni\\.nuget\\packages\\microsoft.windows.sdk.net.ref\\10.0.26100.57\\microsoft.windows.sdk.net.ref.10.0.26100.57.nupkg.sha512",
+    "C:\\Users\\hosni\\.nuget\\packages\\microsoft.aspnetcore.app.runtime.win-x64\\8.0.21\\microsoft.aspnetcore.app.runtime.win-x64.8.0.21.nupkg.sha512",
+    "C:\\Users\\hosni\\.nuget\\packages\\microsoft.windowsdesktop.app.runtime.win-x64\\8.0.21\\microsoft.windowsdesktop.app.runtime.win-x64.8.0.21.nupkg.sha512",
+    "C:\\Users\\hosni\\.nuget\\packages\\microsoft.netcore.app.runtime.win-x64\\8.0.21\\microsoft.netcore.app.runtime.win-x64.8.0.21.nupkg.sha512"
   ],
   "logs": []
 }

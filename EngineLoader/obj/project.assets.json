@@ -1,7 +1,7 @@
 {
   "version": 3,
   "targets": {
-    "net8.0": {
+    "net8.0-windows10.0.26100": {
       "Microsoft.DotNet.ILCompiler/8.0.21": {
         "type": "package",
         "build": {
@@ -100,7 +100,7 @@
     }
   },
   "projectFileDependencyGroups": {
-    "net8.0": [
+    "net8.0-windows10.0.26100": [
       "Microsoft.DotNet.ILCompiler >= 8.0.21",
       "Microsoft.NET.ILLink.Tasks >= 8.0.21"
     ]
@@ -127,15 +127,15 @@
         "C:\\Program Files (x86)\\NuGet\\Config\\Microsoft.VisualStudio.Offline.config"
       ],
       "originalTargetFrameworks": [
-        "net8.0"
+        "net8.0-windows10.0.26100.0"
       ],
       "sources": {
         "C:\\Program Files (x86)\\Microsoft SDKs\\NuGetPackages\\": {},
         "https://api.nuget.org/v3/index.json": {}
       },
       "frameworks": {
-        "net8.0": {
-          "targetAlias": "net8.0",
+        "net8.0-windows10.0.26100": {
+          "targetAlias": "net8.0-windows10.0.26100.0",
           "projectReferences": {}
         }
       },
@@ -152,8 +152,8 @@
       "SdkAnalysisLevel": "9.0.300"
     },
     "frameworks": {
-      "net8.0": {
-        "targetAlias": "net8.0",
+      "net8.0-windows10.0.26100": {
+        "targetAlias": "net8.0-windows10.0.26100.0",
         "dependencies": {
           "Microsoft.DotNet.ILCompiler": {
             "suppressParent": "All",
@@ -181,12 +181,19 @@
         "warn": true,
         "downloadDependencies": [
           {
+            "name": "Microsoft.Windows.SDK.NET.Ref",
+            "version": "[10.0.26100.57, 10.0.26100.57]"
+          },
+          {
             "name": "runtime.win-x64.Microsoft.DotNet.ILCompiler",
             "version": "[8.0.21, 8.0.21]"
           }
         ],
         "frameworkReferences": {
           "Microsoft.NETCore.App": {
+            "privateAssets": "all"
+          },
+          "Microsoft.Windows.SDK.NET.Ref.Windows": {
             "privateAssets": "all"
           }
         },
