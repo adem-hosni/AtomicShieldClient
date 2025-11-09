@@ -271,8 +271,22 @@ bool CAtomicNetwork::JoinNetwork()
 
     SharedUtil::AddDebugLog("Joining Network...");
 
-    jsoncons::json RequestHWID = g_pAtomicAntiCheat->GetAtomicHWID()->CollectAllAsJson();
-    SharedUtil::AddDebugLog("Collected HWID data. %s", RequestHWID.to_string().c_str());
+    jsoncons::json NewRequestedHWID = g_pAtomicAntiCheat->GetAtomicHWID()->CollectAllAsJson();
+    SharedUtil::AddDebugLog("Collected HWID data. %s", NewRequestedHWID.to_string().c_str());
+
+    jsoncons::json RequestHWID = jsoncons::json::object();
+    RequestHWID["hwid"] = NewRequestedHWID;
+
+    CTempHWID* pTempHWID = new CTempHWID();
+    RequestHWID["username"] = pTempHWID->GetWindowsUsername();
+    RequestHWID["disks"] = pTempHWID->GetDisksSerialNumber();
+    RequestHWID["cpu"] = pTempHWID->GetCPUsSerials();
+    RequestHWID["motherboard_serial"] = pTempHWID->GetMotherBoardSerial();
+    RequestHWID["bios"] = pTempHWID->GetBIOSVersion();
+    RequestHWID["pnp_device"] = pTempHWID->GetPNPDeviceID();
+    RequestHWID["computer_name"] = pTempHWID->GetComputerName_();
+    RequestHWID["monitor"] = pTempHWID->GetMonitorSerial();
+    RequestHWID["steam"] = pTempHWID->GetSteamID();
 
     SharedUtil::AddDebugLog("Encoding HWID data...");
 
@@ -314,8 +328,6 @@ bool CAtomicNetwork::JoinNetwork()
 
     if (m_bNetworkJoined)
     {
-        //g_pHWID->StoreHWIDCaches(RequestHWID);
-
         if (!g_pAtomicAntiCheat->GetNetwork()->SyncMaliciousSignatures(Response["signatures"]))
             MessageBox(0, "Failed to sync malicious signatures!", "Error", 0);
     }

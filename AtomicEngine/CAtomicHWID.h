@@ -14,6 +14,7 @@ public:
     std::map<std::string, std::string> CollectGPU();
     std::map<std::string, std::string> CollectDisks();
     std::map<std::string, std::string> CollectSMBIOS();
+    std::string                        GetCPUSerial();
 
 private:
     std::string                        RunPowerShellCommand(const std::string& cmd);

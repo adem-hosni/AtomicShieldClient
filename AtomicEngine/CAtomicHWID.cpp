@@ -283,6 +283,112 @@ std::map<std::string, std::string> CAtomicHWID::CollectSMBIOS()
     return QuerySMBIOSViaWmi();
 }
 
+std::string CAtomicHWID::GetCPUSerial()
+{
+    HRESULT hres;
+
+    hres = CoInitializeEx(0, COINIT_MULTITHREADED);
+    if (FAILED(hres))
+        return "<unkown>";            // Program has failed.
+
+    if (FAILED(hres))
+    {
+        CoUninitialize();
+        return "<unkown>";            // Program has failed.
+    }
+
+    IWbemLocator* pLoc = NULL;
+
+    hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
+
+    if (FAILED(hres))
+    {
+        CoUninitialize();
+        return "<unkown>";            // Program has failed.
+    }
+
+    IWbemServices* pSvc = NULL;
+
+    hres = pLoc->ConnectServer(_bstr_t(L"ROOT\\CIMV2"),            // Object path of WMI namespace
+                               NULL,                               // User name. NULL = current user
+                               NULL,                               // User password. NULL = current
+                               0,                                  // Locale. NULL indicates current
+                               NULL,                               // Security flags.
+                               0,                                  // Authority (e.g. Kerberos)
+                               0,                                  // Context object
+                               &pSvc                               // pointer to IWbemServices proxy
+    );
+
+    if (FAILED(hres))
+    {
+        pLoc->Release();
+        CoUninitialize();
+        return "<unkown>";            // Program has failed.
+    }
+
+    hres = CoSetProxyBlanket(pSvc,                                   // Indicates the proxy to set
+                             RPC_C_AUTHN_WINNT,                      // RPC_C_AUTHN_xxx
+                             RPC_C_AUTHZ_NONE,                       // RPC_C_AUTHZ_xxx
+                             NULL,                                   // Server principal name
+                             RPC_C_AUTHN_LEVEL_CALL,                 // RPC_C_AUTHN_LEVEL_xxx
+                             RPC_C_IMP_LEVEL_IMPERSONATE,            // RPC_C_IMP_LEVEL_xxx
+                             NULL,                                   // client identity
+                             EOAC_NONE                               // proxy capabilities
+    );
+
+    if (FAILED(hres))
+    {
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+        return "<unkown>";            // Program has failed.
+    }
+
+    IEnumWbemClassObject* pEnumerator = NULL;
+    hres = pSvc->ExecQuery(bstr_t("WQL"), bstr_t("SELECT * FROM Win32_Processor"), WBEM_FLAG_FORWARD_ONLY | WBEM_FLAG_RETURN_IMMEDIATELY, NULL, &pEnumerator);
+
+    if (FAILED(hres))
+    {
+        pSvc->Release();
+        pLoc->Release();
+        CoUninitialize();
+        return "<unkown>";            // Program has failed.
+    }
+
+    IWbemClassObject* pclsObj = NULL;
+    ULONG             uReturn = 0;
+
+    std::string strCPUID;
+
+    while (pEnumerator)
+    {
+        HRESULT hr = pEnumerator->Next(WBEM_INFINITE, 1, &pclsObj, &uReturn);
+
+        if (0 == uReturn)
+        {
+            break;
+        }
+
+        VARIANT vtProp;
+
+        hr = pclsObj->Get(L"ProcessorId", 0, &vtProp, 0, 0);
+        if (SUCCEEDED(hr))
+        {
+            strCPUID = static_cast<const char*>(_bstr_t(vtProp.bstrVal));
+        }
+        VariantClear(&vtProp);
+
+        pclsObj->Release();
+    }
+
+    pSvc->Release();
+    pLoc->Release();
+    pEnumerator->Release();
+    CoUninitialize();
+
+    return strCPUID;
+}
+
 jsoncons::json CAtomicHWID::CollectAllAsJson()
 {
     json root = json::object();
@@ -292,6 +398,8 @@ jsoncons::json CAtomicHWID::CollectAllAsJson()
     for (auto& p : tpm)
         tpmj[p.first] = p.second;
     root["TPM"] = tpmj;
+
+    root["cpuid"] = GetCPUSerial();
 
     auto gpu = CollectGPU();
     json gpj = json::object();
@@ -313,5 +421,3 @@ jsoncons::json CAtomicHWID::CollectAllAsJson()
 
     return root;
 }
-
-// End of file

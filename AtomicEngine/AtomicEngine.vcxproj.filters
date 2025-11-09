@@ -198,6 +198,9 @@
     <ClCompile Include="SelfMapModule.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="CTempHWID.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Guards\CGuardBase.h">
@@ -441,6 +444,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="SelfMapModule.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="CTempHWID.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
