@@ -101,7 +101,6 @@ DWORD WINAPI EntryPoint(LPVOID lpAntiCheatModuleBase)
     CLatencyEvaluator::SetupServerEndPoint(
         [](std::string strBestEndPoint) -> void
         {
-            strBestEndPoint += ":8002";
             g_pAtomicAntiCheat->GetNetwork()->SetServerEndPoint(strBestEndPoint);
         },
                                            false);
