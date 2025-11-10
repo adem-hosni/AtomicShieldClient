@@ -16,7 +16,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCopyrightAttribute("© 2025 AtomicShield. All rights reserved.")]
 [assembly: System.Reflection.AssemblyDescriptionAttribute("Fivem external anticheat")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("2.2")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("2.2+938057328d5726bb1c24989d9213399ecce9f6ae")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("2.2+5105c06004f8d56dce12ea8d0f4d7821d0b9574b")]
 [assembly: System.Reflection.AssemblyProductAttribute("AntiCheat")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AtomicAgent")]
 [assembly: System.Reflection.AssemblyVersionAttribute("2.2")]

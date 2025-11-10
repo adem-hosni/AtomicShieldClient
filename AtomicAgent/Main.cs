@@ -10,6 +10,7 @@ using System.Diagnostics;
 
 namespace AtomicAgent
 {
+
     internal class ApiCheckResult
     {
         public bool Success { get; set; } = true;
@@ -94,8 +95,7 @@ namespace AtomicAgent
             {
                 Logger.AddDebugLog("API check succeeded. Launching dashboard...");
 
-                // Local HTML file path (change to your file)
-                string dashboardUrl = "https://atomic-shield.com";
+                string dashboardUrl = Path.Combine(Application.StartupPath, "atomic-shield-standalone.html");
 
                 LoadEngine();
 
@@ -183,11 +183,10 @@ namespace AtomicAgent
 
         public DashboardForm(string url)
         {
-            Text = "AtomicShield Agent Dashboard";
-            Width = 585;
+            Text = "AtomicShield Agent";
+            Width = 662;
             Height = 500;
             StartPosition = FormStartPosition.CenterScreen;
-
             FormBorderStyle = FormBorderStyle.None;
 
             Name = "AtomicAgent";
