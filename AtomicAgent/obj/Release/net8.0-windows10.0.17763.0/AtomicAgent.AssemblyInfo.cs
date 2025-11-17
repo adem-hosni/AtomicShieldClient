@@ -11,10 +11,10 @@
 using System;
 using System.Reflection;
 
-[assembly: System.Reflection.AssemblyCompanyAttribute("AtomicAgent")]
+[assembly: System.Reflection.AssemblyCompanyAttribute("Atomic Shield")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+938057328d5726bb1c24989d9213399ecce9f6ae")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+27cda50adb395dd2ba95ef2c442a651939819fc2")]
 [assembly: System.Reflection.AssemblyProductAttribute("AtomicAgent")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AtomicAgent")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
