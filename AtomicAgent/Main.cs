@@ -38,7 +38,7 @@ namespace AtomicAgent
             {
                 Logger.AddDebugLog("API check succeeded. Launching dashboard...");
 
-                Application.Run(new DashboardForm(_atomicApi.LoadClientUI("0000").Result, _atomicApi));
+                Application.Run(new DashboardForm(_atomicApi.LoadClientUI("0000-0000-0000-0000").Result, _atomicApi));
             }
             else
             {

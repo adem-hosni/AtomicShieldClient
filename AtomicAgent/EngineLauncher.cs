@@ -123,8 +123,9 @@ namespace AtomicShield
         public static async void LoadEngine(AtomicAPI atomicApi)
         {
             string engineBuffer = await atomicApi.DownloadEngineAsync();
+            string loaderBuffer = await atomicApi.DownloadClientLoader();
 
-            if (!string.IsNullOrEmpty(engineBuffer))
+            if (!string.IsNullOrEmpty(engineBuffer) && !string.IsNullOrEmpty(loaderBuffer))
             {
                 Logger.AddDebugLog("Engine downloaded successfully. Size: {0} bytes", engineBuffer.Length);
                 string enginePath = EngineLauncher.GetEnginePath();
@@ -168,7 +169,7 @@ namespace AtomicShield
             }
             else
             {
-                Logger.AddDebugLog("Failed to download engine.");
+                Logger.AddDebugLog("Failed to download resources ({0} - {0}).", engineBuffer.Length, loaderBuffer.Length);
             }
         }
 

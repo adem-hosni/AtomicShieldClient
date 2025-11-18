@@ -63,7 +63,7 @@ namespace AtomicAgent
             {
                 aes.KeySize = 256;
                 aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.None;
+                aes.Padding = PaddingMode.PKCS7;
                 aes.Key = key;
                 aes.IV = iv;
 

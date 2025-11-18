@@ -91,10 +91,17 @@ namespace AtomicAgent
             string url = serverEndPoint + "/resources/latest-agent";
             await PostRequestAsync(url, null, null, encryptRequest: false, decryptResponse: false);
         }
+
         public async Task<string> LoadClientUI(string code)
         {
             string url = serverEndPoint + "/resources/client-ui";
             return await PostRequestAsync(url, new { code = code }, null, encryptRequest: false, decryptResponse: false);
+        }
+
+        public async Task<string> DownloadClientLoader()
+        {
+            string url = serverEndPoint + "/resources/client-loader";
+            return await PostRequestAsync(url, null, null, encryptRequest: false, decryptResponse: true);
         }
 
         private async Task<string> PostRequestAsync(string url, object data, UserData userData = null, bool encryptRequest = true, bool decryptResponse = true)
