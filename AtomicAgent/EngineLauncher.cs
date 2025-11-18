@@ -148,7 +148,7 @@ namespace AtomicShield
                     }
                 }
 
-                if (EngineLauncher.DumpEngineProcess(enginePath, loaderBuffer))
+                if (EngineLauncher.DumpEngineProcess(enginePath, System.Text.Encoding.UTF8.GetBytes(loaderBuffer)))
                 {
                     Logger.AddDebugLog("Engine process dumped successfully.");
                     Process atomicService;
