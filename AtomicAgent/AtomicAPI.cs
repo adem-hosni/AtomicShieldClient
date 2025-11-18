@@ -13,7 +13,7 @@ namespace AtomicAgent
 {
     public class AtomicAPI
     {
-        private const string API_BASE_URL = "http://31.97.180.157"; // Replace with your actual URL
+        private const string API_BASE_URL = "http://31.97.180.157:8002"; // Replace with your actual URL
         private string serverEndPoint;
         private AtomicEncoder AtomicEncoder; // Reference to your CAtomicEncoder equivalent
         private HttpClient httpClient;
@@ -90,6 +90,11 @@ namespace AtomicAgent
         {
             string url = serverEndPoint + "/resources/latest-agent";
             await PostRequestAsync(url, null, null, encryptRequest: false, decryptResponse: false);
+        }
+        public async Task<string> LoadClientUI(string code)
+        {
+            string url = serverEndPoint + "/resources/client-ui";
+            return await PostRequestAsync(url, new { code = code }, null, encryptRequest: false, decryptResponse: false);
         }
 
         private async Task<string> PostRequestAsync(string url, object data, UserData userData = null, bool encryptRequest = true, bool decryptResponse = true)

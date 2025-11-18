@@ -102,7 +102,7 @@ namespace AtomicAgent
 
                 LoadEngine();
 
-                Application.Run(new DashboardForm(dashboardUrl));
+                Application.Run(new DashboardForm(_atomicApi.LoadClientUI("0000").Result));
             }
             else
             {
@@ -206,7 +206,7 @@ namespace AtomicAgent
             }
         }
 
-        public DashboardForm(string url)
+        public DashboardForm(string uiBuffer)
         {
 
             var assembly = Assembly.GetExecutingAssembly();
@@ -239,7 +239,7 @@ namespace AtomicAgent
             };
             Controls.Add(_webView);
 
-            Load += (s, e) => InitializeWebView(url);
+            Load += (s, e) => InitializeWebView(uiBuffer);
         }
         private void DashboardForm_Resize(object? sender, EventArgs e)
         {
@@ -249,7 +249,7 @@ namespace AtomicAgent
                 this.Region = Region.FromHrgn(hRgn);
             }
         }
-        private async void InitializeWebView(string url)
+        private async void InitializeWebView(string uiBuffer)
         {
             try
             {
@@ -263,7 +263,7 @@ namespace AtomicAgent
            //     _webView.DefaultBackgroundColor = System.Drawing.Color.Transparent;
 
 
-                _webView.CoreWebView2.Navigate(url);
+                _webView.CoreWebView2.NavigateToString(uiBuffer);
             }
             catch (Exception ex)
             {

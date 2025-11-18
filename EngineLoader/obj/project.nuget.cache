@@ -1,12 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "BCswSu3HaSQ=",
+  "dgSpecHash": "2TCNtNJpkrM=",
   "success": true,
   "projectFilePath": "C:\\AtomicShield\\AtomicShieldClient\\EngineLoader\\EngineLoader.csproj",
   "expectedPackageFiles": [
-    "C:\\Users\\amenn\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\8.0.20\\microsoft.dotnet.ilcompiler.8.0.20.nupkg.sha512",
-    "C:\\Users\\amenn\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.20\\microsoft.net.illink.tasks.8.0.20.nupkg.sha512",
-    "C:\\Users\\amenn\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\8.0.20\\runtime.win-x64.microsoft.dotnet.ilcompiler.8.0.20.nupkg.sha512"
+    "C:\\Users\\hosni\\.nuget\\packages\\microsoft.dotnet.ilcompiler\\8.0.21\\microsoft.dotnet.ilcompiler.8.0.21.nupkg.sha512",
+    "C:\\Users\\hosni\\.nuget\\packages\\microsoft.net.illink.tasks\\8.0.21\\microsoft.net.illink.tasks.8.0.21.nupkg.sha512",
+    "C:\\Users\\hosni\\.nuget\\packages\\runtime.win-x64.microsoft.dotnet.ilcompiler\\8.0.21\\runtime.win-x64.microsoft.dotnet.ilcompiler.8.0.21.nupkg.sha512"
   ],
   "logs": []
 }
