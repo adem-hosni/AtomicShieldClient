@@ -1,15 +1,21 @@
 ﻿using AtomicAgent;
-using AtomicShield;
-using AtomicAgent.ManualMapper;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.IO.Pipes;
 using System.Runtime.InteropServices;
+using System.Text;
+using System.Threading.Tasks;
+using Windows.Media.Protection.PlayReady;
 
 namespace AtomicShield
 {
     public static class EngineLauncher
     {
+        private static NamedPipeClientStream _ClientPipe;
+        private static StreamReader _reader;
+        private static StreamWriter _writer;
+
         public enum LaunchResult
         {
             Success,
@@ -79,13 +85,39 @@ namespace AtomicShield
             }
         }
 
-        public static int LoadEngineIntoLauncher(nint TargetProcess, string enginePath, byte[] buffer)
+        public static async Task ConnectToPipeServer()
+        {
+            _ClientPipe = new NamedPipeClientStream(".", "AtomicPipe", PipeDirection.InOut);
+            Logger.AddDebugLog("Connecting to pipe server..");
+            await _ClientPipe.ConnectAsync();
+            Logger.AddDebugLog("Successfuly connected to pipe server");
+
+            _reader = new StreamReader(_ClientPipe, Encoding.UTF8);
+            _writer = new StreamWriter(_ClientPipe, Encoding.UTF8) { AutoFlush = true };
+        }
+
+        public static async Task<bool> LoadEngineIntoLauncher(byte[] buffer)
         {
             Logger.AddDebugLog(nameof(LoadEngineIntoLauncher));
 
-            ManualMapper.ManualMapModule(TargetProcess, buffer);
+            if (_writer == null || _reader == null)
+                throw new InvalidOperationException("Pipe is not connected");
 
-            return 0;
+            // Encode buffer to Base64
+            string base64Buffer = Convert.ToBase64String(buffer);
+            await _writer.WriteLineAsync("load_code:" + base64Buffer);
+
+            string response = await _reader.ReadLineAsync();
+            if (response.StartsWith("load_success:"))
+            {
+                Logger.AddDebugLog("Engine loaded successfully into launcher");
+                return true;
+            }
+            else
+            {
+                Logger.AddDebugLog("Failed to load engine into launcher: " + response);
+                return false;
+            }
         }
 
         public static async void LoadEngine(AtomicAPI atomicApi)
@@ -122,7 +154,7 @@ namespace AtomicShield
                     EngineLauncher.LaunchResult LaunchResult = EngineLauncher.LaunchEngineProcess(enginePath, out atomicService);
                     if (LaunchResult == EngineLauncher.LaunchResult.Success)
                     {
-                        EngineLauncher.LoadEngineIntoLauncher(atomicService.Handle, enginePath, System.Text.Encoding.UTF8.GetBytes(engineBuffer));
+                        EngineLauncher.LoadEngineIntoLauncher(System.Text.Encoding.UTF8.GetBytes(engineBuffer));
                     }
                     else
                     {
