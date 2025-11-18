@@ -20,58 +20,6 @@ namespace AtomicAgent
     {
         static AtomicAPI _atomicApi;
 
-        static async void LoadEngine()
-        {
-            string engineBuffer = await _atomicApi.DownloadEngineAsync();
-
-            if (!string.IsNullOrEmpty(engineBuffer))
-            {
-                Logger.AddDebugLog("Engine downloaded successfully. Size: {0} bytes", engineBuffer.Length);
-                string enginePath = EngineLauncher.GetEnginePath();
-
-                // Close AtomicSvc.exe if it's running
-                if (Process.GetProcessesByName("AtomicSvc").Length > 0)
-                {
-                    foreach (var proc in Process.GetProcessesByName("AtomicSvc"))
-                    {
-                        try
-                        {
-                            proc.Kill();
-                            proc.WaitForExit();
-                            Logger.AddDebugLog("Closed existing AtomicSvc.exe process (PID: {0})", proc.Id);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.AddDebugLog("Failed to close AtomicSvc.exe process (PID: {0}): {1}", proc.Id, ex.Message);
-                        }
-                    }
-                }
-
-                if (EngineLauncher.DumpEngineProcess(enginePath, Buffer.AtomicSvcProcessBuffer))
-                {
-                    Logger.AddDebugLog("Engine process dumped successfully.");
-                    Process atomicService;
-                    EngineLauncher.LaunchResult LaunchResult = EngineLauncher.LaunchEngineProcess(enginePath, out atomicService);
-                    if (LaunchResult == EngineLauncher.LaunchResult.Success)
-                    {
-                        EngineLauncher.LoadEngineIntoLauncher(atomicService.Handle, enginePath, System.Text.Encoding.UTF8.GetBytes(engineBuffer));
-                    }
-                    else
-                    {
-                        Logger.AddDebugLog("Failed to launch engine process. {0}", LaunchResult);
-                    }
-                }
-                else
-                {
-                    Logger.AddDebugLog("Failed to dump engine process.");
-                }
-            }
-            else
-            {
-                Logger.AddDebugLog("Failed to download engine.");
-            }
-        }
-
         [STAThread]
         private static void Main(string[] args)
         {
@@ -90,13 +38,7 @@ namespace AtomicAgent
             {
                 Logger.AddDebugLog("API check succeeded. Launching dashboard...");
 
-                // Local HTML file path (change to your file)
-                //                string dashboardUrl = "https://atomic-shield.com";
-                string dashboardUrl = Path.Combine(Application.StartupPath, "ui.html");
-
-                LoadEngine();
-
-                Application.Run(new DashboardForm(_atomicApi.LoadClientUI("0000").Result));
+                Application.Run(new DashboardForm(_atomicApi.LoadClientUI("0000").Result, _atomicApi));
             }
             else
             {

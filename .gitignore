@@ -38,3 +38,4 @@ SharedLoader/obj
 *.out
 *.app
 AtomicEngine/Trace.logs
+*.cache

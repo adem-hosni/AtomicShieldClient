@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("Atomic Shield")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Release")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+b749a7371a4c3f222a678d2368326e64a5af6b10")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+457e4404ad2b79d406e6f37fda61a3ad540d5568")]
 [assembly: System.Reflection.AssemblyProductAttribute("AtomicAgent")]
 [assembly: System.Reflection.AssemblyTitleAttribute("AtomicAgent")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

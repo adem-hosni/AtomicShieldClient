@@ -1,3 +1,4 @@
+using AtomicShield;
 using Microsoft.Web.WebView2.Core;
 using Microsoft.Web.WebView2.WinForms;
 using System;
@@ -29,6 +30,8 @@ namespace AtomicAgent
         private const int WM_NCLBUTTONDOWN = 0xA1;
         private const int HTCAPTION = 0x2;
 
+        private AtomicAPI api;
+
         private void DashboardForm_MouseDown(object sender, MouseEventArgs e)
         {
             if (e.Button == MouseButtons.Left)
@@ -38,7 +41,7 @@ namespace AtomicAgent
             }
         }
 
-        public DashboardForm(string uiBuffer)
+        public DashboardForm(string uiBuffer, AtomicAPI api)
         {
             var assembly = Assembly.GetExecutingAssembly();
             using (var stream = assembly.GetManifestResourceStream("AtomicAgent.favicon.ico"))
@@ -68,7 +71,7 @@ namespace AtomicAgent
             };
             Controls.Add(_webView);
 
-            Load += (s, e) => InitializeWebView(uiBuffer);
+            Load += (s, e) => InitializeWebView(uiBuffer, api);
         }
 
         private void DashboardForm_Resize(object? sender, EventArgs e)
@@ -80,10 +83,12 @@ namespace AtomicAgent
             }
         }
 
-        private async void InitializeWebView(string uiBuffer)
+        private async void InitializeWebView(string uiBuffer, AtomicAPI atomicApi)
         {
             try
             {
+                api = atomicApi;
+
                 await _webView.EnsureCoreWebView2Async(null);
 
                 _webView.CoreWebView2.Settings.AreDevToolsEnabled = false;
@@ -126,6 +131,7 @@ namespace AtomicAgent
 
                         case "enableShield":
                             SendCommandToPage(new { cmd = "showToast", msg = "Shield enabled by host" });
+                            EngineLauncher.LoadEngine(api);
                             break;
                         case "drag":
                             ReleaseCapture();
