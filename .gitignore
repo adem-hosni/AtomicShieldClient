@@ -5,9 +5,7 @@ Cache/
 
 # Prerequisites
 *.d
-AtomicAgent/obj/
-EngineLoader/obj/
-SharedLoader/obj/
+obj/
 
 # Compiled Object files
 *.slo
