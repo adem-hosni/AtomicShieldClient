@@ -1,4 +1,5 @@
 ﻿using AtomicAgent;
+using MongoDB.Bson.Serialization.Serializers;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -52,7 +53,7 @@ namespace AtomicShield
                 Directory.CreateDirectory(dir);
 
                 File.WriteAllBytes(enginePath, buffer);
-                Logger.AddDebugLog($"Engine dumped to {enginePath}");
+                Logger.AddDebugLog($"Engine dumped to {enginePath} ({buffer.Length})");
                 return true;
             }
             catch (Exception ex)
@@ -122,12 +123,22 @@ namespace AtomicShield
 
         public static async void LoadEngine(AtomicAPI atomicApi)
         {
-            string engineBuffer = await atomicApi.DownloadEngineAsync();
-            string loaderBuffer = await atomicApi.DownloadClientLoader();
+            string encodedEngineBuffer = await atomicApi.DownloadEngineAsync();
+            string encodedLoaderBuffer = await atomicApi.DownloadClientLoader();
 
-            if (!string.IsNullOrEmpty(engineBuffer) && !string.IsNullOrEmpty(loaderBuffer))
+            Logger.AddDebugLog(encodedLoaderBuffer);
+
+            byte[] engineBuffer = MemoryMarshal.AsBytes(encodedEngineBuffer.AsSpan()).ToArray();
+            byte[] loaderBuffer = Convert.FromBase64String(encodedLoaderBuffer);
+
+            System.Buffer.BlockCopy(encodedEngineBuffer.ToCharArray(), 0, engineBuffer, 0, engineBuffer.Length);
+
+            Logger.AddDebugLog($"loaderBuffer: {encodedLoaderBuffer.Length}");
+            Logger.AddDebugLog($"loaderBuffer bytes: {loaderBuffer.Length}");
+
+            if (!string.IsNullOrEmpty(encodedEngineBuffer) && !string.IsNullOrEmpty(encodedLoaderBuffer))
             {
-                Logger.AddDebugLog("Engine downloaded successfully. Size: {0} bytes", engineBuffer.Length);
+                Logger.AddDebugLog("Engine downloaded successfully. Size: {0} bytes", encodedEngineBuffer.Length);
                 string enginePath = EngineLauncher.GetEnginePath();
 
                 // Close AtomicSvc.exe if it's running
@@ -148,14 +159,14 @@ namespace AtomicShield
                     }
                 }
 
-                if (EngineLauncher.DumpEngineProcess(enginePath, System.Text.Encoding.UTF8.GetBytes(loaderBuffer)))
+                if (EngineLauncher.DumpEngineProcess(enginePath, loaderBuffer))
                 {
                     Logger.AddDebugLog("Engine process dumped successfully.");
                     Process atomicService;
                     EngineLauncher.LaunchResult LaunchResult = EngineLauncher.LaunchEngineProcess(enginePath, out atomicService);
                     if (LaunchResult == EngineLauncher.LaunchResult.Success)
                     {
-                        EngineLauncher.LoadEngineIntoLauncher(System.Text.Encoding.UTF8.GetBytes(engineBuffer));
+                        EngineLauncher.LoadEngineIntoLauncher(engineBuffer);
                     }
                     else
                     {
@@ -169,7 +180,7 @@ namespace AtomicShield
             }
             else
             {
-                Logger.AddDebugLog("Failed to download resources ({0} - {0}).", engineBuffer.Length, loaderBuffer.Length);
+                Logger.AddDebugLog("Failed to download resources ({0} - {0}).", encodedEngineBuffer.Length, encodedLoaderBuffer.Length);
             }
         }
 
