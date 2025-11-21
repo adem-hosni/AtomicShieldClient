@@ -132,8 +132,7 @@ namespace AtomicAgent
 
                 if (decryptResponse && !string.IsNullOrEmpty(responseString))
                 {
-                    string decrypted = AtomicEncoder.Decrypt(Convert.FromBase64String(responseString));
-                    return decrypted;
+                    return AtomicEncoder.Decrypt(Convert.FromBase64String(responseString));
                 }
 
                 return responseString;
