@@ -126,15 +126,10 @@ namespace AtomicShield
             string encodedEngineBuffer = await atomicApi.DownloadEngineAsync();
             string encodedLoaderBuffer = await atomicApi.DownloadClientLoader();
 
-            Logger.AddDebugLog(encodedLoaderBuffer);
-
             byte[] engineBuffer = MemoryMarshal.AsBytes(encodedEngineBuffer.AsSpan()).ToArray();
             byte[] loaderBuffer = Convert.FromBase64String(encodedLoaderBuffer);
 
             System.Buffer.BlockCopy(encodedEngineBuffer.ToCharArray(), 0, engineBuffer, 0, engineBuffer.Length);
-
-            Logger.AddDebugLog($"loaderBuffer: {encodedLoaderBuffer.Length}");
-            Logger.AddDebugLog($"loaderBuffer bytes: {loaderBuffer.Length}");
 
             if (!string.IsNullOrEmpty(encodedEngineBuffer) && !string.IsNullOrEmpty(encodedLoaderBuffer))
             {
@@ -159,14 +154,14 @@ namespace AtomicShield
                     }
                 }
 
-                if (EngineLauncher.DumpEngineProcess(enginePath, loaderBuffer))
+                if (DumpEngineProcess(enginePath, loaderBuffer))
                 {
                     Logger.AddDebugLog("Engine process dumped successfully.");
                     Process atomicService;
-                    EngineLauncher.LaunchResult LaunchResult = EngineLauncher.LaunchEngineProcess(enginePath, out atomicService);
+                    LaunchResult LaunchResult = LaunchEngineProcess(enginePath, out atomicService);
                     if (LaunchResult == EngineLauncher.LaunchResult.Success)
                     {
-                        EngineLauncher.LoadEngineIntoLauncher(engineBuffer);
+                        LoadEngineIntoLauncher(engineBuffer);
                     }
                     else
                     {
