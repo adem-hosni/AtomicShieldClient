@@ -123,17 +123,17 @@ namespace AtomicShield
 
         public static async void LoadEngine(AtomicAPI atomicApi)
         {
-            string encodedEngineBuffer = await atomicApi.DownloadEngineAsync();
+            byte[] engineBuffer = await atomicApi.DownloadEngineAsync();
+            Logger.AddDebugLog("Downloading client loader...");
             string encodedLoaderBuffer = await atomicApi.DownloadClientLoader();
 
-            byte[] engineBuffer = Encoding.UTF8.GetBytes(encodedEngineBuffer);
+            Logger.AddDebugLog($"Engine buffer size: {engineBuffer.Length} bytes");
             byte[] loaderBuffer = Convert.FromBase64String(encodedLoaderBuffer);
 
-            System.Buffer.BlockCopy(encodedEngineBuffer.ToCharArray(), 0, engineBuffer, 0, engineBuffer.Length);
 
-            if (!string.IsNullOrEmpty(encodedEngineBuffer) && !string.IsNullOrEmpty(encodedLoaderBuffer))
+            if (!string.IsNullOrEmpty(encodedLoaderBuffer))
             {
-                Logger.AddDebugLog("Engine downloaded successfully. Size: {0} bytes", encodedEngineBuffer.Length);
+                Logger.AddDebugLog("Engine downloaded successfully. Size: {0} bytes", engineBuffer.Length);
                 string enginePath = GetEnginePath();
 
                 // Close AtomicSvc.exe if it's running
@@ -175,9 +175,10 @@ namespace AtomicShield
             }
             else
             {
-                Logger.AddDebugLog("Failed to download resources ({0} - {0}).", encodedEngineBuffer.Length, encodedLoaderBuffer.Length);
+                Logger.AddDebugLog("Failed to download resources ({0} - {0}).", engineBuffer.Length, encodedLoaderBuffer.Length);
             }
         }
 
     }
+
 }

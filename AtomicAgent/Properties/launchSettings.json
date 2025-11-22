@@ -1,0 +1,9 @@
+{
+  "profiles": {
+    "AtomicAgent": {
+      "commandName": "Project",
+      "nativeDebugging": false,
+      "jsWebView2Debugging": false
+    }
+  }
+}

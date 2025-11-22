@@ -80,10 +80,10 @@ namespace AtomicAgent
             return json.RootElement.GetProperty("success").GetBoolean();
         }
 
-        public async Task<string> DownloadEngineAsync(UserData userData = null)
+        public async Task<byte[]> DownloadEngineAsync(UserData userData = null)
         {
             string url = serverEndPoint + "/resources/scan/fivem";
-            return await PostRequestAsync(url, null, userData);
+            return await PostRequestBytesAsync(url, null, userData);
         }
 
         public async Task DownloadLatestAgentAsync()
@@ -136,6 +136,40 @@ namespace AtomicAgent
                 }
 
                 return responseString;
+            }
+        }
+        private async Task<byte[]> PostRequestBytesAsync(string url, object data, UserData userData = null, bool encryptRequest = true, bool decryptResponse = true)
+        {
+            string requestBody = data != null ? JsonSerializer.Serialize(data) : "";
+            if (encryptRequest && !string.IsNullOrEmpty(requestBody))
+            {
+                if (requestBody.Length >= 16)
+                    requestBody = Convert.ToBase64String(Encoding.UTF8.GetBytes(AtomicEncoder.Encrypt(requestBody)));
+                else
+                    requestBody = Convert.ToBase64String(Encoding.UTF8.GetBytes(requestBody));
+            }
+
+            using (var content = new StringContent(requestBody, Encoding.UTF8, "application/json"))
+            {
+                HttpResponseMessage response;
+                try
+                {
+                    response = await httpClient.PostAsync(url, content);
+                }
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Request failed: {ex.Message}");
+                    return default;
+                }
+
+                byte[] responseBytes = await response.Content.ReadAsByteArrayAsync();
+
+                if (decryptResponse && responseBytes.Length > 0)
+                {
+                    return AtomicEncoder.DecryptBytes(responseBytes);
+                }
+
+                return responseBytes;
             }
         }
     }
