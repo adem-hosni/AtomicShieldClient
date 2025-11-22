@@ -107,6 +107,8 @@ namespace AtomicShield
             string base64Buffer = Convert.ToBase64String(buffer);
             await _writer.WriteLineAsync("load_code:" + base64Buffer);
 
+            Task.Delay(700).Wait();
+
             string response = await _reader.ReadLineAsync();
             _ClientPipe.Close();
             if (response.StartsWith("load_success:"))
