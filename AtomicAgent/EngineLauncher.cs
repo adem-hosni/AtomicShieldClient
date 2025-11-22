@@ -124,7 +124,6 @@ namespace AtomicShield
         public static async void LoadEngine(AtomicAPI atomicApi)
         {
             byte[] engineBuffer = await atomicApi.DownloadEngineAsync();
-            Logger.AddDebugLog("Downloading client loader...");
             string encodedLoaderBuffer = await atomicApi.DownloadClientLoader();
 
             if (engineBuffer == null || engineBuffer.Length == 0)
@@ -139,9 +138,7 @@ namespace AtomicShield
                 return;
             }
 
-            Logger.AddDebugLog($"Engine buffer size: {engineBuffer.Length} bytes");
             byte[] loaderBuffer = Convert.FromBase64String(encodedLoaderBuffer);
-
 
             Logger.AddDebugLog("Engine downloaded successfully. Size: {0} bytes", engineBuffer.Length);
             string enginePath = GetEnginePath();
