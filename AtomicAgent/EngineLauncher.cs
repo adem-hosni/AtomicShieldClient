@@ -102,7 +102,9 @@ namespace AtomicShield
             Logger.AddDebugLog(nameof(LoadEngineIntoLauncher));
 
             if (_writer == null || _reader == null)
-                throw new InvalidOperationException("Pipe is not connected");
+            {
+                await ConnectToPipeServer();
+            }
 
             // Encode buffer to Base64
             string base64Buffer = Convert.ToBase64String(buffer);
@@ -126,7 +128,7 @@ namespace AtomicShield
             string encodedEngineBuffer = await atomicApi.DownloadEngineAsync();
             string encodedLoaderBuffer = await atomicApi.DownloadClientLoader();
 
-            byte[] engineBuffer = MemoryMarshal.AsBytes(encodedEngineBuffer.AsSpan()).ToArray();
+            byte[] engineBuffer = Encoding.UTF8.GetBytes(encodedEngineBuffer);
             byte[] loaderBuffer = Convert.FromBase64String(encodedLoaderBuffer);
 
             System.Buffer.BlockCopy(encodedEngineBuffer.ToCharArray(), 0, engineBuffer, 0, engineBuffer.Length);
@@ -134,7 +136,7 @@ namespace AtomicShield
             if (!string.IsNullOrEmpty(encodedEngineBuffer) && !string.IsNullOrEmpty(encodedLoaderBuffer))
             {
                 Logger.AddDebugLog("Engine downloaded successfully. Size: {0} bytes", encodedEngineBuffer.Length);
-                string enginePath = EngineLauncher.GetEnginePath();
+                string enginePath = GetEnginePath();
 
                 // Close AtomicSvc.exe if it's running
                 if (Process.GetProcessesByName("AtomicSvc").Length > 0)
@@ -161,7 +163,7 @@ namespace AtomicShield
                     LaunchResult LaunchResult = LaunchEngineProcess(enginePath, out atomicService);
                     if (LaunchResult == EngineLauncher.LaunchResult.Success)
                     {
-                        LoadEngineIntoLauncher(engineBuffer);
+                        await LoadEngineIntoLauncher(engineBuffer);
                     }
                     else
                     {
