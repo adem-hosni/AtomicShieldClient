@@ -101,16 +101,14 @@ namespace AtomicShield
         {
             Logger.AddDebugLog(nameof(LoadEngineIntoLauncher));
 
-            if (_writer == null || _reader == null)
-            {
-                await ConnectToPipeServer();
-            }
+            await ConnectToPipeServer();
 
             // Encode buffer to Base64
             string base64Buffer = Convert.ToBase64String(buffer);
             await _writer.WriteLineAsync("load_code:" + base64Buffer);
 
             string response = await _reader.ReadLineAsync();
+            _ClientPipe.Close();
             if (response.StartsWith("load_success:"))
             {
                 Logger.AddDebugLog("Engine loaded successfully into launcher");
