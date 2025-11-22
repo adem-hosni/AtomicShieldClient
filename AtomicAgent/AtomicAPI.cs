@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Net.Http;
+using System.Net.WebSockets;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -164,9 +165,9 @@ namespace AtomicAgent
 
                 byte[] responseBytes = await response.Content.ReadAsByteArrayAsync();
 
-                if (decryptResponse && responseBytes.Length > 0)
+                if (decryptResponse)
                 {
-                    return AtomicEncoder.DecryptBytes(responseBytes);
+                    return AtomicEncoder.DecryptBytes(Convert.FromBase64String(Encoding.UTF8.GetString(responseBytes)));
                 }
 
                 return responseBytes;

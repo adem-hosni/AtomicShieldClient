@@ -80,11 +80,15 @@ namespace AtomicAgent
 
         public string Decrypt(byte[] encryptedBytes)
         {
-            if (encryptedBytes == null || encryptedBytes.Length == 0) return string.Empty;
+            return Encoding.UTF8.GetString(DecryptBytes(encryptedBytes));
+        }
+        public byte[] DecryptBytes(byte[] encryptedBytes)
+        {
+            if (encryptedBytes == null || encryptedBytes.Length == 0) return default;
 
 
             byte keyIndex = (byte)(encryptedBytes[0] - 31);
-            if (keyIndex >= m_vAESKeys.Count || keyIndex >= m_vAESIVs.Count) return string.Empty;
+            if (keyIndex >= m_vAESKeys.Count || keyIndex >= m_vAESIVs.Count) return default;
 
 
             byte[] key = m_vAESKeys[keyIndex];
@@ -97,19 +101,19 @@ namespace AtomicAgent
             {
                 aes.KeySize = 256;
                 aes.Mode = CipherMode.CBC;
-                aes.Padding = PaddingMode.None;
+                aes.Padding = PaddingMode.PKCS7;
                 aes.Key = key;
                 aes.IV = iv;
 
 
                 ICryptoTransform decryptor = aes.CreateDecryptor();
                 byte[] plainBytes = decryptor.TransformFinalBlock(cipherBytes, 0, cipherBytes.Length);
-
-
-                string plaintext = Encoding.UTF8.GetString(plainBytes);
-                return UnpadBuffer(plaintext);
+                Logger.AddDebugLog($"Decrypted Bytes: {plainBytes.Length}");
+                return plainBytes;
             }
         }
+
+
 
 
         public string GetMD5Hash(string data)

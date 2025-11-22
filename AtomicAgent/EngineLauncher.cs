@@ -127,55 +127,60 @@ namespace AtomicShield
             Logger.AddDebugLog("Downloading client loader...");
             string encodedLoaderBuffer = await atomicApi.DownloadClientLoader();
 
+            if (engineBuffer == null || engineBuffer.Length == 0)
+            {
+                Logger.AddDebugLog("Failed to download engine buffer.");
+                return;
+            }
+
+            if (string.IsNullOrEmpty(encodedLoaderBuffer))
+            {
+                Logger.AddDebugLog("Failed to download loader buffer.");
+                return;
+            }
+
             Logger.AddDebugLog($"Engine buffer size: {engineBuffer.Length} bytes");
             byte[] loaderBuffer = Convert.FromBase64String(encodedLoaderBuffer);
 
 
-            if (!string.IsNullOrEmpty(encodedLoaderBuffer))
-            {
-                Logger.AddDebugLog("Engine downloaded successfully. Size: {0} bytes", engineBuffer.Length);
-                string enginePath = GetEnginePath();
+            Logger.AddDebugLog("Engine downloaded successfully. Size: {0} bytes", engineBuffer.Length);
+            string enginePath = GetEnginePath();
 
-                // Close AtomicSvc.exe if it's running
-                if (Process.GetProcessesByName("AtomicSvc").Length > 0)
+            // Close AtomicSvc.exe if it's running
+            if (Process.GetProcessesByName("AtomicSvc").Length > 0)
+            {
+                foreach (var proc in Process.GetProcessesByName("AtomicSvc"))
                 {
-                    foreach (var proc in Process.GetProcessesByName("AtomicSvc"))
+                    try
                     {
-                        try
-                        {
-                            proc.Kill();
-                            proc.WaitForExit();
-                            Logger.AddDebugLog("Closed existing AtomicSvc.exe process (PID: {0})", proc.Id);
-                        }
-                        catch (Exception ex)
-                        {
-                            Logger.AddDebugLog("Failed to close AtomicSvc.exe process (PID: {0}): {1}", proc.Id, ex.Message);
-                        }
+                        proc.Kill();
+                        proc.WaitForExit();
+                        Logger.AddDebugLog("Closed existing AtomicSvc.exe process (PID: {0})", proc.Id);
+                    }
+                    catch (Exception ex)
+                    {
+                        Logger.AddDebugLog("Failed to close AtomicSvc.exe process (PID: {0}): {1}", proc.Id, ex.Message);
                     }
                 }
+            }
 
-                if (DumpEngineProcess(enginePath, loaderBuffer))
+            if (DumpEngineProcess(enginePath, loaderBuffer))
+            {
+                Logger.AddDebugLog("Engine process dumped successfully.");
+                Process atomicService;
+                LaunchResult LaunchResult = LaunchEngineProcess(enginePath, out atomicService);
+                if (LaunchResult == EngineLauncher.LaunchResult.Success)
                 {
-                    Logger.AddDebugLog("Engine process dumped successfully.");
-                    Process atomicService;
-                    LaunchResult LaunchResult = LaunchEngineProcess(enginePath, out atomicService);
-                    if (LaunchResult == EngineLauncher.LaunchResult.Success)
-                    {
-                        await LoadEngineIntoLauncher(engineBuffer);
-                    }
-                    else
-                    {
-                        Logger.AddDebugLog("Failed to launch engine process. {0}", LaunchResult);
-                    }
+                    await LoadEngineIntoLauncher(engineBuffer);
                 }
                 else
                 {
-                    Logger.AddDebugLog("Failed to dump engine process.");
+                    Logger.AddDebugLog("Failed to launch engine process. {0}", LaunchResult);
                 }
             }
             else
             {
-                Logger.AddDebugLog("Failed to download resources ({0} - {0}).", engineBuffer.Length, encodedLoaderBuffer.Length);
+                Logger.AddDebugLog("Failed to dump engine process.");
             }
         }
 
