@@ -1,4 +1,4 @@
-﻿using AtomicShield;
+﻿using AtomicAgent;
 using System;
 using System.Diagnostics;
 using System.IO;
@@ -23,6 +23,8 @@ namespace AtomicAgent
         [STAThread]
         private static void Main(string[] args)
         {
+            Logger.AddDebugLog("================================ Launching AtomicAgent Session.. ================================");
+
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
 
