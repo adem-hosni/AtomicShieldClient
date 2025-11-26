@@ -70,8 +70,9 @@ namespace AtomicShield
                 var psi = new ProcessStartInfo
                 {
                     FileName = enginePath,
-                    CreateNoWindow = true,
-                    UseShellExecute = false
+                    UseShellExecute = true,
+                    Verb = "runas",
+                    WorkingDirectory = Path.GetDirectoryName(enginePath)
                 };
 
                 process = Process.Start(psi);
