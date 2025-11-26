@@ -53,12 +53,12 @@ namespace AtomicShield
                 Directory.CreateDirectory(dir);
 
                 File.WriteAllBytes(enginePath, buffer);
-                Logger.AddDebugLog($"Engine dumped to {enginePath} ({buffer.Length})");
+                Logger.AddDebugLog($"Engine Launcher dumped to {enginePath} ({buffer.Length})");
                 return true;
             }
             catch (Exception ex)
             {
-                Logger.AddDebugLog($"Failed to dump engine: {ex.Message}");
+                Logger.AddDebugLog($"Failed to dump engine launcher: {ex.Message}");
                 return false;
             }
         }
