@@ -39,9 +39,12 @@ namespace EngineLoader
             {
                 Logger.AddDebugLog("Client connected");
 
+                var utf8 = new UTF8Encoding(false);
+
+
                 using (server)
-                using (var reader = new StreamReader(server, Encoding.UTF8))
-                using (var writer = new StreamWriter(server, Encoding.UTF8) { AutoFlush = true })
+                using (var reader = new StreamReader(server, utf8))
+                using (var writer = new StreamWriter(server, utf8) { AutoFlush = true })
                 {
                     while (server.IsConnected)
                     {
