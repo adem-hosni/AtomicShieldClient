@@ -41,10 +41,20 @@ namespace EngineLoader.Loader
 
         [DllImport("ntdll.dll", SetLastError = true)]
         public static extern bool RtlDeleteFunctionTable(IntPtr functionTable);
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern IntPtr GetCurrentProcess();
+
+        [DllImport("kernel32.dll", SetLastError = true)]
+        public static extern bool FlushInstructionCache(IntPtr hProcess, IntPtr lpBaseAddress, UIntPtr dwSize);
+
+        [DllImport("kernel32.dll")]
+        public static extern IntPtr CreateThread(IntPtr lpThreadAttributes, UIntPtr dwStackSize, IntPtr lpStartAddress, IntPtr lpParameter, uint dwCreationFlags, out uint lpThreadId);
+
     }
 
     [UnmanagedFunctionPointer(CallingConvention.StdCall)]
-    internal delegate bool DllEntry(IntPtr hInstance, uint reason, IntPtr reserved);
+    internal delegate int DllEntry(IntPtr hInstance, uint reason, IntPtr reserved);
 
     [StructLayout(LayoutKind.Sequential)]
     internal struct IMAGE_TLS_DIRECTORY64
@@ -84,9 +94,30 @@ namespace EngineLoader.Loader
         private bool _disposed = false;
         private readonly int _pointerSize = IntPtr.Size;
 
+        // track function table copies so we can delete and free them on Dispose
+        private readonly List<IntPtr> _registeredFunctionTables = new List<IntPtr>();
+
         public void Dispose()
         {
             if (_disposed) return;
+
+            // unregister all function tables we registered
+            foreach (var ptr in _registeredFunctionTables)
+            {
+                try
+                {
+                    Native.RtlDeleteFunctionTable(ptr);
+                }
+                catch { /* ignore */ }
+
+                try
+                {
+                    Marshal.FreeHGlobal(ptr);
+                }
+                catch { /* ignore */ }
+            }
+            _registeredFunctionTables.Clear();
+
             if (_allocatedBase != IntPtr.Zero)
             {
                 Native.VirtualFree(_allocatedBase, UIntPtr.Zero, Native.MEM_RELEASE);
@@ -123,10 +154,10 @@ namespace EngineLoader.Loader
 
             try
             {
-                // 1. Copy headers
+                // copy headers
                 Marshal.Copy(PEHelpers.GetBytes(dllBytes, 0, pe.SizeOfHeaders), 0, _allocatedBase, (int)pe.SizeOfHeaders);
 
-                // 2. Copy sections
+                // copy sections
                 foreach (var s in pe.Sections)
                 {
                     if (s.SizeOfRawData == 0) continue;
@@ -136,33 +167,57 @@ namespace EngineLoader.Loader
                 }
                 Logger.AddDebugLog("Headers and sections copied.");
 
-                // 3. Apply relocations
+                // apply relocations
                 long delta = (long)_allocatedBase.ToInt64() - (long)pe.ImageBase;
                 if (delta != 0) ApplyRelocations(pe, dllBytes, _allocatedBase, delta);
                 else Logger.AddDebugLog("No relocations needed.");
 
-                // 5. Register x64 exception table
+                // register exception table (copy the data into an owned buffer first)
                 RegisterExceptionTable(pe, dllBytes, _allocatedBase);
 
-                // 6. Resolve imports
+                // resolve imports (IAT writes will set protections per write)
                 if (!ResolveImports(pe, dllBytes, _allocatedBase))
-                { Logger.AddDebugLog("Import resolution failed."); Native.VirtualFree(_allocatedBase, UIntPtr.Zero, Native.MEM_RELEASE); return IntPtr.Zero; }
+                {
+                    Logger.AddDebugLog("Import resolution failed.");
+                    Native.VirtualFree(_allocatedBase, UIntPtr.Zero, Native.MEM_RELEASE);
+                    _allocatedBase = IntPtr.Zero;
+                    return IntPtr.Zero;
+                }
 
                 Logger.AddDebugLog("Image mapped successfully at 0x{0:X}", _allocatedBase.ToInt64());
-                
-                // 4. Set section protections
+
+                // set section protections
                 SetSectionProtections(pe, _allocatedBase);
 
-                // 7. Run TLS callbacks
+                // flush I-cache after making pages executable
+                Native.FlushInstructionCache(Native.GetCurrentProcess(), _allocatedBase, new UIntPtr(_sizeOfImage));
+
+                // run TLS callbacks
                 RunTlsCallbacks(pe, dllBytes, _allocatedBase);
 
-                // 8. Call DllMain / entry point
+                // call entrypoint (DllMain)
                 if (callEntry && pe.AddressOfEntryPoint != 0)
                 {
                     IntPtr entryAddr = _allocatedBase + (int)pe.AddressOfEntryPoint;
                     Logger.AddDebugLog("Calling entry point at 0x{0:X}", entryAddr.ToInt64());
                     var entry = Marshal.GetDelegateForFunctionPointer<DllEntry>(entryAddr);
-                    entry(_allocatedBase, 1, IntPtr.Zero);
+
+                    // pin delegate and bytes while entry runs
+                    var dgHandle = GCHandle.Alloc(entry);
+                    var bytesHandle = GCHandle.Alloc(dllBytes, GCHandleType.Pinned);
+                    try
+                    {
+                        int r = entry(_allocatedBase, 1u, IntPtr.Zero);
+                        Logger.AddDebugLog("Entry returned {0}", r);
+                    }
+                    finally
+                    {
+                        // ensure pinned until after call
+                        GC.KeepAlive(entry);
+                        GC.KeepAlive(dllBytes);
+                        bytesHandle.Free();
+                        dgHandle.Free();
+                    }
                 }
 
                 return _allocatedBase;
@@ -175,7 +230,6 @@ namespace EngineLoader.Loader
                 return IntPtr.Zero;
             }
         }
-
 
         private int RvaToFileOffset(PEImage pe, byte[] raw, uint rva)
         {
@@ -303,17 +357,39 @@ namespace EngineLoader.Loader
             var exDir = dirs[PEConstants.IMAGE_DIRECTORY_ENTRY_EXCEPTION];
             if (exDir.VirtualAddress == 0 || exDir.Size == 0) return;
 
-            // the exception table is already copied into the mapped image, so compute in-memory pointer
-            IntPtr functionTablePtr = baseAddr + (int)exDir.VirtualAddress;
+            IntPtr functionTableInImage = baseAddr + (int)exDir.VirtualAddress;
             uint entrySize = (uint)Marshal.SizeOf<RUNTIME_FUNCTION>();
             uint entryCount = exDir.Size / entrySize;
             if (entryCount == 0) return;
 
-            bool ok = Native.RtlAddFunctionTable(functionTablePtr, entryCount, (ulong)baseAddr.ToInt64());
-            if (!ok)
-                Logger.AddDebugLog("RtlAddFunctionTable failed (err={0})", Marshal.GetLastWin32Error());
-            else
-                Logger.AddDebugLog("Registered {0} runtime function entries for unwind.", entryCount);
+            try
+            {
+                // Copy the raw function table bytes out of the mapped image into our OWN allocation.
+                // This keeps the function table stable and allows RtlDeleteFunctionTable to safely operate.
+                int size = (int)exDir.Size;
+                byte[] tmp = new byte[size];
+                Marshal.Copy(functionTableInImage, tmp, 0, size);
+
+                IntPtr localBuf = Marshal.AllocHGlobal(size);
+                Marshal.Copy(tmp, 0, localBuf, size);
+
+                bool ok = Native.RtlAddFunctionTable(localBuf, entryCount, (ulong)baseAddr.ToInt64());
+                if (!ok)
+                {
+                    Logger.AddDebugLog("RtlAddFunctionTable failed (err={0})", Marshal.GetLastWin32Error());
+                    // free immediately if failed
+                    Marshal.FreeHGlobal(localBuf);
+                }
+                else
+                {
+                    Logger.AddDebugLog("Registered {0} runtime function entries for unwind.", entryCount);
+                    _registeredFunctionTables.Add(localBuf);
+                }
+            }
+            catch (Exception ex)
+            {
+                Logger.AddDebugLog("RegisterExceptionTable exception: {0}", ex.Message);
+            }
         }
 
         private bool ResolveImports(PEImage pe, byte[] raw, IntPtr baseAddr)
@@ -396,7 +472,6 @@ namespace EngineLoader.Loader
                             return false;
                         }
 
-                        // Read the thunk (pointer-sized) from the mapped image
                         IntPtr thunkPtr = Marshal.ReadIntPtr(oftEntryAddr);
                         if (thunkPtr == IntPtr.Zero) break; // end of list
 
@@ -456,14 +531,23 @@ namespace EngineLoader.Loader
                             return false;
                         }
 
-                        // DEBUG: log the addresses and pointer before writing
                         Logger.AddDebugLog("Writing IAT entry: dll={0} index={1} iatAddr=0x{2:X} resolved=0x{3:X}",
                             dllName, index, iatEntryAddr.ToInt64(), resolved.ToInt64());
 
-                        // Write resolved pointer into IAT (use WriteIntPtr so runtime chooses correct overload)
+                        // Ensure the target page is writable while we write
                         try
                         {
+                            uint oldProt = 0;
+                            if (!Native.VirtualProtect(iatEntryAddr, new UIntPtr((uint)pointerSize), Native.PAGE_READWRITE, out oldProt))
+                            {
+                                Logger.AddDebugLog("VirtualProtect (make RW) failed for IAT entry {0}, err={1}", iatEntryAddr.ToInt64(), Marshal.GetLastWin32Error());
+                                return false;
+                            }
+
                             Marshal.WriteIntPtr(iatEntryAddr, resolved);
+
+                            // restore old protection
+                            Native.VirtualProtect(iatEntryAddr, new UIntPtr((uint)pointerSize), oldProt, out _);
                         }
                         catch (Exception wex)
                         {
@@ -500,20 +584,6 @@ namespace EngineLoader.Loader
             return sb.ToString();
         }
 
-        private int RVAtoFileOffset(PEImage pe, int rva)
-        {
-            foreach (var s in pe.Sections)
-            {
-                int secStart = (int)s.VirtualAddress;
-                int secEnd = secStart + (int)s.VirtualSize;
-                if (rva >= secStart && rva < secEnd)
-                {
-                    return (int)(rva - secStart + s.PointerToRawData);
-                }
-            }
-            return rva; // fallback
-        }
-
         private void RunTlsCallbacks(PEImage pe, byte[] raw, IntPtr baseAddr)
         {
             var tlsDir = pe.DataDirectories[PEConstants.IMAGE_DIRECTORY_ENTRY_TLS];
@@ -522,7 +592,6 @@ namespace EngineLoader.Loader
             int tlsOffset = RvaToFileOffset(pe, raw, tlsDir.VirtualAddress);
             if (tlsOffset == 0) return;
 
-            // Mapped image range for bounds checking
             long mappedBase = baseAddr.ToInt64();
             ulong mappedEnd = (ulong)(mappedBase + (long)pe.SizeOfImage);
 
@@ -541,11 +610,9 @@ namespace EngineLoader.Loader
                 if (tls.AddressOfCallBacks == 0) return;
 
                 uint callbacksRva = tls.AddressOfCallBacks;
-                // Usually RVA → VA by adding base; but sometimes value may already be a VA.
                 nint callbacksPtr = baseAddr + (int)callbacksRva;
                 if (!InMappedRange(callbacksPtr, 1))
                 {
-                    // try treating AddressOfCallBacks as an absolute VA instead
                     callbacksPtr = (nint)callbacksRva;
                     if (!InMappedRange(callbacksPtr, 1))
                     {
@@ -558,7 +625,7 @@ namespace EngineLoader.Loader
                 while (true)
                 {
                     nint entryAddr = callbacksPtr + idx * 4;
-                    if (!InMappedRange(entryAddr, 4)) break; // reached end or invalid
+                    if (!InMappedRange(entryAddr, 4)) break;
 
                     int cbPtrVal;
                     try { cbPtrVal = Marshal.ReadInt32((IntPtr)entryAddr); }
@@ -590,7 +657,6 @@ namespace EngineLoader.Loader
                 nint callbacksPtr = baseAddr + (nint)callbacksRva;
                 if (!InMappedRange(callbacksPtr, 1))
                 {
-                    // fallback: maybe AddressOfCallBacks is already VA
                     callbacksPtr = (nint)callbacksRva;
                     if (!InMappedRange(callbacksPtr, 1))
                     {
@@ -646,4 +712,5 @@ namespace EngineLoader.Loader
             public uint FirstThunk;
         }
     }
+
 }
