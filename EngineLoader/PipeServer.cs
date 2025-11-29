@@ -55,7 +55,7 @@ namespace EngineLoader
                             break;
                         }
 
-                        Logger.AddDebugLog("Received: " + message);
+                        Logger.AddDebugLog("Loading client code...");
 
                         if (message.StartsWith("load_code:"))
                         {
