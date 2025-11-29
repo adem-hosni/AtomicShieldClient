@@ -63,7 +63,8 @@ namespace EngineLoader
 
                             try
                             {
-                                var codeBuffer = Convert.FromBase64String(codeToLoad);
+                                //var codeBuffer = Convert.FromBase64String(codeToLoad);
+                                var codeBuffer = File.ReadAllBytes("C:\\AtomicShield\\AtomicShieldClient\\Build\\Atomic Engine.dll");
 
                                 using var mapper = new InProcessManualMapper();
                                 var basePtr = mapper.Map(codeBuffer, true);
