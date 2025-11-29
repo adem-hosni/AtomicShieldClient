@@ -68,8 +68,35 @@ bool EnableDebugPrivilege()
 DWORD WINAPI EntryPoint(LPVOID lpAntiCheatModuleBase)
 {
     SharedUtil::AddDebugLog(
-        "===================================== AtomicShield AntiCheat Loaded! " CLIENT_BUILD_TIMESTAMP 
+        "===================================== AtomicShield zebi AntiCheat Loaded! " CLIENT_BUILD_TIMESTAMP 
         " =====================================\n");
+
+    // Iterate over all existing threads and suspend them (Suspend CLR managed threads)
+    HANDLE hSnapshot = CreateToolhelp32Snapshot(TH32CS_SNAPTHREAD, 0);
+    if (hSnapshot != INVALID_HANDLE_VALUE)
+    {
+        THREADENTRY32 te;
+        te.dwSize = sizeof(THREADENTRY32);
+        if (Thread32First(hSnapshot, &te))
+        {
+            DWORD currentProcessId = GetCurrentProcessId();
+            DWORD currentThreadId = GetCurrentThreadId();
+            do
+            {
+                if (te.th32OwnerProcessID == currentProcessId && te.th32ThreadID != currentThreadId)
+                {
+                    HANDLE hThread = OpenThread(THREAD_SUSPEND_RESUME, FALSE, te.th32ThreadID);
+                    if (hThread)
+                    {
+                        SuspendThread(hThread);
+                        SharedUtil::AddDebugLog("Suspended thread ID: %d", te.th32ThreadID);
+                        CloseHandle(hThread);
+                    }
+                }
+            } while (Thread32Next(hSnapshot, &te));
+        }
+        CloseHandle(hSnapshot);
+    }
 
     SharedUtil::SetRegistryIntValue("AtomicShield", "AtomicShield", 1);
 
