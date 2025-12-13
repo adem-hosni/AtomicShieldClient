@@ -11,7 +11,7 @@ void BasicChecks::CheckPlugins()
 
     if (!std::filesystem::exists(basePath))
     {
-        SharedUtil::AddDebugLog("Plugins directory does not exist: ", basePath);
+        SharedUtil::AddDebugLog("Plugins directory does not exist: %s", basePath.c_str());
         return;
     }
 
@@ -22,7 +22,7 @@ void BasicChecks::CheckPlugins()
             std::string fileName = entry.path().filename().string();
             if (fileName.find("d3d9") != std::string::npos || fileName.find("d3d10") != std::string::npos)
             {
-                SharedUtil::AddDebugLog("Found Dll ", fileName);
+                SharedUtil::AddDebugLog("Found Module %s", fileName.c_str());
                 g_pAtomicAntiCheat->NotifyDetection(eDetectionType::DLL_FOUND, {{"plugin", fileName}}, false);
             }
         }
@@ -199,7 +199,6 @@ void BasicChecks::CheckBlacklistedDrivers()
             }
         }
         std::this_thread::sleep_for(std::chrono::seconds(6));
-
     }
 }
 
@@ -362,7 +361,7 @@ bool isMemoryIntegrityEnabled()
     HRESULT hres = CoInitializeEx(0, COINIT_MULTITHREADED);
     if (FAILED(hres))
     {
-        SharedUtil::AddDebugLog("CoInitializeEx failed: " , std::to_string(hres));
+        SharedUtil::AddDebugLog("CoInitializeEx failed: %llx", hres);
         return false;
     }
     SharedUtil::AddDebugLog("CoInitializeEx succeeded.");
@@ -370,7 +369,7 @@ bool isMemoryIntegrityEnabled()
     hres = CoInitializeSecurity(NULL, -1, NULL, NULL, RPC_C_AUTHN_LEVEL_DEFAULT, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE, NULL);
     if (FAILED(hres))
     {
-        SharedUtil::AddDebugLog("CoInitializeSecurity failed: " , std::to_string(hres));
+        SharedUtil::AddDebugLog("CoInitializeSecurity failed: %llx", hres);
     }
     else
     {
@@ -380,7 +379,7 @@ bool isMemoryIntegrityEnabled()
         hres = CoCreateInstance(CLSID_WbemLocator, 0, CLSCTX_INPROC_SERVER, IID_IWbemLocator, (LPVOID*)&pLoc);
         if (FAILED(hres) || !pLoc)
         {
-            SharedUtil::AddDebugLog("CoCreateInstance for IWbemLocator failed: " , std::to_string(hres));
+            SharedUtil::AddDebugLog("CoCreateInstance for IWbemLocator failed: %lx", hres);
         }
         else
         {
@@ -390,7 +389,7 @@ bool isMemoryIntegrityEnabled()
             hres = pLoc->ConnectServer(_bstr_t(L"ROOT\\Microsoft\\Windows\\DeviceGuard"), NULL, NULL, 0, NULL, 0, 0, &pSvc);
             if (FAILED(hres) || !pSvc)
             {
-                SharedUtil::AddDebugLog("ConnectServer to ROOT\\Microsoft\\Windows\\DeviceGuard failed: " , std::to_string(hres));
+                SharedUtil::AddDebugLog("ConnectServer to ROOT\\Microsoft\\Windows\\DeviceGuard failed: 0x%08lX", hres);
             }
             else
             {
@@ -399,7 +398,7 @@ bool isMemoryIntegrityEnabled()
                 hres = CoSetProxyBlanket(pSvc, RPC_C_AUTHN_WINNT, RPC_C_AUTHZ_NONE, NULL, RPC_C_AUTHN_LEVEL_CALL, RPC_C_IMP_LEVEL_IMPERSONATE, NULL, EOAC_NONE);
                 if (FAILED(hres))
                 {
-                    SharedUtil::AddDebugLog("CoSetProxyBlanket failed: " , std::to_string(hres));
+                    SharedUtil::AddDebugLog("CoSetProxyBlanket failed: 0x%08lX", hres);
                 }
                 else
                 {
@@ -411,7 +410,7 @@ bool isMemoryIntegrityEnabled()
 
                     if (FAILED(hres) || !pEnumerator)
                     {
-                        SharedUtil::AddDebugLog("ExecQuery for Win32_DeviceGuard failed: " , std::to_string(hres));
+                        SharedUtil::AddDebugLog("ExecQuery for Win32_DeviceGuard failed: 0x%08lX", hres);
                     }
                     else
                     {
@@ -434,9 +433,9 @@ bool isMemoryIntegrityEnabled()
                             {
                                 SharedUtil::AddDebugLog("Retrieved SecurityServicesRunning property.");
 
-                                if (vtProp.vt == (VT_ARRAY | VT_I4))
+                                if (V_VT(&vtProp) == (VT_ARRAY | VT_I4))
                                 {
-                                    SAFEARRAY* psa = vtProp.parray;
+                                    SAFEARRAY* psa = V_ARRAY(&vtProp);
                                     LONG       lBound, uBound;
                                     SafeArrayGetLBound(psa, 1, &lBound);
                                     SafeArrayGetUBound(psa, 1, &uBound);
@@ -445,7 +444,7 @@ bool isMemoryIntegrityEnabled()
                                     {
                                         LONG val;
                                         SafeArrayGetElement(psa, &i, &val);
-                                        SharedUtil::AddDebugLog("SecurityServiceRunning value: " , std::to_string(val));
+                                        SharedUtil::AddDebugLog("SecurityServiceRunning value: %llx", val);
 
                                         if (val == 2)            // 2 = HVCI
                                         {
@@ -461,7 +460,7 @@ bool isMemoryIntegrityEnabled()
                             }
                             else
                             {
-                                SharedUtil::AddDebugLog("Failed to get SecurityServicesRunning property: " , std::to_string(hr));
+                                SharedUtil::AddDebugLog("Failed to get SecurityServicesRunning property: %llx", hr);
                             }
 
                             VariantClear(&vtProp);
@@ -490,7 +489,7 @@ bool isMemoryIntegrityEnabled()
         DWORD size = sizeof(hvci);
         if (RegGetValueW(hKey, NULL, L"Enabled", RRF_RT_REG_DWORD, NULL, &hvci, &size) == ERROR_SUCCESS)
         {
-            SharedUtil::AddDebugLog("Registry HVCI Enabled value: " , std::to_string(hvci));
+            SharedUtil::AddDebugLog("Registry HVCI Enabled value: %llx", hvci);
             if (hvci == 1)
             {
                 hvciEnabled = true;
@@ -522,7 +521,6 @@ void BasicChecks::CheckSecurityFeatures()
     {
         g_pAtomicAntiCheat->NotifyDetection(eDetectionType::MEMORY_INTEGRITY_DISABLED, {}, false);
     }
-
 }
 void BasicChecks::TestsigningEnabled()
 {
