@@ -39,6 +39,7 @@ bool CPipeServer::Run()
         return false;
 
     std::thread t(&CPipeServer::DoPulse, this);
+    t.join();
 }
 
 void CPipeServer::DoPulse()
