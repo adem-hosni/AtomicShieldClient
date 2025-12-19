@@ -1,5 +1,4 @@
-#include "CAtomicAntiCheat.h"
-#include "SharedUtil.h"
+#include "StdInc.h"
 
 CAtomicAntiCheat* g_pAtomicAntiCheat = new CAtomicAntiCheat();
 

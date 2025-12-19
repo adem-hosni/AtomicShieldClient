@@ -82,11 +82,11 @@
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <OutDir>$(SolutionDir)Build</OutDir>
-    <IntDir>$(SolutionDir)Cache\$(Platform)</IntDir>
+    <IntDir>$(SolutionDir)Cache</IntDir>
     <TargetName>Atomic Engine</TargetName>
-    <IncludePath>$(WindowsSDK_IncludePath);$(VC_IncludePath);$(ProjectDir);$(SolutionDir)Shared\Vendor;$(SolutionDir)Shared;$(ProjectDir)Vendor</IncludePath>
+    <IncludePath>$(SolutionDir)Shared\Vendor;$(WindowsSDK_IncludePath);$(VC_IncludePath);$(ProjectDir);$(ProjectDir)Vendor</IncludePath>
     <LibraryPath>C:\vcpkg\installed\x64-windows-static\lib;$(ProjectDir)Vendor;$(LibraryPath)</LibraryPath>
-    <ExternalIncludePath>C:\vcpkg\installed\x64-windows-static\include;$(SolutionDir)Shared;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Vendor</ExternalIncludePath>
+    <ExternalIncludePath>C:\vcpkg\installed\x64-windows-static\include;$(VC_IncludePath);$(WindowsSDK_IncludePath);$(ProjectDir)Vendor</ExternalIncludePath>
     <LinkIncremental>false</LinkIncremental>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
@@ -134,12 +134,13 @@
       <LanguageStandard>stdcpp20</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <AdditionalIncludeDirectories>$(SolutionDir)Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>false</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(OutputPath)Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;ntdll.lib;Gdiplus.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
@@ -157,7 +158,6 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <StringPooling>true</StringPooling>
       <BufferSecurityCheck>false</BufferSecurityCheck>
-      <ControlFlowGuard>false</ControlFlowGuard>
       <EnableParallelCodeGeneration>true</EnableParallelCodeGeneration>
       <FloatingPointModel>Fast</FloatingPointModel>
       <IntelJCCErratum>true</IntelJCCErratum>
@@ -169,6 +169,7 @@
       <LanguageStandard_C>stdclatest</LanguageStandard_C>
       <RuntimeTypeInfo>false</RuntimeTypeInfo>
       <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <AdditionalIncludeDirectories>$(SolutionDir)Shared;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -176,7 +177,7 @@
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>DebugFull</GenerateDebugInformation>
       <EnableUAC>false</EnableUAC>
-      <AdditionalDependencies>$(OutputPath)Shared.lib;ws2_32.lib;ntdll.lib;Gdiplus.lib;winhttp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>ws2_32.lib;ntdll.lib;Gdiplus.lib;winhttp.lib;zlib.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
@@ -270,7 +271,6 @@
     <ClInclude Include="Structs.h" />
     <ClInclude Include="Utils.h" />
     <ClInclude Include="Vendor\CRC32\CRC32.h" />
-    <ClInclude Include="Vendor\Detours\detours.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXBase64.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXBench.h" />
     <ClInclude Include="Vendor\ixwebsocket\IXCancellationRequest.h" />
@@ -331,6 +331,11 @@
     <MASM Include="KernelCalls.x64.asm">
       <FileType>Document</FileType>
     </MASM>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Shared\Shared.vcxproj">
+      <Project>{4e58b5b0-73c8-4a5d-b79b-9bfaa2371e3c}</Project>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

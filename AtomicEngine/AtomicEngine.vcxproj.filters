@@ -218,9 +218,6 @@
     <ClInclude Include="Vendor\CRC32\CRC32.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Vendor\Detours\detours.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="Vendor\ixwebsocket\IXBase64.h">
       <Filter>Header Files</Filter>
     </ClInclude>
