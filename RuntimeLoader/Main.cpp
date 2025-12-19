@@ -1,3 +1,5 @@
+#define _CRT_SECURE_NO_WARNINGS
+
 #include <iostream>
 #include <windows.h>
 #include "RuntimeLoader.h"
@@ -5,6 +7,7 @@
 
 int main()
 {
+    // Debug
     FILE* pFile = fopen("C:\\AtomicShield\\AtomicShieldClient\\Build\\Atomic Engine.dll", "rb");
     fseek(pFile, 0, SEEK_END);
     SIZE_T fsize = ftell(pFile);

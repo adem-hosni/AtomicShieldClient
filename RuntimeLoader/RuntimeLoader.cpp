@@ -1,8 +1,6 @@
-#define _CRT_SECURE_NO_WARNINGS
 #include <iostream>
 #include "RuntimeLoader.h"
 #include "XorStr.h"
-#include "SharedUtil.h"
 
 typedef LPVOID(__stdcall* f_VirtualAlloc)(LPVOID, SIZE_T, DWORD, DWORD);
 typedef BOOL(__stdcall* f_VirtualProtect)(LPVOID, SIZE_T, DWORD, PDWORD);
