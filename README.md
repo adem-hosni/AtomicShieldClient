@@ -40,7 +40,7 @@ AtomicShield is a multi-layered anti-cheat solution. It combines a user-facing t
 
 | Component | Language | Description |
 |-----------|----------|-------------|
-| [`AtomicAgent/`](AtomicAgent/) | C# WinForms | System tray agent with WebView2 UI, encrypted API client, engine loader IPC |
+| [`AtomicAgent/`](AtomicAgent/) | C# (.NET 8, WebView2) | System tray agent with WebView2 HTML/JS dashboard, encrypted API client, engine loader IPC |
 | [`AtomicEngine/`](AtomicEngine/) | C++ DLL | Core anti-cheat engine — guards, anti-debugging, network, HWID, crash reports |
 | [`EngineLoader/`](EngineLoader/) | C# Console | Named pipe server that manually maps the engine DLL into its own process |
 | [`RuntimeLoader/`](RuntimeLoader/) | C++ EXE | Alternate native loader with named pipe + manual mapping |
@@ -76,7 +76,7 @@ AtomicShield is a multi-layered anti-cheat solution. It combines a user-facing t
 ## Build Prerequisites
 
 - Visual Studio 2022
-- .NET Framework 4.8 SDK
+- .NET 8 SDK
 - C++ Clang tools (`clang-cl`)
 - UPX (optional, for compression)
 - Code signing certificate (optional)
