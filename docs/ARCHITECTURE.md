@@ -9,7 +9,7 @@ AtomicShield is a multi-component anti-cheat system designed for FiveM game serv
 │                         User Context                                 │
 │                                                                      │
 │  ┌──────────────────────────────────────────────────────────────┐    │
-│  │                    AtomicAgent (C# WinForms)                  │    │
+│  │                    AtomicAgent (C# .NET 8)                    │    │
 │  │  ┌─────────────┐  ┌───────────┐  ┌───────────────────────┐  │    │
 │  │  │ Dashboard    │  │ AtomicAPI │  │ EngineLauncher        │  │    │
 │  │  │ (WebView2)   │  │ (REST)    │  │ (Pipe IPC to Loader)  │  │    │

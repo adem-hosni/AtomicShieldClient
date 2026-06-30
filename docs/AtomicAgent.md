@@ -1,8 +1,8 @@
 # AtomicAgent
 
 **Location:** `AtomicAgent/`  
-**Language:** C# (.NET Framework, Windows Forms)  
-**Role:** User-facing system tray agent — manages the anti-cheat lifecycle, provides a WebView2 dashboard UI, communicates with the backend API, and orchestrates engine loading.
+**Language:** C# (.NET 8, WebView2)  
+**Role:** User-facing system tray agent — manages the anti-cheat lifecycle, provides an HTML/JS dashboard via WebView2, communicates with the backend API, and orchestrates engine loading.
 
 ## Files
 
@@ -78,7 +78,7 @@ Contains static byte arrays:
 
 ## Dependencies
 
-- .NET Framework 4.8
+- .NET 8
 - `Microsoft.Web.WebView2` — WebView2 control
 - `System.IO.Pipes` — Named pipe IPC
-- `Microsoft.Win32.TaskScheduler` — Auto-start registration
+- `TaskScheduler` — Auto-start registration

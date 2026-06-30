@@ -1,7 +1,7 @@
 # EngineLoader
 
 **Location:** `EngineLoader/`  
-**Language:** C# (.NET Framework, Console)  
+**Language:** C# (.NET 8, Native AOT)  
 **Role:** Named pipe server that receives the AtomicEngine DLL from AtomicAgent and maps it into its own process using manual PE loading.
 
 ## Files
