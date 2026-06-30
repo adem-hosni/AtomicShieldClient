@@ -2,11 +2,7 @@
 
 > **FiveM Anti-Cheat System** — Version 2.2.5-beta
 
-AtomicShield is a multi-layered anti-cheat solution for FiveM servers. It combines a user-facing tray agent (C#), a native injection engine (C++), and a suite of runtime guards (memory scanning, process monitoring, anti-debugging) to detect and prevent cheating in real-time.
-
-## Repository
-
-<https://github.com/AtomicShieldServer/AtomicShieldClient>
+AtomicShield is a multi-layered anti-cheat solution. It combines a user-facing tray agent (C#), a native injection engine (C++), and a suite of runtime guards (memory scanning, process monitoring, anti-debugging) to detect and prevent cheating in real-time.
 
 ## Architecture Overview
 
@@ -17,16 +13,16 @@ AtomicShield is a multi-layered anti-cheat solution for FiveM servers. It combin
 │  - Encrypted REST API client for auth/status                     │
 │  - Downloads & launches EngineLoader via named pipe              │
 └──────────────┬────────────────────────────────────────┬──────────┘
-               │ named pipe                              │
-               ▼                                         ▼
+               │ named pipe                             │
+               ▼                                        ▼
 ┌──────────────────────────────┐    ┌──────────────────────────────┐
 │     EngineLoader (C#)        │    │   RuntimeLoader (C++)        │
 │  - Named pipe server         │    │  - Named pipe server         │
 │  - InProcessManualMapper     │    │  - SelfMapModule mapper      │
 │  - Maps AtomicEngine DLL     │    │  - Maps AtomicEngine DLL     │
 └──────────────┬───────────────┘    └──────────────┬───────────────┘
-               │ manual map                          │ manual map
-               └─────────────────┬──────────────────┘
+               │ manual map                        │ manual map
+               └─────────────────┬─────────────────┘
                                  ▼
 ┌──────────────────────────────────────────────────────────────────┐
 │                     AtomicEngine (C++ DLL)                        │
