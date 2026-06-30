@@ -59,7 +59,7 @@ RuntimeLoader.exe launched
 | Pipe name | `\\.\pipe\AtomicPipe` | `\\.\pipe\AtomicRuntime` |
 | Entry call | Direct function pointer | `CreateThread` + wait |
 | Exception handling | `RtlAddFunctionTable` | Not implemented |
-| Dependencies | .NET Framework 4.8 | None (pure Win32) |
+| Dependencies | .NET 8 (Native AOT) | None (pure Win32) |
 | String obfuscation | N/A | `XorStr.h` / skCrypter |
 
 ## Dependencies
