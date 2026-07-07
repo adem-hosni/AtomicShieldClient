@@ -24,7 +24,7 @@ AtomicShield is a multi-layered anti-cheat solution. It combines a user-facing t
                │ manual map                        │ manual map
                └─────────────────┬─────────────────┘
                                  ▼
-┌──────────────────────────────────────────────────────────────────┐
+┌───────────────────────────────────────────────────────────────────┐
 │                     AtomicEngine (C++ DLL)                        │
 │  - WebSocket + HTTP encrypted network                             │
 │  - 12 anti-debugging methods                                      │
@@ -33,7 +33,7 @@ AtomicShield is a multi-layered anti-cheat solution. It combines a user-facing t
 │  - Manual Mapping Guard (PE header detection)                     │
 │  - Crash reporting / Screenshot capture / HWID                    │
 │  - Blacklisted driver scanning (~40 drivers)                      │
-└──────────────────────────────────────────────────────────────────┘
+└───────────────────────────────────────────────────────────────────┘
 ```
 
 ## Components
@@ -109,5 +109,5 @@ MIT — Copyright (c) 2024 Hyper
 
 ## Related Repositories
 
-- [AtomicShield Server](https://github.com/AtomicShieldServer) — Backend API and WebSocket server
-- [AtomicShield Platform](https://github.com/atomicshield-platform) — Management dashboard UI
+- [AtomicShield Server](https://github.com/adem-hosni/AtomicShieldServer) — Backend API and WebSocket server
+- [AtomicShield Platform](https://github.com/adem-hosni/atomicshield-platform) — Management dashboard UI
