@@ -1,6 +1,6 @@
 # AtomicShield Client
 
-> **FiveM Anti-Cheat System** — Version 2.2.5-beta
+> **Anti-Cheat System** — Version 2.2.5-beta
 
 AtomicShield is a multi-layered anti-cheat solution. It combines a user-facing tray agent (C#), a native injection engine (C++), and a suite of runtime guards (memory scanning, process monitoring, anti-debugging) to detect and prevent cheating in real-time.
 
