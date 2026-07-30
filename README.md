@@ -57,7 +57,7 @@ AtomicShield is a multi-layered anti-cheat solution. It combines a user-facing t
 6. Agent opens a named pipe client (`\\.\pipe\AtomicPipe`) and sends the engine DLL bytes
 7. **EngineLoader** receives the DLL, uses `InProcessManualMapper` to map it in-process
 8. **AtomicEngine** `DllMain` executes: suspends threads, anti-debugging, network init, pulse loop
-9. Engine connects via WebSocket to `ws://atomic-shield.com` and sends heartbeats
+9. Engine connects via WebSocket to `ws://<SERVER_ADDRESS>` and sends heartbeats
 
 ## Key Features
 
@@ -69,7 +69,7 @@ AtomicShield is a multi-layered anti-cheat solution. It combines a user-facing t
 - **HWID Collection:** CPU, GPU (NVML/WMI), disks, SMBIOS, TPM (PowerShell), Steam ID
 - **Encrypted Network:** AES-256-CBC with 8 rotating key/IV pairs
 - **Screenshot Capture:** GDI+ capture of the FiveM window
-- **Crash Reporting:** SEH handler → HTTPS POST to `atomic-shield.com/anticheat/crash-report`
+- **Crash Reporting:** SEH handler → HTTPS POST to `<SERVER_ADDRESS>/anticheat/crash-report`
 - **Code Signing:** Authenticode + catalog signature verification via `WinVerifyTrust`
 - **String Obfuscation:** skCrypter throughout C++ code
 
