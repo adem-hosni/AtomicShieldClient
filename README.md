@@ -101,7 +101,7 @@ See the [docs/](docs/) directory:
 
 ## License
 
-MIT — Copyright (c) 2024 Hyper
+MIT — Copyright (c) 2024 adem-hosni
 
 ## Contact
 
